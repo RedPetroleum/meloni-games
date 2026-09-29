@@ -1,0 +1,33 @@
+name: Build Snake NES ROM
+
+on:
+  push:
+    paths:
+      - "snake/**"
+      - ".github/workflows/build-snake.yml"
+  pull_request:
+    paths:
+      - "snake/**"
+      - ".github/workflows/build-snake.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cc65
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes cc65
+      - name: Build ROM
+        run: make -C snake
+      - name: Validate iNES image
+        run: |
+          test "$(head -c 4 snake/snake.nes)" = "$(printf 'NES\032')"
+          test "$(wc -c < snake/snake.nes)" -gt 24592
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meloni-snake-nes
+          path: snake/snake.nes
+          if-no-files-found: error
