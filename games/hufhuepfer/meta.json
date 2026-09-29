@@ -1,7 +1,7 @@
 {
   "id": "hufhuepfer",
   "name": "Huf-Hüpfer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "api": 1,
-  "description": "Ein kleines Pferd springt mit einem Knopfdruck über Zäune und Heuballen."
+  "description": "Springe mit dem kleinen Pony über Zäune und Heuballen. Ein-Knopf-Spiel mit gespeichertem Bestwert."
 }
