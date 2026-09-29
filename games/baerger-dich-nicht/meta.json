@@ -1,7 +1,7 @@
 {
   "id": "baerger-dich-nicht",
   "name": "Bärger dich nicht!",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "api": 1,
-  "description": "Mensch ärgere dich nicht mit vier Gummibärchen-Teams, 1-4 echten Spielern, Computergegnern und fieser Rückwärts-Schlagregel."
+  "description": "Vier Gummibärchen-Teams, 1–4 Menschen mit Farb- und Namenswahl, CPU, Würfelanimation und Rückwärts-Schlagen."
 }

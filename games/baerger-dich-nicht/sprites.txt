@@ -1,86 +1,81 @@
-# Gummibärchen-Figuren für Bärger dich nicht!
-# Ein Zeichen pro Pixel, "." ist transparent.
-
+# Kleine Gummibärchen mit Ohren, Gesicht, Armen und Pfoten; 15 x 15.
 palette
-k 3a2732   Umriss
+k 3a2732   Kontur
 r d94a4a   Rot
-a ff7777   Rot hell
+a ff7777   Rot Licht
 y f0bd36   Gelb
-Y ffe47a   Gelb hell
+Y ffe47a   Gelb Licht
 g 50a85a   Grün
-G 8bd78d   Grün hell
+G 8bd78d   Grün Licht
 b 4d78d8   Blau
-B 87a7ff   Blau hell
-w fff6e8   Glanz
+B 87a7ff   Blau Licht
+w fff6e8   Augen
+n 664457   Nase
 
 sprite bear_red
-.
-....kk....kk..
-...krrk..krrk.
-...krrkkkkrrk.
-..krrrrrrrrrrk
-.krrrrrrrrrrrrk
-.krrrwrrrrrrrrk
-.krrrrrrrrrrrrk
-..krrrrrrrrrrk.
-...krrrrrrrrk..
-..krrrrrrrrrrk.
-.krrrrrrrrrrrrk
-.krrrrrrrrrrrrk
-..krrrk..krrrk.
-..krrrk..krrrk.
-...kkk....kkk..
+....kk...kk....
+...krrk.krrk...
+...krrkkkrrk...
+..krrrrrrrrrk..
+..krawrrwarrk..
+..krrkrrrkrrk..
+.krrrraarrrrrk.
+.krrrrnrrrrrrk.
+.krrrrrrrrrrrk.
+..krrrrrrrrrk..
+..krrrrrrrrrk..
+...krrrkkrrrk...
+...krrrk.krrk...
+....kkk...kkk...
+...............
 
 sprite bear_yellow
-.
-....kk....kk..
-...kyyk..kyyk.
-...kyykkkkyyk.
-..kyyyyyyyyyyk
-.kyyyyyyyyyyyyk
-.kyyyYyyyyyyyyk
-.kyyyyyyyyyyyyk
-..kyyyyyyyyyyk.
-...kyyyyyyyyk..
-..kyyyyyyyyyyk.
-.kyyyyyyyyyyyyk
-.kyyyyyyyyyyyyk
-..kyyyk..kyyyk.
-..kyyyk..kyyyk.
-...kkk....kkk..
+....kk...kk....
+...kyyk.kyyk...
+...kyykkkyyk...
+..kyyyyyyyyyk..
+..kyYwyywYyyk..
+..kyykyyykyyk..
+.kyyyyYYyyyyyk.
+.kyyyynyyyyyyk.
+.kyyyyyyyyyyyk.
+..kyyyyyyyyyk..
+..kyyyyyyyyyk..
+...kyyykyyyk...
+...kyyyk.kyyk...
+....kkk...kkk...
+...............
 
 sprite bear_green
-.
-....kk....kk..
-...kggk..kggk.
-...kggkkkkggk.
-..kggggggggggk
-.kggggggggggggk
-.kgggGggggggggk
-.kggggggggggggk
-..kggggggggggk.
-...kggggggggk..
-..kggggggggggk.
-.kggggggggggggk
-.kggggggggggggk
-..kgggk..kgggk.
-..kgggk..kgggk.
-...kkk....kkk..
+....kk...kk....
+...kggk.kggk...
+...kggkkkggk...
+..kgggggggggk..
+..kgGwggwGggk..
+..kggkgggkggk..
+.kggggGGgggggk.
+.kggggnggggggk.
+.kgggggggggggk.
+..kgggggggggk..
+..kgggggggggk..
+...kgggkgggk...
+...kgggk.gggk...
+....kkk...kkk...
+...............
 
 sprite bear_blue
-.
-....kk....kk..
-...kbbk..kbbk.
-...kbbkkkkbbk.
-..kbbbbbbbbbbk
-.kbbbbbbbbbbbbk
-.kbbbBbbbbbbbbk
-.kbbbbbbbbbbbbk
-..kbbbbbbbbbbk.
-...kbbbbbbbbk..
-..kbbbbbbbbbbk.
-.kbbbbbbbbbbbbk
-.kbbbbbbbbbbbbk
-..kbbbk..kbbbk.
-..kbbbk..kbbbk.
-...kkk....kkk..
+....kk...kk....
+...kbbk.kbbk...
+...kbbkkkbbk...
+..kbbbbbbbbbk..
+..kbBwbbwBbbk..
+..kbbkbbbkbbk..
+.kbbbbBBbbbbbk.
+.kbbbbnbbbbbbk.
+.kbbbbbbbbbbbk.
+..kbbbbbbbbbk..
+..kbbbbbbbbbk..
+...kbbbkbbbk...
+...kbbbk.bbbk...
+....kkk...kkk...
+...............
