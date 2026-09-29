@@ -62,3 +62,22 @@ sofort nach dem Push. Dann:
 Ein Push auf `main` baut und testet alles und veröffentlicht das Release `latest`
 (`.github/workflows/release.yml`). Die Konsole lädt es über den Eintrag „Update games“ im
 Meloni-Tab herunter.
+
+**Direkt auf `main` pushen ist in diesem Projekt erwünscht**, ohne Branch, Pull Request oder
+Rückfrage: Richtig getestet wird auf der Konsole, und dorthin kommt ein Spiel nur über den Push.
+Also: Spiel ändern, `make test` muss durchlaufen, committen, auf `main` pushen.
+(Engine-Änderungen weiterhin vorher absprechen, siehe oben.)
+
+**Nach dem Push warten, bis das Release fertig ist, und dann Bescheid sagen.** Erst dann
+bringt „Update games“ den neuen Stand, ein früheres Update holt noch die alte Version. Prüfen
+ohne `gh` (Repo ist öffentlich):
+
+```sh
+# Lauf zum eigenen Commit (head_sha): status "completed", conclusion "success"?
+curl -s "https://api.github.com/repos/RedPetroleum/meloni-games/actions/runs?per_page=3"
+# Enthält das Release den Commit und die neue Spielversion?
+curl -sL "https://github.com/RedPetroleum/meloni-games/releases/download/latest/manifest.json"
+```
+
+Ein Lauf dauert etwa eine Minute. Schlägt er fehl, den Fehler melden und beheben. Wenn es fertig
+ist, dem Menschen sagen, welche Spielversion jetzt über „Update games“ kommt.
