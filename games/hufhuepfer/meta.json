@@ -1,7 +1,7 @@
 {
   "id": "hufhuepfer",
   "name": "Huf-Hüpfer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "api": 1,
-  "description": "Springe mit dem kleinen Pony über Zäune und Heuballen. Ein-Knopf-Spiel mit gespeichertem Bestwert."
+  "description": "Ein kleines Pferde-Jump-and-Run: Weiche immer neuen Hindernissen aus und sammle Möhren und Äpfel für Extra-Leben."
 }
