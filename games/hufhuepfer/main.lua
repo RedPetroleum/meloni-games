@@ -19,7 +19,7 @@ local seen = {}
 local hint_text, hint_timer = nil, 0
 local obstacles, food
 local spawn_timer, food_timer, air_food_timer, last_gap_short
-local speed, play_frames, level
+local speed, play_frames, level, scroll
 local score, best, lives, snacks, bonus_timer, invulnerable
 
 local C = {
@@ -33,6 +33,7 @@ local C = {
   field = rgb(83, 125, 76),
   field_light = rgb(133, 158, 88),
   grass = rgb(175, 177, 112),
+  shadow = rgb(155, 158, 100),
   dirt = rgb(124, 91, 69),
   dirt_light = rgb(158, 119, 82),
   wood = rgb(106, 67, 53),
@@ -69,7 +70,7 @@ local POOLS = {
 
 -- Speed per level: level 1 as before, level 5 clearly faster, linear in between.
 local LEVEL_SPEED = {}
-for i = 1, 5 do LEVEL_SPEED[i] = 2.55 + (i - 1) * (5.6 - 2.55) / 4 end
+for i = 1, 5 do LEVEL_SPEED[i] = 2.55 + (i - 1) * (6.4 - 2.55) / 4 end
 
 local function reset()
   horse_y = GROUND - HORSE_H
@@ -87,6 +88,7 @@ local function reset()
   last_gap_short = false
   speed = LEVEL_SPEED[1]
   play_frames = 0
+  scroll = 0
   level = 1
   score = 0
   lives = 3
@@ -160,15 +162,15 @@ end
 local function next_gap()
   local l = level - 1
   local r = rnd(1)
-  if r < 0.22 and not last_gap_short then
+  if r < 0.28 and not last_gap_short then
     last_gap_short = true
-    return 50 + rnd(12)
+    return 48 + rnd(10)
   end
   last_gap_short = false
-  if r < 0.82 then
-    return 66 - l * 3 + rnd(38 - l * 3)
+  if r < 0.84 then
+    return 58 - l * 2 + rnd(30 - l * 2)
   end
-  return 115 - l * 5 + rnd(45)
+  return 100 - l * 4 + rnd(35)
 end
 
 -- A snack always needs a move: under a branch you have to slide, everywhere else it
@@ -179,13 +181,25 @@ local function new_food(x, y)
   food = {x = x, y = y, w = w, h = h, kind = kind}
 end
 
+-- Height for a snack in the air: how far the horse has to rise to touch it. A jump rises
+-- about 73 pixels, so the high ones (most of them) only count near the top of the jump.
+local function food_rise()
+  if rnd(1) < 0.65 then return 56 + flr(rnd(15)) end
+  return 30 + flr(rnd(26))
+end
+
+local function place_food(x, rise)
+  new_food(x, 0)
+  food.y = GROUND - HORSE_H - rise - food.h + 2
+end
+
 local function food_with(o)
   if o.breakable then return false end
   local w = S.size("carrot")
   if o.overhead then
     new_food(o.x + (o.w - w) // 2 + 2, GROUND - 17)
   else
-    new_food(o.x + (o.w - w) // 2, GROUND - o.h - 34 - flr(rnd(16)))
+    place_food(o.x + (o.w - w) // 2, food_rise())
   end
   return true
 end
@@ -238,6 +252,7 @@ function _update()
   end
 
   play_frames = play_frames + 1
+  scroll = scroll + speed
   level = min(5, 1 + flr(play_frames / 600))
   -- Ease into the new level's speed over a few seconds instead of jumping.
   local target = LEVEL_SPEED[level]
@@ -274,7 +289,7 @@ function _update()
   if sliding then
     kick_timer = 0
     if not was_sliding then tone(note("E3"), 0.12, "noise", 0.12) end
-    if frame() % 3 == 0 then
+    if play_frames % 3 == 0 then
       add_particle(HORSE_X - 2, GROUND - 2, -speed * 0.5, -rnd(1), C.dirt_light, 14, 2)
     end
   elseif btnp(BTN_A) and kick_timer == 0 then
@@ -304,7 +319,7 @@ function _update()
 
   if air_food_timer > 0 then
     air_food_timer = air_food_timer - 1
-    if air_food_timer == 0 then new_food(SCREEN_W + 8, GROUND - 46 - flr(rnd(24))) end
+    if air_food_timer == 0 then place_food(SCREEN_W + 8, food_rise()) end
   end
 
   if food then
@@ -370,17 +385,22 @@ local function draw_cloud(x, y)
   line(x + 2, y + 11, x + 17, y + 11, C.sky_light)
 end
 
+-- Flat oval on the grass, hw = half the width.
+local function draw_shadow(cx, hw)
+  rectfill(cx - hw + 4, GROUND + 1, cx + hw - 4, GROUND + 1, C.shadow)
+  rectfill(cx - hw, GROUND + 2, cx + hw, GROUND + 3, C.shadow)
+  rectfill(cx - hw + 3, GROUND + 4, cx + hw - 3, GROUND + 4, C.shadow)
+end
+
 -- Horse: sprite poses from sprites.txt; x, y is the top left of the standing horse.
-local function draw_horse(x, y, running, kicking)
-  if y > 100 then
-    local cx = x + 13
-    rectfill(cx - 9, GROUND + 1, cx + 8, GROUND + 2, C.dirt)
-    circfill(cx - 7, GROUND + 1, 2, C.dirt)
-    circfill(cx + 7, GROUND + 1, 2, C.dirt)
+-- The shadow stays on the ground and shrinks while the horse is in the air.
+local function draw_horse(x, y, running, kicking, shadow)
+  if shadow then
+    draw_shadow(x + 14, 12 - flr((GROUND - HORSE_H - y) / 12))
   end
   if kicking then
     S.draw("horse_kick", x, y)
-  elseif running and (frame() // 4) % 2 == 1 then
+  elseif running and (play_frames // 4) % 2 == 1 then
     S.draw("horse_run2", x, y)
   else
     S.draw("horse_run1", x, y)
@@ -389,7 +409,7 @@ end
 
 -- Low, stretched-out horse sliding on its belly; y is the top, hooves at y + 12.
 local function draw_horse_slide(x, y)
-  rectfill(x - 2, GROUND + 1, x + 30, GROUND + 2, C.dirt)
+  draw_shadow(x + 12, 17)
   S.draw("horse_slide", x - 8, y - 1)
 end
 
@@ -431,12 +451,12 @@ local function draw_world(hide_horse)
   line(0, GROUND + 8, SCREEN_W - 1, GROUND + 8, C.dirt_light)
 
   for x = -18, SCREEN_W, 38 do
-    local gx = x - flr(frame() * speed / 2) % 38
+    local gx = x - flr(scroll / 2) % 38
     line(gx, GROUND + 18, gx + 12, GROUND + 18, C.dirt_light)
     line(gx + 18, GROUND + 31, gx + 22, GROUND + 31, C.wood)
   end
   for x = 18, SCREEN_W, 57 do
-    local gx = x - flr(frame() * speed / 3) % 57
+    local gx = x - flr(scroll / 3) % 57
     pset(gx, 176, C.cream)
     pset(gx + 2, 178, C.gold)
     pset(gx + 1, 180, C.cream)
@@ -444,14 +464,14 @@ local function draw_world(hide_horse)
 
   for _, o in ipairs(obstacles) do draw_obstacle(o) end
   if food then
-    S.draw(food.kind, food.x, food.y - (frame() // 10) % 2)
+    S.draw(food.kind, food.x, food.y - (play_frames // 10) % 2)
   end
-  if not hide_horse and (invulnerable == 0 or frame() % 8 < 4) then
+  if not hide_horse and (invulnerable == 0 or play_frames % 8 < 4) then
     if sliding then
       draw_horse_slide(HORSE_X, GROUND - SLIDE_H)
     else
       draw_horse(HORSE_X, horse_y, horse_y == GROUND - HORSE_H,
-        kick_timer > KICK_TIME - KICK_ACTIVE)
+        kick_timer > KICK_TIME - KICK_ACTIVE, true)
     end
   end
   for _, p in ipairs(particles) do
