@@ -1,0 +1,8 @@
+build/
+dist/
+*.sav
+.DS_Store
+# GBC build intermediates (snake/snake.gbc itself is committed by build-snake.yml)
+snake/*.o
+snake/*.asm
+snake/*.lst

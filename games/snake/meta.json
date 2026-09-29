@@ -1,0 +1,7 @@
+{
+  "id": "snake",
+  "name": "Snake",
+  "version": "1.0.0",
+  "api": 1,
+  "description": "Klassisches Snake: fressen, wachsen, nicht in die Wand fahren."
+}

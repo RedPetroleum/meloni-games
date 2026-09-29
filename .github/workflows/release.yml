@@ -1,0 +1,68 @@
+name: Build, test and release games
+
+# Every push builds and tests all games. On main the result is published as the release
+# "latest", which the "Update games" entry on the HU-086 downloads. snake/snake.gbc is built and
+# committed by build-snake.yml and shipped from the repository as it is.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # The engine and runner come from open-086
+  OPEN086_REPO: RedPetroleum/open-086
+  OPEN086_REF: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ env.OPEN086_REPO }}
+          ref: ${{ env.OPEN086_REF }}
+          path: open-086
+
+      - name: Build runner
+        run: make runner OPEN086=open-086
+
+      - name: Test games (headless)
+        run: make test OPEN086=open-086
+
+      - name: Build release files
+        run: make dist EXTRA="snake/snake.gbc:roms/gbc/meloni-snake.gbc"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meloni-games
+          path: |
+            dist/
+            build/screens/
+          if-no-files-found: error
+
+      - name: Publish release "latest"
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag -f latest
+          git push -f origin refs/tags/latest
+          gh release view latest >/dev/null 2>&1 || \
+            gh release create latest --title "Meloni Games (latest)" \
+              --notes "Built automatically from main. The HU-086 downloads this with 'Update games'."
+          # Game files first, the manifest last, so a device never sees a manifest whose files are missing
+          find dist -type f ! -name manifest.json -print0 | xargs -0 gh release upload latest --clobber
+          gh release upload latest dist/manifest.json --clobber
+          # Remove files that are no longer built
+          for asset in $(gh release view latest --json assets --jq '.assets[].name'); do
+            [ -e "dist/$asset" ] || gh release delete-asset latest "$asset" --yes
+          done
