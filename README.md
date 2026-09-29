@@ -36,7 +36,8 @@ Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
 
 - **Tearing auf der Konsole beheben:** Schnell bewegte Objekte wirken auf der HU-086 manchmal
   zerteilt (SPI-Display ohne Sync-Signal). Betrifft die Firmware, nicht die Spiele. Befund und
-  Plan: [docs/tearing.md](docs/tearing.md)
+  Plan in open-086:
+  [docs/display_tearing.md](https://github.com/RedPetroleum/open-086/blob/main/docs/display_tearing.md)
 
 ## Hardware
 
