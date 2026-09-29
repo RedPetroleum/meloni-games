@@ -32,6 +32,12 @@ Fehlt einem Spiel eine Funktion, wird sie in [engine/meloni/](engine/meloni/) er
 selben Commit in [docs/API.md](docs/API.md) beschrieben. Auf die Konsole kommt sie erst mit einer
 Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
 
+## Offene To-dos
+
+- **Tearing auf der Konsole beheben:** Schnell bewegte Objekte wirken auf der HU-086 manchmal
+  zerteilt (SPI-Display ohne Sync-Signal). Betrifft die Firmware, nicht die Spiele. Befund und
+  Plan: [docs/tearing.md](docs/tearing.md)
+
 ## Hardware
 
 | Component | Details |
