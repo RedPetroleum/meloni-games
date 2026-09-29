@@ -12,6 +12,7 @@ function SFX.coax() tone(note("A5"), 0.05, "sine", 0.3) end
 function SFX.grumble() tune("D3:0.5 C3:1", 500, "saw", 0.12, false, JINGLE) end
 function SFX.whinny() tune("A5:0.25 C6:0.25 A5:0.25 C6:0.25 E5:0.5", 900, "saw", 0.12, false, JINGLE) end
 function SFX.home() tune("C5:0.5 E5:0.5 G5:0.5 C6:1.5", 560, "square", 0.22, false, JINGLE) end
+function SFX.kick() tone(90, 0.12, "noise", 0.4) tune("C3:0.25 G2:0.5", 700, "saw", 0.15, false, JINGLE) end
 function SFX.tick() tone(note("C6"), 0.03, "square", 0.15) end
 function SFX.win() tune("C5:0.5 E5:0.5 G5:0.5 C6:1 G5:0.5 C6:2", 360, "square", 0.25, false, JINGLE) end
 function SFX.lose() tune("G4:1 E4:1 C4:2", 240, "triangle", 0.3, false, JINGLE) end

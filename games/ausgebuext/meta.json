@@ -1,7 +1,7 @@
 {
   "id": "ausgebuext",
   "name": "Ausgebüxt!",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "api": 1,
-  "description": "Die Pferde sind ausgebüxt: Führe sie vor Sonnenuntergang zurück auf die Koppel. Jedes Pferd hat seinen Charakter (brav, faul, scheu, verfressen)."
+  "description": "Die Pferde sind ausgebüxt: Führe sie vor Sonnenuntergang zurück auf die Koppel. Jedes Pferd hat seinen Charakter (brav, faul, scheu, verfressen), in Level 3 kommen die Zicken: zickig, launisch und die bunte Diva."
 }

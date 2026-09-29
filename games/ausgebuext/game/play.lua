@@ -30,6 +30,13 @@ end
 
 local function grab(h)
   local t = h.trait
+  if #lead > 0 and (t.alone or lead[1].trait.alone) then
+    local diva = t.alone and h or lead[1]
+    say(diva.name .. " geht nur allein am Strick!")
+    diva:emote("emo_storm", 60)
+    ctx.sfx.deny()
+    return
+  end
   if #lead >= level.lead then
     say(level.lead == 1 and "Du kannst nur ein Pferd auf einmal führen." or
       "Mehr als " .. level.lead .. " Pferde auf einmal gehen nicht.")
@@ -116,7 +123,7 @@ function Play.enter(n)
   level_no = n
   level = Levels[n]
   ctx = Stage.build(level)
-  ctx.say, ctx.hint = say, hint
+  ctx.say, ctx.hint, ctx.release = say, hint, release
   state = "play"
   timer = level.time * 60
   home_count, lead, hints_seen = 0, {}, {}

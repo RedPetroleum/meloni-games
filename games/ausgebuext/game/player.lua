@@ -16,12 +16,21 @@ function Player.new(ctx, x, y)
   return setmetatable({
     ctx = ctx, x = x, y = y, fw = 8, fh = 4, reach = 24,
     dir = "down", anim = 0, moving = false, running = false, carrots = 0, frozen = false,
+    knock_t = 0, kvx = 0, kvy = 0,
   }, Player)
 end
 
 function Player:update()
   self.moving = false
   if self.frozen then return end
+  if self.knock_t > 0 then
+    -- Weggestoßen (z. B. von einer Zicke): kurz keine Steuerung.
+    self.knock_t = self.knock_t - 1
+    Body.move(self, self.kvx, self.kvy, self.ctx.map)
+    self.kvx, self.kvy = self.kvx * 0.85, self.kvy * 0.85
+    self.ctx.trail:push(self.x, self.y)
+    return
+  end
   local dx, dy = 0, 0
   if btn(BTN_LEFT) then dx = dx - 1 end
   if btn(BTN_RIGHT) then dx = dx + 1 end
@@ -38,6 +47,11 @@ function Player:update()
     self.anim = self.anim + (self.running and 0.18 or 0.12)
     self.ctx.trail:push(self.x, self.y)
   end
+end
+
+-- Wegstoßen: frames lang mit vx, vy (bremst ab), ohne Steuerung.
+function Player:knock(vx, vy, frames)
+  self.kvx, self.kvy, self.knock_t = vx, vy, frames
 end
 
 -- Hand, an der der Strick hängt.

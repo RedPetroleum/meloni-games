@@ -61,6 +61,8 @@ recolor horse rappe h=3d3943 H=5c5766 b=28252c u=17151a U=e6ddd2
 recolor horse schimmel h=d9d8d0 H=f6f5ee b=b1b0a8 u=8c8a88 U=f0c8c0
 # Falbe
 recolor horse falbe h=d0a860 H=e9c984 b=a78240 u=4a3524 U=f2dcb2
+# Bunt: pink mit türkiser Mähne und gelbem Maul (Konfetti, die Diva)
+recolor horse bunt h=ec5fb4 H=ffa3dc b=9d3fd0 u=2fe0cf U=ffe44d
 
 # Weg, zwei Varianten gegen Wiederholung
 sprite ground_path1
@@ -937,6 +939,21 @@ kVVVVkkkkVVVVVk
 kVVVVVVVVVVVVVk
 kVVVVVVVkkVVVVk
 .kVVVVVVkkVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_storm
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVpppVVVVVk
+kVVVVppppppVVVk
+kVVVppppppppVVk
+kVVVVVVYYVVVVVk
+kVVVVVYYVVVVVVk
+kVVVVVVVYVVVVVk
+.kVVVVVVYVVVVk
 ..kkkVVkkkkkk
 ....kVk
 .....k

@@ -1,7 +1,7 @@
 -- Die Level als reine Daten. Neues Level = neuer Eintrag.
 --   map     Zeilen gleicher Länge, Zeichen siehe game/tiles.lua (1-9: Pferde, @: Start)
---   horses  [Ziffer] = {name, coat, trait}; coat: horse (braun), fuchs, rappe, schimmel, falbe
---           trait: brav, faul, scheu, verfressen (game/traits.lua)
+--   horses  [Ziffer] = {name, coat, trait}; coat: horse (braun), fuchs, rappe, schimmel, falbe, bunt
+--           trait: brav, faul, scheu, verfressen, zickig, launisch, diva (game/traits.lua)
 --   time    Sekunden bis Sonnenuntergang
 --   lead    so viele Pferde darf man gleichzeitig führen
 return {
@@ -89,6 +89,54 @@ return {
       "T.........................T....~~~T..............T",
       "...............................~~~................",
       "T..............................~~~...............T",
+      "T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.",
+    },
+  },
+  {
+    name = "Zickenalarm",
+    time = 330,
+    lead = 2,
+    seed = 5,
+    intro = "Vorsicht, Zicken! Diese Pferde machen es dir schwer.",
+    horses = {
+      {name = "Prinzessin", coat = "schimmel", trait = "zickig"},
+      {name = "Gewitter", coat = "rappe", trait = "launisch"},
+      {name = "Konfetti", coat = "bunt", trait = "diva"},
+      {name = "Hummel", coat = "falbe", trait = "verfressen"},
+      {name = "Zimtzicke", coat = "fuchs", trait = "zickig"},
+    },
+    map = {
+      "T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.",
+      "..................................~~~.............",
+      "T..................................~~~..,........T",
+      "...S.....,.......############......~~~.......T....",
+      "T....:......b....#ssssssssss#......~~~...T.......T",
+      ".....:.......4...#ssssssssss#..b....~~~.....T.....",
+      "T....:..b......,.#ssssssssss#.......~~~..........T",
+      ".....:...........#ssssssssss#.......~~~.....1.T...",
+      "T.h..:........b..#ssssssssss#........~~~T........T",
+      "..h..:.r.........#ssssssssss#...b....~~~...T......",
+      "T....:...........#ssssssssss#........~~~.........T",
+      ".....:...........#####::#####.......~~~........r..",
+      "T..:::::::::::::::::::@:::::::::::::===::::::::..T",
+      "..........:.........................~~~...........",
+      "T.........:..h.......,........r....~~~......r....T",
+      ".......T..:........b...............~~~............",
+      "T..T......:...............T........~~~..b........T",
+      ".....T....:...T.....T.............~~~.........h...",
+      "T..T......:..................T....~~~............T",
+      "......T...:.....T.................~~~.............",
+      "T...T.....:.............T........b.~~~,........b.T",
+      "..........:..T.....................~~~............",
+      "T.........:..............2.....T...~~~...b.......T",
+      "..........:....T..r.................~~~...........",
+      "T...3...,.:.................T.......~~~.....,....T",
+      "..........:.........................~~~...........",
+      "T..r......:::::::::::::::::::::::::::===:::::::..T",
+      "........................,............~~~..cccc....",
+      "T.....b...............b.........h....~~~..cccc.5.T",
+      "............b.............r..........~~~..cccc....",
+      "T....................................~~~.........T",
       "T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.T.",
     },
   },
