@@ -4,7 +4,7 @@ Hier werden verschiedene Spiele für den open-086 entwickelt.
 
 ## Hardware
 
-- HXFB HU-086 mit custom firmware (open-086). 
+- HXFB HU-086 mit custom firmware: [open-086](https://github.com/RedPetroleum/open-086), basierend auf [retro-go](https://github.com/ducalex/retro-go). 
 
 | Component | Details |
 |---|---|
