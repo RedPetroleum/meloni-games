@@ -93,6 +93,8 @@ PNG-Dateien aus dem Spielordner. Pixel mit Alpha unter 128 sind transparent.
 Sprites lassen sich als Text schreiben: `games/<id>/sprites.txt` (ein Zeichen pro Pixel) wird von
 `tools/sprites.py` zu `sprites.png` und `sprites.lua`. Dann `local S = require('sprites')` und
 `S.draw('name', x, y, [flip_x], [flip_y])`, `S.size('name')` liefert Breite und Höhe.
+Farbvarianten (z. B. Fellfarben) ohne kopierte Pixel: `recolor horse fuchs b=c46c30 m=ecc27c` in
+`sprites.txt` legt zu jedem `horse_…` ein `fuchs_…` mit getauschten Farben an.
 Beispiel: [games/hufhuepfer/sprites.txt](../games/hufhuepfer/sprites.txt).
 
 ## Sound

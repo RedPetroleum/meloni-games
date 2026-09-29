@@ -17,7 +17,14 @@ sprites.txt: one character per pixel, "." is transparent. Lines starting with # 
     .mbbbbb..
     ...b..b..
 
-A sprite ends at a blank line. In the game:
+A sprite ends at a blank line. Color variants (e.g. coat colors) without copying the pixels:
+
+    recolor horse fox  b=c26a2e m=e8b070
+
+copies every sprite whose name starts with "horse_" as "fox_..." (horse_run1 -> fox_run1) and
+swaps the listed palette characters for new colors (RRGGBB or another palette character).
+
+In the game:
 
     local S = require('sprites')      -- loads sprites.png, call it at the top or in _init
     S.draw('horse_run1', x, y)        -- optional: flip_x, flip_y
@@ -127,6 +134,7 @@ def read_png(path):
 
 def parse(path):
     palette, sprites, section, current = {".": None}, [], None, None
+    recolors = []
     for number, line in enumerate(open(path, encoding="utf-8"), 1):
         line = line.rstrip("\n").rstrip()
         where = f"{path}:{number}"
@@ -135,6 +143,17 @@ def parse(path):
             continue
         if line == "palette":
             section, current = "palette", None
+        elif line.startswith("recolor "):
+            parts = line.split()
+            if len(parts) < 4 or not all(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", n) for n in parts[1:3]):
+                sys.exit(f"{where}: recolor lines look like 'recolor horse fox b=c26a2e m=e8b070'")
+            swaps = {}
+            for swap in parts[3:]:
+                if not re.fullmatch(r".=(#?[0-9a-fA-F]{6}|.)", swap):
+                    sys.exit(f"{where}: '{swap}' should look like 'b=c26a2e' or 'b=m'")
+                swaps[swap[0]] = swap[2:]
+            recolors.append({"base": parts[1], "name": parts[2], "swaps": swaps, "where": where})
+            section, current = None, None
         elif line.startswith("sprite "):
             name = line.split(None, 1)[1].strip()
             if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
@@ -162,6 +181,29 @@ def parse(path):
         if not s["rows"]:
             sys.exit(f"{path}:{s['line']}: sprite '{s['name']}' has no pixels")
         s["w"], s["h"] = max(len(r) for r in s["rows"]), len(s["rows"])
+    names = {s["name"] for s in sprites}
+    for rc in recolors:
+        colors = {}
+        for ch, value in rc["swaps"].items():
+            if ch not in palette or ch == ".":
+                sys.exit(f"{rc['where']}: '{ch}' is not in the palette")
+            if len(value) == 1:
+                if value not in palette:
+                    sys.exit(f"{rc['where']}: '{value}' is not in the palette")
+                colors[ch] = palette[value]
+            else:
+                hexcode = value.lstrip("#")
+                colors[ch] = tuple(int(hexcode[i:i + 2], 16) for i in (0, 2, 4))
+        prefix = rc["base"] + "_"
+        base = [s for s in sprites if s["name"].startswith(prefix) and "colors" not in s]
+        if not base:
+            sys.exit(f"{rc['where']}: no sprites named {prefix}...")
+        for s in base:
+            name = rc["name"] + "_" + s["name"][len(prefix):]
+            if name in names:
+                sys.exit(f"{rc['where']}: sprite '{name}' defined twice")
+            names.add(name)
+            sprites.append(dict(s, name=name, colors=colors))
     return palette, sprites
 
 
@@ -190,7 +232,7 @@ def build(game_dir):
     for s in sprites:
         for dy, row in enumerate(s["rows"]):
             for dx, ch in enumerate(row):
-                color = palette[ch]
+                color = s.get("colors", {}).get(ch) or palette[ch]
                 if color:
                     pixels[s["y"] + dy][s["x"] + dx] = color + (255,)
     # Only write what changed: the PNG bytes may differ between zlib versions (CI vs. laptop), and a
