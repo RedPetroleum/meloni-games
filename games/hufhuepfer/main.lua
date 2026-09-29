@@ -2,6 +2,8 @@
 -- Hoch: springen, runter: unter Ästen durchrutschen, A: Kisten und Bretterwände kaputt treten.
 -- Sammle Möhren und Äpfel: Je drei Snacks geben ein zusätzliches Leben.
 
+local S = require("sprites")
+
 local GROUND = 193
 local HORSE_X = 44
 local HORSE_H = 25
@@ -35,37 +37,29 @@ local C = {
   dirt_light = rgb(158, 119, 82),
   wood = rgb(106, 67, 53),
   wood_light = rgb(185, 125, 77),
-  hay = rgb(215, 159, 83),
   hay_light = rgb(241, 199, 119),
-  horse = rgb(149, 79, 54),
-  horse_light = rgb(205, 124, 77),
   mane = rgb(65, 49, 48),
-  muzzle = rgb(235, 188, 143),
   saddle = rgb(54, 99, 103),
   cream = rgb(248, 231, 187),
-  ink = rgb(36, 46, 53),
   panel = rgb(42, 57, 65),
   white = rgb(246, 238, 216),
   gold = rgb(241, 192, 103),
   green = rgb(168, 194, 124),
   red = rgb(213, 119, 94),
-  water = rgb(81, 138, 151),
-  water_light = rgb(145, 195, 190),
-  apple = rgb(185, 77, 68),
-  leaf = rgb(115, 150, 78),
   leaf_dark = rgb(72, 108, 70),
 }
 
 -- Hindernisarten: h = Höhe am Boden, overhead = hängt von oben (drunter rutschen),
 -- breakable = mit A kaputt treten. hint erscheint beim ersten Auftauchen.
+-- dx, dy: where the sprite (same name as the kind) sits relative to x and the ground.
 local KINDS = {
-  fence = {w = 17, h = 27},
-  hay = {w = 21, h = 18},
-  puddle = {w = 31, h = 10},
-  logs = {w = 24, h = 22},
-  branch = {w = 30, overhead = true, hint = "RUNTER: DRUNTER RUTSCHEN!"},
-  crate = {w = 18, h = 18, breakable = true, hint = "A: KISTE KAPUTT TRETEN!"},
-  wall = {w = 16, h = 68, breakable = true, hint = "ZU HOCH! A: TRETEN!"},
+  fence = {w = 17, h = 27, dx = -1, dy = -27},
+  hay = {w = 21, h = 18, dx = 0, dy = -18},
+  puddle = {w = 31, h = 10, dx = 0, dy = -10},
+  logs = {w = 24, h = 22, dx = 0, dy = -17},
+  branch = {w = 30, overhead = true, dx = -4, dy = -48, hint = "RUNTER: DRUNTER RUTSCHEN!"},
+  crate = {w = 18, h = 18, dx = 0, dy = -18, breakable = true, hint = "A: KISTE KAPUTT TRETEN!"},
+  wall = {w = 16, h = 68, dx = -1, dy = -68, breakable = true, hint = "ZU HOCH! A: TRETEN!"},
 }
 local POOLS = {
   {"fence", "hay", "branch", "crate"},
@@ -311,171 +305,40 @@ local function draw_cloud(x, y)
   line(x + 2, y + 11, x + 17, y + 11, C.sky_light)
 end
 
+-- Horse: sprite poses from sprites.txt; x, y is the top left of the standing horse.
 local function draw_horse(x, y, running, kicking)
-  local stride = running and not kicking and ((frame() // 4) % 2) * 2 or 0
-  local cx = x + 13
   if y > 100 then
+    local cx = x + 13
     rectfill(cx - 9, GROUND + 1, cx + 8, GROUND + 2, C.dirt)
     circfill(cx - 7, GROUND + 1, 2, C.dirt)
     circfill(cx + 7, GROUND + 1, 2, C.dirt)
   end
-
-  -- Tail, round chestnut body, neck and face.
-  line(x + 7, y + 10, x + 3, y + 6, C.mane)
-  line(x + 3, y + 6, x, y + 9, C.horse_light)
-  circfill(cx - 3, y + 13, 7, C.horse)
-  rectfill(x + 7, y + 7, x + 20, y + 18, C.horse)
-  rectfill(x + 8, y + 8, x + 17, y + 10, C.horse_light)
-  rectfill(x + 17, y + 5, x + 23, y + 14, C.horse)
-  circfill(x + 21, y + 7, 4, C.horse_light)
-  rectfill(x + 21, y + 5, x + 28, y + 9, C.horse_light)
-  rectfill(x + 25, y + 7, x + 29, y + 10, C.muzzle)
-
-  line(x + 16, y + 7, x + 18, y + 2, C.mane)
-  line(x + 18, y + 2, x + 21, y + 4, C.mane)
-  line(x + 21, y + 4, x + 23, y + 1, C.mane)
-  line(x + 18, y + 5, x + 21, y + 4, C.cream)
-  pset(x + 24, y + 6, C.ink)
-  pset(x + 27, y + 8, C.horse)
-
-  -- Teal saddle, gold edge and four animated legs.
-  rectfill(x + 9, y + 9, x + 16, y + 14, C.saddle)
-  line(x + 9, y + 14, x + 17, y + 14, C.gold)
-  line(x + 8, y + 17, x + 7 + stride, y + 23, C.horse)
-  line(x + 12, y + 17, x + 12 - stride, y + 23, C.horse)
-  line(x + 6 + stride, y + 23, x + 9 + stride, y + 23, C.mane)
-  line(x + 11 - stride, y + 23, x + 14 - stride, y + 23, C.mane)
   if kicking then
-    -- Front legs thrust forward, with a little impact flash.
-    line(x + 18, y + 16, x + 29, y + 18, C.horse)
-    line(x + 21, y + 13, x + 32, y + 12, C.horse)
-    rectfill(x + 29, y + 17, x + 31, y + 19, C.mane)
-    rectfill(x + 32, y + 11, x + 34, y + 13, C.mane)
-    line(x + 37, y + 7, x + 39, y + 10, C.cream)
-    line(x + 38, y + 15, x + 42, y + 15, C.cream)
-    line(x + 37, y + 20, x + 39, y + 23, C.cream)
+    S.draw("horse_kick", x, y)
+  elseif running and (frame() // 4) % 2 == 1 then
+    S.draw("horse_run2", x, y)
   else
-    line(x + 18, y + 16, x + 19 - stride, y + 23, C.horse)
-    line(x + 21, y + 13, x + 22 + stride, y + 22, C.horse)
-    line(x + 18 - stride, y + 23, x + 21 - stride, y + 23, C.mane)
-    line(x + 21 + stride, y + 22, x + 24 + stride, y + 22, C.mane)
+    S.draw("horse_run1", x, y)
   end
 end
 
 -- Low, stretched-out horse sliding on its belly; y is the top, hooves at y + 12.
 local function draw_horse_slide(x, y)
   rectfill(x - 2, GROUND + 1, x + 30, GROUND + 2, C.dirt)
-  line(x + 1, y + 5, x - 5, y + 3, C.mane)
-  line(x - 5, y + 3, x - 8, y + 6, C.horse_light)
-  line(x + 6, y + 10, x - 2, y + 12, C.horse)
-  line(x - 4, y + 12, x - 1, y + 12, C.mane)
-  circfill(x + 6, y + 7, 4, C.horse)
-  rectfill(x + 5, y + 3, x + 22, y + 10, C.horse)
-  rectfill(x + 7, y + 3, x + 18, y + 4, C.horse_light)
-  rectfill(x + 19, y + 2, x + 26, y + 8, C.horse)
-  rectfill(x + 24, y + 1, x + 31, y + 5, C.horse_light)
-  rectfill(x + 29, y + 3, x + 33, y + 6, C.muzzle)
-  line(x + 18, y + 2, x + 24, y, C.mane)
-  line(x + 22, y, x + 19, y - 1, C.mane)
-  pset(x + 27, y + 2, C.ink)
-  rectfill(x + 9, y + 2, x + 15, y + 6, C.saddle)
-  line(x + 9, y + 6, x + 15, y + 6, C.gold)
-  line(x + 20, y + 9, x + 30, y + 12, C.horse)
-  line(x + 29, y + 12, x + 32, y + 12, C.mane)
-end
-
-local function draw_carrot(x, y)
-  line(x + 3, y + 3, x + 1, y, C.leaf)
-  line(x + 4, y + 3, x + 5, y - 1, C.leaf)
-  line(x + 5, y + 3, x + 8, y + 1, C.leaf)
-  line(x + 2, y + 3, x + 6, y + 3, C.hay)
-  line(x + 2, y + 4, x + 5, y + 9, C.hay)
-  line(x + 6, y + 4, x + 5, y + 9, C.hay)
-  pset(x + 4, y + 6, C.hay_light)
-end
-
-local function draw_apple(x, y)
-  circfill(x + 4, y + 5, 4, C.apple)
-  rectfill(x + 1, y + 4, x + 8, y + 8, C.apple)
-  line(x + 4, y + 1, x + 5, y - 1, C.wood)
-  line(x + 5, y + 1, x + 8, y, C.leaf)
-  pset(x + 2, y + 4, C.red)
+  S.draw("horse_slide", x - 8, y - 1)
 end
 
 local function draw_obstacle(o)
-  if o.kind == "fence" then
-    rectfill(o.x + 2, GROUND - o.h + 4, o.x + 5, GROUND - 1, C.wood)
-    rectfill(o.x + o.w - 5, GROUND - o.h + 4, o.x + o.w - 2, GROUND - 1, C.wood)
-    rectfill(o.x - 1, GROUND - o.h + 7, o.x + o.w + 1, GROUND - o.h + 11, C.cream)
-    rectfill(o.x - 1, GROUND - 12, o.x + o.w + 1, GROUND - 8, C.wood_light)
-    line(o.x + 2, GROUND - o.h + 8, o.x + o.w - 2, GROUND - o.h + 8, C.red)
-    line(o.x + 2, GROUND - 10, o.x + o.w - 2, GROUND - 10, C.gold)
-  elseif o.kind == "hay" then
-    rectfill(o.x + 2, GROUND - o.h + 2, o.x + o.w - 2, GROUND - 1, C.hay)
-    rectfill(o.x + 4, GROUND - o.h + 1, o.x + o.w - 4, GROUND - o.h + 3, C.hay_light)
-    rect(o.x + 2, GROUND - o.h + 2, o.x + o.w - 2, GROUND - 1, C.wood)
-    line(o.x + 6, GROUND - o.h + 4, o.x + 6, GROUND - 3, C.hay_light)
-    line(o.x + o.w - 7, GROUND - o.h + 4, o.x + o.w - 7, GROUND - 3, C.hay_light)
-  elseif o.kind == "puddle" then
-    -- Wide, low puddle: jump over it.
-    circfill(o.x + 8, GROUND - 3, 6, C.water)
-    circfill(o.x + 20, GROUND - 3, 7, C.water)
-    circfill(o.x + 26, GROUND - 3, 5, C.water)
-    line(o.x + 8, GROUND - 4, o.x + 13, GROUND - 4, C.water_light)
-    line(o.x + 21, GROUND - 2, o.x + 26, GROUND - 2, C.water_light)
-  elseif o.kind == "logs" then
-    -- A stack of two short logs.
-    rectfill(o.x + 2, GROUND - 10, o.x + o.w - 2, GROUND - 1, C.wood)
-    rectfill(o.x + 5, GROUND - 17, o.x + o.w - 5, GROUND - 9, C.wood_light)
-    circfill(o.x + 6, GROUND - 13, 3, C.hay_light)
-    circfill(o.x + o.w - 6, GROUND - 5, 3, C.hay_light)
-  elseif o.kind == "branch" then
-    -- Low branch hanging from above: slide under it.
+  if o.kind == "branch" then
+    -- The limb reaches up to the top, so the branch can't be jumped over.
     for i = 0, 3 do
       line(o.x + 34 + i, 34, o.x + 14 + i, BRANCH_BOTTOM - 26, i < 2 and C.wood or C.mane)
     end
     line(o.x + 30, 34, o.x + 44, 50, C.wood)
     circfill(o.x + 42, 52, 5, C.leaf_dark)
-    circfill(o.x + 14, BRANCH_BOTTOM - 20, 9, C.leaf_dark)
-    circfill(o.x + 6, BRANCH_BOTTOM - 10, 7, C.leaf_dark)
-    circfill(o.x + 17, BRANCH_BOTTOM - 8, 8, C.leaf_dark)
-    circfill(o.x + 26, BRANCH_BOTTOM - 11, 6, C.leaf_dark)
-    circfill(o.x + 11, BRANCH_BOTTOM - 15, 5, C.leaf)
-    circfill(o.x + 21, BRANCH_BOTTOM - 14, 4, C.leaf)
-    line(o.x + 4, BRANCH_BOTTOM - 4, o.x + 4, BRANCH_BOTTOM, C.leaf_dark)
-    line(o.x + 13, BRANCH_BOTTOM - 1, o.x + 13, BRANCH_BOTTOM + 1, C.leaf_dark)
-    line(o.x + 22, BRANCH_BOTTOM - 3, o.x + 22, BRANCH_BOTTOM, C.leaf_dark)
-    pset(o.x + 9, BRANCH_BOTTOM - 17, C.green)
-    pset(o.x + 19, BRANCH_BOTTOM - 16, C.green)
-    pset(o.x + 24, BRANCH_BOTTOM - 12, C.green)
-  elseif o.kind == "crate" then
-    -- Wooden crate: jump over it or kick it apart.
-    local top = GROUND - o.h
-    rectfill(o.x, top, o.x + o.w, GROUND - 1, C.wood_light)
-    rect(o.x, top, o.x + o.w, GROUND - 1, C.wood)
-    rect(o.x + 2, top + 2, o.x + o.w - 2, GROUND - 3, C.wood)
-    line(o.x + 2, top + 2, o.x + o.w - 2, GROUND - 3, C.wood)
-    line(o.x + o.w - 2, top + 2, o.x + 2, GROUND - 3, C.wood)
-    line(o.x + 1, top + 1, o.x + o.w - 1, top + 1, C.hay_light)
-  else
-    -- Tall plank wall with a crack: too high to jump, kick it down.
-    local top = GROUND - o.h
-    rectfill(o.x, top + 3, o.x + o.w, GROUND - 1, C.wood_light)
-    for p = 0, 2 do
-      local px = o.x + p * 5 + 1
-      line(px, top + 2, px + 3, top + 2, C.wood_light)
-      line(px + 1, top, px + 2, top, C.wood_light)
-      line(px + 1, top + 1, px + 2, top + 1, C.wood_light)
-      if p > 0 then line(px - 1, top + 2, px - 1, GROUND - 1, C.wood) end
-    end
-    rectfill(o.x - 1, top + 9, o.x + o.w + 1, top + 12, C.wood)
-    rectfill(o.x - 1, GROUND - 16, o.x + o.w + 1, GROUND - 13, C.wood)
-    line(o.x + 7, top + 22, o.x + 10, top + 29, C.mane)
-    line(o.x + 10, top + 29, o.x + 6, top + 36, C.mane)
-    line(o.x + 6, top + 36, o.x + 9, top + 43, C.mane)
-    pset(o.x + 2, top + 10, C.cream)
-    pset(o.x + o.w - 2, GROUND - 15, C.cream)
   end
+  local k = KINDS[o.kind]
+  S.draw(o.kind, o.x + k.dx, GROUND + k.dy)
 end
 
 local function draw_world(hide_horse)
@@ -516,8 +379,7 @@ local function draw_world(hide_horse)
 
   for _, o in ipairs(obstacles) do draw_obstacle(o) end
   if food then
-    if food.kind == "carrot" then draw_carrot(food.x, food.y)
-    else draw_apple(food.x, food.y) end
+    S.draw(food.kind, food.x, food.y - 1)
   end
   if not hide_horse and (invulnerable == 0 or frame() % 8 < 4) then
     if sliding then

@@ -1,0 +1,354 @@
+# Grafik von Huf-Hüpfer: ein Zeichen pro Pixel, "." ist durchsichtig.
+# tools/sprites.py macht daraus sprites.png und sprites.lua (make test/run/shot tun das automatisch).
+# horse_run1 ist auch die Sprung- und Stehpose.
+
+palette
+b 954f36   Fell
+l cd7c4d   Fell hell
+m 413130   Mähne, Hufe
+u ebbc8f   Maul
+s 366367   Sattel
+g f1c067   Gold
+c f8e7bb   Creme
+i 242e35   Auge
+w 6a4335   Holz
+W b97d4d   Holz hell
+h d79f53   Heu
+H f1c777   Heu hell
+r d5775e   Rot
+a b94d44   Apfel
+f 73964e   Blatt
+F 486c46   Blatt dunkel
+G a8c27c   Blatt hell
+q 518a97   Wasser
+Q 91c3be   Wasser hell
+
+sprite horse_run1
+.
+.......................m
+..................m...m
+..................mmmlm
+.................mllcclll
+.................mcclllllllll
+...l....bbbbb...mlllllllillll
+..l.m.bbbbbbbbbbmlllllllluuuuu
+.l...bbbllllllllllllllllluubuu
+l...bbbblssssssssbllllllluuuuu
+....bbbblssssssssbllllllluuuuu
+...bbbbbbssssssssbbblllb
+...bbbbbbssssssssbbbbbbb
+...bbbbbbssssssssbbbbbbb
+...bbbbbbgggggggggbbbbbb
+...bbbbbbbbbbbbbbbbbbb
+....bbbbbbbbbbbbbbbbbb
+....bbbbbbbbbbbbbbbbbb
+.....bbbbbbbbbbbbbbbb.b
+......bbbbbbbbb...b...b
+.......bbbbbb......b..b
+.......b....b......b..b
+.......b....b......b.mmmm
+......mmmm.mmmm...mmmm
+
+sprite horse_run2
+.
+.......................m
+..................m...m
+..................mmmlm
+.................mllcclll
+.................mcclllllllll
+...l....bbbbb...mlllllllillll
+..l.m.bbbbbbbbbbmlllllllluuuuu
+.l...bbbllllllllllllllllluubuu
+l...bbbblssssssssbllllllluuuuu
+....bbbblssssssssbllllllluuuuu
+...bbbbbbssssssssbbblllb
+...bbbbbbssssssssbbbbbbb
+...bbbbbbssssssssbbbbbbb
+...bbbbbbgggggggggbbbbbb
+...bbbbbbbbbbbbbbbbbb.b
+....bbbbbbbbbbbbbbbbb.b
+....bbbbbbbbbbbbbbbbb.b
+.....bbbbbbbbbbbbbbbb..b
+......bbbbbbbbb...b....b
+........bbbbb....b.....b
+.........b.b.....b......b
+.........bb......b.....mmmm
+........mmmmm...mmmm
+
+sprite horse_kick
+.
+.......................m
+..................m...m
+..................mmmlm
+.................mllcclll
+.................mcclllllllll
+...l....bbbbb...mlllllllillll
+..l.m.bbbbbbbbbbmlllllllluuuuu.......c
+.l...bbbllllllllllllllllluubuu........c
+l...bbbblssssssssbllllllluuuuu........c
+....bbbblssssssssbllllllluuuuu.........c
+...bbbbbbssssssssbbblllb........mmm
+...bbbbbbssssssssbbbbbbb...bbbbbmmm
+...bbbbbbssssssssbbbbbbbbbb.....mmm
+...bbbbbbgggggggggbbbbbb
+...bbbbbbbbbbbbbbbbbb.................ccccc
+....bbbbbbbbbbbbbbbbb
+....bbbbbbbbbbbbbbbbbbbbbbb..mmm
+.....bbbbbbbbbbbbbbbb......bbmmm
+......bbbbbbbbb..............mmm
+.......bbbbbb........................c
+.......b....b.........................c
+.......b....b.........................c
+......mmmm.mmmm........................c
+
+sprite horse_slide
+...........................mm
+.............................mmmm
+............................mmm.llllllll
+.................sssssss..mmbbbblllillll
+...lm........bbllssssssslllbbbbbllllluuuuu
+..l..mmm...bbbbllssssssslllbbbbbllllluuuuu
+.l......mm.bbbbbbsssssssbbbbbbbbllllluuuuu
+l.........bbbbbbbgggggggbbbbbbbbbbb..uuuuu
+..........bbbbbbbbbbbbbbbbbbbbbbbbb
+..........bbbbbbbbbbbbbbbbbbbbbbbbb
+...........bbbbbbbbbbbbbbbbbbbb
+...........bbbbbbbbbbbbbbbbbbbbbb
+.........bbbbbbb.................bbbb
+....mmmmb............................mmmm
+
+sprite carrot
+.....f
+.f...f
+..f..f..f
+..f.f.ff
+..hhhhh
+..h...h
+...h..h
+...hH.h
+....hh
+....hh
+.....h
+
+sprite apple
+.....w
+.....w.ff
+...awff
+.aaaaaaa
+.aaaaaaa
+aaraaaaaa
+aaaaaaaaa
+aaaaaaaaa
+.aaaaaaaa
+.aaaaaaaa
+...aaa
+
+sprite fence
+.
+.
+.
+.
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+cccccccccccccccccccc
+cccrrrrrrrrrrrrrrccc
+cccccccccccccccccccc
+cccccccccccccccccccc
+cccccccccccccccccccc
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+WWWWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWWWW
+WWWggggggggggggggWWW
+WWWWWWWWWWWWWWWWWWWW
+WWWWWWWWWWWWWWWWWWWW
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+...wwww......wwww
+
+sprite hay
+.
+....HHHHHHHHHHHHHH
+..wwwwwwwwwwwwwwwwww
+..whHHHHHHHHHHHHHHhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhHhhhhhhhHhhhhw
+..whhhhhhhhhhhhhhhhw
+..wwwwwwwwwwwwwwwwww
+
+sprite puddle
+..................qqqqq
+......qqqqq.....qqqqqqqqq
+.....qqqqqqq...qqqqqqqqqqqqqq
+....qqqqqqqqq.qqqqqqqqqqqqqqqq
+...qqqqqqqqqqqqqqqqqqqqqqqqqqqq
+..qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+..qqqqqqQQQQQQqqqqqqqqqqqqqqqqqq
+..qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+..qqqqqqqqqqqqqqqqqqqQQQQQQqqqqq
+..qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+...qqqqqqqqqqqqqqqqqqqqqqqqqqqq
+....qqqqqqqqq.qqqqqqqqqqqqqqqq
+.....qqqqqqq...qqqqqqqqqqqqqq
+......qqqqq.....qqqqqqqqq
+..................qqqqq
+
+sprite logs
+.....WWWWWWWWWWWWWWW
+.....HHHWWWWWWWWWWWW
+....HHHHHWWWWWWWWWWW
+...HHHHHHHWWWWWWWWWW
+...HHHHHHHWWWWWWWWWW
+...HHHHHHHWWWWWWWWWW
+....HHHHHWWWWWWWWWWW
+..wwwHHHWWWWWWWWWWWWwww
+..wwwWWWWWWWWWWWWWWWwww
+..wwwwwwwwwwwwwwwHHHwww
+..wwwwwwwwwwwwwwHHHHHww
+..wwwwwwwwwwwwwHHHHHHHw
+..wwwwwwwwwwwwwHHHHHHHw
+..wwwwwwwwwwwwwHHHHHHHw
+..wwwwwwwwwwwwwwHHHHHww
+..wwwwwwwwwwwwwwwHHHwww
+..wwwwwwwwwwwwwwwwwwwww
+
+sprite crate
+wwwwwwwwwwwwwwwwwww
+wHHHHHHHHHHHHHHHHHw
+wWwwwwwwwwwwwwwwwWw
+wWwwWWWWWWWWWWWwwWw
+wWwWwWWWWWWWWWwWwWw
+wWwWWwWWWWWWWwWWwWw
+wWwWWWwWWWWWwWWWwWw
+wWwWWWWwWWWwWWWWwWw
+wWwWWWWWwWwWWWWWwWw
+wWwWWWWWwwwWWWWWwWw
+wWwWWWWwWWWwWWWWwWw
+wWwWWWwWWWWWwWWWwWw
+wWwWWwWWWWWWWwWWwWw
+wWwWwWWWWWWWWWwWwWw
+wWwwWWWWWWWWWWWwwWw
+wWwwwwwwwwwwwwwwwWw
+wWWWWWWWWWWWWWWWWWw
+wwwwwwwwwwwwwwwwwww
+
+sprite wall
+...WW...WW...WW
+...WW...WW...WW
+..WWWWwWWWWwWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+wwwwwwwwwwwwwwwwwww
+wwwcwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwww
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWWWmWWWWWW
+.WWWWWwWWWWmWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwmWWWwWWWWWW
+.WWWWWwmWWWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwWmWWwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWWmWwWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWWmwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+wwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwcwww
+wwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwww
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+.WWWWWwWWWWwWWWWWW
+
+sprite branch
+...................wwmm
+................FFFFFmm
+..............FFFFFFFFF
+............FFFFFFFFFFFFF
+...........FFFFFFFFFFFFFFF
+...........FFFFFFFFFFFFFFF
+..........FFFFFFFFFFFFFFFFF
+..........FFFFFFFFFFFFFFFFF
+.........FFFFFFFFFFFFFFFFFFF
+.........FFFFFFFFFFFFFFFFFFF
+.........FFFFfffffFFFFFFFFFF
+.........FFFfffffffFFFFFFFFF
+.........FFfffffffffFFFFfffF
+........FFfffGfffffffFfffffffFFFF
+......FFFFfffffffffffFfGfffffFFFFF
+.....FFFFFffffffffffffffffffffFFFFF
+....FFFFFFffffffffffffffffffffFFFFFF
+....FFFFFFffffffffffffffffffffFFFFFFF
+...FFFFFFFFfffffffffFFffffffGFFFFFFFF
+...FFFFFFFFFfffffffFFFfffffffFFFFFFFF
+...FFFFFFFFFFfffffFFFFFFfffFFFFFFFFFF
+...FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+...FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+....FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+....FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+.....FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+......FFFFFFFFFFFFFFFFFFFFFFF
+........FFFFF..FFFFFFFFFFFFF
+........F.......FFFFFFFFFFF
+........F........FFFFFFFFFF
+........F........F.FFFFF..F
+.................F
+

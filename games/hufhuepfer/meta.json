@@ -1,7 +1,7 @@
 {
   "id": "hufhuepfer",
   "name": "Huf-Hüpfer",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "api": 1,
   "description": "Ein kleines Pferde-Jump-and-Run: Springe über Zäune, rutsche unter Ästen durch, tritt Kisten und Bretterwände kaputt und sammle Möhren und Äpfel für Extra-Leben."
 }
