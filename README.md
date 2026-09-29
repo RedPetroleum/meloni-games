@@ -24,5 +24,5 @@ Hier nur die Kurzübersicht. Detailierte Readme sind in den einzelnen Projekt-Or
 
 | Spiel | Details |
 |---|---|
-|Snake|erster test|
+|[Snake](snake/README_SNAKE.md)|Browser-Prototyp, direkt spielbar|
 |Hoofy|Noch zu bauen|
