@@ -21,7 +21,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes cc65
       - name: Build ROM
-        run: make -C snake
+        run: make -C snake clean all
       - name: Validate iNES image
         run: |
           test "$(head -c 4 snake/snake.nes)" = "$(printf 'NES\032')"
