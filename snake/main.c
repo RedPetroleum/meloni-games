@@ -87,7 +87,7 @@ static void draw_board(void)
     cputcxy(4, 24, '+');
     for (i = 0; i < BOARD_W; ++i) cputc('-');
     cputc('+');
-    put_at(5, 26, "D-PAD MOVE  B PAUSE");
+    put_at(4, 26, "* = FOOD  BORDER = WALL");
 }
 
 static void place_food(void)
@@ -114,7 +114,7 @@ static void draw_ready_screen(void)
 {
     clrscr();
     put_at(10, 7, "MELONI SNAKE");
-    put_at(7, 11, "EAT FOOD. AVOID YOUR TAIL.");
+    put_at(2, 11, "EAT *  AVOID WALLS AND TAIL");
     put_at(9, 15, "D-PAD TO MOVE");
     put_at(8, 18, "START OR A TO PLAY");
     put_at(8, 22, "BEST SCORE");
@@ -141,7 +141,7 @@ static void start_game(void)
     queued_direction = DIR_RIGHT;
     has_queued_turn = 0;
     score = 0;
-    frames_per_step = 8;
+    frames_per_step = 16;
     frame_count = 0;
     draw_score();
     draw_cell(snake_x[2], snake_y[2], 'o');
@@ -244,7 +244,7 @@ static void move_snake(void)
         ++snake_length;
         ++score;
         if (score > best_score) best_score = score;
-        if ((score % 4U) == 0 && frames_per_step > 3) --frames_per_step;
+        if ((score % 5U) == 0 && frames_per_step > 8) --frames_per_step;
     } else {
         draw_cell(tail_x, tail_y, ' ');
         for (i = snake_length - 1U; i > 0; --i) {
