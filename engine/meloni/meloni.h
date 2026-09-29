@@ -40,6 +40,10 @@ enum
 bool mel_init(const char *game_path, const char *save_path);
 void mel_shutdown(void);
 
+// Desktop runner only: makes rnd() repeat the same numbers on every run (applied by the next
+// mel_init, before main.lua). 0 (the default) keeps Lua's random seed.
+void mel_set_seed(uint32_t seed);
+
 // Runs one frame (_update then _draw). Returns false while the game is in the error state.
 bool mel_frame(uint32_t buttons);
 

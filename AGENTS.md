@@ -24,11 +24,18 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
    ```sh
    make test                     # alle Spiele 10 s mit Tastendrücken, Screenshots in build/screens/
    make shot GAME=<id> INPUT="5:START,30-90:RIGHT" FRAMES=120
+   make shot GAME=<id> INPUT="5:START,30-90:RIGHT" SHOTS=60,90,120,150
    ```
    Der Runner beendet sich mit Status 1 und gibt den Lua-Traceback aus, wenn das Spiel einen Fehler
    wirft. Die Screenshots (PNG, 320×240) ansehen, um zu prüfen, ob das Bild stimmt.
    `INPUT` ist ein Drehbuch `FRAME[-FRAME]:TASTE[+TASTE],…` (60 Frames = 1 Sekunde, Tasten
    `LEFT RIGHT UP DOWN A B START SELECT`), `FRAMES` die Anzahl Frames bis zum Screenshot.
+   `SHOTS` macht in einem Lauf ein Bild nach jedem dieser Frames und legt alle zusammen in
+   `build/screens/<id>-shot-sheet.png`: ein Bild ansehen statt vieler.
+   Der Zufall (`rnd`) ist fest (`SEED=1`), jeder Lauf mit demselben `INPUT` sieht gleich aus.
+   So lässt sich gezielt ein Moment ansteuern und vorher/nachher vergleichen; mit `SEED=2`, `3` …
+   andere Abläufe ausprobieren. Zum Prüfen von Spielmechanik lieber so und mit `log(...)` arbeiten
+   als raten.
    `make test` drückt START und A und läuft dann herum: Spiele sollten mit START oder A aus dem
    Titelbildschirm ins Spiel kommen, sonst testet `make test` nur den Titel.
    Für Ton: `runner/build/meloni-run --headless --frames 300 --wav out.wav games/<id>`
@@ -38,6 +45,16 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
 4. Bei neuen Spielen `meta.json` ausfüllen (`name`, `version`, `api: 1`, `description`) und
    die `version` erhöhen, wenn sich ein Spiel merklich ändert.
 5. Die Readme-Tabelle in `README.md` pflegen.
+6. **Grafik als Sprites, nicht als Zeichencode.** Figuren und Gegenstände gehören in
+   `games/<id>/sprites.txt` (ein Zeichen pro Pixel, Palette oben, Format in `tools/sprites.py`),
+   nicht in Dutzende `rectfill`/`line`-Aufrufe. `make test/run/shot` erzeugen daraus `sprites.png`
+   und `sprites.lua`; beide mit committen. Im Spiel: `local S = require('sprites')`,
+   `S.draw('name', x, y)`. Eine Pose ändern heißt dann: die Textzeilen ändern und mit
+   `make shot` ansehen. Vorhandene Grafik (Screenshot, Bild aus einem Malprogramm) übernimmt
+   `python3 tools/sprites.py import BILD X Y B H NAME --palette games/<id>/sprites.txt`.
+   Hintergründe aus großen Flächen (Himmel, Hügel) dürfen weiter `rectfill`/`circfill` sein.
+7. Ein Bild für den Launcher: `make cover GAME=<id> FRAMES=… INPUT=…` schreibt
+   `games/<id>/cover.png` (160×120) aus dem Bild nach diesen Frames.
 
 ## Engine ändern
 

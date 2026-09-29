@@ -351,6 +351,13 @@ static void set_error(const char *msg)
 
 // ---- public API ----
 
+static uint32_t fixed_seed;
+
+void mel_set_seed(uint32_t seed)
+{
+    fixed_seed = seed;
+}
+
 bool mel_init(const char *game_path, const char *save_path)
 {
     mel_shutdown();
@@ -422,6 +429,13 @@ bool mel_init(const char *game_path, const char *save_path)
 
     if (!run_chunk(mel_prelude, strlen(mel_prelude), "=prelude"))
         return false;
+    if (fixed_seed)
+    {
+        char seed_code[48];
+        snprintf(seed_code, sizeof(seed_code), "math.randomseed(%lu)", (unsigned long)fixed_seed);
+        if (!run_chunk(seed_code, strlen(seed_code), "=seed"))
+            return false;
+    }
 
     size_t size;
     char *main_lua = mel_read_file("main.lua", &size);

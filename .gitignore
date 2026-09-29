@@ -2,3 +2,4 @@ build/
 dist/
 *.sav
 .DS_Store
+__pycache__/

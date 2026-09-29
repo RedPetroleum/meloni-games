@@ -11,8 +11,9 @@ Rechner entwickelt und getestet und landen per WLAN direkt auf der Konsole.
 
 Für Schritt 1: `make new GAME=<id>` legt ein neues Spiel an, `make test` prüft alle Spiele am
 Rechner (Screenshots in `build/screens/`), `make run GAME=<id>` öffnet eins im Fenster (braucht
-SDL2). Die Anleitung für KI-Agenten steht in [AGENTS.md](AGENTS.md), die Lua-Funktionen in
-[docs/API.md](docs/API.md).
+SDL2). Grafik wird als Text in `sprites.txt` gezeichnet und mit
+[tools/sprites.py](tools/sprites.py) zum Bild. Die Anleitung für KI-Agenten steht in
+[AGENTS.md](AGENTS.md), die Lua-Funktionen in [docs/API.md](docs/API.md).
 
 Die Konsole läuft mit der Firmware [open-086](https://github.com/RedPetroleum/open-086), die die
 Engine aus diesem Repo enthält.

@@ -42,24 +42,47 @@ void *mel_plat_realloc(void *ptr, size_t size)
     return realloc(ptr, size);
 }
 
-static bool save_screenshot(const char *path)
+// RGB888 copy of the current frame, half: 160x120 with 2x2 pixels averaged (launcher cover)
+static unsigned char *frame_rgb(bool half)
 {
     const uint16_t *fb = mel_framebuffer();
-    unsigned char *rgb = malloc(MEL_WIDTH * MEL_HEIGHT * 3);
+    int w = half ? MEL_WIDTH / 2 : MEL_WIDTH, h = half ? MEL_HEIGHT / 2 : MEL_HEIGHT, n = half ? 2 : 1;
+    unsigned char *rgb = malloc(w * h * 3);
+    if (!rgb)
+        return NULL;
+    for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+        {
+            int sum[3] = {0, 0, 0};
+            for (int dy = 0; dy < n; dy++)
+                for (int dx = 0; dx < n; dx++)
+                {
+                    uint16_t c = fb[(y * n + dy) * MEL_WIDTH + x * n + dx];
+                    sum[0] += (c >> 11) << 3 | (c >> 13);
+                    sum[1] += ((c >> 5) & 0x3F) << 2 | ((c >> 9) & 3);
+                    sum[2] += (c & 0x1F) << 3 | ((c >> 2) & 7);
+                }
+            for (int i = 0; i < 3; i++)
+                rgb[(y * w + x) * 3 + i] = sum[i] / (n * n);
+        }
+    return rgb;
+}
+
+static bool save_screenshot_scaled(const char *path, bool half)
+{
+    unsigned char *rgb = frame_rgb(half);
     if (!rgb)
         return false;
-    for (int i = 0; i < MEL_WIDTH * MEL_HEIGHT; i++)
-    {
-        uint16_t c = fb[i];
-        rgb[i * 3 + 0] = (c >> 11) << 3 | (c >> 13);
-        rgb[i * 3 + 1] = ((c >> 5) & 0x3F) << 2 | ((c >> 9) & 3);
-        rgb[i * 3 + 2] = (c & 0x1F) << 3 | ((c >> 2) & 7);
-    }
-    unsigned err = lodepng_encode24_file(path, rgb, MEL_WIDTH, MEL_HEIGHT);
+    unsigned err = lodepng_encode24_file(path, rgb, half ? MEL_WIDTH / 2 : MEL_WIDTH, half ? MEL_HEIGHT / 2 : MEL_HEIGHT);
     free(rgb);
     if (err)
         fprintf(stderr, "screenshot %s failed: %s\n", path, lodepng_error_text(err));
     return err == 0;
+}
+
+static bool save_screenshot(const char *path)
+{
+    return save_screenshot_scaled(path, false);
 }
 
 // ---- scripted input: "10:START,30-90:RIGHT+A" ----
@@ -132,7 +155,44 @@ static void write_le(FILE *fp, uint32_t value, int bytes)
         fputc((value >> (i * 8)) & 0xFF, fp);
 }
 
-static int run_headless(const char *game, const char *save, int frames, const char *screenshot, const char *wav)
+// --shots 100,200: screenshots after these frames, named like --screenshot plus "-<frame>",
+// and all of them side by side in "-sheet" (two per row), to look at in one go
+static int shot_frames[64];
+static int shot_count;
+static unsigned char *shot_rgb[64];
+
+static void shot_path(char *out, size_t size, const char *screenshot, const char *suffix)
+{
+    const char *dot = strrchr(screenshot, '.');
+    const char *slash = strrchr(screenshot, '/');
+    int base_len = dot && (!slash || dot > slash) ? (int)(dot - screenshot) : (int)strlen(screenshot);
+    snprintf(out, size, "%.*s-%s.png", base_len, screenshot, suffix);
+}
+
+static void save_sheet(const char *screenshot)
+{
+    int cols = shot_count < 2 ? 1 : 2, rows = (shot_count + cols - 1) / cols, gap = 4;
+    int w = cols * MEL_WIDTH + (cols - 1) * gap, h = rows * MEL_HEIGHT + (rows - 1) * gap;
+    unsigned char *sheet = calloc(w * h, 3);
+    if (!sheet)
+        return;
+    for (int i = 0; i < shot_count; i++)
+    {
+        if (!shot_rgb[i])
+            continue;
+        int ox = (i % cols) * (MEL_WIDTH + gap), oy = (i / cols) * (MEL_HEIGHT + gap);
+        for (int y = 0; y < MEL_HEIGHT; y++)
+            memcpy(sheet + ((oy + y) * w + ox) * 3, shot_rgb[i] + y * MEL_WIDTH * 3, MEL_WIDTH * 3);
+    }
+    char path[1100];
+    shot_path(path, sizeof(path), screenshot, "sheet");
+    if (lodepng_encode24_file(path, sheet, w, h) == 0)
+        printf("sheet: %s (frames in the order of --shots, two per row)\n", path);
+    free(sheet);
+}
+
+static int run_headless(const char *game, const char *save, int frames, const char *screenshot, const char *cover,
+                        const char *wav)
 {
     int16_t audio[1200];
     int sample_acc = 0, peak = 0;
@@ -145,6 +205,16 @@ static int run_headless(const char *game, const char *save, int frames, const ch
     for (int f = 0; ok && f < frames; f++)
     {
         ok = mel_frame(scripted_buttons(f));
+        for (int i = 0; ok && i < shot_count; i++)
+            if (shot_frames[i] == f + 1)
+            {
+                char path[1100], suffix[16];
+                snprintf(suffix, sizeof(suffix), "%d", f + 1);
+                shot_path(path, sizeof(path), screenshot, suffix);
+                if (save_screenshot(path))
+                    printf("screenshot: %s\n", path);
+                shot_rgb[i] = frame_rgb(false);
+            }
         sample_acc += MEL_SAMPLE_RATE;
         int count = sample_acc / MEL_FPS;
         sample_acc -= count * MEL_FPS;
@@ -155,8 +225,14 @@ static int run_headless(const char *game, const char *save, int frames, const ch
             fwrite(audio, 4, count, wav_fp);
         total += count;
     }
-    if (screenshot)
+    if (screenshot && !shot_count)
         save_screenshot(screenshot);
+    if (shot_count > 1)
+        save_sheet(screenshot);
+    for (int i = 0; i < shot_count; i++)
+        free(shot_rgb[i]);
+    if (cover && save_screenshot_scaled(cover, true))
+        printf("cover: %s (160x120)\n", cover);
     if (wav_fp)
     {
         // 16-bit stereo PCM header
@@ -334,6 +410,11 @@ static void usage(void)
             "  --frames N          headless: frames to run (default 300 = 5 s)\n"
             "  --input SPEC        headless: buttons per frame, e.g. \"10:START,30-90:RIGHT+A\"\n"
             "  --screenshot FILE   headless: write the last frame as PNG\n"
+            "  --shots N,N,...     headless: instead one screenshot after each of these frames,\n"
+            "                      FILE-N.png, and all of them in FILE-sheet.png\n"
+            "                      (runs until the last one unless --frames is given)\n"
+            "  --cover FILE        headless: write the last frame at half size (160x120) for the launcher\n"
+            "  --seed N            rnd() gives the same numbers on every run (N > 0)\n"
             "  --wav FILE          headless: write the sound output as WAV\n"
             "  --save FILE         file for savedata()/loaddata() (default: temporary headless, ./<game>.sav in a window)\n"
             "  --scale N           window scale (default 3)\n");
@@ -342,8 +423,8 @@ static void usage(void)
 
 int main(int argc, char **argv)
 {
-    const char *game = NULL, *screenshot = NULL, *save = NULL, *wav = NULL;
-    bool headless = false;
+    const char *game = NULL, *screenshot = NULL, *save = NULL, *wav = NULL, *cover = NULL;
+    bool headless = false, frames_given = false;
     int frames = 300, scale = 3;
 
     for (int i = 1; i < argc; i++)
@@ -353,7 +434,18 @@ int main(int argc, char **argv)
         if (strcmp(a, "--headless") == 0)
             headless = true;
         else if (strcmp(a, "--frames") == 0 && has_value)
-            frames = atoi(argv[++i]);
+            frames = atoi(argv[++i]), frames_given = true;
+        else if (strcmp(a, "--shots") == 0 && has_value)
+        {
+            char *copy = strdup(argv[++i]), *save_ptr = NULL;
+            for (char *t = strtok_r(copy, ",", &save_ptr); t && shot_count < 64; t = strtok_r(NULL, ",", &save_ptr))
+                shot_frames[shot_count++] = atoi(t);
+            free(copy);
+        }
+        else if (strcmp(a, "--cover") == 0 && has_value)
+            cover = argv[++i];
+        else if (strcmp(a, "--seed") == 0 && has_value)
+            mel_set_seed((uint32_t)strtoul(argv[++i], NULL, 10));
         else if (strcmp(a, "--input") == 0 && has_value)
             parse_input(argv[++i]);
         else if (strcmp(a, "--screenshot") == 0 && has_value)
@@ -371,6 +463,11 @@ int main(int argc, char **argv)
     }
     if (!game)
         usage();
+    if (shot_count && !screenshot)
+        screenshot = "screenshot.png";
+    if (shot_count && !frames_given)
+        for (int i = 0; i < shot_count; i++)
+            frames = shot_frames[i] > frames || i == 0 ? shot_frames[i] : frames;
 
     // Strip a trailing slash so the game name comes out right
     char path[1024];
@@ -403,7 +500,7 @@ int main(int argc, char **argv)
         snprintf(temp_save, sizeof(temp_save), "/tmp/meloni-run-%d.sav", (int)getpid());
         save = temp_save;
     }
-    int status = run_headless(path, save, frames, screenshot, wav);
+    int status = run_headless(path, save, frames, screenshot, cover, wav);
     if (temp_save[0])
         remove(temp_save);
     return status;

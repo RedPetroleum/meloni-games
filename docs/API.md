@@ -90,6 +90,11 @@ PNG-Dateien aus dem Spielordner. Pixel mit Alpha unter 128 sind transparent.
 | `sspr(img, sx, sy, sw, sh, dx, dy, [dw], [dh], [flip_x], [flip_y])` | Ausschnitt zeichnen, optional skaliert |
 | `tile(img, n, x, y, [size=16], [flip_x], [flip_y])` | Kachel `n` eines Spritesheets (zeilenweise ab 0) |
 
+Sprites lassen sich als Text schreiben: `games/<id>/sprites.txt` (ein Zeichen pro Pixel) wird von
+`tools/sprites.py` zu `sprites.png` und `sprites.lua`. Dann `local S = require('sprites')` und
+`S.draw('name', x, y, [flip_x], [flip_y])`, `S.size('name')` liefert Breite und Höhe.
+Beispiel: [games/hufhuepfer/sprites.txt](../games/hufhuepfer/sprites.txt).
+
 ## Sound
 
 8 Kanäle (0–7). Ohne Kanalangabe wird ein freier aus 0–5 genommen, 6 und 7 bleiben für Melodien.
