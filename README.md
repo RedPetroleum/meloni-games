@@ -22,7 +22,8 @@ Engine aus diesem Repo enthält.
 | Spiel | Details |
 |---|---|
 | [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |
-| [Hoofy](games/hoofy/README_HOOFY.md) | Pferde-Spiel, bisher nur Konzept |
+| [Huf-Hüpfer](games/hufhuepfer/main.lua) | Ein-Knopf-Pferdespiel: springe über Zäune und Heuballen |
+| [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 
 ## Engine ändern
 
@@ -38,7 +39,6 @@ Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
 | Display | 2.4" TFT, 240x320, 10-pin FPC, ST7789(V) controller |
 | Audio amplifier | NS4168 |
 | Microphone | PDM |
-| Power IC | ETA9640 |
 | External storage | MicroSD slot, SD_MMC in 1-bit mode |
 | Battery | 3.7 V LiPo, approx. 350 mA at max volume and brightness |
 | Case dimensions | 81.7 x 109.6 x 21.6 mm |
