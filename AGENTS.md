@@ -27,6 +27,10 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
    ```
    Der Runner beendet sich mit Status 1 und gibt den Lua-Traceback aus, wenn das Spiel einen Fehler
    wirft. Die Screenshots (PNG, 320×240) ansehen, um zu prüfen, ob das Bild stimmt.
+   `INPUT` ist ein Drehbuch `FRAME[-FRAME]:TASTE[+TASTE],…` (60 Frames = 1 Sekunde, Tasten
+   `LEFT RIGHT UP DOWN A B START SELECT`), `FRAMES` die Anzahl Frames bis zum Screenshot.
+   `make test` drückt START und A und läuft dann herum: Spiele sollten mit START oder A aus dem
+   Titelbildschirm ins Spiel kommen, sonst testet `make test` nur den Titel.
    Für Ton: `runner/build/meloni-run --headless --frames 300 --wav out.wav games/<id>`
 2. Das Menü der Konsole liegt auf SELECT+START und SELECT+A, diese Kombinationen nicht im Spiel belegen.
 3. Das Gerät ist viel langsamer als der PC: keine Lua-Schleifen über alle Pixel pro Frame,
@@ -35,12 +39,18 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
    die `version` erhöhen, wenn sich ein Spiel merklich ändert.
 5. Die Readme-Tabelle in `README.md` pflegen.
 
+## Engine ändern
+
 Wenn eine Funktion fehlt, die ein Spiel wirklich braucht, gehört sie in die Engine
-(`engine/meloni/`), nicht als Workaround ins Spiel. Dann:
+(`engine/meloni/`), nicht als Workaround ins Spiel. **Vorher mit dem Menschen absprechen:** Eine
+Engine-Änderung kommt erst mit neu gebauter und geflashter Firmware auf die Konsole, das Spiel aber
+sofort nach dem Push. Dann:
 
 - `docs/API.md` im selben Commit anpassen.
-- Kann ältere Firmware das Spiel dann nicht mehr ausführen, die API-Version erhöhen
-  (`MEL_API_VERSION` in `engine/meloni/meloni.h`, im Spiel `meta.json` `"api"`).
+- Jede neue oder geänderte Funktion heißt: API-Version erhöhen (`MEL_API_VERSION` in
+  `engine/meloni/meloni.h`) und in jedem Spiel, das sie nutzt, `"api"` in `meta.json` auf die
+  neue Nummer setzen. Konsolen mit älterer Firmware überspringen das Spiel dann beim Update,
+  statt es mit einem Lua-Fehler zu starten.
 - Die Engine muss auf dem Gerät und am Rechner gleich laufen: nur Standard-C, keine Abhängigkeit
   von retro-go oder SDL in `engine/`; Plattformzugriffe laufen über die `mel_plat_*`-Funktionen.
 - Auf die Konsole kommt eine Engine-Änderung erst mit einer neuen Firmware: in open-086
