@@ -100,7 +100,7 @@
       pauseButton.textContent = state==="paused" ? "Weiter" : "Pause";
     }
     function start() {
-      if (state==="playing") { reset(); }
+      if (state==="playing" || state==="over") { reset(); }
       state = "playing";
       clearInterval(timer);
       timer = setInterval(step, tickMs);
@@ -119,7 +119,8 @@
       const next = DIRS[name];
       if (!next || state==="over") return;
       if (state==="ready") start();
-      if (next.x === -direction.x && next.y === -direction.y) return;
+      if ((next.x === -direction.x && next.y === -direction.y) ||
+          (next.x === -queued.x && next.y === -queued.y)) return;
       queued = next;
     }
     function step() {
