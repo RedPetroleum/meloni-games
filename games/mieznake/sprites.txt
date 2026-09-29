@@ -2,14 +2,14 @@
 # Die Katze ist eine Britisch Kurzhaar in Blue Silver Shaded Shell mit blaugrünen Augen.
 
 palette
-k34414bdunklerFellumriss
-sb9c2c9silbrigesBlue-Fell
-r788690dunkleShading-Spitzen
-t18343aPupille
-T61c4c2blaugrüneIris
-n718a92Nase
-b8a5a36Trockenfutter
-B4d3022LochimLeckerli
+k 34414b   dunkler Fellumriss
+s b9c2c9   silbriges Blue-Fell
+r 788690   dunkle Shading-Spitzen
+t 18343a   Pupille
+T 61c4c2   blaugrüne Iris
+n 718a92   Nase
+b 8a5a36   Trockenfutter
+B 4d3022   Loch im Leckerli
 
 sprite cat_head_r
 ....................
