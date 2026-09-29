@@ -31,7 +31,8 @@ static unsigned char snake_y[MAX_SNAKE];
 static unsigned int snake_length;
 static unsigned char food_x, food_y;
 static unsigned char direction, queued_direction, has_queued_turn;
-static unsigned char game_state, score, best_score;
+static unsigned char game_state;
+static unsigned int score, best_score;
 static unsigned char frame_count, frames_per_step;
 static unsigned char previous_pad;
 
@@ -113,7 +114,7 @@ static void draw_ready_screen(void)
 {
     clrscr();
     put_at(10, 7, "MELONI SNAKE");
-    put_at(7, 11, "FIND THE FOOD. DO NOT BITE YOURSELF.");
+    put_at(7, 11, "EAT FOOD. AVOID YOUR TAIL.");
     put_at(9, 15, "D-PAD TO MOVE");
     put_at(8, 18, "START OR A TO PLAY");
     put_at(8, 22, "BEST SCORE");
