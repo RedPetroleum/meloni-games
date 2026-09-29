@@ -245,8 +245,6 @@ static void move_snake(void)
         ++score;
         if (score > best_score) best_score = score;
         if ((score % 4U) == 0 && frames_per_step > 3) --frames_per_step;
-        place_food();
-        draw_score();
     } else {
         draw_cell(tail_x, tail_y, ' ');
         for (i = snake_length - 1U; i > 0; --i) {
@@ -259,6 +257,14 @@ static void move_snake(void)
     snake_y[0] = (unsigned char)next_y;
     draw_cell(snake_x[1], snake_y[1], 'o');
     draw_cell(snake_x[0], snake_y[0], '@');
+    if (ate) {
+        draw_score();
+        if (snake_length >= MAX_SNAKE) {
+            show_end_screen(1);
+            return;
+        }
+        place_food();
+    }
 }
 
 int main(void)
