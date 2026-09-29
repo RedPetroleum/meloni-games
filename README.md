@@ -8,7 +8,7 @@ Hier werden verschiedene Spiele für den open-086 entwickelt.
 
 | Component | Details |
 |---|---|
-| MCU | ESP32-S3-N16R8 (16 MB flash, 8 MB PSRAM), read off the module marking |
+| MCU | ESP32-S3-N16R8 (16 MB flash, 8 MB PSRAM) |
 | Display | 2.4" TFT, 240x320, 10-pin FPC, ST7789(V) controller |
 | Audio amplifier | NS4168 |
 | Microphone | PDM |
