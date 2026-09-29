@@ -9,8 +9,6 @@ Spiel schreibst oder änderst, und nutze nur Funktionen, die dort stehen.
 
 - `games/<id>/`: ein Spiel pro Ordner, `main.lua` + `meta.json` (+ `cover.png`, Grafiken, Sounds, Module)
 - `template/`: Vorlage für `make new GAME=<id>`
-- `snake/`: Snake als Game-Boy-Color-ROM (GBDK, eigener Workflow `build-snake.yml`), wird als
-  `roms/gbc/meloni-snake.gbc` mit ausgeliefert
 - `tools/release.py`: packt `.mlg`-Dateien und `manifest.json` für den Updater
 - Engine und Runner liegen in open-086 (`retro-go/meloni/`), erwartet unter `../open-086`
 

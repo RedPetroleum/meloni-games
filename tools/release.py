@@ -5,7 +5,7 @@
 
 - every games/<id>/ with a main.lua becomes dist/<id>.mlg (-> roms/meloni/<id>.mlg on the SD card)
 - games/<id>/cover.png becomes dist/<id>.png (-> romart/meloni/<id>.png, shown in the launcher)
-- --extra adds other files, e.g. snake/snake.gbc:roms/gbc/meloni-snake.gbc
+- --extra adds other files, e.g. extra/tool.nes:roms/nes/tool.nes
 - dist/manifest.json lists everything with size and sha256; the updater on the device downloads
   what changed and removes what disappeared.
 

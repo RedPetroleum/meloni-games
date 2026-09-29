@@ -1,8 +1,7 @@
 name: Build, test and release games
 
 # Every push builds and tests all games. On main the result is published as the release
-# "latest", which the "Update games" entry on the HU-086 downloads. snake/snake.gbc is built and
-# committed by build-snake.yml and shipped from the repository as it is.
+# "latest", which the "Update games" entry on the HU-086 downloads.
 on:
   push:
   pull_request:
@@ -39,7 +38,7 @@ jobs:
         run: make test OPEN086=open-086
 
       - name: Build release files
-        run: make dist EXTRA="snake/snake.gbc:roms/gbc/meloni-snake.gbc"
+        run: make dist
 
       - uses: actions/upload-artifact@v4
         with:
