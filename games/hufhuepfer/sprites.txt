@@ -16,11 +16,15 @@ W b97d4d   Holz hell
 h d79f53   Heu
 H f1c777   Heu hell
 r d5775e   Rot
-a b94d44   Apfel
+a d8473c   Apfel
 f 73964e   Blatt
 F 486c46   Blatt dunkel
 G a8c27c   Blatt hell
 q 518a97   Wasser
+k 2a1d1c   Umriss
+o ee7a26   Möhre
+O ffb25a   Möhre hell
+R f6b8a0   Apfel Glanz
 Q 91c3be   Wasser hell
 
 sprite horse_run1
@@ -118,30 +122,39 @@ l.........bbbbbbbgggggggbbbbbbbbbbb..uuuuu
 ....mmmmb............................mmmm
 
 sprite carrot
-.....f
-.f...f
-..f..f..f
-..f.f.ff
-..hhhhh
-..h...h
-...h..h
-...hH.h
-....hh
-....hh
-.....h
+......k.k.
+.....kGkGk.
+..kk.kGGGk.kk
+.kGGkkfGfkkGGk
+..kffGffGffk
+...kkfFFfkk
+....kooook
+...kOOoooOk
+...koOooook
+...kOoooOk
+....kOooOk
+....koOook
+....kOooOk
+.....kOok
+.....koOk
+......kok
+......kk
 
 sprite apple
-.....w
-.....w.ff
-...awff
-.aaaaaaa
-.aaaaaaa
-aaraaaaaa
-aaaaaaaaa
-aaaaaaaaa
-.aaaaaaaa
-.aaaaaaaa
-...aaa
+......kk
+......kwk.kk
+....kkkwkkffk
+..kkaaawkffk.
+.kaaaaaaakk
+kaaRRaaaaaak
+kaRRaaaaaaak
+karaaaaaaaak
+kaaaaaaaaaak
+kaaaaaaaaaak
+.kaaaaaaaak
+.kaaaaaaaak
+..kaaaakaak
+...kkkk.kk
 
 sprite fence
 .

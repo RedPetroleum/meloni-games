@@ -1,5 +1,5 @@
 -- Huf-Hüpfer: ein kleines Pferde-Jump-and-Run für die Meloni-API v1.
--- Hoch: springen, runter: unter Ästen durchrutschen, A: Kisten und Bretterwände kaputt treten.
+-- Hoch: springen, runter: unter Ästen durchrutschen, A: Bretterwände kaputt treten, START: Pause.
 -- Sammle Möhren und Äpfel: Je drei Snacks geben ein zusätzliches Leben.
 
 local S = require("sprites")
@@ -18,7 +18,7 @@ local particles
 local seen = {}
 local hint_text, hint_timer = nil, 0
 local obstacles, food
-local spawn_timer, food_timer
+local spawn_timer, food_timer, air_food_timer, last_gap_short
 local speed, play_frames, level
 local score, best, lives, snacks, bonus_timer, invulnerable
 
@@ -58,7 +58,7 @@ local KINDS = {
   puddle = {w = 31, h = 10, dx = 0, dy = -10},
   logs = {w = 24, h = 22, dx = 0, dy = -17},
   branch = {w = 30, overhead = true, dx = -4, dy = -48, hint = "RUNTER: DRUNTER RUTSCHEN!"},
-  crate = {w = 18, h = 18, dx = 0, dy = -18, breakable = true, hint = "A: KISTE KAPUTT TRETEN!"},
+  crate = {w = 18, h = 18, dx = 0, dy = -18},
   wall = {w = 16, h = 68, dx = -1, dy = -68, breakable = true, hint = "ZU HOCH! A: TRETEN!"},
 }
 local POOLS = {
@@ -66,6 +66,10 @@ local POOLS = {
   {"fence", "hay", "branch", "crate", "puddle", "wall"},
   {"fence", "hay", "branch", "crate", "puddle", "wall", "logs", "branch"},
 }
+
+-- Speed per level: level 1 as before, level 5 clearly faster, linear in between.
+local LEVEL_SPEED = {}
+for i = 1, 5 do LEVEL_SPEED[i] = 2.55 + (i - 1) * (5.6 - 2.55) / 4 end
 
 local function reset()
   horse_y = GROUND - HORSE_H
@@ -78,8 +82,10 @@ local function reset()
   obstacles = {}
   food = nil
   spawn_timer = 68
-  food_timer = 110
-  speed = 2.55
+  food_timer = 240
+  air_food_timer = 0
+  last_gap_short = false
+  speed = LEVEL_SPEED[1]
   play_frames = 0
   level = 1
   score = 0
@@ -131,7 +137,7 @@ local function make_obstacle()
   -- New shapes enter gradually: puddles and walls at level 2, log piles at level 3.
   local kind = rnd(POOLS[min(level, #POOLS)])
   local k = KINDS[kind]
-  obstacles[#obstacles + 1] = {
+  local o = {
     x = SCREEN_W + 8,
     w = k.w,
     h = k.h or 0,
@@ -140,11 +146,48 @@ local function make_obstacle()
     breakable = k.breakable,
     passed = false,
   }
+  obstacles[#obstacles + 1] = o
   if k.hint and not seen[kind] then
     seen[kind] = true
     hint_text = k.hint
     hint_timer = 150
   end
+  return o
+end
+
+-- Frames until the next obstacle: sometimes two close together, sometimes a breather,
+-- mostly something in between. The shortest gap still leaves time to land and jump again.
+local function next_gap()
+  local l = level - 1
+  local r = rnd(1)
+  if r < 0.22 and not last_gap_short then
+    last_gap_short = true
+    return 50 + rnd(12)
+  end
+  last_gap_short = false
+  if r < 0.82 then
+    return 66 - l * 3 + rnd(38 - l * 3)
+  end
+  return 115 - l * 5 + rnd(45)
+end
+
+-- A snack always needs a move: under a branch you have to slide, everywhere else it
+-- floats too high to reach without jumping.
+local function new_food(x, y)
+  local kind = rnd(2) < 1 and "carrot" or "apple"
+  local w, h = S.size(kind)
+  food = {x = x, y = y, w = w, h = h, kind = kind}
+end
+
+local function food_with(o)
+  if o.breakable then return false end
+  local w = S.size("carrot")
+  if o.overhead then
+    new_food(o.x + (o.w - w) // 2 + 2, GROUND - 17)
+  else
+    new_food(o.x + (o.w - w) // 2, GROUND - o.h - 34 - flr(rnd(16)))
+  end
+  return true
 end
 
 local function add_particle(x, y, vx, vy, c, life, size)
@@ -163,8 +206,19 @@ local function smash(o)
   tone(note("G4"), 0.08, "square", 0.15)
 end
 
+-- START alone pauses; SELECT+START belongs to the console menu.
+local function start_pressed()
+  return btnp(BTN_START) and not btn(BTN_SELECT)
+end
+
 function _update()
-  if state == "title" then
+  if state == "pause" then
+    if start_pressed() or btnp(BTN_A) then
+      state = "play"
+      tone(note("E5"), 0.05, "triangle", 0.2)
+    end
+    return
+  elseif state == "title" then
     if btnp(BTN_A) or btnp(BTN_START) then start() end
     return
   elseif state == "over" then
@@ -177,9 +231,17 @@ function _update()
     return
   end
 
+  if start_pressed() then
+    state = "pause"
+    tone(note("C5"), 0.05, "triangle", 0.2)
+    return
+  end
+
   play_frames = play_frames + 1
   level = min(5, 1 + flr(play_frames / 600))
-  speed = min(5.2, 2.55 + (level - 1) * 0.43 + play_frames / 2400 * 0.4)
+  -- Ease into the new level's speed over a few seconds instead of jumping.
+  local target = LEVEL_SPEED[level]
+  if speed < target then speed = min(target, speed + 0.004) end
 
   if invulnerable > 0 then invulnerable = invulnerable - 1 end
   if bonus_timer > 0 then bonus_timer = bonus_timer - 1 end
@@ -224,28 +286,31 @@ function _update()
   local top = sliding and GROUND - SLIDE_H or horse_y
   local bottom = sliding and GROUND or horse_y + HORSE_H
 
+  if not food and food_timer > 0 then food_timer = food_timer - 1 end
   spawn_timer = spawn_timer - 1
   if spawn_timer <= 0 then
-    make_obstacle()
-    spawn_timer = 96 + rnd(30) - (level - 1) * 5 - min(10, flr(play_frames / 900)) * 2
-    if spawn_timer < 65 then spawn_timer = 65 end
+    local o = make_obstacle()
+    spawn_timer = next_gap()
+    if not food and food_timer <= 0 then
+      -- Either with this obstacle or on its own in a long enough gap after it.
+      if spawn_timer >= 95 and rnd(2) < 1 then
+        air_food_timer = spawn_timer // 2
+        food_timer = 180 + rnd(150)
+      elseif food_with(o) then
+        food_timer = 180 + rnd(150)
+      end
+    end
   end
 
-  food_timer = food_timer - 1
-  if not food and food_timer <= 0 then
-    local high = level >= 3 and rnd(3) < 1
-    food = {
-      x = SCREEN_W + 10,
-      y = GROUND - (high and 53 or 34),
-      kind = rnd(2) < 1 and "carrot" or "apple",
-    }
-    food_timer = 154 + rnd(45)
+  if air_food_timer > 0 then
+    air_food_timer = air_food_timer - 1
+    if air_food_timer == 0 then new_food(SCREEN_W + 8, GROUND - 46 - flr(rnd(24))) end
   end
 
   if food then
     food.x = food.x - speed
-    local overlaps_x = HORSE_X + 28 > food.x and HORSE_X + 2 < food.x + 10
-    local overlaps_y = top < food.y + 10 and bottom > food.y
+    local overlaps_x = HORSE_X + 28 > food.x + 2 and HORSE_X + 2 < food.x + food.w - 2
+    local overlaps_y = top < food.y + food.h - 2 and bottom > food.y + 2
     if overlaps_x and overlaps_y then
       add_snack()
       food = nil
@@ -379,7 +444,7 @@ local function draw_world(hide_horse)
 
   for _, o in ipairs(obstacles) do draw_obstacle(o) end
   if food then
-    S.draw(food.kind, food.x, food.y - 1)
+    S.draw(food.kind, food.x, food.y - (frame() // 10) % 2)
   end
   if not hide_horse and (invulnerable == 0 or frame() % 8 < 4) then
     if sliding then
@@ -406,15 +471,16 @@ end
 function _draw()
   if state == "title" then
     draw_world(true)
-    rectfill(40, 42, 280, 151, C.panel)
+    rectfill(40, 42, 280, 160, C.panel)
     rectfill(40, 42, 280, 45, C.gold)
     draw_horse(66, 89, false)
     print("HUF-HÜPFER", 110, 62, C.gold, 2)
     print("HOCH:   Springen", 126, 88, C.white)
     print("RUNTER: Rutschen", 126, 100, C.white)
     print("A:      Treten", 126, 112, C.white)
-    rectfill(125, 128, 255, 145, C.saddle)
-    print("A: LOS", 164, 133, C.cream)
+    print("START:  Pause", 126, 124, C.white)
+    rectfill(125, 136, 255, 151, C.saddle)
+    print("A: LOS", 164, 140, C.cream)
     return
   end
 
@@ -428,6 +494,12 @@ function _draw()
   if bonus_timer > 0 then
     rectfill(91, 64, 229, 81, C.panel)
     print("EXTRA LEBEN!", 108, 69, C.gold)
+  end
+  if state == "pause" then
+    rectfill(90, 80, 230, 133, C.panel)
+    rectfill(90, 80, 230, 83, C.gold)
+    print("PAUSE", (SCREEN_W - textw("PAUSE", 2)) // 2, 94, C.gold, 2)
+    print("START: Weiter", (SCREEN_W - textw("START: Weiter")) // 2, 118, C.white)
   end
   if state == "over" then
     rectfill(60, 61, 260, 147, C.panel)
