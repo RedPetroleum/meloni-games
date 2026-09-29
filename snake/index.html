@@ -6,25 +6,25 @@
   <meta name="theme-color" content="#101913">
   <title>Snake — Meloni Games</title>
   <style>
-    :root { color-scheme: dark; --bg:#101913; --panel:#1b2a20; --line:#314838; --lime:#b8f36b; --mint:#78d7a1; --text:#eff7e8; --muted:#a3b39e; --red:#ff786b; }
+    :root { color-scheme:dark; --bg:#07131b; --panel:#10232d; --line:#28505a; --lime:#baf56c; --mint:#63e0c0; --text:#f1fbf7; --muted:#97b5b4; --red:#ff647a; }
     * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; display:grid; place-items:center; padding:20px; background:radial-gradient(ellipse at 50% 0%,#243829 0%,var(--bg) 64%); color:var(--text); font:15px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; }
-    main { width:min(100%,460px); }
-    .brand { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 2px 12px; }
-    h1 { margin:0; font-size:clamp(24px,7vw,32px); letter-spacing:.02em; }
-    .tag { color:var(--muted); font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
-    .cabinet { padding:14px; border:1px solid #3b5541; border-radius:18px; background:linear-gradient(145deg,#223428,#18251c); box-shadow:0 22px 70px #0008,inset 0 1px #ffffff12; }
-    .stats { display:flex; justify-content:space-between; margin:0 3px 10px; font-weight:750; letter-spacing:.08em; font-size:12px; }
+    body { margin:0; min-height:100svh; display:grid; place-items:center; padding:clamp(10px,1.8vw,26px); background:radial-gradient(ellipse at 50% -10%,#28535a 0%,#102530 34%,var(--bg) 75%); color:var(--text); font:15px/1.4 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { width:100%; max-width:1440px; }
+    .brand { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 4px 12px; }
+    h1 { margin:0; font-size:clamp(24px,4vw,40px); letter-spacing:.02em; text-shadow:0 0 22px #baf56c35; }
+    .tag { color:var(--mint); font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+    .cabinet { padding:clamp(8px,1.1vw,16px); border:1px solid #39747a; border-radius:20px; background:linear-gradient(145deg,#153440,#0b202b); box-shadow:0 22px 80px #0008,inset 0 1px #ffffff18; }
+    .stats { display:flex; justify-content:space-between; margin:0 6px 10px; font-weight:750; letter-spacing:.1em; font-size:13px; }
     .stats span { color:var(--muted); }
-    .stats b { color:var(--lime); margin-left:5px; }
-    canvas { display:block; width:100%; height:auto; aspect-ratio:4/3; border:1px solid #405d45; border-radius:8px; background:#0e1711; image-rendering:pixelated; }
-    .legend { margin:7px 3px 0; color:var(--muted); font-size:11px; text-align:center; }
+    .stats b { color:var(--lime); margin-left:7px; }
+    canvas { display:block; width:100%; height:auto; max-height:calc(100svh - 205px); aspect-ratio:4/3; margin:auto; border:1px solid #388179; border-radius:12px; background:#071a20; image-rendering:pixelated; box-shadow:0 8px 34px #020b11a6,inset 0 0 30px #48dab00c; }
+    .legend { margin:8px 3px 0; color:var(--muted); font-size:12px; text-align:center; }
     .actions { display:flex; gap:9px; margin-top:12px; }
-    button { appearance:none; border:1px solid #45614a; background:#26392b; color:var(--text); border-radius:10px; min-height:42px; padding:9px 13px; font:inherit; font-weight:700; cursor:pointer; touch-action:manipulation; }
-    button:hover { background:#304a36; border-color:#759b67; }
+    button { appearance:none; border:1px solid #39747a; background:#183640; color:var(--text); border-radius:11px; min-height:44px; padding:9px 16px; font:inherit; font-weight:700; cursor:pointer; touch-action:manipulation; }
+    button:hover { background:#20505a; border-color:#63e0c0; }
     button:active { transform:translateY(1px); }
-    #start { flex:1; background:var(--lime); border-color:var(--lime); color:#142014; }
-    #start:hover { background:#c9fa8c; }
+    #start { flex:1; background:var(--lime); border-color:var(--lime); color:#11241b; box-shadow:0 0 22px #baf56c25; }
+    #start:hover { background:#d3ff99; }
     .help { color:var(--muted); margin:12px 3px 0; font-size:12px; text-align:center; }
     .pad { display:none; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,42px); justify-content:center; gap:5px; margin:13px auto 0; }
     .pad button { padding:0; min-height:42px; font-size:18px; }
@@ -33,7 +33,8 @@
     .pad [data-dir="down"] { grid-column:2; grid-row:2; }
     .pad [data-dir="right"] { grid-column:3; grid-row:2; }
     @media (pointer:coarse) { .pad { display:grid; } }
-    @media (max-width:380px) { body { padding:12px; } .cabinet { padding:10px; } }
+    @media (max-width:600px) { .brand { margin-bottom:8px; } .tag { font-size:10px; } canvas { max-height:calc(100svh - 260px); } }
+    @media (max-width:380px) { body { padding:8px; } .cabinet { padding:8px; } }
   </style>
 </head>
 <body>
@@ -42,7 +43,7 @@
     <section class="cabinet" aria-label="Snake-Spiel">
       <div class="stats"><span>PUNKTE <b id="score">00</b></span><span>BEST <b id="best">00</b></span></div>
       <canvas id="screen" width="320" height="240" aria-label="Spielfeld"></canvas>
-      <p class="legend">Rot = Futter · Der Rand ist eine Wand.</p>
+      <p class="legend">🍎 Futter einsammeln · Wand und eigener Körper beenden die Runde</p>
       <div class="actions">
         <button id="start" type="button">Spiel starten</button>
         <button id="pause" type="button" aria-label="Pausieren">Pause</button>
@@ -175,11 +176,22 @@
       ctx.strokeStyle=COLORS.grid; ctx.lineWidth=1;
       for (let x=0;x<=COLS;x++) { ctx.beginPath(); ctx.moveTo(x*CELL+.5,TOP); ctx.lineTo(x*CELL+.5,TOP+ROWS*CELL); ctx.stroke(); }
       for (let y=0;y<=ROWS;y++) { ctx.beginPath(); ctx.moveTo(0,TOP+y*CELL+.5); ctx.lineTo(320,TOP+y*CELL+.5); ctx.stroke(); }
+      const fx=food.x*CELL+CELL/2, fy=TOP+food.y*CELL+CELL/2;
       ctx.fillStyle=COLORS.food;
-      ctx.beginPath(); ctx.arc(food.x*CELL+CELL/2,TOP+food.y*CELL+CELL/2,5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle="#ffb3a6";
-      ctx.beginPath(); ctx.arc(food.x*CELL+CELL/2-1,TOP+food.y*CELL+CELL/2-1,1.3,0,Math.PI*2); ctx.fill();
-      snake.forEach((part,i)=>roundedCell(part.x,part.y,i===0?COLORS.head:COLORS.snake,i===0?1:2));
+      ctx.beginPath(); ctx.ellipse(fx,fy+1,5,5.5,-.2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle="#ffd1bd";
+      ctx.beginPath(); ctx.arc(fx-1.5,fy-1.5,1.5,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=COLORS.mint; ctx.lineWidth=2; ctx.lineCap="round";
+      ctx.beginPath(); ctx.moveTo(fx,fy-5); ctx.quadraticCurveTo(fx+1,fy-9,fx+4,fy-8); ctx.stroke();
+      snake.forEach((part,i)=>{
+        roundedCell(part.x,part.y,i===0?COLORS.head:COLORS.snake,i===0?1:2);
+        if(i===0){
+          ctx.fillStyle="#17313a";
+          const ex=part.x*CELL+CELL/2, ey=TOP+part.y*CELL+CELL/2;
+          if(direction.x!==0){ctx.beginPath();ctx.arc(ex+direction.x*4,ey-3,1.25,0,Math.PI*2);ctx.arc(ex+direction.x*4,ey+3,1.25,0,Math.PI*2);ctx.fill();}
+          else {ctx.beginPath();ctx.arc(ex-3,ey+direction.y*4,1.25,0,Math.PI*2);ctx.arc(ex+3,ey+direction.y*4,1.25,0,Math.PI*2);ctx.fill();}
+        }
+      });
       if (state==="ready") overlay("BEREIT?", "Fang das Futter und wachse.", "Drücke eine Richtung oder Start");
       if (state==="paused") overlay("PAUSE", "Gut durchatmen.", "Leertaste oder Weiter zum Fortsetzen");
       if (state==="over") overlay("GAME OVER", "Punkte: "+score+"   ·   Best: "+best, "Enter oder Nochmal spielen");
