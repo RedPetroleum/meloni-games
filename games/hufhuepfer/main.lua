@@ -1,6 +1,6 @@
 -- Huf-Hüpfer: ein kleines Pferde-Jump-and-Run für die Meloni-API v1.
 -- Hoch: springen, runter: unter Ästen durchrutschen, A: Bretterwände kaputt treten, START: Pause.
--- Sammle Möhren und Äpfel: Je drei Snacks geben ein zusätzliches Leben.
+-- Sammle Möhren und Äpfel (hoch: springen, am Boden: rutschen): Je drei geben ein Extra-Leben.
 
 local S = require("sprites")
 
@@ -9,7 +9,7 @@ local HORSE_X = 44
 local HORSE_H = 25
 local SLIDE_H = 13
 local BRANCH_BOTTOM = GROUND - 18
-local KICK_TIME = 26    -- Frames bis zum nächsten Tritt
+local KICK_TIME = 18    -- Frames bis zum nächsten Tritt
 local KICK_ACTIVE = 10  -- davon trifft der Tritt in den ersten Frames
 local MAX_LIVES = 5
 local state = "title"
@@ -18,7 +18,7 @@ local particles
 local seen = {}
 local hint_text, hint_timer = nil, 0
 local obstacles, food
-local spawn_timer, food_timer, air_food_timer, last_gap_short
+local spawn_timer, food_timer, food_delay, last_gap_short
 local speed, play_frames, level, scroll
 local score, best, lives, snacks, bonus_timer, invulnerable
 
@@ -85,7 +85,7 @@ local function reset()
   food = nil
   spawn_timer = 68
   food_timer = 480
-  air_food_timer = 0
+  food_delay = 0
   last_gap_short = false
   speed = LEVEL_SPEED[1]
   play_frames = 0
@@ -160,22 +160,37 @@ end
 
 -- Frames until the next obstacle: sometimes two close together, sometimes a breather,
 -- mostly something in between. The shortest gap still leaves time to land and jump again.
-local function next_gap()
-  local l = level - 1
-  local r = rnd(1)
-  if r < 0.3 and not last_gap_short then
-    last_gap_short = true
-    return 42 + rnd(8)
-  end
-  last_gap_short = false
-  if r < 0.87 then
-    return 48 - l * 2 + rnd(22 - l * 2)
-  end
-  return 80 - l * 4 + rnd(30)
+-- The faster the run, the snappier the jump and kick: same height, but shorter in the air
+-- (1 at level 1, 2.2 at level 5). Otherwise a jump at top speed would span most of the
+-- screen and obstacles could never come close together.
+local function pace()
+  return (speed / LEVEL_SPEED[1]) ^ 0.85
 end
 
--- A snack always needs a move: under a branch you have to slide, everywhere else it
--- floats too high to reach without jumping.
+-- Frames until the next obstacle: sometimes two close together, sometimes a breather,
+-- mostly something in between. Counted in jump times (43 frames at level 1), so the gaps
+-- don't grow on screen with the speed. Never shorter than one jump: two obstacles are
+-- either far enough apart for two jumps or come as a pair for one.
+local function next_gap()
+  local f = 1 - (level - 1) * 0.06
+  local r = rnd(1)
+  local gap
+  if r < 0.3 and not last_gap_short then
+    last_gap_short = true
+    gap = 44 + rnd(8)
+  else
+    last_gap_short = false
+    if r < 0.87 then
+      gap = max(44, (48 + rnd(24)) * f)
+    else
+      gap = (80 + rnd(30)) * f
+    end
+  end
+  return gap / pace()
+end
+
+-- A snack always needs a move and comes on its own in a gap, never next to an obstacle:
+-- either high in the air (jump) or on the ground, where only a slide picks it up.
 local function new_food(x, y)
   local kind = rnd(2) < 1 and "carrot" or "apple"
   local w, h = S.size(kind)
@@ -192,17 +207,6 @@ end
 local function place_food(x, rise)
   new_food(x, 0)
   food.y = GROUND - HORSE_H - rise - food.h + 2
-end
-
-local function food_with(o)
-  if o.breakable then return false end
-  local w = S.size("carrot")
-  if o.overhead then
-    new_food(o.x + (o.w - w) // 2 + 2, GROUND - 17)
-  else
-    place_food(o.x + (o.w - w) // 2, food_rise())
-  end
-  return true
 end
 
 local function add_particle(x, y, vx, vy, c, life, size)
@@ -262,22 +266,23 @@ function _update()
   if invulnerable > 0 then invulnerable = invulnerable - 1 end
   if bonus_timer > 0 then bonus_timer = bonus_timer - 1 end
   if hint_timer > 0 then hint_timer = hint_timer - 1 end
-  if kick_timer > 0 then kick_timer = kick_timer - 1 end
+  if kick_timer > 0 then kick_timer = max(0, kick_timer - pace()) end
 
   -- Jump with UP only; a press shortly before landing still counts.
   if btnp(BTN_UP) then jump_buffer = 6 elseif jump_buffer > 0 then jump_buffer = jump_buffer - 1 end
   local on_ground = horse_y >= GROUND - HORSE_H
   if jump_buffer > 0 and on_ground then
     jump_buffer = 0
-    velocity = -6.9
+    velocity = -6.9 * pace()
     on_ground = false
     tone(note("D5"), 0.06, "square", 0.18)
   end
 
+  local p2 = pace() * pace()
   horse_y = horse_y + velocity
-  velocity = velocity + 0.34
+  velocity = velocity + 0.34 * p2
   -- DOWN in the air pulls the horse back to the ground faster.
-  if not on_ground and btn(BTN_DOWN) and velocity > -2 then velocity = velocity + 0.5 end
+  if not on_ground and btn(BTN_DOWN) and velocity > -2 then velocity = velocity + 0.5 * p2 end
   if horse_y >= GROUND - HORSE_H then
     horse_y = GROUND - HORSE_H
     velocity = 0
@@ -307,33 +312,45 @@ function _update()
   if spawn_timer <= 0 then
     local o = make_obstacle()
     spawn_timer = next_gap()
+    local extra = 0
     -- From level 2 on, low obstacles sometimes come as a pair for one long jump.
-    if level >= 2 and LOW[o.kind] and rnd(1) < 0.3 then
+    if level >= 2 and LOW[o.kind] and rnd(1) < 0.12 + level * 0.08 then
       local kind = rnd({"fence", "hay", "crate"})
       local second = make_obstacle(kind, o.x + o.w + 14 + flr(rnd(10)))
-      spawn_timer = spawn_timer + (second.x + second.w - o.x - o.w) / speed
+      extra = (second.x + second.w - o.x - o.w) / speed
+      spawn_timer = spawn_timer + extra
     end
-    if not food and food_timer <= 0 then
-      -- Either with this obstacle or on its own in a long enough gap after it.
-      if spawn_timer >= 80 and rnd(2) < 1 then
-        air_food_timer = spawn_timer // 2
-        food_timer = 480 + rnd(240)
-      elseif food_with(o) then
-        food_timer = 480 + rnd(240)
-      end
+    if not food and food_timer <= 0 and food_delay == 0 then
+      -- The snack gets a gap of its own, wide enough to land, get it and get ready again.
+      spawn_timer = max(spawn_timer, extra + (92 + rnd(16)) / pace())
+      food_delay = flr(extra + (spawn_timer - extra) / 2)
+      food_timer = 480 + rnd(240)
     end
   end
 
-  if air_food_timer > 0 then
-    air_food_timer = air_food_timer - 1
-    if air_food_timer == 0 then place_food(SCREEN_W + 8, food_rise()) end
+  if food_delay > 0 then
+    food_delay = food_delay - 1
+    if food_delay == 0 then
+      if rnd(2) < 1 then
+        place_food(SCREEN_W + 8, food_rise())
+      else
+        new_food(SCREEN_W + 8, 0)
+        food.y = GROUND - food.h
+        food.low = true
+        if not seen.low_food then
+          seen.low_food = true
+          hint_text = "RUNTER: SNACK AUFSAMMELN!"
+          hint_timer = 150
+        end
+      end
+    end
   end
 
   if food then
     food.x = food.x - speed
     local overlaps_x = HORSE_X + 28 > food.x + 2 and HORSE_X + 2 < food.x + food.w - 2
     local overlaps_y = top < food.y + food.h - 2 and bottom > food.y + 2
-    if overlaps_x and overlaps_y then
+    if overlaps_x and overlaps_y and (sliding or not food.low) then
       add_snack()
       food = nil
     elseif food.x < -15 then
