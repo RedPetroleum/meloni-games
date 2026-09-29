@@ -10,8 +10,8 @@
 #include <stdint.h>
 
 // Version of the Lua API that games are written against (meta.json "api"). Raise it when
-// the API changes in a way that older firmware cannot run newer games, together with
-// API_VERSION in tools/release.py and MELONI_API_VERSION in open-086's meloni_update.c.
+// the API changes in a way that older firmware cannot run newer games (and MELONI_API_VERSION
+// in open-086's meloni_update.c when the firmware takes over the new engine).
 #define MEL_API_VERSION   1
 
 #define MEL_WIDTH         320

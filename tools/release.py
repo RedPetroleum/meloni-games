@@ -18,13 +18,23 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import shutil
 import struct
 import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-API_VERSION = 1  # highest API version this repository targets, see docs/API.md
+
+
+def engine_api_version():
+    """MEL_API_VERSION from engine/meloni/meloni.h: games may not need a newer API."""
+    header = open(os.path.join(ROOT, "engine", "meloni", "meloni.h"), encoding="utf-8").read()
+    match = re.search(r"#define\s+MEL_API_VERSION\s+(\d+)", header)
+    if not match:
+        sys.exit("MEL_API_VERSION not found in engine/meloni/meloni.h")
+    return int(match.group(1))
+
 SKIP_FILES = {"cover.png", ".DS_Store"}
 SKIP_EXTENSIONS = (".sav", ".md")
 
@@ -76,8 +86,8 @@ def load_meta(game_id, game_dir):
             sys.exit(f"{game_id}: meta.json needs '{key}'")
     if meta.get("id", game_id) != game_id:
         sys.exit(f"{game_id}: meta.json id '{meta['id']}' must match the folder name")
-    if meta["api"] > API_VERSION:
-        sys.exit(f"{game_id}: api {meta['api']} is newer than {API_VERSION}")
+    if meta["api"] > engine_api_version():
+        sys.exit(f"{game_id}: api {meta['api']} is newer than the engine's {engine_api_version()}")
     return meta
 
 

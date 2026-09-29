@@ -32,7 +32,7 @@ Rechner entwickelt und getestet und landen per WLAN direkt auf der Konsole.
 | Spiel | Details |
 |---|---|
 | [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |
-| [Hoofy](hoofy/README_HOOFY.md) | Pferde-Spiel, bisher nur Konzept |
+| [Hoofy](games/hoofy/README_HOOFY.md) | Pferde-Spiel, bisher nur Konzept |
 
 ## Ein Spiel entwickeln
 
@@ -63,53 +63,15 @@ games/<id>/
 Veröffentlichen heißt: auf `main` pushen. Sobald der Workflow grün ist, kann die Konsole das
 Spiel laden.
 
-**Mit Claude vibe-coden:** [CLAUDE.md](CLAUDE.md) beschreibt, wie Spiele geschrieben und ohne
-Gerät geprüft werden (headless, mit Screenshots und Tonaufnahme).
+**Mit KI-Assistenten vibe-coden:** [AGENTS.md](AGENTS.md) beschreibt, wie Spiele geschrieben
+und ohne Gerät geprüft werden (headless, mit Screenshots und Tonaufnahme). Claude Code liest sie
+über `CLAUDE.md` mit, andere Werkzeuge direkt.
 
-## Die Konsole einrichten
+## Engine ändern
 
-Einmalig:
-
-1. Firmware aus open-086 bauen und flashen (`./build_retro_go.sh`, `./flash_firmware.sh`, Details
-   in dessen README).
-2. WLAN auf der SD-Karte eintragen, Datei `/retro-go/config/wifi.json`:
-   ```json
-   {"ssid0": "mein-netz", "password0": "mein-passwort"}
-   ```
-
-Danach im Launcher zum Tab **Meloni Games** gehen und **[ Update games ]** wählen. Die Konsole
-verbindet sich, zeigt, wie viel sich geändert hat, und lädt nach Bestätigung herunter.
-
-- Das Release muss öffentlich abrufbar sein, sonst meldet die Konsole HTTP 404.
-- Eine andere Quelle (z. B. ein Fork) lässt sich in `/retro-go/config/meloni.json` eintragen:
-  `{"manifest_url": "https://github.com/<user>/<repo>/releases/download/latest/manifest.json"}`.
-- Ohne WLAN: `make dist` ausführen und `dist/<id>.mlg` von Hand nach `roms/meloni/` kopieren.
-- Im Spiel öffnet SELECT+START das Menü (Weiter, Neustart, Optionen, Beenden).
-  Spielstände liegen unter `/retro-go/saves/meloni/`.
-
-## Engine ändern, API-Versionen
-
-Braucht ein Spiel eine Engine-Funktion, die es noch nicht gibt, wird sie in
-[engine/meloni/](engine/meloni/) ergänzt und im selben Commit in [docs/API.md](docs/API.md)
-beschrieben. Am Rechner und in der CI gilt sie sofort.
-
-Auf die Konsole kommt sie mit der nächsten Firmware: open-086 baut die Engine aus einem fest
-eingetragenen Commit dieses Repos (`MELONI_COMMIT` in `build_retro_go.sh`). Den setzt man auf
-den neuen Stand, baut und flasht.
-
-Jedes Spiel nennt in `meta.json` die API-Version, gegen die es geschrieben ist (`"api": 1`).
-Kann ältere Firmware ein Spiel nicht mehr ausführen, wird die API-Version erhöht
-(`MEL_API_VERSION` in `engine/meloni/meloni.h`). Konsolen mit älterer Firmware überspringen
-solche Spiele beim Update und melden, dass ein Firmware-Update nötig ist.
-
-```
-engine/meloni/   Engine: Lua-API, Zeichnen, Mixer, .mlg-Archive (plattformunabhängig)
-engine/lua/      Lua 5.4.7 mit LUA_32BITS (die FPU des ESP32-S3 rechnet nur einfach genau)
-runner/          die Engine am Rechner: Fenster (SDL2) oder headless mit Screenshot/WAV
-```
-
-Die Geräte-Seite (Display, Ton, Tasten, Menü, Launcher-Tab und Updater) ist retro-go-spezifisch
-und liegt in open-086.
+Fehlt einem Spiel eine Funktion, wird sie in [engine/meloni/](engine/meloni/) ergänzt und im
+selben Commit in [docs/API.md](docs/API.md) beschrieben. Auf die Konsole kommt sie erst mit einer
+Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
 
 ## Hardware
 
