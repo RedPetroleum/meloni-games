@@ -1,21 +1,18 @@
 /*
  * Meloni Snake for the HU-086 / Retro-Go.
  *
- * Built as an iNES ROM for Retro-Go's NES emulator.
- * The TGI graphics mode fills nearly the whole NES screen with a two-colour
- * palette: navy playfield and bright green snake, food, and frame.
+ * Uses the NES text screen for a clean, native 8-bit look. The field spans
+ * almost the full screen; the boxed frame is the wall, and '*' is the food.
  */
 #include <conio.h>
 #include <joystick.h>
 #include <nes.h>
 #include <stdlib.h>
-#include <tgi.h>
 
-#define BOARD_X 4
-#define BOARD_Y 7
+#define BOARD_X 2
+#define BOARD_Y 5
 #define BOARD_W 28
-#define BOARD_H 22
-#define CELL 2
+#define BOARD_H 20
 #define MAX_SNAKE (BOARD_W * BOARD_H)
 
 #define DIR_UP    0
@@ -40,101 +37,68 @@ static unsigned int score, best_score;
 
 static const signed char dx[4] = { 0, 1, 0, -1 };
 static const signed char dy[4] = { -1, 0, 1, 0 };
-static const unsigned char snake_palette[2] = { COLOR_BLUE, COLOR_LIGHTGREEN };
 
-static void text_at(unsigned char x, unsigned char y, const char *text)
+static void put_at(unsigned char x, unsigned char y, const char *text)
 {
-    tgi_setcolor(1);
-    tgi_outtextxy(x, y, text);
+    cputsxy(x, y, text);
 }
 
-static void number_at(unsigned char x, unsigned char y, unsigned int value)
+static void write_number(unsigned char x, unsigned char y, unsigned int value)
 {
-    char digits[4];
-    digits[0] = (char)('0' + (value / 100U) % 10U);
-    digits[1] = (char)('0' + (value / 10U) % 10U);
-    digits[2] = (char)('0' + value % 10U);
-    digits[3] = 0;
-    text_at(x, y, digits);
+    cputcxy(x, y, (char)('0' + (value / 100U) % 10U));
+    cputcxy((unsigned char)(x + 1), y, (char)('0' + (value / 10U) % 10U));
+    cputcxy((unsigned char)(x + 2), y, (char)('0' + value % 10U));
 }
 
 static void draw_score(void)
 {
-    tgi_setcolor(0);
-    tgi_bar(0, 0, 63, 3);
-    text_at(2, 1, "SCORE");
-    number_at(14, 1, score);
-    text_at(34, 1, "BEST");
-    number_at(44, 1, best_score);
+    put_at(3, 2, "SCORE");
+    write_number(9, 2, score);
+    put_at(20, 2, "BEST");
+    write_number(25, 2, best_score);
 }
 
-static unsigned char pixel_x(unsigned char x)
+static char head_glyph(void)
 {
-    return (unsigned char)(BOARD_X + x * CELL);
+    if (direction == DIR_UP) return '^';
+    if (direction == DIR_RIGHT) return '>';
+    if (direction == DIR_DOWN) return 'v';
+    return '<';
 }
 
-static unsigned char pixel_y(unsigned char y)
+static void draw_cell(unsigned char x, unsigned char y, char tile)
 {
-    return (unsigned char)(BOARD_Y + y * CELL);
+    cputcxy((unsigned char)(BOARD_X + x),
+            (unsigned char)(BOARD_Y + y), tile);
 }
 
-static void draw_cell(unsigned char x, unsigned char y, unsigned char color)
+static void draw_board(void)
 {
-    unsigned char px = pixel_x(x);
-    unsigned char py = pixel_y(y);
-    tgi_setcolor(color);
-    tgi_bar(px, py, (unsigned char)(px + CELL - 1),
-            (unsigned char)(py + CELL - 1));
-}
+    unsigned char i, y;
 
-static void draw_head(unsigned char x, unsigned char y)
-{
-    unsigned char px = pixel_x(x);
-    unsigned char py = pixel_y(y);
-    unsigned char eye_x = px;
-    unsigned char eye_y = py;
+    bgcolor(COLOR_BLACK);
+    textcolor(COLOR_ORANGE);
+    clrscr();
 
-    tgi_setcolor(1);
-    tgi_bar(px, py, (unsigned char)(px + 1), (unsigned char)(py + 1));
-    if (direction == DIR_RIGHT) eye_x = (unsigned char)(px + 1);
-    else if (direction == DIR_DOWN) eye_y = (unsigned char)(py + 1);
-    else if (direction == DIR_LEFT) {
-        eye_x = px;
-        eye_y = (unsigned char)(py + 1);
-    }
-    tgi_setcolor(0);
-    tgi_setpixel(eye_x, eye_y);
-}
-
-static void draw_food(void)
-{
-    unsigned char px = pixel_x(food_x);
-    unsigned char py = pixel_y(food_y);
-    tgi_setcolor(1);
-    tgi_bar(px, py, (unsigned char)(px + 1), (unsigned char)(py + 1));
-    /* A cut-out corner makes the food symbol distinct from a snake segment. */
-    tgi_setcolor(0);
-    tgi_setpixel((unsigned char)(px + 1), (unsigned char)(py + 1));
-}
-
-static void draw_frame(void)
-{
-    tgi_clear();
+    put_at(10, 1, "MELONI SNAKE");
     draw_score();
 
-    /* Thick, bright frame around an almost full-screen playfield. */
-    tgi_setcolor(1);
-    tgi_bar(2, 5, 61, 52);
-    tgi_setcolor(0);
-    tgi_bar(4, 7, 59, 50);
-}
+    cputcxy(1, 4, CH_ULCORNER);
+    chlinexy(2, 4, BOARD_W);
+    cputcxy(30, 4, CH_URCORNER);
+    for (y = 0; y < BOARD_H; ++y) {
+        cputcxy(1, (unsigned char)(BOARD_Y + y), CH_VLINE);
+        cputcxy(30, (unsigned char)(BOARD_Y + y), CH_VLINE);
+        for (i = 0; i < BOARD_W; ++i)
+            cputcxy((unsigned char)(BOARD_X + i),
+                    (unsigned char)(BOARD_Y + y), ' ');
+    }
+    cputcxy(1, 25, CH_LLCORNER);
+    chlinexy(2, 25, BOARD_W);
+    cputcxy(30, 25, CH_LRCORNER);
 
-static void draw_all_snake(void)
-{
-    unsigned int i;
-    for (i = snake_length; i > 1; --i)
-        draw_cell(snake_x[i - 1U], snake_y[i - 1U], 1);
-    draw_head(snake_x[0], snake_y[0]);
+    put_at(3, 27, "* FOOD   |   FRAME = WALL");
+    put_at(5, 28, "D-PAD: MOVE    B: PAUSE");
 }
 
 static void place_food(void)
@@ -154,51 +118,58 @@ static void place_food(void)
         }
     } while (occupied);
 
-    draw_food();
+    draw_cell(food_x, food_y, '*');
 }
 
 static void draw_ready_screen(void)
 {
-    tgi_clear();
-    text_at(27, 17, "SNAKE");
-    text_at(16, 25, "START OR A TO PLAY");
-    text_at(14, 33, "D-PAD TO MOVE");
-    text_at(15, 39, "B PAUSES THE GAME");
-    text_at(19, 47, "BEST SCORE");
-    number_at(41, 47, best_score);
+    clrscr();
+    put_at(10, 8, "MELONI SNAKE");
+    put_at(7, 12, "EAT *   AVOID THE FRAME");
+    put_at(8, 16, "D-PAD TO MOVE");
+    put_at(6, 20, "START OR A TO PLAY");
+    put_at(8, 24, "BEST SCORE");
+    write_number(20, 24, best_score);
+}
+
+static void draw_overlay_lines(void)
+{
+    unsigned char x, y;
+    for (y = 14; y <= 18; ++y)
+        for (x = 5; x <= 26; ++x)
+            cputcxy(x, y, ' ');
 }
 
 static void show_message(unsigned char state)
 {
-    const char *title;
     game_state = state;
-    if (state == STATE_PAUSE) title = "PAUSED";
-    else if (state == STATE_WON) title = "YOU WIN!";
-    else title = "GAME OVER";
+    draw_overlay_lines();
 
-    tgi_setcolor(0);
-    tgi_bar(10, 20, 53, 35);
-    text_at(22, 23, title);
     if (state == STATE_PAUSE) {
-        text_at(15, 29, "B TO CONTINUE");
+        put_at(13, 15, "PAUSED");
+        put_at(9, 17, "PRESS B TO RESUME");
     } else {
-        text_at(18, 29, "SCORE");
-        number_at(32, 29, score);
-        text_at(12, 33, "START OR A TO RETRY");
+        put_at(12, 14, state == STATE_WON ? "YOU WIN!" : "GAME OVER");
+        put_at(10, 16, "SCORE");
+        write_number(16, 16, score);
+        put_at(6, 18, "START OR A TO RETRY");
     }
 }
 
 static void redraw_game(void)
 {
-    draw_frame();
-    draw_all_snake();
-    draw_food();
+    unsigned int i;
+    draw_board();
     draw_score();
+    for (i = 1; i < snake_length; ++i)
+        draw_cell(snake_x[i], snake_y[i], 'o');
+    draw_cell(snake_x[0], snake_y[0], head_glyph());
+    draw_cell(food_x, food_y, '*');
 }
 
 static void start_game(void)
 {
-    draw_frame();
+    draw_board();
     snake_length = 3;
     snake_x[0] = 13; snake_y[0] = 10;
     snake_x[1] = 12; snake_y[1] = 10;
@@ -210,7 +181,9 @@ static void start_game(void)
     frames_per_step = 16;
     frame_count = 0;
     draw_score();
-    draw_all_snake();
+    draw_cell(snake_x[2], snake_y[2], 'o');
+    draw_cell(snake_x[1], snake_y[1], 'o');
+    draw_cell(snake_x[0], snake_y[0], head_glyph());
     place_food();
     game_state = STATE_PLAY;
 }
@@ -292,7 +265,7 @@ static void move_snake(void)
         if (score > best_score) best_score = score;
         if ((score % 5U) == 0 && frames_per_step > 8) --frames_per_step;
     } else {
-        draw_cell(tail_x, tail_y, 0);
+        draw_cell(tail_x, tail_y, ' ');
         for (i = snake_length - 1U; i > 0; --i) {
             snake_x[i] = snake_x[i - 1U];
             snake_y[i] = snake_y[i - 1U];
@@ -301,8 +274,9 @@ static void move_snake(void)
 
     snake_x[0] = (unsigned char)next_x;
     snake_y[0] = (unsigned char)next_y;
-    draw_cell(snake_x[1], snake_y[1], 1);
-    draw_head(snake_x[0], snake_y[0]);
+    draw_cell(snake_x[1], snake_y[1], 'o');
+    draw_cell(snake_x[0], snake_y[0], head_glyph());
+
     if (ate) {
         draw_score();
         if (snake_length >= MAX_SNAKE) {
@@ -318,12 +292,11 @@ int main(void)
     unsigned char pad, pressed;
     unsigned int seed = 1;
 
+    bgcolor(COLOR_BLACK);
+    textcolor(COLOR_ORANGE);
+    bordercolor(COLOR_BLACK);
+    clrscr();
     joy_install(joy_static_stddrv);
-    bgcolor(COLOR_BLUE);
-    tgi_install(tgi_static_stddrv);
-    tgi_init();
-    tgi_setpalette(snake_palette);
-    tgi_clear();
     game_state = STATE_READY;
     best_score = 0;
     draw_ready_screen();
