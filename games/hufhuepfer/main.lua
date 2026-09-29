@@ -1,13 +1,20 @@
--- Huf-Hüpfer: ein kleines Ein-Knopf-Spiel für die Meloni-API v1.
--- A oder hoch drücken, um über Hindernisse zu springen.
+-- Huf-Hüpfer: ein kleines Pferde-Jump-and-Run für die Meloni-API v1.
+-- Hoch: springen, runter: unter Ästen durchrutschen, A: Kisten und Bretterwände kaputt treten.
 -- Sammle Möhren und Äpfel: Je drei Snacks geben ein zusätzliches Leben.
 
 local GROUND = 193
 local HORSE_X = 44
 local HORSE_H = 25
+local SLIDE_H = 13
+local BRANCH_BOTTOM = GROUND - 18
+local KICK_TIME = 26    -- Frames bis zum nächsten Tritt
+local KICK_ACTIVE = 10  -- davon trifft der Tritt in den ersten Frames
 local MAX_LIVES = 5
 local state = "title"
-local horse_y, velocity
+local horse_y, velocity, sliding, kick_timer, jump_buffer, over_timer
+local particles
+local seen = {}
+local hint_text, hint_timer = nil, 0
 local obstacles, food
 local spawn_timer, food_timer
 local speed, play_frames, level
@@ -46,11 +53,34 @@ local C = {
   water_light = rgb(145, 195, 190),
   apple = rgb(185, 77, 68),
   leaf = rgb(115, 150, 78),
+  leaf_dark = rgb(72, 108, 70),
+}
+
+-- Hindernisarten: h = Höhe am Boden, overhead = hängt von oben (drunter rutschen),
+-- breakable = mit A kaputt treten. hint erscheint beim ersten Auftauchen.
+local KINDS = {
+  fence = {w = 17, h = 27},
+  hay = {w = 21, h = 18},
+  puddle = {w = 31, h = 10},
+  logs = {w = 24, h = 22},
+  branch = {w = 30, overhead = true, hint = "RUNTER: DRUNTER RUTSCHEN!"},
+  crate = {w = 18, h = 18, breakable = true, hint = "A: KISTE KAPUTT TRETEN!"},
+  wall = {w = 16, h = 68, breakable = true, hint = "ZU HOCH! A: TRETEN!"},
+}
+local POOLS = {
+  {"fence", "hay", "branch", "crate"},
+  {"fence", "hay", "branch", "crate", "puddle", "wall"},
+  {"fence", "hay", "branch", "crate", "puddle", "wall", "logs", "branch"},
 }
 
 local function reset()
   horse_y = GROUND - HORSE_H
   velocity = 0
+  sliding = false
+  kick_timer = 0
+  jump_buffer = 0
+  over_timer = 0
+  particles = {}
   obstacles = {}
   food = nil
   spawn_timer = 68
@@ -79,6 +109,7 @@ end
 
 local function end_game()
   state = "over"
+  over_timer = 45
   if score > best then
     best = score
     savedata({best = best})
@@ -103,18 +134,39 @@ local function add_snack()
 end
 
 local function make_obstacle()
-  -- New shapes enter gradually: puddles at level 2, log piles at level 3.
-  local kinds = level >= 3 and 4 or level >= 2 and 3 or 2
-  local kind = flr(rnd(kinds)) + 1
-  local widths = {17, 21, 31, 24}
-  local heights = {27, 18, 10, 22}
+  -- New shapes enter gradually: puddles and walls at level 2, log piles at level 3.
+  local kind = rnd(POOLS[min(level, #POOLS)])
+  local k = KINDS[kind]
   obstacles[#obstacles + 1] = {
     x = SCREEN_W + 8,
-    w = widths[kind],
-    h = heights[kind],
+    w = k.w,
+    h = k.h or 0,
     kind = kind,
+    overhead = k.overhead,
+    breakable = k.breakable,
     passed = false,
   }
+  if k.hint and not seen[kind] then
+    seen[kind] = true
+    hint_text = k.hint
+    hint_timer = 150
+  end
+end
+
+local function add_particle(x, y, vx, vy, c, life, size)
+  if #particles >= 40 then return end
+  particles[#particles + 1] = {x = x, y = y, vx = vx, vy = vy, c = c, life = life, size = size}
+end
+
+local function smash(o)
+  local top = GROUND - o.h
+  for i = 1, 12 do
+    add_particle(o.x + rnd(o.w), top + rnd(o.h), rnd(4) - 1, -rnd(4) - 1,
+      i % 3 == 0 and C.wood or C.wood_light, 30 + flr(rnd(20)), 2 + flr(rnd(2)))
+  end
+  score = score + 2
+  tone(160, 0.14, "noise", 0.35)
+  tone(note("G4"), 0.08, "square", 0.15)
 end
 
 function _update()
@@ -122,7 +174,12 @@ function _update()
     if btnp(BTN_A) or btnp(BTN_START) then start() end
     return
   elseif state == "over" then
-    if btnp(BTN_A) or btnp(BTN_START) then start() end
+    -- Short pause, so kicking into the final crash doesn't restart right away.
+    if over_timer > 0 then
+      over_timer = over_timer - 1
+    elseif btnp(BTN_A) or btnp(BTN_START) then
+      start()
+    end
     return
   end
 
@@ -132,18 +189,46 @@ function _update()
 
   if invulnerable > 0 then invulnerable = invulnerable - 1 end
   if bonus_timer > 0 then bonus_timer = bonus_timer - 1 end
+  if hint_timer > 0 then hint_timer = hint_timer - 1 end
+  if kick_timer > 0 then kick_timer = kick_timer - 1 end
 
-  if (btnp(BTN_A) or btnp(BTN_UP)) and horse_y >= GROUND - HORSE_H then
+  -- Jump with UP only; a press shortly before landing still counts.
+  if btnp(BTN_UP) then jump_buffer = 6 elseif jump_buffer > 0 then jump_buffer = jump_buffer - 1 end
+  local on_ground = horse_y >= GROUND - HORSE_H
+  if jump_buffer > 0 and on_ground then
+    jump_buffer = 0
     velocity = -6.9
+    on_ground = false
     tone(note("D5"), 0.06, "square", 0.18)
   end
 
   horse_y = horse_y + velocity
   velocity = velocity + 0.34
-  if horse_y > GROUND - HORSE_H then
+  -- DOWN in the air pulls the horse back to the ground faster.
+  if not on_ground and btn(BTN_DOWN) and velocity > -2 then velocity = velocity + 0.5 end
+  if horse_y >= GROUND - HORSE_H then
     horse_y = GROUND - HORSE_H
     velocity = 0
+    on_ground = true
   end
+
+  -- Slide while DOWN is held on the ground.
+  local was_sliding = sliding
+  sliding = on_ground and btn(BTN_DOWN)
+  if sliding then
+    kick_timer = 0
+    if not was_sliding then tone(note("E3"), 0.12, "noise", 0.12) end
+    if frame() % 3 == 0 then
+      add_particle(HORSE_X - 2, GROUND - 2, -speed * 0.5, -rnd(1), C.dirt_light, 14, 2)
+    end
+  elseif btnp(BTN_A) and kick_timer == 0 then
+    kick_timer = KICK_TIME
+    tone(note("A3"), 0.05, "noise", 0.12)
+  end
+  local kicking = kick_timer > KICK_TIME - KICK_ACTIVE
+
+  local top = sliding and GROUND - SLIDE_H or horse_y
+  local bottom = sliding and GROUND or horse_y + HORSE_H
 
   spawn_timer = spawn_timer - 1
   if spawn_timer <= 0 then
@@ -166,7 +251,7 @@ function _update()
   if food then
     food.x = food.x - speed
     local overlaps_x = HORSE_X + 28 > food.x and HORSE_X + 2 < food.x + 10
-    local overlaps_y = horse_y < food.y + 10 and horse_y + HORSE_H > food.y
+    local overlaps_y = top < food.y + 10 and bottom > food.y
     if overlaps_x and overlaps_y then
       add_snack()
       food = nil
@@ -183,15 +268,38 @@ function _update()
       score = score + 1
       if score % 5 == 0 then tone(note("E5"), 0.07, "triangle", 0.22) end
     end
-    local hit_x = HORSE_X + 26 > o.x and HORSE_X + 4 < o.x + o.w
-    local hit_y = horse_y + HORSE_H - 2 > GROUND - o.h
-    if hit_x and hit_y and invulnerable == 0 then
-      lives = lives - 1
-      invulnerable = 72
-      tone(note("C3"), 0.12, "saw", 0.18)
-      if lives <= 0 then end_game() end
+    -- The kick reaches a bit in front of the nose.
+    if kicking and o.breakable and not o.passed
+        and HORSE_X + 48 > o.x and HORSE_X + 20 < o.x + o.w
+        and horse_y + 4 < GROUND and horse_y + 22 > GROUND - o.h then
+      smash(o)
+      table.remove(obstacles, i)
+    else
+      local hit_x = HORSE_X + 26 > o.x and HORSE_X + 4 < o.x + o.w
+      local hit_y
+      if o.overhead then
+        hit_y = top + 2 < BRANCH_BOTTOM
+      else
+        hit_y = bottom - 2 > GROUND - o.h
+      end
+      if hit_x and hit_y and invulnerable == 0 then
+        lives = lives - 1
+        invulnerable = 72
+        tone(note("C3"), 0.12, "saw", 0.18)
+        if lives <= 0 then end_game() end
+      end
+      if o.x < -50 then table.remove(obstacles, i) end
     end
-    if o.x < -34 then table.remove(obstacles, i) end
+  end
+
+  for i = #particles, 1, -1 do
+    local p = particles[i]
+    p.x = p.x + p.vx - speed * 0.3
+    p.y = p.y + p.vy
+    p.vy = p.vy + 0.25
+    if p.y > GROUND then p.y = GROUND; p.vy = 0; p.vx = 0 end
+    p.life = p.life - 1
+    if p.life <= 0 then table.remove(particles, i) end
   end
 end
 
@@ -203,8 +311,8 @@ local function draw_cloud(x, y)
   line(x + 2, y + 11, x + 17, y + 11, C.sky_light)
 end
 
-local function draw_horse(x, y, running)
-  local stride = running and ((frame() // 4) % 2) * 2 or 0
+local function draw_horse(x, y, running, kicking)
+  local stride = running and not kicking and ((frame() // 4) % 2) * 2 or 0
   local cx = x + 13
   if y > 100 then
     rectfill(cx - 9, GROUND + 1, cx + 8, GROUND + 2, C.dirt)
@@ -235,12 +343,45 @@ local function draw_horse(x, y, running)
   line(x + 9, y + 14, x + 17, y + 14, C.gold)
   line(x + 8, y + 17, x + 7 + stride, y + 23, C.horse)
   line(x + 12, y + 17, x + 12 - stride, y + 23, C.horse)
-  line(x + 18, y + 16, x + 19 - stride, y + 23, C.horse)
-  line(x + 21, y + 13, x + 22 + stride, y + 22, C.horse)
   line(x + 6 + stride, y + 23, x + 9 + stride, y + 23, C.mane)
   line(x + 11 - stride, y + 23, x + 14 - stride, y + 23, C.mane)
-  line(x + 18 - stride, y + 23, x + 21 - stride, y + 23, C.mane)
-  line(x + 21 + stride, y + 22, x + 24 + stride, y + 22, C.mane)
+  if kicking then
+    -- Front legs thrust forward, with a little impact flash.
+    line(x + 18, y + 16, x + 29, y + 18, C.horse)
+    line(x + 21, y + 13, x + 32, y + 12, C.horse)
+    rectfill(x + 29, y + 17, x + 31, y + 19, C.mane)
+    rectfill(x + 32, y + 11, x + 34, y + 13, C.mane)
+    line(x + 37, y + 7, x + 39, y + 10, C.cream)
+    line(x + 38, y + 15, x + 42, y + 15, C.cream)
+    line(x + 37, y + 20, x + 39, y + 23, C.cream)
+  else
+    line(x + 18, y + 16, x + 19 - stride, y + 23, C.horse)
+    line(x + 21, y + 13, x + 22 + stride, y + 22, C.horse)
+    line(x + 18 - stride, y + 23, x + 21 - stride, y + 23, C.mane)
+    line(x + 21 + stride, y + 22, x + 24 + stride, y + 22, C.mane)
+  end
+end
+
+-- Low, stretched-out horse sliding on its belly; y is the top, hooves at y + 12.
+local function draw_horse_slide(x, y)
+  rectfill(x - 2, GROUND + 1, x + 30, GROUND + 2, C.dirt)
+  line(x + 1, y + 5, x - 5, y + 3, C.mane)
+  line(x - 5, y + 3, x - 8, y + 6, C.horse_light)
+  line(x + 6, y + 10, x - 2, y + 12, C.horse)
+  line(x - 4, y + 12, x - 1, y + 12, C.mane)
+  circfill(x + 6, y + 7, 4, C.horse)
+  rectfill(x + 5, y + 3, x + 22, y + 10, C.horse)
+  rectfill(x + 7, y + 3, x + 18, y + 4, C.horse_light)
+  rectfill(x + 19, y + 2, x + 26, y + 8, C.horse)
+  rectfill(x + 24, y + 1, x + 31, y + 5, C.horse_light)
+  rectfill(x + 29, y + 3, x + 33, y + 6, C.muzzle)
+  line(x + 18, y + 2, x + 24, y, C.mane)
+  line(x + 22, y, x + 19, y - 1, C.mane)
+  pset(x + 27, y + 2, C.ink)
+  rectfill(x + 9, y + 2, x + 15, y + 6, C.saddle)
+  line(x + 9, y + 6, x + 15, y + 6, C.gold)
+  line(x + 20, y + 9, x + 30, y + 12, C.horse)
+  line(x + 29, y + 12, x + 32, y + 12, C.mane)
 end
 
 local function draw_carrot(x, y)
@@ -262,32 +403,78 @@ local function draw_apple(x, y)
 end
 
 local function draw_obstacle(o)
-  if o.kind == 1 then
+  if o.kind == "fence" then
     rectfill(o.x + 2, GROUND - o.h + 4, o.x + 5, GROUND - 1, C.wood)
     rectfill(o.x + o.w - 5, GROUND - o.h + 4, o.x + o.w - 2, GROUND - 1, C.wood)
     rectfill(o.x - 1, GROUND - o.h + 7, o.x + o.w + 1, GROUND - o.h + 11, C.cream)
     rectfill(o.x - 1, GROUND - 12, o.x + o.w + 1, GROUND - 8, C.wood_light)
     line(o.x + 2, GROUND - o.h + 8, o.x + o.w - 2, GROUND - o.h + 8, C.red)
     line(o.x + 2, GROUND - 10, o.x + o.w - 2, GROUND - 10, C.gold)
-  elseif o.kind == 2 then
+  elseif o.kind == "hay" then
     rectfill(o.x + 2, GROUND - o.h + 2, o.x + o.w - 2, GROUND - 1, C.hay)
     rectfill(o.x + 4, GROUND - o.h + 1, o.x + o.w - 4, GROUND - o.h + 3, C.hay_light)
     rect(o.x + 2, GROUND - o.h + 2, o.x + o.w - 2, GROUND - 1, C.wood)
     line(o.x + 6, GROUND - o.h + 4, o.x + 6, GROUND - 3, C.hay_light)
     line(o.x + o.w - 7, GROUND - o.h + 4, o.x + o.w - 7, GROUND - 3, C.hay_light)
-  elseif o.kind == 3 then
+  elseif o.kind == "puddle" then
     -- Wide, low puddle: jump over it.
     circfill(o.x + 8, GROUND - 3, 6, C.water)
     circfill(o.x + 20, GROUND - 3, 7, C.water)
     circfill(o.x + 26, GROUND - 3, 5, C.water)
     line(o.x + 8, GROUND - 4, o.x + 13, GROUND - 4, C.water_light)
     line(o.x + 21, GROUND - 2, o.x + 26, GROUND - 2, C.water_light)
-  else
+  elseif o.kind == "logs" then
     -- A stack of two short logs.
     rectfill(o.x + 2, GROUND - 10, o.x + o.w - 2, GROUND - 1, C.wood)
     rectfill(o.x + 5, GROUND - 17, o.x + o.w - 5, GROUND - 9, C.wood_light)
     circfill(o.x + 6, GROUND - 13, 3, C.hay_light)
     circfill(o.x + o.w - 6, GROUND - 5, 3, C.hay_light)
+  elseif o.kind == "branch" then
+    -- Low branch hanging from above: slide under it.
+    for i = 0, 3 do
+      line(o.x + 34 + i, 34, o.x + 14 + i, BRANCH_BOTTOM - 26, i < 2 and C.wood or C.mane)
+    end
+    line(o.x + 30, 34, o.x + 44, 50, C.wood)
+    circfill(o.x + 42, 52, 5, C.leaf_dark)
+    circfill(o.x + 14, BRANCH_BOTTOM - 20, 9, C.leaf_dark)
+    circfill(o.x + 6, BRANCH_BOTTOM - 10, 7, C.leaf_dark)
+    circfill(o.x + 17, BRANCH_BOTTOM - 8, 8, C.leaf_dark)
+    circfill(o.x + 26, BRANCH_BOTTOM - 11, 6, C.leaf_dark)
+    circfill(o.x + 11, BRANCH_BOTTOM - 15, 5, C.leaf)
+    circfill(o.x + 21, BRANCH_BOTTOM - 14, 4, C.leaf)
+    line(o.x + 4, BRANCH_BOTTOM - 4, o.x + 4, BRANCH_BOTTOM, C.leaf_dark)
+    line(o.x + 13, BRANCH_BOTTOM - 1, o.x + 13, BRANCH_BOTTOM + 1, C.leaf_dark)
+    line(o.x + 22, BRANCH_BOTTOM - 3, o.x + 22, BRANCH_BOTTOM, C.leaf_dark)
+    pset(o.x + 9, BRANCH_BOTTOM - 17, C.green)
+    pset(o.x + 19, BRANCH_BOTTOM - 16, C.green)
+    pset(o.x + 24, BRANCH_BOTTOM - 12, C.green)
+  elseif o.kind == "crate" then
+    -- Wooden crate: jump over it or kick it apart.
+    local top = GROUND - o.h
+    rectfill(o.x, top, o.x + o.w, GROUND - 1, C.wood_light)
+    rect(o.x, top, o.x + o.w, GROUND - 1, C.wood)
+    rect(o.x + 2, top + 2, o.x + o.w - 2, GROUND - 3, C.wood)
+    line(o.x + 2, top + 2, o.x + o.w - 2, GROUND - 3, C.wood)
+    line(o.x + o.w - 2, top + 2, o.x + 2, GROUND - 3, C.wood)
+    line(o.x + 1, top + 1, o.x + o.w - 1, top + 1, C.hay_light)
+  else
+    -- Tall plank wall with a crack: too high to jump, kick it down.
+    local top = GROUND - o.h
+    rectfill(o.x, top + 3, o.x + o.w, GROUND - 1, C.wood_light)
+    for p = 0, 2 do
+      local px = o.x + p * 5 + 1
+      line(px, top + 2, px + 3, top + 2, C.wood_light)
+      line(px + 1, top, px + 2, top, C.wood_light)
+      line(px + 1, top + 1, px + 2, top + 1, C.wood_light)
+      if p > 0 then line(px - 1, top + 2, px - 1, GROUND - 1, C.wood) end
+    end
+    rectfill(o.x - 1, top + 9, o.x + o.w + 1, top + 12, C.wood)
+    rectfill(o.x - 1, GROUND - 16, o.x + o.w + 1, GROUND - 13, C.wood)
+    line(o.x + 7, top + 22, o.x + 10, top + 29, C.mane)
+    line(o.x + 10, top + 29, o.x + 6, top + 36, C.mane)
+    line(o.x + 6, top + 36, o.x + 9, top + 43, C.mane)
+    pset(o.x + 2, top + 10, C.cream)
+    pset(o.x + o.w - 2, GROUND - 15, C.cream)
   end
 end
 
@@ -333,7 +520,15 @@ local function draw_world(hide_horse)
     else draw_apple(food.x, food.y) end
   end
   if not hide_horse and (invulnerable == 0 or frame() % 8 < 4) then
-    draw_horse(HORSE_X, horse_y, horse_y == GROUND - HORSE_H)
+    if sliding then
+      draw_horse_slide(HORSE_X, GROUND - SLIDE_H)
+    else
+      draw_horse(HORSE_X, horse_y, horse_y == GROUND - HORSE_H,
+        kick_timer > KICK_TIME - KICK_ACTIVE)
+    end
+  end
+  for _, p in ipairs(particles) do
+    rectfill(p.x, p.y, p.x + p.size - 1, p.y + p.size - 1, p.c)
   end
 
   rectfill(0, 0, SCREEN_W - 1, 31, C.panel)
@@ -349,21 +544,28 @@ end
 function _draw()
   if state == "title" then
     draw_world(true)
-    rectfill(46, 42, 274, 151, C.panel)
-    rectfill(46, 42, 274, 45, C.gold)
-    draw_horse(72, 89, false)
-    print("HUF-HÜPFER", 126, 62, C.gold, 2)
-    print("Spring ueber Zaeune", 126, 94, C.white)
-    print("und Heuballen.", 126, 108, C.white)
+    rectfill(40, 42, 280, 151, C.panel)
+    rectfill(40, 42, 280, 45, C.gold)
+    draw_horse(66, 89, false)
+    print("HUF-HÜPFER", 110, 62, C.gold, 2)
+    print("HOCH:   Springen", 126, 88, C.white)
+    print("RUNTER: Rutschen", 126, 100, C.white)
+    print("A:      Treten", 126, 112, C.white)
     rectfill(125, 128, 255, 145, C.saddle)
     print("A: LOS", 164, 133, C.cream)
     return
   end
 
   draw_world(false)
+  if hint_timer > 0 and state == "play" then
+    local w = textw(hint_text)
+    local x = (SCREEN_W - w) // 2
+    rectfill(x - 8, 42, x + w + 7, 59, C.panel)
+    print(hint_text, x, 47, frame() % 30 < 20 and C.gold or C.cream)
+  end
   if bonus_timer > 0 then
-    rectfill(91, 42, 229, 59, C.panel)
-    print("EXTRA LEBEN!", 108, 47, C.gold)
+    rectfill(91, 64, 229, 81, C.panel)
+    print("EXTRA LEBEN!", 108, 69, C.gold)
   end
   if state == "over" then
     rectfill(60, 61, 260, 147, C.panel)
@@ -371,6 +573,6 @@ function _draw()
     print("HOPPLA!", 111, 78, C.red, 2)
     print("Punkte: " .. score, 112, 111, C.white)
     print("Best: " .. best, 112, 124, C.gold)
-    print("A: Nochmal", 112, 136, C.green)
+    if over_timer == 0 then print("A: Nochmal", 112, 136, C.green) end
   end
 end

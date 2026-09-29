@@ -22,7 +22,7 @@ Engine aus diesem Repo enthält.
 | Spiel | Details |
 |---|---|
 | [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |
-| [Huf-Hüpfer](games/hufhuepfer/main.lua) | Ein-Knopf-Pferdespiel: springe über Zäune und Heuballen |
+| [Huf-Hüpfer](games/hufhuepfer/main.lua) | Pferde-Jump-and-Run: springen (hoch), unter Ästen rutschen (runter), Kisten kaputt treten (A) |
 | [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 
 ## Engine ändern
