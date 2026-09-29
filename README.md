@@ -24,5 +24,5 @@ Hier nur die Kurzübersicht. Detailierte Readme sind in den einzelnen Projekt-Or
 
 | Spiel | Details |
 |---|---|
-|[Snake](snake/README_SNAKE.md)|Browser-Prototyp, direkt spielbar|
+|[Snake](snake/README_SNAKE.md)|NES-ROM für Retro-Go, plus Browser-Vorschau|
 |Hoofy|Noch zu bauen|
