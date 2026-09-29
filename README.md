@@ -1,10 +1,10 @@
 # Meloni Games
 
-Hier werden verschiedene Spiele für den open-086 entwickelt. 
+Hier werden verschiedene Spiele für den open-086 entwickelt.
 
 ## Hardware
 
-- HXFB HU-086 mit custom firmware: [open-086](https://github.com/RedPetroleum/open-086), basierend auf [retro-go](https://github.com/ducalex/retro-go). 
+- HXFB HU-086 mit custom firmware: [open-086](https://github.com/RedPetroleum/open-086), basierend auf [retro-go](https://github.com/ducalex/retro-go).
 
 | Component | Details |
 |---|---|
@@ -18,11 +18,9 @@ Hier werden verschiedene Spiele für den open-086 entwickelt.
 | Case dimensions | 81.7 x 109.6 x 21.6 mm |
 | Controls | D-pad, A, B, SELECT, START, power button |
 
-## Spiele überblick
-
-Hier nur die Kurzübersicht. Detailierte Readme sind in den einzelnen Projekt-Ordnern zu pflegen
+## Spieleüberblick
 
 | Spiel | Details |
 |---|---|
-|[Snake](snake/README_SNAKE.md)|NES-ROM für Retro-Go, plus Browser-Vorschau|
-|Hoofy|Noch zu bauen|
+| [Snake](snake/README_SNAKE.md) | Game-Boy-Color-ROM für Retro-Go |
+| Hoofy | Noch zu bauen |

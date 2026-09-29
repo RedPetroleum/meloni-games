@@ -1,27 +1,23 @@
 # Snake
 
-Snake für die HU-086: als NES-ROM für den NES-Emulator in Retro-Go. Dazu gibt es eine Browser-Vorschau.
+Snake für die HU-086 als Game-Boy-Color-kompatible ROM. Das Spiel nutzt die native Game-Boy-Auflösung von 160 × 144 Pixeln und vier ruhige Farben. Der vorhandene \`retro-core\` in eurer HU-086-Firmware lädt Game-Boy- und Game-Boy-Color-ROMs; dafür ist keine Firmware-Änderung nötig.
 
 ## ROM bauen
 
-Mit installiertem cc65:
+Mit [GBDK-2020 4.5.0](https://github.com/gbdk-2020/gbdk-2020/releases/tag/4.5.0):
 
-```sh
-make -C snake
-```
+\`\`\`sh
+make -C snake GBDK_HOME=/pfad/zu/gbdk
+\`\`\`
 
-Das Ergebnis ist `snake/snake.nes`. Alternativ erzeugt der GitHub-Workflow nach jedem passenden Push ein herunterladbares Build-Artefakt namens `meloni-snake-nes`.
+Das Ergebnis ist \`snake/snake.gbc\`. Nach einem passenden Push baut GitHub Actions die ROM, prüft das Game-Boy-Color-Header-Flag und legt sie sowohl als Build-Artefakt \`meloni-snake-gbc\` als auch im Repository ab.
 
 ## Auf der HU-086 spielen
 
-Kopiere `snake.nes` auf eine FAT32-MicroSD-Karte nach `roms/nes/` und starte es über den NES-Menüpunkt in Retro-Go.
+Kopiere \`snake.gbc\` auf die FAT32-MicroSD-Karte nach \`roms/gb/\` und starte das Spiel im Game-Boy-Menü von Retro-Go. Die Firmware führt die Einträge \`gb\` und \`gbc\` über denselben Game-Boy-Core aus.
 
 - Steuerkreuz: bewegen
-- START oder A: starten / nach Game Over erneut spielen
+- A oder START: starten / nach Game Over erneut spielen
 - B: pausieren und fortsetzen
 
-Die Schlange wächst beim Fressen, wird schrittweise schneller und endet beim Zusammenstoß mit Wand oder eigenem Körper.
-
-## Browser-Vorschau
-
-Öffne `index.html` im Browser. Dort funktionieren Pfeiltasten, WASD, Touch-Steuerkreuz und Wischbewegungen. Der Bestwert wird dort lokal im Browser gespeichert.
+Die Schlange startet langsam und wird alle fünf gefressenen Früchte etwas schneller. Es gibt keine Hindernisse im Spielfeld; Wand und eigener Körper beenden den Lauf.

@@ -1,14 +1,15 @@
-CC65 ?= cl65
-OUT ?= snake.nes
+GBDK_HOME ?= gbdk
+LCC ?= $(GBDK_HOME)/bin/lcc
+OUT ?= snake.gbc
 SOURCES := main.c
 
 .PHONY: all clean FORCE
 all: $(OUT)
 
 $(OUT): $(SOURCES) FORCE
-	$(CC65) -t nes -Oirs -o $@ $(SOURCES)
+	$(LCC) -Wm-yc -Wm-yn"SNAKE" -o $@ $(SOURCES)
 
 FORCE:
 
 clean:
-	rm -f $(OUT) *.o *.s
+	rm -f $(OUT) *.o *.asm *.lst
