@@ -18,6 +18,7 @@
     .stats span { color:var(--muted); }
     .stats b { color:var(--lime); margin-left:5px; }
     canvas { display:block; width:100%; height:auto; aspect-ratio:4/3; border:1px solid #405d45; border-radius:8px; background:#0e1711; image-rendering:pixelated; }
+    .legend { margin:7px 3px 0; color:var(--muted); font-size:11px; text-align:center; }
     .actions { display:flex; gap:9px; margin-top:12px; }
     button { appearance:none; border:1px solid #45614a; background:#26392b; color:var(--text); border-radius:10px; min-height:42px; padding:9px 13px; font:inherit; font-weight:700; cursor:pointer; touch-action:manipulation; }
     button:hover { background:#304a36; border-color:#759b67; }
@@ -41,6 +42,7 @@
     <section class="cabinet" aria-label="Snake-Spiel">
       <div class="stats"><span>PUNKTE <b id="score">00</b></span><span>BEST <b id="best">00</b></span></div>
       <canvas id="screen" width="320" height="240" aria-label="Spielfeld"></canvas>
+      <p class="legend">Rot = Futter · Der Rand ist eine Wand.</p>
       <div class="actions">
         <button id="start" type="button">Spiel starten</button>
         <button id="pause" type="button" aria-label="Pausieren">Pause</button>
@@ -81,7 +83,7 @@
       direction = DIRS.right;
       queued = direction;
       score = 0;
-      tickMs = 145;
+      tickMs = 260;
       food = placeFood();
       state = "ready";
       render();
@@ -135,8 +137,8 @@
       if (ate) {
         score += 1;
         if (score>best) { best=score; writeBest(best); }
-        if (score%4===0 && tickMs>80) {
-          tickMs -= 8;
+        if (score%5===0 && tickMs>150) {
+          tickMs -= 15;
           clearInterval(timer);
           timer = setInterval(step,tickMs);
         }
