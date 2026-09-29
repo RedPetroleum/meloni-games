@@ -7,7 +7,6 @@
 #include <gbdk/console.h>
 #include <gbdk/font.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #define BW 18
 #define BH 12
@@ -46,6 +45,7 @@ static uint8_t sx[MAX_SNAKE], sy[MAX_SNAKE];
 static uint16_t length, score, best_score;
 static uint8_t fx, fy, direction, queued, has_turn;
 static uint8_t state, ticks, step_delay, previous_keys;
+static uint16_t random_state = 1;
 
 static const int8_t dx[4] = { 0, 1, 0, -1 };
 static const int8_t dy[4] = { -1, 0, 1, 0 };
@@ -99,10 +99,15 @@ static uint8_t occupied(uint8_t x, uint8_t y) {
     return 0;
 }
 
+static uint8_t random_byte(void) {
+    random_state = (uint16_t)(random_state * 251U + 173U);
+    return (uint8_t)(random_state >> 8);
+}
+
 static void place_food(void) {
     do {
-        fx = (uint8_t)(rand() % BW);
-        fy = (uint8_t)(rand() % BH);
+        fx = (uint8_t)(random_byte() % BW);
+        fy = (uint8_t)(random_byte() % BH);
     } while (occupied(fx, fy));
     draw_cell(fx, fy, 3, BKGF_CGB_PAL3);
 }
@@ -266,8 +271,6 @@ static void init_video(void) {
 
 void main(void) {
     uint8_t keys, pressed;
-    uint16_t seed = 1;
-
     init_video();
     state = READY;
     best_score = 0;
@@ -280,8 +283,7 @@ void main(void) {
         previous_keys = keys;
 
         if (state == READY) {
-            seed = (uint16_t)(seed * 109U + keys + 17U);
-            srand(seed);
+            random_state = (uint16_t)(random_state * 109U + keys + 17U);
         }
         input(keys, pressed);
 
