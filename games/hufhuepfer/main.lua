@@ -62,6 +62,7 @@ local KINDS = {
   crate = {w = 18, h = 18, dx = 0, dy = -18},
   wall = {w = 16, h = 68, dx = -1, dy = -68, breakable = true, hint = "ZU HOCH! A: TRETEN!"},
 }
+local LOW = {fence = true, hay = true, crate = true}
 local POOLS = {
   {"fence", "hay", "branch", "crate"},
   {"fence", "hay", "branch", "crate", "puddle", "wall"},
@@ -70,7 +71,7 @@ local POOLS = {
 
 -- Speed per level: level 1 as before, level 5 clearly faster, linear in between.
 local LEVEL_SPEED = {}
-for i = 1, 5 do LEVEL_SPEED[i] = 2.55 + (i - 1) * (6.4 - 2.55) / 4 end
+for i = 1, 5 do LEVEL_SPEED[i] = 3.2 + (i - 1) * (8 - 3.2) / 4 end
 
 local function reset()
   horse_y = GROUND - HORSE_H
@@ -83,7 +84,7 @@ local function reset()
   obstacles = {}
   food = nil
   spawn_timer = 68
-  food_timer = 240
+  food_timer = 480
   air_food_timer = 0
   last_gap_short = false
   speed = LEVEL_SPEED[1]
@@ -135,12 +136,12 @@ local function add_snack()
   end
 end
 
-local function make_obstacle()
+local function make_obstacle(kind, x)
   -- New shapes enter gradually: puddles and walls at level 2, log piles at level 3.
-  local kind = rnd(POOLS[min(level, #POOLS)])
+  kind = kind or rnd(POOLS[min(level, #POOLS)])
   local k = KINDS[kind]
   local o = {
-    x = SCREEN_W + 8,
+    x = x or SCREEN_W + 8,
     w = k.w,
     h = k.h or 0,
     kind = kind,
@@ -162,15 +163,15 @@ end
 local function next_gap()
   local l = level - 1
   local r = rnd(1)
-  if r < 0.28 and not last_gap_short then
+  if r < 0.3 and not last_gap_short then
     last_gap_short = true
-    return 48 + rnd(10)
+    return 42 + rnd(8)
   end
   last_gap_short = false
-  if r < 0.84 then
-    return 58 - l * 2 + rnd(30 - l * 2)
+  if r < 0.87 then
+    return 48 - l * 2 + rnd(22 - l * 2)
   end
-  return 100 - l * 4 + rnd(35)
+  return 80 - l * 4 + rnd(30)
 end
 
 -- A snack always needs a move: under a branch you have to slide, everywhere else it
@@ -306,13 +307,19 @@ function _update()
   if spawn_timer <= 0 then
     local o = make_obstacle()
     spawn_timer = next_gap()
+    -- From level 2 on, low obstacles sometimes come as a pair for one long jump.
+    if level >= 2 and LOW[o.kind] and rnd(1) < 0.3 then
+      local kind = rnd({"fence", "hay", "crate"})
+      local second = make_obstacle(kind, o.x + o.w + 14 + flr(rnd(10)))
+      spawn_timer = spawn_timer + (second.x + second.w - o.x - o.w) / speed
+    end
     if not food and food_timer <= 0 then
       -- Either with this obstacle or on its own in a long enough gap after it.
-      if spawn_timer >= 95 and rnd(2) < 1 then
+      if spawn_timer >= 80 and rnd(2) < 1 then
         air_food_timer = spawn_timer // 2
-        food_timer = 180 + rnd(150)
+        food_timer = 480 + rnd(240)
       elseif food_with(o) then
-        food_timer = 180 + rnd(150)
+        food_timer = 480 + rnd(240)
       end
     end
   end
