@@ -22,7 +22,7 @@ Engine aus diesem Repo enthält.
 
 | Spiel | Details |
 |---|---|
-| [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |
+| [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |\n| [Bärger dich nicht!](games/baerger-dich-nicht/main.lua) | Vier Gummibärchen-Teams, 1–4 echte Spieler, Computergegner und Rückwärts-Schlagen als fiese Hausregel |
 | [Huf-Hüpfer](games/hufhuepfer/main.lua) | Pferde-Jump-and-Run: springen (hoch), unter Ästen rutschen (runter), Bretterwände kaputt treten (A), Snacks in der Luft und am Boden, Pause (START) |
 | [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 

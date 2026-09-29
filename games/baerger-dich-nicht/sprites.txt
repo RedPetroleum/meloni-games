@@ -1,0 +1,86 @@
+# Gummibärchen-Figuren für Bärger dich nicht!
+# Ein Zeichen pro Pixel, "." ist transparent.
+
+palette
+k 3a2732   Umriss
+r d94a4a   Rot
+a ff7777   Rot hell
+y f0bd36   Gelb
+Y ffe47a   Gelb hell
+g 50a85a   Grün
+G 8bd78d   Grün hell
+b 4d78d8   Blau
+B 87a7ff   Blau hell
+w fff6e8   Glanz
+
+sprite bear_red
+.
+....kk....kk..
+...krrk..krrk.
+...krrkkkkrrk.
+..krrrrrrrrrrk
+.krrrrrrrrrrrrk
+.krrrwrrrrrrrrk
+.krrrrrrrrrrrrk
+..krrrrrrrrrrk.
+...krrrrrrrrk..
+..krrrrrrrrrrk.
+.krrrrrrrrrrrrk
+.krrrrrrrrrrrrk
+..krrrk..krrrk.
+..krrrk..krrrk.
+...kkk....kkk..
+
+sprite bear_yellow
+.
+....kk....kk..
+...kyyk..kyyk.
+...kyykkkkyyk.
+..kyyyyyyyyyyk
+.kyyyyyyyyyyyyk
+.kyyyYyyyyyyyyk
+.kyyyyyyyyyyyyk
+..kyyyyyyyyyyk.
+...kyyyyyyyyk..
+..kyyyyyyyyyyk.
+.kyyyyyyyyyyyyk
+.kyyyyyyyyyyyyk
+..kyyyk..kyyyk.
+..kyyyk..kyyyk.
+...kkk....kkk..
+
+sprite bear_green
+.
+....kk....kk..
+...kggk..kggk.
+...kggkkkkggk.
+..kggggggggggk
+.kggggggggggggk
+.kgggGggggggggk
+.kggggggggggggk
+..kggggggggggk.
+...kggggggggk..
+..kggggggggggk.
+.kggggggggggggk
+.kggggggggggggk
+..kgggk..kgggk.
+..kgggk..kgggk.
+...kkk....kkk..
+
+sprite bear_blue
+.
+....kk....kk..
+...kbbk..kbbk.
+...kbbkkkkbbk.
+..kbbbbbbbbbbk
+.kbbbbbbbbbbbbk
+.kbbbBbbbbbbbbk
+.kbbbbbbbbbbbbk
+..kbbbbbbbbbbk.
+...kbbbbbbbbk..
+..kbbbbbbbbbbk.
+.kbbbbbbbbbbbbk
+.kbbbbbbbbbbbbk
+..kbbbk..kbbbk.
+..kbbbk..kbbbk.
+...kkk....kkk..
