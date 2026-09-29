@@ -81,6 +81,10 @@ static uint16_t argcolor(lua_State *L, int idx, int def)
 {
     if (lua_isnoneornil(L, idx))
         return palette[def];
+    // rgb() values are integers above 2^24: through a 32-bit float they would lose the lowest
+    // bit (blue 255 carried over into green, white turned black)
+    if (lua_isinteger(L, idx))
+        return to_color(lua_tointeger(L, idx));
     return to_color((lua_Integer)floorf((float)luaL_checknumber(L, idx)));
 }
 
