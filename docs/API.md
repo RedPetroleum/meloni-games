@@ -1,8 +1,8 @@
 # Meloni API (Version 1)
 
 Meloni-Spiele sind Lua-Programme (Lua 5.4), die auf der HU-086 in der Firmware-App **meloni** laufen
-([open-086](https://github.com/RedPetroleum/open-086), `retro-go/meloni/`) und am Rechner im Runner
-aus demselben Quellcode. Die API ist an PICO-8 angelehnt, hat aber 320×240 Pixel und echte Farben.
+([open-086](https://github.com/RedPetroleum/open-086)) und am Rechner im Runner. Beide nutzen
+dieselbe Engine aus [`engine/`](../engine/). Die API ist an PICO-8 angelehnt, hat aber 320×240 Pixel und echte Farben.
 
 - Bildschirm: **320×240**, Ursprung oben links, `SCREEN_W`, `SCREEN_H`
 - Takt: **60 Frames pro Sekunde**, fest. Zeit wird in Frames gezählt, nicht in Millisekunden.

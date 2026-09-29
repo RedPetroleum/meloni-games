@@ -5,10 +5,7 @@
 #   make shot GAME=snake INPUT="5:START,60-90:RIGHT" FRAMES=120   one screenshot, prints the path
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
-#
-# The engine (and the runner) live in open-086: OPEN086 points to a checkout of it.
-OPEN086 ?= ../open-086
-RUNNER_DIR := $(OPEN086)/retro-go/meloni/runner
+RUNNER_DIR := runner
 RUNNER := $(RUNNER_DIR)/build/meloni-run
 GAMES := $(patsubst games/%/main.lua,%,$(wildcard games/*/main.lua))
 FRAMES ?= 600
@@ -19,7 +16,6 @@ EXTRA ?=
 .PHONY: runner run test shot new dist clean
 
 runner:
-	@test -d $(RUNNER_DIR) || { echo "open-086 not found at $(OPEN086) (make OPEN086=/path/to/open-086)"; exit 1; }
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
 
 run: runner
@@ -50,4 +46,4 @@ dist:
 	python3 tools/release.py $(foreach e,$(EXTRA),--extra $(e))
 
 clean:
-	rm -rf build dist
+	rm -rf build dist $(RUNNER_DIR)/build

@@ -14,28 +14,17 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  # The engine and runner come from open-086
-  OPEN086_REPO: RedPetroleum/open-086
-  OPEN086_REF: main
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ env.OPEN086_REPO }}
-          ref: ${{ env.OPEN086_REF }}
-          path: open-086
-
       - name: Build runner
-        run: make runner OPEN086=open-086
+        run: make runner
 
       - name: Test games (headless)
-        run: make test OPEN086=open-086
+        run: make test
 
       - name: Build release files
         run: make dist

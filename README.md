@@ -17,8 +17,9 @@ Rechner entwickelt und getestet und landen per WLAN direkt auf der Konsole.
 - **Die Konsole** läuft mit der Firmware [open-086](https://github.com/RedPetroleum/open-086)
   (basiert auf [retro-go](https://github.com/ducalex/retro-go)). Darin steckt die
   **Meloni-Engine**: ein eigenes System „Meloni Games“ im Launcher, das Lua-Spiele ausführt.
-- **Dieses Repo** enthält nur die Spiele. Jedes Spiel ist ein Ordner unter `games/`, die
-  Engine-API steht in [docs/API.md](docs/API.md).
+- **Dieses Repo** enthält die Spiele (ein Ordner pro Spiel unter `games/`), die Engine selbst
+  ([engine/](engine/), C und Lua 5.4), einen Runner, der sie am Rechner ausführt ([runner/](runner/)),
+  und die API-Doku ([docs/API.md](docs/API.md)). Die Firmware übernimmt die Engine von hier.
 - **GitHub Actions** ([release.yml](.github/workflows/release.yml)) testet bei jedem Push alle
   Spiele. Auf `main` packt es jedes Spiel zu einer Datei `<id>.mlg` und veröffentlicht sie
   zusammen mit einer `manifest.json` (Pfad, Größe und sha256 jeder Datei) als Release `latest`.
@@ -35,15 +36,8 @@ Rechner entwickelt und getestet und landen per WLAN direkt auf der Konsole.
 
 ## Ein Spiel entwickeln
 
-Die Engine und das Testprogramm (der *Runner*) liegen im Firmware-Repo. Dieses Repo erwartet es
-im Ordner daneben (oder `make … OPEN086=/pfad/zu/open-086`):
-
-```sh
-git clone https://github.com/RedPetroleum/open-086.git ../open-086
-```
-
-Außerdem nötig: ein C-Compiler, Python 3 und für das Spielfenster SDL2 (`brew install sdl2`).
-Der Runner wird beim ersten `make` automatisch gebaut.
+Nötig sind ein C-Compiler, Python 3 und für das Spielfenster SDL2 (`brew install sdl2`, ohne SDL2
+läuft der Runner nur headless). Der Runner wird beim ersten `make` automatisch gebaut.
 
 ```sh
 make new GAME=pferde      # neues Spiel aus template/ anlegen
@@ -93,14 +87,29 @@ verbindet sich, zeigt, wie viel sich geändert hat, und lädt nach Bestätigung 
 - Im Spiel öffnet SELECT+START das Menü (Weiter, Neustart, Optionen, Beenden).
   Spielstände liegen unter `/retro-go/saves/meloni/`.
 
-## API-Versionen
+## Engine ändern, API-Versionen
+
+Braucht ein Spiel eine Engine-Funktion, die es noch nicht gibt, wird sie in
+[engine/meloni/](engine/meloni/) ergänzt und im selben Commit in [docs/API.md](docs/API.md)
+beschrieben. Am Rechner und in der CI gilt sie sofort.
+
+Auf die Konsole kommt sie mit der nächsten Firmware: open-086 baut die Engine aus einem fest
+eingetragenen Commit dieses Repos (`MELONI_COMMIT` in `build_retro_go.sh`). Den setzt man auf
+den neuen Stand, baut und flasht.
 
 Jedes Spiel nennt in `meta.json` die API-Version, gegen die es geschrieben ist (`"api": 1`).
-Braucht ein Spiel eine Engine-Funktion, die es noch nicht gibt, wird sie in open-086
-(`retro-go/meloni/components/meloni/`) ergänzt und in [docs/API.md](docs/API.md) beschrieben.
-Kann ältere Firmware das Spiel danach nicht mehr ausführen, wird die API-Version erhöht. Konsolen
-mit älterer Firmware überspringen solche Spiele beim Update und melden, dass ein
-Firmware-Update nötig ist.
+Kann ältere Firmware ein Spiel nicht mehr ausführen, wird die API-Version erhöht
+(`MEL_API_VERSION` in `engine/meloni/meloni.h`). Konsolen mit älterer Firmware überspringen
+solche Spiele beim Update und melden, dass ein Firmware-Update nötig ist.
+
+```
+engine/meloni/   Engine: Lua-API, Zeichnen, Mixer, .mlg-Archive (plattformunabhängig)
+engine/lua/      Lua 5.4.7 mit LUA_32BITS (die FPU des ESP32-S3 rechnet nur einfach genau)
+runner/          die Engine am Rechner: Fenster (SDL2) oder headless mit Screenshot/WAV
+```
+
+Die Geräte-Seite (Display, Ton, Tasten, Menü, Launcher-Tab und Updater) ist retro-go-spezifisch
+und liegt in open-086.
 
 ## Hardware
 
