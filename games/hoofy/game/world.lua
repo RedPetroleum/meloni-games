@@ -16,6 +16,7 @@ local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
 local Breeding = require("game.breeding")
+local Rng = require("lib.rng")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -53,7 +54,30 @@ function WorldScene.enter(arg)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
-  if arg and arg.hof then
+  if arg and arg.stammbaum then
+    -- Vier Generationen: 8 wilde Urgroßeltern → Großeltern → Eltern → Fohlen C
+    wild.count = 0
+    local rng = Rng.new(17)
+    local function wildhorse(sex, name)
+      local d = H.wild({rng = rng, sex = sex})
+      d.name = name
+      Breeding.ensure_id(d, ctx.herd)
+      return d
+    end
+    local function kid(f, m, name)
+      local d = Breeding.foal(f, m, rng, 0)
+      d.name, d.alter = name, 1
+      Breeding.ensure_id(d, ctx.herd)
+      return d
+    end
+    local z = {}
+    for i, n in ipairs({"Zora", "Zeus", "Zita", "Zorro", "Zilli", "Zack", "Zenzi", "Zabel"}) do z[i] = wildhorse(i % 2 == 0 and "m" or "w", n) end
+    local a1, a2 = kid(z[2], z[1], "Anton"), kid(z[4], z[3], "Berta")
+    local a3, a4 = kid(z[6], z[5], "Cäsar"), kid(z[8], z[7], "Dora")
+    local b1, b2 = kid(a1, a2, "Emil"), kid(a3, a4, "Frieda")
+    local c = kid(b1, b2, "Gustl")
+    wild:adopt(c)
+  elseif arg and arg.hof then
     -- Drei eigene Pferde: eins auf der Weide, eins im Stall, eins an der Leine
     wild.count = 0
     local a = wild:add_own({rasse = "noriker", bindung = 40, name = "Hilde"})
@@ -123,6 +147,7 @@ function WorldScene.enter(arg)
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
@@ -236,13 +261,20 @@ local function do_action(id)
   if menu.stage == "hengst" then
     if id == "close" then return open_stall() end
     menu.hengst = menu.list[id]
-    return open_pick("stute", Breeding.mares(ctx.herd, clock.day), "Stute für " .. menu.hengst.name)
+    open_pick("stute", Breeding.mares(ctx.herd, clock.day), "Stute für " .. menu.hengst.name)
+    -- Verwandtschaft sofort anzeigen (Inzucht-Malus)
+    for i, d in ipairs(menu.list) do
+      local pct, what = Breeding.verwandtschaft(menu.hengst, d)
+      if pct > 0 then menu.m.items[i].label = d.name .. " (" .. what .. ": -" .. pct .. " %)" end
+    end
+    return
   end
   if menu.stage == "stute" then
     if id == "close" then return open_stall() end
     local mare, stallion = menu.list[id], menu.hengst
     local ok, why = Breeding.start(ctx, stallion, mare, clock.day)
-    say(ok and (stallion.name .. " und " .. mare.name .. ": Fohlen in " .. K.zeit.traechtig_tage .. " Tagen.") or ("Geht nicht: " .. tostring(why)), 180)
+    local pct = Breeding.verwandtschaft(stallion, mare)
+    say(ok and (stallion.name .. " und " .. mare.name .. ": Fohlen in " .. K.zeit.traechtig_tage .. " Tagen." .. (pct > 0 and (" Inzucht: Gen-Werte -" .. pct .. " %.") or "")) or ("Geht nicht: " .. tostring(why)), 180)
     if ok then ctx.sfx.pet() end
     menu = nil
     return

@@ -25,4 +25,5 @@ return {
   "bestellungen",
   "jobs",
   "zucht",
+  "stammbaum",
 }

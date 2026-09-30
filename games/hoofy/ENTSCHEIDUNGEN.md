@@ -74,6 +74,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E44** (B7) Stammbaum und Inzucht: In der Pferde-Info zeigt Rechts den Stammbaum (Pferd, Eltern,
+  Großeltern, Urgroßeltern; Vater oben, Mutter unten). Mehr speichert ein Pferd nicht (917 Bytes
+  Ahnen bei 3 Ebenen). Verwandtschaft nach dem Katalog: Eltern/Kind und Vollgeschwister −15 %,
+  Halbgeschwister und Großeltern/Enkel −8 %, Cousins −3 % auf die Gen-Stats des Fohlens. Onkel und
+  Nichten zählen nicht (steht nicht im Katalog). Bei der Stutenwahl steht die Verwandtschaft samt
+  Malus hinter dem Namen, nach der Paarung in der Meldung. Wildfänge haben keine Ahnen.
 - **E43** (B6) Zucht: An der Stalltür → „Zucht starten“ → Hengst, dann Stute wählen (beide ausgewachsen
   und im Stall, Stute nicht trächtig/in Pause). Nach 2 Tagen kommt das Fohlen (beim Tageswechsel),
   folgt an der Leine; die Stute hat 3 Tage Pause. Gen-Stats: Mittel der Eltern ± σ 6, Potenzial wie

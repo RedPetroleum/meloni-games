@@ -49,15 +49,63 @@ function B.mares(herd, day)
   return out
 end
 
--- ---- Stammbaum-Kurzform (für B7): {id, name, rasse, farbe, v = …, m = …}, bis zu `tiefe` Ebenen ----
+-- ---- Stammbaum (E44): {id, name, rasse, farbe, v = Vater, m = Mutter}, höchstens 3 Ebenen ----
 
-local function ahn(d, tiefe)
-  local a = {id = d.id, name = d.name, rasse = d.rasse, farbe = d.farbe}
-  if tiefe > 1 and d.ahnen then
-    if d.ahnen.v then a.v = d.ahnen.v end
-    if d.ahnen.m then a.m = d.ahnen.m end
+B.DEPTH = 3
+
+-- Kürzt einen Stammbaumknoten auf `tiefe` Ebenen (Knoten selbst zählt mit).
+local function trim(a, tiefe)
+  if not a then return nil end
+  local out = {id = a.id, name = a.name, rasse = a.rasse, farbe = a.farbe}
+  if tiefe > 1 then
+    out.v = trim(a.v, tiefe - 1)
+    out.m = trim(a.m, tiefe - 1)
   end
-  return a
+  return out
+end
+
+-- Knoten eines Pferds mit seinen Eltern (aus d.ahnen), auf `tiefe` Ebenen gekürzt.
+local function ahn(d, tiefe)
+  local node = {id = d.id, name = d.name, rasse = d.rasse, farbe = d.farbe}
+  if d.ahnen then node.v, node.m = d.ahnen.v, d.ahnen.m end
+  return trim(node, tiefe)
+end
+
+-- Verwandtschaft zweier Pferde (Daten mit id und ahnen) und Inzucht-Malus in Prozent (KATALOG §4):
+-- Eltern/Kind und Geschwister −15, Halbgeschwister und Großeltern/Enkel −8, Cousins −3.
+-- Gibt Prozent und Bezeichnung zurück, 0 bei keiner bekannten Verwandtschaft.
+function B.verwandtschaft(a, b)
+  local I = K.farben.inzucht
+  local function parents(d)
+    local v, m = d.ahnen and d.ahnen.v, d.ahnen and d.ahnen.m
+    return v and v.id, m and m.id
+  end
+  local function grand(d)
+    local out = {}
+    if d.ahnen then
+      for _, p in ipairs({d.ahnen.v, d.ahnen.m}) do
+        if p then
+          if p.v then out[p.v.id] = true end
+          if p.m then out[p.m.id] = true end
+        end
+      end
+    end
+    return out
+  end
+  local av, am = parents(a)
+  local bv, bm = parents(b)
+  if a.id and (a.id == bv or a.id == bm) or (b.id and (b.id == av or b.id == am)) then return I.eltern, "Eltern und Kind" end
+  if av and am and av == bv and am == bm then return I.eltern, "Geschwister" end
+  if (av and (av == bv or av == bm)) or (am and (am == bv or am == bm)) then return I.halb, "Halbgeschwister" end
+  local ga, gb = grand(a), grand(b)
+  if b.id and ga[b.id] or a.id and gb[a.id] then return I.halb, "Großeltern und Enkel" end
+  for id in pairs(ga) do if gb[id] then return I.cousins, "Cousins" end end
+  return 0, nil
+end
+
+-- Malus in Prozent für ein Fohlen von Vater-Daten f und Mutter m.
+function B.inzucht_malus(f, m)
+  return (B.verwandtschaft(f, m))
 end
 
 -- ---- Paarung und Geburt ----
@@ -133,7 +181,7 @@ function B.foal(f, m, rng, inzucht)
   d.hunger, d.gewicht, d.sauberkeit = S.hunger.start, S.gewicht.start, S.sauberkeit.start
   d.energie = d.gen.ausdauer
   d.name = H.NAMES[rng:int(1, #H.NAMES)]
-  d.ahnen = {v = ahn(f, 3), m = ahn(m, 3)}
+  d.ahnen = {v = ahn(f, B.DEPTH), m = ahn(m, B.DEPTH)}
   return d
 end
 
@@ -145,7 +193,7 @@ function B.tick(ctx, day)
   for _, m in ipairs({table.unpack(ctx.herd)}) do
     if m.traechtig and day >= m.traechtig.tag then
       B.ensure_id(m, ctx.herd)
-      local malus = B.inzucht_malus and B.inzucht_malus(m.traechtig.vater, m) or 0
+      local malus = B.inzucht_malus(m.traechtig.vater, m)
       local foal = B.foal(m.traechtig.vater, m, rng, malus)
       B.ensure_id(foal, ctx.herd)
       m.traechtig = nil

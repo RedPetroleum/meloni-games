@@ -185,8 +185,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Farbanteile 35/15/35/15 (±2) über viele Fohlen, Gen-Stats ≈ Elternmittel.
   *Erledigt:* `game/breeding.lua`, Stalltür-Menü, Fohlen in `game/days.lua`. 20 000 Würfe: 34,6 /
   14,7 / 35,0 / 14,6 %, Mutation 1,0 %; Fohlen-Tempo Mittel 50,1 σ 6,0. E43.
-- [ ] **B7 Stammbaum und Inzucht**: Stammbaum-Bildschirm (3 Generationen), Inzucht-Malus.
+- [x] **B7 Stammbaum und Inzucht**: Stammbaum-Bildschirm (3 Generationen), Inzucht-Malus.
   Prüfung: Selbsttest Malus je Verwandtschaftsgrad; Screenshot.
+  *Erledigt:* `Breeding.verwandtschaft/inzucht_malus`, `Screens.stammbaum`, Szenario `stammbaum`
+  (4 Generationen, Screenshot). Malus −15/−8/−3 %: Fohlen-Mittel 50 → 42,5 / 46 / 48,5. E44.
 - [ ] **B8 Wirtschaft prüfen**: Simulation einer einfachen Spielweise über 20 Tage, Vergleich
   mit KATALOG §15 Phase 1–2. Abweichungen nur in ENTSCHEIDUNGEN.md unter „Balance“ melden.
   Prüfung: Protokoll mit Tagen bis Fahrrad und Mofa.

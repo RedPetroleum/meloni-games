@@ -56,6 +56,11 @@ function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
 end
 
+-- Stammbaum: ein Pferd mit drei Generationen bekannter Ahnen, Bildschirm offen.
+function Scenarios.stammbaum()
+  return "world", {ort = "start", stammbaum = true, screen = "stammbaum"}
+end
+
 -- Jobbrett: drei Pferde (Hof), Jobliste offen.
 function Scenarios.jobbrett()
   return "world", {ort = "start", hof = true, screen = "jobs"}

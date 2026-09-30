@@ -140,6 +140,7 @@ function Screens.info(ctx, data)
     if btnp(BTN_A) then
       nav.push(Screens.keyboard("Neuer Name", data.name, 12, function(text) data.name = text end))
     end
+    if btnp(BTN_RIGHT) then SFX.ok() nav.push(Screens.stammbaum(ctx, data)) end
   end
   function s.draw()
     cls(C.panel)
@@ -180,7 +181,7 @@ function Screens.info(ctx, data)
     print("Wert: " .. Value.wert(data) .. " G", 6, 142, C.gold)
     if data.traechtig then print("Trächtig bis Tag " .. data.traechtig.tag, 6, 154, C.text) end
     if data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then print("Pause bis Tag " .. data.zucht_pause, 6, 154, C.dim) end
-    footer("A: umbenennen   B: zurück")
+    footer("A: umbenennen   >: Stammbaum   B: zurück")
   end
   s.full = true
   return s
@@ -616,6 +617,59 @@ function Screens.jobs(ctx)
     print("Ein Job pro Pferd und Tag.", 10, 176, C.dim)
     if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
     footer("A: Job wählen   B: zurück")
+  end
+  return s
+end
+
+-- ---- Stammbaum (E44): Pferd links, Eltern, Großeltern, Urgroßeltern rechts ----
+
+function Screens.stammbaum(ctx, data)
+  local s = {full = true, static = true}
+  local drawn = false
+  function s.update(nav)
+    if btnp(BTN_B) or btnp(BTN_A) or btnp(BTN_LEFT) then SFX.back() nav.pop() end
+  end
+  local COLW, BOXW = 80, 76
+  local function box(x, y, h, node, label)
+    rectfill(x, y, x + BOXW - 1, y + h - 1, C.panel_light)
+    rect(x, y, x + BOXW - 1, y + h - 1, C.panel)
+    if node then
+      print((node.name or "?"):sub(1, 9), x + 3, y + 2, C.text)
+      if h >= 20 then
+        local r = node.rasse and K.rasse(node.rasse).name or ""
+        print(r:sub(1, 9), x + 3, y + 11, C.dim)
+      end
+    else
+      print(label or "unbekannt", x + 3, y + 2, C.dim)
+    end
+  end
+  -- Zeichnet Knoten der Ebene `level` (0 = Pferd) in den Zeilenbereich [y0, y0 + h)
+  local function draw_level(node, level, y0, h)
+    local x = 4 + level * COLW
+    local bh = min(h - 2, 22)
+    box(x, y0 + (h - bh) // 2, bh, node, level == 0 and "" or (level == 1 and "unbekannt" or "?"))
+    if level < 3 then
+      local half = h // 2
+      draw_level(node and node.v, level + 1, y0, half)
+      draw_level(node and node.m, level + 1, y0 + half, half)
+      -- Verbindungslinien zu den Eltern
+      local cx = x + BOXW
+      local my = y0 + h // 2
+      line(cx, my, cx + 2, my, C.dim)
+      line(cx + 2, y0 + half // 2, cx + 2, y0 + half + half // 2, C.dim)
+      line(cx + 2, y0 + half // 2, cx + 3, y0 + half // 2, C.dim)
+      line(cx + 2, y0 + half + half // 2, cx + 3, y0 + half + half // 2, C.dim)
+    end
+  end
+  function s.draw()
+    if drawn then return end
+    drawn = true
+    cls(C.panel)
+    header("Stammbaum: " .. data.name)
+    local root = {name = data.name, rasse = data.rasse, v = data.ahnen and data.ahnen.v, m = data.ahnen and data.ahnen.m}
+    draw_level(root, 0, 16, 208)
+    print("Vater oben, Mutter unten", 6, SCREEN_H - 10, C.dim)
+    if not data.ahnen then print("Wildfang: keine Ahnen bekannt", 100, SCREEN_H - 10, C.dim) end
   end
   return s
 end

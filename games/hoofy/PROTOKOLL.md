@@ -58,3 +58,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:25 | B6 Zucht | begonnen | – | –
 2026-10-01 01:27 | B6 Zucht | fertig | Farben 34,6/14,7/35,0/14,6 %, Gen-Mittel 50,1 σ 6,0, Zeitplan 2+3+4 Tage, SELFTEST OK 125, make test grün | Hoofy B6
 2026-10-01 01:28 | Release nach B6 | fertig | Lauf success, „Update games“ bringt Hoofy 0.1.0 (Stand B6, 475 KB) | 47bb07e
+2026-10-01 01:30 | B7 Stammbaum und Inzucht | begonnen | – | –
+2026-10-01 01:31 | B7 Stammbaum und Inzucht | fertig | Screenshot Stammbaum, Malus je Grad, SELFTEST OK 130, make test grün | Hoofy B7
