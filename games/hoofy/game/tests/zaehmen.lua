@@ -67,7 +67,6 @@ return {
     C.eq(#w.list, 0, "nicht mehr wild")
     C.eq(#ctx.herd, 1, "im Bestand")
     C.eq(ctx.herd[1].wild, nil)
-    for _ = 1, 300 do ctx.world:update() end
-    C.eq(h.state, "tamed", "bleibt stehen")
+    C.ok(h.state == "led" or h.state == "follow", "kommt an die Leine (A8)")
   end},
 }

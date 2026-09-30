@@ -6,6 +6,7 @@ local H = require("game.horse_model")
 local G = require("game.horse_gfx")
 local Body = require("lib.body")
 local Bubbles = require("game.bubbles")
+local Leash = require("game.leash")
 local Rng = require("lib.rng")
 local U = require("lib.util")
 
@@ -35,6 +36,11 @@ function Horse.new(ctx, data, x, y)
   }, Horse)
 end
 
+-- Kopf des Pferds (Weltkoordinaten), dort hängt das Seil.
+function Horse:head()
+  return self.x + (self.dir == "right" and 11 or -11), self.y - 14
+end
+
 function Horse:distance_to(x, y)
   return U.dist(self.x, self.y, x, y)
 end
@@ -50,8 +56,63 @@ function Horse:step(dx, dy)
   return ok_x or ok_y
 end
 
+-- Gezähmtes Pferd: "led" an der Leine, "follow" frei hinterher (Bindung ≥ 70), "free" lose,
+-- "stand" bleibt stehen.
+function Horse:update_tamed()
+  local ctx, p = self.ctx, self.ctx.player
+  local st = self.state
+  self.moving = false
+  if st == "led" or st == "follow" then
+    local i = 1
+    for n, h in ipairs(ctx.lead) do if h == self then i = n end end
+    local tx, ty = ctx.trail:point_at(p.x, p.y, Leash.lead_dist(i))
+    local dx, dy = tx - self.x, ty - self.y
+    local d = math.sqrt(dx * dx + dy * dy)
+    if d > 2 then
+      local v = min(Leash.SPEED, d * 0.25 + 0.3)
+      local ok = self:step(dx / d * v, dy / d * v)
+      self.moving = ok
+      self.anim = self.anim + v * 0.06
+      self.speed = v
+    else
+      self.speed = 0
+    end
+    -- Die Leine reißt: geführte Pferde (nicht frei folgende) würfeln einmal pro Sekunde.
+    if st == "led" then
+      self.leash_t = (self.leash_t or 0) + 1
+      if self.leash_t >= 60 then
+        self.leash_t = 0
+        local mode = p.riding and "reiten" or (p.running and "sprinten" or "gehen")
+        if Leash.escape_roll(self.data.bindung, mode, self.data.zug) then ctx.wild:escape(self) end
+      end
+    end
+  elseif st == "free" then
+    self.timer = self.timer - 1
+    if self.timer <= 0 then
+      if self.vx ~= 0 or self.vy ~= 0 then self.vx, self.vy = 0, 0; self.timer = 120 + flr(rnd() * 200)
+      else
+        local a = rnd() * 2 * math.pi
+        self.vx, self.vy = math.cos(a) * 0.3, math.sin(a) * 0.18
+        self.timer = 60 + flr(rnd() * 90)
+      end
+    end
+    if self.vx ~= 0 or self.vy ~= 0 then
+      if not self:step(self.vx, self.vy) then self.vx, self.vy = 0, 0 end
+      self.anim = self.anim + 0.12
+      self.moving = true
+    end
+  elseif st == "escape" then
+    local mx, my = self:step(self.vx, 0), self:step(0, self.vy)
+    self.anim = self.anim + 0.25
+    self.timer = self.timer - 1
+    if self.timer <= 0 or not (mx or my) then
+      self.state, self.timer, self.vx, self.vy = "free", 120, 0, 0
+    end
+  end
+end
+
 function Horse:update()
-  if self.tamed then return end
+  if self.tamed then return self:update_tamed() end
   local p = self.ctx.player
   local d = U.dist(self.x, self.y, p.x, p.y)
   if d > FAR then
@@ -117,6 +178,14 @@ function Horse:flee(p)
 end
 
 function Horse:pose()
+  if self.tamed then
+    if self.state == "escape" then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
+    if self.moving then
+      if (self.speed or 0) > 1.8 then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
+      return (flr(self.anim * 3) % 2 == 0) and "side" or "side_walk"
+    end
+    return "side"
+  end
   if self.state == "away" then return "graze" end
   if self.state == "warn" or self.state == "look" then return "side" end
   if self.state == "flee" then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
@@ -139,7 +208,7 @@ end
 
 -- Blase über dem Kopf (E10). Wildpferde, die fliehen, haben Angst.
 function Horse:draw_over()
-  if self.state == "flee" then self.scared = true elseif not self.demo then self.scared = false end
+  if self.state == "flee" or self.state == "escape" then self.scared = true elseif not self.demo then self.scared = false end
   local b = self.state == "warn" and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
@@ -150,10 +219,10 @@ function Wild:try_tame()
   for i, h in ipairs(self.list) do
     if h.state ~= "flee" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST then
       table.remove(self.list, i)
-      h.wild, h.data.wild, h.state, h.tamed = false, nil, "tamed", true
-      h.timer = 1e9
-      self.ctx.herd = self.ctx.herd or {}
+      h.wild, h.data.wild, h.tamed = false, nil, true
       self.ctx.herd[#self.ctx.herd + 1] = h.data
+      self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
+      self:attach(h)
       return h
     end
   end
@@ -161,9 +230,12 @@ end
 
 -- Stellt die Wildpferde ein. Gibt den Verwalter {ctx, list, rng, slot} zurück.
 function Wild.new(ctx, seed, near)
+  ctx.herd, ctx.herd_horses, ctx.lead = ctx.herd or {}, ctx.herd_horses or {}, ctx.lead or {}
   local self = {ctx = ctx, list = {}, rng = Rng.new(seed or 1), gebiet = ctx.area.nr, near = near}
   self.count = ctx.area.info.wildpferde
-  return setmetatable(self, {__index = Wild})
+  self = setmetatable(self, {__index = Wild})
+  ctx.wild = self
+  return self
 end
 
 -- Zufällige freie Wiesenkachel weit genug vom Hof und von der Kamera (Pixel).
@@ -192,6 +264,54 @@ function Wild:spawn()
   self.list[#self.list + 1] = h
   self.ctx.world:add(h)
   return h
+end
+
+-- Nimmt ein gezähmtes Pferd mit: an die Leine, ab Bindung 70 frei folgend (max. MAX_LEAD).
+function Wild:attach(h)
+  local lead = self.ctx.lead
+  if #lead >= 4 then h.state, h.timer = "free", 60; return false end
+  lead[#lead + 1] = h
+  h.state = h.data.bindung >= Leash.FOLLOW and "follow" or "led"
+  h.leash_t = 0
+  return true
+end
+
+-- Die Leine reißt: Pferd läuft weg und bleibt dort lose stehen.
+function Wild:escape(h)
+  for i, e in ipairs(self.ctx.lead) do
+    if e == h then table.remove(self.ctx.lead, i) break end
+  end
+  local p = self.ctx.player
+  local ax, ay = h.x - p.x, h.y - p.y
+  local n = max(1, U.dist(0, 0, ax, ay))
+  h.vx, h.vy = ax / n * 1.8, ay / n * 1.8
+  h.state, h.timer = "escape", 70
+  h.scared = true
+  self.ctx.escaped = h
+  return h
+end
+
+-- A bei einem losen gezähmten Pferd in Reichweite: wieder anleinen. Gibt das Pferd zurück.
+function Wild:try_leash()
+  local p = self.ctx.player
+  for _, h in ipairs(self.ctx.herd_horses) do
+    if h.state == "free" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST + 4 then
+      h.scared = false
+      return self:attach(h) and h or nil
+    end
+  end
+end
+
+-- Pfiff: lose Pferde mit Bindung ≥ 90 kommen und folgen. Gibt die Anzahl zurück.
+function Wild:whistle()
+  local n = 0
+  for _, h in ipairs(self.ctx.herd_horses) do
+    if (h.state == "free" or h.state == "escape") and h.data.bindung >= Leash.WHISTLE then
+      h.scared = false
+      if self:attach(h) then n = n + 1 end
+    end
+  end
+  return n
 end
 
 -- Setzt ein Pferd an eine Stelle (Szenarien, Tests).

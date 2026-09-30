@@ -10,4 +10,5 @@ return {
   "wild",
   "blasen",
   "zaehmen",
+  "leine",
 }

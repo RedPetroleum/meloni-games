@@ -71,6 +71,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E29** (A8) Leine: Ein frisch gezähmtes Pferd ist sofort angeleint (Seil von der Hand zum Kopf),
+  ab Bindung 70 folgt es frei ohne Seil und reißt nie aus. Bis zu 4 Pferde gleichzeitig
+  (Karawane, je 20 px Abstand mehr). Ausreißen: einmal pro Sekunde gewürfelt, so dass die Chance je
+  10 s dem Katalog entspricht. Ein ausgerissenes Pferd bleibt lose in der Nähe stehen, A daneben
+  leint es wieder an. **Pfiff** (Bindung ≥ 90): A eine halbe Sekunde halten, ohne dass ein Pferd
+  in Reichweite ist; lose Pferde kommen und folgen. (Reitend gilt A lange halten = Menü, E3.)
 - **E28** (A7) Zähmen, Feinheiten zu E16: Zone 110 px um das Pferd. Wegschauen = Grasen-Pose, 🡒
   Hinschauen = Seitenpose mit Blick zum Spieler. Wegschauzeit (2–4 s) × (0,5 + Bindung/200). Wer
   weiter als 140 px weggeht, beendet den Ablauf. Nach der Flucht 4 s Ruhe. Gezähmt bei höchstens

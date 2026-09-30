@@ -24,3 +24,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:25 | Release nach A6 | fertig | Lauf success, „Update games“ bringt Hoofy 0.0.1 (Stand A6) | 07c2e42
 2026-10-01 00:27 | A7 Zähmen | begonnen | – | –
 2026-10-01 00:29 | A7 Zähmen | fertig | Drehbuch zähmt (Frame 101), Drehbuch flieht (169), Wegschauen 3,07 s/1,63 s, SELFTEST OK 36, make test grün | Hoofy A7
+2026-10-01 00:31 | A8 Leine und Folgen | begonnen | – | –
+2026-10-01 00:32 | A8 Leine und Folgen | fertig | Rate 9,1 %/26,6 %, Screenshots Leine, SELFTEST OK 41, make test grün | Hoofy A8

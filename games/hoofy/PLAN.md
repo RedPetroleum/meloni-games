@@ -93,9 +93,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   `--seed 1 --input "5-100:RIGHT,101:A"` (Frame 101 „Momo gezähmt“). Scheitert:
   `--input "5-50:RIGHT,51-70:UP,71-110:DOWN,111-150:UP,151-190:DOWN,191-230:UP"` (Frame 169 flee).
   Entscheidung E28.
-- [ ] **A8 Leine und Folgen**: Führen zu Fuß und reitend, Ausreißen nach KATALOG §2 Leine,
+- [x] **A8 Leine und Folgen**: Führen zu Fuß und reitend, Ausreißen nach KATALOG §2 Leine,
   Pferd ab Bindung 70 folgt ohne Leine, ab 90 auf Pfiff.
   Prüfung: Selbsttest Ausreiß-Rate über viele Würfe ≈ 9 % gehend / 27 % reitend bei Bindung 10.
+  *Erledigt:* `game/leash.lua`, Verhalten in `game/wild.lua` (`led/follow/free/escape`), Seil in
+  `game/world.lua`. Rate über 20 000 Fenster: 9,1 % / 26,6 %. „Reitend“ wirkt, sobald A9 `player.riding`
+  setzt. Entscheidung E29.
 - [ ] **A9 Reiten**: Auf-/Absitzen (E2, E3), Schritt/Galopp, Springen nach Stärke,
   Energieverbrauch nach Katalog, Sattel-Bonus, verweigern bei Bindung < 20.
   Prüfung: Shot-Sheet Ritt mit Sprung über Busch; Selbsttest Energie.
