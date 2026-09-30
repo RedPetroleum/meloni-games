@@ -22,3 +22,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:23 | A6 Sprechblasen | begonnen | – | –
 2026-10-01 00:24 | A6 Sprechblasen | fertig | Screenshot blasen (12 Zustände), SELFTEST OK 32, make test grün | Hoofy A6
 2026-10-01 00:25 | Release nach A6 | fertig | Lauf success, „Update games“ bringt Hoofy 0.0.1 (Stand A6) | 07c2e42
+2026-10-01 00:27 | A7 Zähmen | begonnen | – | –
+2026-10-01 00:29 | A7 Zähmen | fertig | Drehbuch zähmt (Frame 101), Drehbuch flieht (169), Wegschauen 3,07 s/1,63 s, SELFTEST OK 36, make test grün | Hoofy A7

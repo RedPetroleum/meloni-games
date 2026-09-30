@@ -41,6 +41,11 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
+-- Zähmen: ein Haflinger 140 px rechts vom Spieler am Hof (save.bindung, Standard 35). Übergänge im Log.
+function Scenarios.zaehmen(save)
+  return "world", {ort = "start", zaehmen = true, bindung = save.bindung}
+end
+
 -- Je ein Pferd pro Blasen-Zustand (E10). Charakter-Blasen erscheinen nur zeitweise: mehrere Shots.
 function Scenarios.blasen()
   return "bubbles"

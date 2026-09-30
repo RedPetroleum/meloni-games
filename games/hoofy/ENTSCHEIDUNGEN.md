@@ -71,6 +71,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E28** (A7) Zähmen, Feinheiten zu E16: Zone 110 px um das Pferd. Wegschauen = Grasen-Pose, 🡒
+  Hinschauen = Seitenpose mit Blick zum Spieler. Wegschauzeit (2–4 s) × (0,5 + Bindung/200). Wer
+  weiter als 140 px weggeht, beendet den Ablauf. Nach der Flucht 4 s Ruhe. Gezähmt bei höchstens
+  26 px Abstand und A, auch beim Hinschauen. Das gezähmte Pferd bleibt stehen (Leine kommt mit A8)
+  und landet in `ctx.herd`; ein neues Wildpferd kommt erst beim nächsten Wechsel (alle 3 Tage).
 - **E25** (A4) Wildpferd-Rasse: Rassen des aktuellen Gebiets zählen dreifach, Rassen früherer
   Gebiete einfach („kommen weiter vor, nur seltener“).
 - **E26** (A4) „3 Prozentpunkte je Gebietsstufe von häufig zu den seltenen Stufen“: verteilt im

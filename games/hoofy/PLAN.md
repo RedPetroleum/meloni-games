@@ -87,8 +87,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Szenario `blasen` mit je einem Pferd pro Zustand, Screenshot.
   *Erledigt:* `game/bubbles.lua` (`B.choose(pferd, frame)`), 5 neue Symbole (Nase, Dreck, Mond,
   Glitzer, Apfel), Wildpferde zeigen Angst beim Fliehen. Charakter-Blase alle 12 s für 2 s.
-- [ ] **A7 Zähmen**: Minispiel nach E16, Schwierigkeit nach Bindung.
+- [x] **A7 Zähmen**: Minispiel nach E16, Schwierigkeit nach Bindung.
   Prüfung: `INPUT`-Drehbuch, das bei SEED 1 zähmt; eines, das beim Hinschauen läuft und scheitert.
+  *Erledigt:* Szenario `zaehmen` (Haflinger 140 px rechts, Übergänge im Log). Zähmt:
+  `--seed 1 --input "5-100:RIGHT,101:A"` (Frame 101 „Momo gezähmt“). Scheitert:
+  `--input "5-50:RIGHT,51-70:UP,71-110:DOWN,111-150:UP,151-190:DOWN,191-230:UP"` (Frame 169 flee).
+  Entscheidung E28.
 - [ ] **A8 Leine und Folgen**: Führen zu Fuß und reitend, Ausreißen nach KATALOG §2 Leine,
   Pferd ab Bindung 70 folgt ohne Leine, ab 90 auf Pfiff.
   Prüfung: Selbsttest Ausreiß-Rate über viele Würfe ≈ 9 % gehend / 27 % reitend bei Bindung 10.

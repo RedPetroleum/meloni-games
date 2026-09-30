@@ -5,7 +5,7 @@ local Wild = require("game.wild")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t, wild
+local ctx, paused, anim_frame, t, wild, toast
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
@@ -19,7 +19,16 @@ function WorldScene.enter(arg)
   end
   paused, anim_frame, t = false, 1, 0
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
-  wild:fill()
+  toast = nil
+  if arg and arg.zaehmen then
+    -- ein einzelnes Pferd, 140 px rechts vom Spieler (Szenario zaehmen)
+    wild.count = 0
+    local h = wild:spawn_at(ctx.player.x + 140, ctx.player.y, {rasse = "haflinger", rng = wild.rng})
+    h.data.bindung = arg.bindung or 35
+    h.debug_log = true
+  else
+    wild:fill()
+  end
   ctx.wild = wild
 end
 
@@ -30,6 +39,18 @@ function WorldScene.update()
   end
   if paused then return end
   t = t + 1
+  if btnp(BTN_A) then
+    local h = wild:try_tame()
+    if h then
+      toast = {text = h.data.name .. " ist gezähmt!", t = 150}
+      ctx.sfx.start()
+      log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
+    end
+  end
+  if toast then
+    toast.t = toast.t - 1
+    if toast.t <= 0 then toast = nil end
+  end
   ctx.world:update()
   ctx.fx:update()
   local p = ctx.player
@@ -52,6 +73,11 @@ end
 function WorldScene.draw()
   Stage.draw_world(ctx)
   draw_hud()
+  if toast then
+    local C = ctx.colors
+    Stage.panel(40, 200, 279, 226)
+    Stage.center(toast.text, 209, C.gold)
+  end
   if paused then
     local C = ctx.colors
     Stage.panel(90, 90, 230, 140)

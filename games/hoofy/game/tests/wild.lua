@@ -41,12 +41,17 @@ return {
     for day = 5, 6 do C.eq(w:new_day(day), 0) end
     C.between(w:new_day(7), 1, 2, "nächster Wechsel an Tag 7")
   end},
-  {"Pferde laufen 600 Frames ohne in Hindernisse zu geraten, fliehen vor dem Spieler", function()
+  {"Pferde laufen 600 Frames ohne in Hindernisse zu geraten, Annäherung löst Zähmen-Ablauf aus", function()
     local ctx, w = setup()
     local h = w.list[1]
     ctx.player.x, ctx.player.y = h.x + 30, h.y
     h:update()
-    C.eq(h.state, "flee", "flieht bei Annäherung")
+    C.eq(h.state, "away", "schaut bei Annäherung erst weg (E16)")
+    h.state, h.timer = "look", 50
+    ctx.player.moving = true
+    h:update()
+    C.eq(h.state, "flee", "flieht, wenn sich der Spieler beim Hinschauen bewegt")
+    ctx.player.moving = false
     for _ = 1, 600 do ctx.world:update() end
     for _, e in ipairs(w.list) do
       C.ok(not ctx.map:blocked(e.x - 7, e.y - 6, e.x + 7, e.y), "Pferd steckt in Hindernis")

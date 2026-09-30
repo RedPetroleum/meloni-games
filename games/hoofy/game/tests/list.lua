@@ -9,4 +9,5 @@ return {
   "pferd",
   "wild",
   "blasen",
+  "zaehmen",
 }
