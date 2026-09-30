@@ -55,6 +55,9 @@ Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
   zerteilt (SPI-Display ohne Sync-Signal). Betrifft die Firmware, nicht die Spiele. Befund und
   Plan in open-086:
   [docs/display_tearing.md](https://github.com/RedPetroleum/open-086/blob/main/docs/display_tearing.md)
+- **Steam Deck:** die Engine als Libretro-Core für RetroArch (EmuDeck/RetroDECK) und ein
+  Update-Skript wie *[ Update games ]* auf der Konsole. Plan in
+  [docs/steam_deck.md](docs/steam_deck.md)
 
 ## Hardware
 

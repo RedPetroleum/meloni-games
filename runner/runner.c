@@ -294,8 +294,9 @@ static uint32_t keyboard_buttons(void)
     if (k[SDL_SCANCODE_RIGHT] || k[SDL_SCANCODE_D]) b |= MEL_BTN_RIGHT;
     if (k[SDL_SCANCODE_UP] || k[SDL_SCANCODE_W]) b |= MEL_BTN_UP;
     if (k[SDL_SCANCODE_DOWN] || k[SDL_SCANCODE_S]) b |= MEL_BTN_DOWN;
-    if (k[SDL_SCANCODE_X] || k[SDL_SCANCODE_K] || k[SDL_SCANCODE_SPACE]) b |= MEL_BTN_A;
-    if (k[SDL_SCANCODE_Z] || k[SDL_SCANCODE_Y] || k[SDL_SCANCODE_J]) b |= MEL_BTN_B;
+    // Scancodes are key positions (US layout): SCANCODE_Z is the Y key on QWERTZ, so there A is Y and B is X
+    if (k[SDL_SCANCODE_Z] || k[SDL_SCANCODE_Y] || k[SDL_SCANCODE_K] || k[SDL_SCANCODE_SPACE]) b |= MEL_BTN_A;
+    if (k[SDL_SCANCODE_X] || k[SDL_SCANCODE_J]) b |= MEL_BTN_B;
     if (k[SDL_SCANCODE_RETURN]) b |= MEL_BTN_START;
     if (k[SDL_SCANCODE_BACKSPACE] || k[SDL_SCANCODE_RSHIFT]) b |= MEL_BTN_SELECT;
     return b;
