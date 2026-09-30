@@ -122,6 +122,7 @@ function WorldScene.enter(arg)
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
     if name == "markt" then Market.refresh(ctx, clock.day) nav.push(Screens.market(ctx)) end
@@ -429,6 +430,9 @@ function WorldScene.update()
         end
       elseif ctx.buyer_ent and U.dist(p.x, p.y, ctx.buyer_ent.x, ctx.buyer_ent.y) <= 30 then
         nav.push(Screens.buyer(ctx, function(text) say(text, 150) end))
+        ctx.sfx.ok()
+      elseif ctx.area.places.jobbrett and U.dist(p.x, p.y, ctx.area.places.jobbrett[1] * 16 + 8, ctx.area.places.jobbrett[2] * 16 + 8) <= 26 then
+        nav.push(Screens.jobs(ctx))
         ctx.sfx.ok()
       elseif ctx.area.places.laden and U.dist(p.x, p.y, ctx.area.places.laden[1] * 16 + 8, ctx.area.places.laden[2] * 16 + 8) <= 26 then
         nav.push(Screens.shop(ctx))

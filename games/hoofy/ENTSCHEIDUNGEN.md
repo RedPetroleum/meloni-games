@@ -74,6 +74,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E42** (B5) Jobs: A am Jobbrett → Job wählen → Pferd wählen (Voraussetzung, Energie und „schon
+  gearbeitet“ stehen dabei). Der Job läuft sofort ab (kein Minispiel, keine Wegzeit): Lohn nach
+  Katalog mit den Gesamtwerten, Energie ab, Training Basis × Formel.
+  währenddessen nicht nötig sein. Ein Job pro Pferd und Tag (`job_tag`).
 - **E41** (B4) Bestellungen: Tag 1, 4, 7 … gibt jemand eine auf (Kunde, Farbe aus einer erreichbaren Rasse
   (häufig bis selten), Geschlecht, ein Stat mit Mindestwert 40–60 (Ausdauer 60–80), plus 5 je
   weiteres Gebiet), Frist 5–10 Tage, verfällt danach. Geliefert wird im Pausenmenü → Bestellungen →

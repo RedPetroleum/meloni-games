@@ -23,4 +23,5 @@ return {
   "markt",
   "kaeufer",
   "bestellungen",
+  "jobs",
 }

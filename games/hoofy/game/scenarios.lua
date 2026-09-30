@@ -56,6 +56,11 @@ function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
 end
 
+-- Jobbrett: drei Pferde (Hof), Jobliste offen.
+function Scenarios.jobbrett()
+  return "world", {ort = "start", hof = true, screen = "jobs"}
+end
+
 -- Bestellungen: drei Pferde (Hof), eine Bestellung passt auf das erste, Liste offen.
 function Scenarios.bestellung()
   return "world", {ort = "start", hof = true, bestellung = true, screen = "bestellung"}

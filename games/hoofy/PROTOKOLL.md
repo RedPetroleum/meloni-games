@@ -53,3 +53,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:16 | B3 Käufer | fertig | 4 Dialog-Screenshots, Figur am Hoftor, Preise nach Formel, SELFTEST OK 106, make test grün | Hoofy B3
 2026-10-01 01:18 | B4 Bestellungen | begonnen | – | –
 2026-10-01 01:20 | B4 Bestellungen | fertig | Screenshot Bestellliste, SELFTEST OK 111, make test grün | Hoofy B4
+2026-10-01 01:22 | B5 Jobs | begonnen | – | –
+2026-10-01 01:23 | B5 Jobs | fertig | Screenshots Jobliste/Pferdewahl, SELFTEST OK 117, make test grün | Hoofy B5

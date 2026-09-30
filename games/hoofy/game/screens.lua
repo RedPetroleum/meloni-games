@@ -14,6 +14,7 @@ local Value = require("game.value")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
+local Jobs = require("game.jobs")
 
 local Screens = {}
 
@@ -519,6 +520,100 @@ function Screens.orders(ctx)
     end
     if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
     footer("A: Pferd liefern   B: zurück")
+  end
+  return s
+end
+
+-- ---- Jobbrett (E13) ----
+
+local function job_horses(ctx, job, done)
+  local sel = 1
+  local s = {full = true}
+  local day = function() return ctx.clock and ctx.clock.day or 1 end
+  local function list()
+    local ok, rest = {}, {}
+    for _, d in ipairs(ctx.herd) do
+      if Jobs.eligible(d, job, day()) then ok[#ok + 1] = d else rest[#rest + 1] = d end
+    end
+    for _, d in ipairs(rest) do ok[#ok + 1] = d end
+    return ok
+  end
+  function s.update(nav)
+    local l = list()
+    if btnp(BTN_UP) and #l > 0 then sel = (sel - 2) % #l + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #l > 0 then sel = sel % #l + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and l[sel] then
+      local d = l[sel]
+      local name = d.name
+      local sum = Jobs.run(ctx, job, d, day())
+      if sum then
+        SFX.tame()
+        nav.pop()
+        if done then done(name .. " hat gearbeitet: " .. sum .. " G.") end
+      else
+        SFX.snort()
+      end
+    end
+  end
+  function s.draw()
+    cls(C.panel)
+    header(job.name .. ": welches Pferd?")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    local l = list()
+    if #l == 0 then print("Du hast kein Pferd.", 20, 40, C.dim) end
+    local first = max(1, sel - 6)
+    for i = first, min(#l, first + 6) do
+      local d = l[i]
+      local y = 20 + (i - first) * 24
+      local ok, why = Jobs.eligible(d, job, day())
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 21, C.panel_light) end
+      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
+      print(d.name, 50, y, ok and (i == sel and C.gold or C.text) or C.dim)
+      print(ok and ("Energie " .. flr(d.energie)) or why, 50, y + 10, ok and C.dim or C.red)
+      local t = ok and (Jobs.lohn(d, job) .. " G") or ""
+      print(t, SCREEN_W - textw(t) - 10, y + 4, C.gold)
+    end
+    footer("A: arbeiten   B: zurück")
+  end
+  return s
+end
+
+function Screens.jobs(ctx)
+  local sel, msg, msg_t = 1, nil, 0
+  local s = {full = true}
+  function s.update(nav)
+    local list = Jobs.list()
+    if btnp(BTN_UP) then sel = (sel - 2) % #list + 1; SFX.select() end
+    if btnp(BTN_DOWN) then sel = sel % #list + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) then
+      SFX.ok()
+      nav.push(job_horses(ctx, list[sel], function(text) msg, msg_t = text, 240 end))
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Jobbrett")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    for i, job in ipairs(Jobs.list()) do
+      local y = 22 + (i - 1) * 50
+      if i == sel then rectfill(4, y - 3, SCREEN_W - 5, y + 44, C.panel_light) end
+      print(job.name, 10, y, i == sel and C.gold or C.text)
+      print("ab " .. Jobs.STAT_NAMES[job.braucht] .. " " .. job.braucht_wert, 160, y, C.dim)
+      print("Lohn " .. job.lohn_basis .. " + " .. Jobs.STAT_NAMES[job.lohn_stat] .. "/" .. job.lohn_teiler, 10, y + 12, C.gold)
+      local train = {}
+      for key, amount in pairs(job.training) do train[#train + 1] = Jobs.STAT_NAMES[key] .. " +" .. amount end
+      table.sort(train)
+      print("Training: " .. table.concat(train, ", "), 10, y + 24, C.dim)
+      print("Energie " .. job.energie, 10, y + 35, C.dim)
+    end
+    print("Ein Job pro Pferd und Tag.", 10, 176, C.dim)
+    if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
+    footer("A: Job wählen   B: zurück")
   end
   return s
 end

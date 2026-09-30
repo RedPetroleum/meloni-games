@@ -176,8 +176,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Erzeugen/Erfüllen/Verfallen.
   *Erledigt:* `game/orders.lua`, Bildschirme im Pausenmenü, Mitteilung beim Tageswechsel. Szenario
   `bestellung` (Screenshot). E41.
-- [ ] **B5 Jobs**: Jobbrett im Dorf, KATALOG §12, ein Job je Pferd und Tag.
+- [x] **B5 Jobs**: Jobbrett im Dorf, KATALOG §12, ein Job je Pferd und Tag.
   Prüfung: Selbsttest Lohn/Training/Energie; Screenshot.
+  *Erledigt:* `game/jobs.lua`, Jobbrett-Bildschirme, Szenario `jobbrett` (Jobliste, Pferdeauswahl).
+  E42.
 - [ ] **B6 Zucht**: Hengst + Stute im Stall, Trächtigkeit, Pause, Fohlen wächst in 4 Tagen,
   Gen-Vererbung, Farbvererbung mit Mutation, Rasse 50:50, Premiumfutter für Fohlen.
   Prüfung: Selbsttest Farbanteile 35/15/35/15 (±2) über viele Fohlen, Gen-Stats ≈ Elternmittel.
