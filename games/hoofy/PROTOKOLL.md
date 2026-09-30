@@ -47,3 +47,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:05 | Release Phase A | fertig | Lauf success, „Update games“ bringt Hoofy 0.1.0 (381 KB) | f8ed8c6
 2026-10-01 01:07 | B1 Geld und Laden | begonnen | – | –
 2026-10-01 01:09 | B1 Geld und Laden | fertig | Screenshot Laden, SELFTEST OK 92, make test grün | Hoofy B1
+2026-10-01 01:11 | B2 Pferdewert und Markt | begonnen | – | –
+2026-10-01 01:12 | B2 Pferdewert und Markt | fertig | Screenshot Markt, Beispielwerte, SELFTEST OK 98, make test grün | Hoofy B2

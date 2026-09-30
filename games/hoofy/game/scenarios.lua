@@ -56,6 +56,11 @@ function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
 end
 
+-- Pferdemarkt: am Stand, save.geld setzt das Geld, save.gebiet das weiteste erreichbare Gebiet.
+function Scenarios.markt(save)
+  return "world", {ort = "markt", screen = "markt", hof = true, geld = save.geld or 600}
+end
+
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
 function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}

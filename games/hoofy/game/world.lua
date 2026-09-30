@@ -12,6 +12,7 @@ local Screens = require("game.screens")
 local Save = require("game.save")
 local Explore = require("game.explore")
 local Economy = require("game.economy")
+local Market = require("game.market")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -91,7 +92,7 @@ function WorldScene.enter(arg)
   if saving then
     ctx.save = WorldScene.save
     if snap then
-      ctx.money, ctx.inv = snap.geld, snap.inv
+      ctx.money, ctx.inv, ctx.market = snap.geld, snap.inv, snap.markt
       clock.day, clock.t = snap.tag, snap.zeit
       clock.woke = clock.t > 0 and clock.t < Clock.DAWN
       ctx.player.x, ctx.player.y = snap.pos[1], snap.pos[2]
@@ -109,6 +110,7 @@ function WorldScene.enter(arg)
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "markt" then Market.refresh(ctx, clock.day) nav.push(Screens.market(ctx)) end
     if name == "laden" then nav.push(Screens.shop(ctx)) end
     if name == "inventar" then nav.push(Screens.inventory(ctx)) end
   end
@@ -358,6 +360,7 @@ function WorldScene.update()
     ctx.sfx.dawn()
     ctx.sfx.music("day")
     Days.new_day(ctx, clock.day)
+    Market.refresh(ctx, clock.day)
     say("Tag " .. clock.day .. " beginnt.", 150)
   end
   local p = ctx.player
@@ -392,6 +395,7 @@ function WorldScene.update()
       elseif U.dist(p.x, p.y, ctx.area.places.bett[1] * 16 + 8, ctx.area.places.bett[2] * 16 + 8) <= 26 then
         if clock:sleep() then
           Days.new_day(ctx, clock.day)
+          Market.refresh(ctx, clock.day)
           ctx.sfx.dawn()
           ctx.sfx.music("day")
           local saved = WorldScene.save()
@@ -402,6 +406,10 @@ function WorldScene.update()
         end
       elseif ctx.area.places.laden and U.dist(p.x, p.y, ctx.area.places.laden[1] * 16 + 8, ctx.area.places.laden[2] * 16 + 8) <= 26 then
         nav.push(Screens.shop(ctx))
+        ctx.sfx.ok()
+      elseif ctx.area.places.markt and U.dist(p.x, p.y, ctx.area.places.markt[1] * 16 + 8, ctx.area.places.markt[2] * 16 + 8) <= 26 then
+        Market.refresh(ctx, clock.day)
+        nav.push(Screens.market(ctx))
         ctx.sfx.ok()
       elseif wild:at_stall_door() and #wild:in_stall() > 0 then
         open_stall()

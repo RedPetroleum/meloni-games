@@ -10,6 +10,8 @@ local Tiles = require("game.tiles")
 local Explore = require("game.explore")
 local SFX = require("game.sfx")
 local Economy = require("game.economy")
+local Value = require("game.value")
+local Market = require("game.market")
 
 local Screens = {}
 
@@ -172,6 +174,7 @@ function Screens.info(ctx, data)
     y = y + 12
     state_bar(82, y, "Energie", data.energie, H.stat(data, "ausdauer"))
     if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, 130, C.dim) end
+    print("Wert: " .. Value.wert(data) .. " G", 6, 142, C.gold)
     footer("A: umbenennen   B: zurück")
   end
   s.full = true
@@ -282,6 +285,66 @@ function Screens.shop(ctx)
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
     footer("A: kaufen   </>: Reiter   B: zurück")
+  end
+  return s
+end
+
+-- ---- Pferdemarkt (E13) ----
+
+function Screens.market(ctx)
+  local sel, msg, msg_t = 1, nil, 0
+  local s = {full = true}
+  function s.update(nav)
+    local list = ctx.market.horses
+    if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and list[sel] then
+      local name = list[sel].name
+      local ok, why = Market.buy(ctx, sel)
+      if ok then
+        SFX.tame()
+        msg = name .. " gehört jetzt dir und folgt dir."
+        sel = min(sel, max(1, #list))
+      else
+        SFX.snort()
+        msg = why == "Geld" and "Zu wenig Geld." or why == "voll" and "Mehr als " .. Market.MAX_HERD .. " Pferde gehen nicht." or "Schon weg."
+      end
+      msg_t = 150
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Pferdemarkt")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    local list = ctx.market.horses
+    if #list == 0 then
+      print("Heute ist alles verkauft.", 20, 40, C.dim)
+      print("Alle " .. Market.CYCLE .. " Tage kommen neue Pferde.", 20, 54, C.dim)
+    end
+    for i, d in ipairs(list) do
+      local y = 20 + (i - 1) * 22
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 19, C.panel_light) end
+      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
+      print(d.name .. " (" .. (d.sex == "m" and "Hengst" or "Stute") .. ")", 50, y, i == sel and C.gold or C.text)
+      print(K.rasse(d.rasse).name .. ", " .. K.farbe(d.farbe).name, 50, y + 10, C.dim)
+      local price = d.preis .. " G"
+      print(price, SCREEN_W - textw(price) - 10, y + 4, ctx.money >= d.preis and C.gold or C.dim)
+    end
+    local d = list[sel]
+    if d then
+      rectfill(0, 116, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
+      for k, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spür"}, {"ausdauer", "Ausdauer"}}) do
+        stat_bar(8, 120 + (k - 1) * 11, e[2], d, e[1])
+      end
+      print("Bindung " .. d.bindung .. ", " .. K.charakter[d.zug].name, 8, 166, C.text)
+      print("Leistung " .. flr(Value.leistung(d) * 100) .. " %, Wert " .. Value.wert(d) .. " G", 8, 177, C.dim)
+      print("Farbfaktor x" .. Value.farbfaktor(d) .. ", Kauf = Wert x1,3", 8, 188, C.dim)
+    end
+    if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
+    footer("A: kaufen   B: zurück")
   end
   return s
 end

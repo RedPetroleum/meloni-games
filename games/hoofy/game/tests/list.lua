@@ -20,4 +20,5 @@ return {
   "erkundung",
   "toene",
   "laden",
+  "markt",
 }

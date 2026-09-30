@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E39** (B2) Pferdemarkt: 4 Pferde zum Kauf, alle 3 Tage neue (aus Seed und Zyklus, bleibt nach dem
+  Laden gleich und wird mit dem Spielstand gespeichert). Rassen aus allen erreichbaren Gebieten
+  (Gebiet gleichverteilt), Preis = Wert × 1,3. Gekaufte Pferde folgen sofort an der Leine. Mehr
+  als 24 eigene Pferde gehen nicht (Vorschlag aus den offenen Fragen). Der Markt kauft nichts:
+  verkauft wird an Käufer (B3). Wert wird auch in der Pferde-Info gezeigt.
 - **E38** (B1) Laden: A an der Ladentür öffnet einen Bildschirm mit Reitern Futter, Sättel,
   Zubehör, Schmuck, Samen (nur Samen der erreichbaren Gebiete). Gekauft wird 1 Stück je A. Einmalige
   Waren (Bürste, Samen) sind danach ausgegraut. Ausrüstung: im Pferdemenü „Ausrüsten“: ein Sattel,

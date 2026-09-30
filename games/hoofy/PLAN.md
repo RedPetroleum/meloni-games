@@ -163,8 +163,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Szenario `laden`, Screenshot; Selbsttest Kauf/Verkauf.
   *Erledigt:* `game/economy.lua`, Ladenbildschirm, Ausrüsten im Pferdemenü, Inventar nach Kategorien.
   Szenario `laden` (`SCENARIO_OPTS='geld = 120'`). E38.
-- [ ] **B2 Pferdewert und Markt**: Formel KATALOG §6, Pferdemarkt (kaufen × 1,3).
+- [x] **B2 Pferdewert und Markt**: Formel KATALOG §6, Pferdemarkt (kaufen × 1,3).
   Prüfung: Selbsttest Beispielwerte.
+  *Erledigt:* `game/value.lua`, `game/market.lua`, Marktbildschirm am Stand. Szenario `markt`.
+  Beispiel Shetlandpony/Brauner (15/35/45/70): Wert 126, Kauf 163. E39.
 - [ ] **B3 Käufer**: täglich ein Käufer am Hof, 4 Typen mit Formeln, Folgen und mehreren
   Sprüchen je Pferdetyp.
   Prüfung: Selbsttest Preise und Folgen; Screenshot Dialog.
