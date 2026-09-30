@@ -1,7 +1,7 @@
 {
   "id": "schnoesel-sprint",
-  "name": "Schnösel-Sprint",
-  "version": "1.1.0",
+  "name": "Schnösel im Gym",
+  "version": "2.0.0",
   "api": 1,
-  "description": "Fake-3D-Laufspiel mit drei Spuren: Der blonde Schnösel mit Bart und Persol-Brille sammelt Hanteln, weicht Burgern aus und wird immer fitter."
+  "description": "Eigenständiges Gym-Arcade: Hebe die Langhantel im richtigen Moment und gleiche das Schwanken aus. Monster-Energy gibt Kraft, macht die Stange aber zittriger. Nach zwölf Wiederholungen ist der blonde Schnösel mit Bart und einer Persol-inspirierten dunklen Brille fit."
 }

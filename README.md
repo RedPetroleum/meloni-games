@@ -36,10 +36,11 @@ beim ersten Mal selbst. Quellen in [web/](web/).
 | [Snake](games/snake/main.lua) | Fressen, wachsen, nicht in die Wand fahren. Der Highscore wird gespeichert |
 | [Bärger dich nicht!](games/baerger-dich-nicht/main.lua) | Vier Gummibärchen-Teams, 1–4 Menschen mit Farb- und Namenswahl (Namen werden gespeichert), CPU. Bär 1–4 mit links/rechts wählen, hoch = vor, runter = zurück (nur zum Schlagen); Lauf- und Schlag-Animation |
 | [Huf-Hüpfer](games/hufhuepfer/main.lua) | Pferde-Jump-and-Run: springen (hoch), unter Ästen rutschen (runter), Bretterwände kaputt treten (A), Snacks in der Luft und am Boden, Pause (START) |
+| [Mieznake](games/mieznake/main.lua) | Snake mit einer flauschigen Britisch Kurzhaar in Blue Silver Shaded Shell: Leckerli sammeln, wachsen und nicht in die Wand oder den eigenen Körper laufen. |
 | [Ausgebüxt!](games/ausgebuext/main.lua) | Die Pferde sind ausgebüxt: vor Sonnenuntergang zurück auf die Koppel führen (A: nehmen/loslassen, B: rennen). Pferde sind brav, faul, scheu oder verfressen, in Level 3 („Zickenalarm“) auch zickig (nur von vorne nehmen, am Strick nicht rennen), launisch (bei Gewitterwolke warten) oder eine Diva (nur allein am Strick, will unterwegs Möhren). Technik-Test für Hoofy: scrollende Kachelkarte in 3/4-Ansicht, Tiefensortierung, Level als Daten |
 | [Kuschelwiese](games/kuschelwiese/main.lua) | Ein ganz liebes Hasenspiel: Hoppel sammelt Möhren auf der Blumenwiese. Bis die Gartenzwerge kommen. Dann Kettensäge (A halten), Hechtsprung (B), Wellen, Combos und sehr viel Pixelblut. Rekord wird gespeichert |
 | [Roller-Rowdy](games/roller-rowdy/main.lua) | Fake-3D-Rennen mit dem Leih-E-Scooter durch den Feierabendverkehr: A Gas, B Bremse, links/rechts lenken. Der Akku ist die Zeit (Ladestationen geben Sekunden), die Polizei holt bei jedem Sturz auf. Autos knapp überholen, über Rampen springen und in der Luft Tricks machen (A Tailwhip, B No-Hander, links/rechts 360), sauber gelandet gibt es Turbo. Rekord und weiteste Fahrt werden gespeichert |
-| [Schnösel-Sprint](games/schnoesel-sprint/main.lua) | Fake-3D-Laufspiel auf drei Spuren: links/rechts wechseln, A springen, B sprinten, Hanteln sammeln und Burger ausweichen. Monster-Energy-Dosen geben Turbo, Wasser füllt den Sprint auf. Ab sechs Hanteln ist der blonde, bärtige Persol-Schnösel fit |
+| [Schnösel im Gym](games/schnoesel-sprint/main.lua) | Eigenständiges Gym-Arcade: Langhantel im richtigen Moment heben und mit links/rechts ausbalancieren. A: Wiederholung, ↓: atmen, B: Monster-Boost mit extra Wackeln. Drei Sätze mit je vier Wiederholungen machen den blonden Schnösel mit Bart und Persol-Brille fit |
 | [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 
 ## Engine ändern
@@ -54,9 +55,6 @@ Firmware, die diesen Commit einbindet (`MELONI_COMMIT` in open-086).
   zerteilt (SPI-Display ohne Sync-Signal). Betrifft die Firmware, nicht die Spiele. Befund und
   Plan in open-086:
   [docs/display_tearing.md](https://github.com/RedPetroleum/open-086/blob/main/docs/display_tearing.md)
-- **Steam Deck:** die Engine als Libretro-Core für RetroArch (EmuDeck/RetroDECK) und ein
-  Update-Skript wie *[ Update games ]* auf der Konsole. Plan in
-  [docs/steam_deck.md](docs/steam_deck.md)
 
 ## Hardware
 
