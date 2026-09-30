@@ -226,6 +226,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Ladezeit und Speicher prüfen.
 - [x] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.
   Prüfung: Selbsttest.
+  *Erledigt:* `Farm.schoenheit_bonus`, Anzeige im Baumodus, Tageswechsel in `game/days.lua`. E48.
 - [ ] **C5 Anbau**: Beete/Felder, Samen, Wachstum, Ernte ins Inventar (KATALOG §7).
   Prüfung: Selbsttest über Tage; Shot-Sheet Wachstum.
 - [ ] **C6 Göpel-Generator**: 40 je Pferd und Tag, Bedingungen.
