@@ -1,4 +1,5 @@
--- Die Spielfigur: läuft mit dem Steuerkreuz, rennt mit B, hinterlässt eine Spur für den Strick.
+-- Die Spielfigur: läuft mit dem Steuerkreuz, rennt mit B (E1, mit Staubwölkchen), hinterlässt eine
+-- Spur für die Leine.
 local Body = require("lib.body")
 local U = require("lib.util")
 
@@ -11,11 +12,15 @@ local SPRITES = {
   up = {"player_up", "player_up_walk"},
   side = {"player_side", "player_side_walk"},
 }
+local XRAY = {}
+for dir, list in pairs(SPRITES) do
+  XRAY[dir] = {(list[1]:gsub("^player", "xray")), (list[2]:gsub("^player", "xray"))}
+end
 
 function Player.new(ctx, x, y)
   return setmetatable({
     ctx = ctx, x = x, y = y, fw = 8, fh = 4, reach = 24,
-    dir = "down", anim = 0, moving = false, running = false, carrots = 0, frozen = false,
+    dir = "down", anim = 0, moving = false, running = false, frozen = false, dust_t = 0,
     knock_t = 0, kvx = 0, kvy = 0,
   }, Player)
 end
@@ -46,6 +51,13 @@ function Player:update()
   if self.moving then
     self.anim = self.anim + (self.running and 0.18 or 0.12)
     self.ctx.trail:push(self.x, self.y)
+    if self.running then
+      self.dust_t = self.dust_t - 1
+      if self.dust_t <= 0 then
+        self.dust_t = 9
+        self.ctx.fx:spawn(self.x - dx * 5, self.y - 1, {sprite = "dust", vx = -dx * 0.3, vy = -0.25, life = 16})
+      end
+    end
   end
 end
 
@@ -70,20 +82,27 @@ function Player:draw_shadow()
   rectfill(x - 3, y - 2, x + 3, y + 1, c)
 end
 
-function Player:draw()
+-- prefix: "player" (normal) oder "xray" (Umriss, wenn die Figur verdeckt ist)
+function Player:draw(prefix)
   local S = self.ctx.S
+  local names = prefix == "xray" and XRAY or SPRITES
   local phase = self.moving and flr(self.anim) % 4 or 0
   local step = (phase == 1 or phase == 3) and 2 or 1
   local x, y = flr(self.x), flr(self.y)
   if self.dir == "left" or self.dir == "right" then
-    S.draw(SPRITES.side[step], x - 6, y - 19, self.dir == "left")
+    S.draw(names.side[step], x - 6, y - 19, self.dir == "left")
   else
-    S.draw(SPRITES[self.dir][step], x - 6, y - 19, phase == 3)
+    S.draw(names[self.dir][step], x - 6, y - 19, phase == 3)
   end
-  if self.carrots > 0 and self.dir ~= "up" then
-    local hx, hy = self:hand()
-    S.draw("icon_carrot", flr(hx) - 2, flr(hy) - 3)
-  end
+end
+
+-- Verdeckt ein Baum oder Haus die Figur, zeichnet die Welt danach den Umriss (lib/world.lua).
+function Player:xray_box()
+  return self.x - 6, self.y - 19, self.x + 6, self.y
+end
+
+function Player:draw_xray()
+  self:draw("xray")
 end
 
 return Player

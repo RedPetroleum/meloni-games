@@ -54,6 +54,8 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   der anderen Seite von Nord nach Süd. Wege: Hof → Dorf, Hof → Nord-, Süd- und Flussrand.
 - **E21** (A1) Laden, Pferdemarkt, Jobbrett und Turnierplatz tragen ein Namensschild (Text über
   dem Gebäude), damit man sie ohne Innenräume findet.
+- **E22** (A2) Steht die Figur hinter Bäumen oder einem Haus, erscheint sie als Umriss (weiß,
+  dunkel gefüllt) über allem. Rennen (B) wirbelt kleine Staubwölkchen auf.
 
 ## Werte
 

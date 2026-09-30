@@ -243,7 +243,10 @@ function Gen.generate(area, seed)
   route(sx, plot.y + plot.h, function(i) return i // W == H - 1 end, sx, H - 1)
   local wx = gate_side > 0 and plot.x - 1 or plot.x + plot.w
   local edge_x = gate_side > 0 and 0 or W - 1
-  route(wx, mid_y + R:int(-6, 6), function(i) return i % W == edge_x end, edge_x, mid_y)
+  local river_path = route(wx, mid_y + R:int(-6, 6), function(i) return i % W == edge_x end, edge_x, mid_y)
+  for _, i in ipairs(river_path or {}) do
+    if g[i] == BRIDGE or g[i] == BRIDGE_V then places.bruecke = {i % W, i // W} break end
+  end
   places.start = {plot.x + plot.w // 2, plot.y + plot.h // 2}
 
   -- 6. Erreichbarkeit: jede begehbare Fläche muss vom Hof aus erreichbar sein

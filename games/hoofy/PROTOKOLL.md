@@ -11,3 +11,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-09-30 23:46 | Release Phase 0 | fertig | Lauf success, manifest commit b492b1d, „Update games“ bringt Hoofy 0.0.1 | b492b1d
 2026-09-30 23:48 | A1 Kartengenerator | begonnen | – | –
 2026-10-01 00:02 | A1 Kartengenerator | fertig | karte_ganz Seeds 1–5, Shot-Sheets Dorf/Fluss/Wald, SELFTEST OK 14, Karte 198 KB, make test grün | Hoofy A1
+2026-10-01 00:04 | A2 Spieler und Kamera | begonnen | – | –
+2026-10-01 00:06 | A2 Spieler und Kamera | fertig | Shot-Sheet Brücke→Wiese→Waldrand (Umriss sichtbar), SELFTEST OK 15, make test grün | Hoofy A2

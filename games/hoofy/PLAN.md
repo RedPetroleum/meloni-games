@@ -57,9 +57,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   16×16-Blöcken, höchstens 12 Blöcke mit Zeichenteilen), `lib/rng.lua`. Szenario `karte_ganz`
   (`SCENARIO_OPTS='seed = 2'`), Seeds 1–5 angesehen. Selbsttest 5 Seeds erreichbar.
   Speicher: Karte 198 KB, Lua gesamt 482 KB. Entscheidungen E17–E21.
-- [ ] **A2 Spieler und Kamera**: Figur (Sprites, 4 Richtungen, Laufanimation), rennen mit B,
+- [x] **A2 Spieler und Kamera**: Figur (Sprites, 4 Richtungen, Laufanimation), rennen mit B,
   Kollision, Kamera folgt, Tiefensortierung.
   Prüfung: Shot-Sheet eines Laufs quer über Wiese, Brücke, am Wald entlang.
+  *Erledigt:* Figur aus Ausgebüxt, dazu Staub beim Rennen, Umriss hinter Bäumen (E22), Waldkachel
+  als runde Kronen. Szenario `welt` mit `SCENARIO_OPTS='ort = "bruecke"'` (oder `cx = …, cy = …`).
+  Selbsttest: über die Brücke ja, ins Wasser und in den Wald nein.
 - [ ] **A3 Pferdegrafik**: 4 Körperformen (Pony, Warmblut, Kaltblut, Einhorn) × 4 Richtungen ×
   stehen/gehen/galopp, alle ~30 Farben per `recolor`, Muster als Overlay, Nachtvarianten (E14).
   Vorlage: Pferde aus Ausgebüxt/Hufhüpfer.

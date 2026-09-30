@@ -971,40 +971,40 @@ DDDDDDD
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
 
 sprite ground_forest1
-FFfffflfffffffFf
-lFFkffFfffffffff
-FFffFFffffFFFFFf
-fffffFFlfffflfff
-fffFFffFffffFfff
-ffffffffffffffFF
-kfffklFFfffffflF
-fffffFFFffffffFf
-ffffffFFffffffFF
-fffFFffFlfffffFF
-ffffffffFFFfffff
-ffffffffffffffff
-fFFFFkffffffFFff
-FFfflffffffflfff
-FFffFfffffFFFfFF
-fFFffFFffFFffflf
+FFFFFFFFFFFFFFFF
+FFFFFffffffFFFFF
+FFFffflllffffFFF
+FFffllllffffffFF
+FFfllllffffffkFF
+FfflllffffffffkF
+FflllffffflfffkF
+FfllffffffffffkF
+FflfffffffffffkF
+FfffffffffffffkF
+FffffffffffflFkF
+FFffffflffffFkFF
+FFfffffffffFFkFF
+FFFfkfffffFkkFFF
+FFFFFkkkkkkFFFFF
+FFFFFFFFFFFFFFFF
 
 sprite ground_forest2
-fffffffFFfffFFFf
-FFfffFFflffffFFf
-ffffflFFFfffFFff
-fffffFfffFFfffff
-fffffffffffFFfff
-fffffffffffkFfff
-fFFFffffffFlFFff
-FFflffkfFFfFfffl
-kffFffffffffflfF
-fffffffffflffFff
-ffFFFFffffFfffff
-ffffffffFFFFfffl
-FFfffffffffFFffF
-fffFFfffffffFFff
-flffFkffFFfffFFf
-FFfffffffffFFflF
+FFFFFFffffffFFFF
+FFFFffflllffffFF
+FFFffllllffffffF
+FFFfllllffffffkF
+FFfflllffffffffk
+FFflllffffflfffk
+FFfllffffffffffk
+FFflfffffffffffk
+FFfffffffffffffk
+FFffffffffffflFk
+FFFffffflffffFkF
+FFFfffffffffFFkF
+FFFFfkfffffFkkFF
+FFFFFFkkkkkkFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
 
 sprite ground_bridge_v
 vvvvvvvvvvvvvvvv
@@ -1146,3 +1146,12 @@ sprite jump
 .DD..........DD.
 .DD..........DD.
 
+
+# Umriss der Spielfigur, wenn sie hinter einem Baum oder Haus steht
+recolor player xray k=fbf8ef B=41557a K=41557a L=41557a T=41557a X=41557a Z=41557a i=41557a
+
+# Staub beim Rennen
+sprite dust
+.jj.
+jjjj
+.jj.

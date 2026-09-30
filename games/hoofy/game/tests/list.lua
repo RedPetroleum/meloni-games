@@ -4,4 +4,5 @@ return {
   "util",
   "katalog",
   "karte",
+  "spieler",
 }

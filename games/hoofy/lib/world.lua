@@ -8,6 +8,8 @@
 --   e:draw()            in der Tiefenreihenfolge
 --   e:draw_shadow()     vor allen Figuren (Schatten liegen auf dem Boden)
 --   e:draw_over()       nach allen Figuren (Sprechblasen, Namen)
+--   e:xray_box(), e:draw_xray()   verdeckt etwas davor gezeichnetes Bild den Kasten x0, y0, x1, y1,
+--                       wird draw_xray nach allem gezeichnet (Umriss der Spielfigur hinter Bäumen)
 --   e.dead = true       wird am Ende des Frames entfernt
 --   e.reach             wie weit das Bild vom Fußpunkt absteht (Sichtbarkeit), Standard 32
 local World = {}
@@ -58,6 +60,24 @@ local function by_depth(a, b)
   return a.x < b.x
 end
 
+-- Liegt ein nach vis[i] gezeichnetes Bild über dem Kasten von e?
+function World:covered(e, i, n)
+  local x0, y0, x1, y1 = e:xray_box()
+  local vis = self.visible
+  for j = i + 1, n do
+    local o = vis[j]
+    local ox0, oy0, ox1, oy1
+    if o[1] then
+      ox0, oy0 = o[5], o[6]
+      ox1, oy1 = ox0 + o[3], oy0 + o[4]
+    elseif o.parts then
+      ox0, oy0, ox1, oy1 = o.x0, o.y0, o.x1, o.y1
+    end
+    if ox0 and ox1 > x0 + 2 and ox0 < x1 - 2 and oy1 > y0 + 2 and oy0 < y1 - 2 then return true end
+  end
+  return false
+end
+
 -- Zeichnet alles Sichtbare; die Kamera ist schon gesetzt (camera(cam_x, cam_y)).
 function World:draw(cam_x, cam_y, view_w, view_h)
   local vis = self.visible
@@ -90,6 +110,7 @@ function World:draw(cam_x, cam_y, view_w, view_h)
   end
   for i = 1, n do
     local o = vis[i]
+    if o.draw_xray and self:covered(o, i, n) then o:draw_xray() end
     if o.draw_over then o:draw_over() end
   end
 end

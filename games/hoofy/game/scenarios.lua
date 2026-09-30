@@ -25,7 +25,9 @@ function Scenarios.selftest(save)
   return "title"
 end
 
-function Scenarios.welt()
+-- Welt. save.ort = Ort aus area.places (start, hoftor, bruecke, laden …) oder save.cx, save.cy.
+function Scenarios.welt(save)
+  if save.ort or save.cx then return "world", {ort = save.ort, cx = save.cx, cy = save.cy} end
   return "world"
 end
 
