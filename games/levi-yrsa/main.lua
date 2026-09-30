@@ -14,7 +14,7 @@ local FLOOR = 224
 local GRAV = 0.2
 local NOISE_WAKE = 100
 local NOISE_STIR = 70
-local TAXI = 1.4 -- Sprungkraft von Levis Rücken
+local TAXI = 1.2 -- Sprungkraft von Levis Rücken
 
 local C = {
   wall = rgb(46, 44, 78),
@@ -112,14 +112,16 @@ local LP = {
 }
 
 -- Küche: Fliesen, hohe Schränke. Hängeschrank, Kühlschrank und Gewürzregal nur mit Levi-Taxi
+-- Levi muss für jeden hohen Platz woanders stehen: auf Stuhl oder Tisch fürs Gewürzregal, auf der
+-- Arbeitsplatte für Hängeschrank und Kühlschrank. Von oben kommt Yrsa nicht allein zum anderen Platz.
 local KP = {
   floor = plat(0, 320, FLOOR, {floor = true}),
   chair = plat(30, 56, 200),
-  table = plat(64, 124, 186),
+  table = plat(64, 124, 196),
   counter = plat(140, 244, 176),
-  spice = plat(66, 118, 120),
-  cab = plat(144, 236, 72),
-  fridge = plat(256, 294, 98),
+  spice = plat(18, 56, 120),
+  cab = plat(164, 236, 100),
+  fridge = plat(256, 294, 100),
 }
 
 -- Arbeitszimmer: Teppich, Sitzsack, Schreibtisch. Nur Yrsa kommt hier rein
@@ -162,8 +164,8 @@ local ROOMS = {
     spots = {
       {KP.chair, 38, true}, {KP.table, 72, true}, {KP.table, 104, true}, {KP.counter, 150, true},
       {KP.counter, 184}, {KP.counter, 206, true}, {KP.counter, 230},
-      {KP.spice, 74, false, true}, {KP.spice, 98, false, true}, {KP.cab, 154, false, true},
-      {KP.cab, 186, false, true}, {KP.cab, 218, false, true}, {KP.fridge, 270, false, true},
+      {KP.spice, 24, false, true}, {KP.spice, 42, false, true}, {KP.cab, 172, false, true},
+      {KP.cab, 196, false, true}, {KP.cab, 220, false, true}, {KP.fridge, 270, false, true},
     },
     light = {"plate", "glass", "egg", "cup"}, heavy = {"pot", "pot", "vase"},
     left = {to = "living", kind = "door"},
@@ -899,9 +901,9 @@ end
 local function draw_kitchen()
   rectfill(0, HUD_H, 319, FLOOR - 1, C.k_wall)
   -- Fliesenspiegel hinter der Arbeitsplatte
-  rectfill(140, 112, 244, 175, C.k_tile)
-  for x = 140, 244, 13 do line(x, 112, x, 175, C.k_tile2) end
-  for y = 112, 175, 12 do line(140, y, 244, y, C.k_tile2) end
+  rectfill(140, 140, 244, 175, C.k_tile)
+  for x = 140, 244, 13 do line(x, 140, x, 175, C.k_tile2) end
+  for y = 140, 175, 12 do line(140, y, 244, y, C.k_tile2) end
   -- Boden: Fliesen
   for x = 0, 319, 16 do
     rectfill(x, FLOOR, x + 15, 231, (x // 16) % 2 == 0 and C.k_floor or C.k_floor2)
@@ -915,8 +917,8 @@ local function draw_kitchen()
   line(92, 34, 92, 92, C.frame)
   -- Gewürzregal
   board(KP.spice, C.wood, C.wood_l, 3)
-  rectfill(70, 124, 72, 130, C.wood_d)
-  rectfill(112, 124, 114, 130, C.wood_d)
+  rectfill(22, 124, 24, 130, C.wood_d)
+  rectfill(50, 124, 52, 130, C.wood_d)
   -- Stuhl
   rectfill(30, 160, 33, 200, C.wood_d)
   rectfill(30, 160, 50, 164, C.wood_d)
@@ -925,8 +927,8 @@ local function draw_kitchen()
   rectfill(52, 204, 54, FLOOR - 1, C.wood_d)
   -- Tisch
   board(KP.table, C.wood, C.wood_l, 4)
-  rectfill(68, 191, 71, FLOOR - 1, C.wood_d)
-  rectfill(117, 191, 120, FLOOR - 1, C.wood_d)
+  rectfill(68, 201, 71, FLOOR - 1, C.wood_d)
+  rectfill(117, 201, 120, FLOOR - 1, C.wood_d)
   -- Unterschrank mit Arbeitsplatte
   rectfill(140, 176, 244, FLOOR - 1, C.k_front)
   for x = 140, 208, 35 do rect(x + 2, 184, x + 33, FLOOR - 4, C.k_front_d) end
@@ -934,13 +936,13 @@ local function draw_kitchen()
   rectfill(138, 174, 246, 179, C.k_top)
   line(138, 174, 246, 174, C.fridge)
   -- Hängeschrank
-  rectfill(144, 72, 236, 110, C.k_front)
-  for x = 144, 205, 31 do rect(x + 2, 76, x + 29, 107, C.k_front_d) end
-  for x = 144, 205, 31 do rectfill(x + 12, 102, x + 18, 103, C.fridge_d) end
-  line(144, 72, 236, 72, C.fridge)
+  rectfill(164, 100, 236, 138, C.k_front)
+  for x = 164, 212, 24 do rect(x + 2, 104, x + 21, 135, C.k_front_d) end
+  for x = 164, 212, 24 do rectfill(x + 9, 130, x + 14, 131, C.fridge_d) end
+  line(164, 100, 236, 100, C.fridge)
   -- Kühlschrank
-  rectfill(256, 98, 294, FLOOR - 1, C.fridge)
-  rect(256, 98, 294, FLOOR - 1, C.fridge_d)
+  rectfill(256, 100, 294, FLOOR - 1, C.fridge)
+  rect(256, 100, 294, FLOOR - 1, C.fridge_d)
   line(256, 140, 294, 140, C.fridge_d)
   rectfill(260, 110, 261, 132, C.fridge_d)
   rectfill(260, 148, 261, 176, C.fridge_d)
