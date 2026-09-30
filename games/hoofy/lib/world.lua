@@ -1,6 +1,7 @@
--- Alles, was auf der Karte steht oder läuft: feste Requisiten und bewegliche Figuren.
+-- Alles, was auf der Karte steht oder läuft: feste Requisiten (aus der Karte) und bewegliche Figuren.
 -- Gezeichnet wird nach der Fußlinie sortiert (3/4-Ansicht: weiter unten heißt weiter vorne).
--- Requisiten liegen in Blöcken (CHUNK Pixel), damit auch große Karten nur das Sichtbare anfassen.
+-- Requisiten liefert die Karte blockweise (Tilemap:props_in), so fasst auch eine große Karte nur
+-- das Sichtbare an.
 --
 -- Eine Figur ist eine Tabelle mit x, y (Fußpunkt) und optional:
 --   e:update(world)     jeden Frame
@@ -12,31 +13,12 @@
 local World = {}
 World.__index = World
 
-local CHUNK = 128
-
 function World.new(map)
   local self = setmetatable({}, World)
   self.map = map
   self.entities = {}
-  self.chunks = {}
-  self.cw = (map.pw + CHUNK - 1) // CHUNK
   self.visible = {}
-  for _, p in ipairs(map.props) do self:add_static(p) end
   return self
-end
-
--- Feste Requisite mit Zeichenteilen (siehe Tilemap:place_prop), sortiert nach p.y.
-function World:add_static(p)
-  local cx0, cy0 = max(0, p.x0 // CHUNK), max(0, p.y0 // CHUNK)
-  local cx1, cy1 = (p.x1 - 1) // CHUNK, (p.y1 - 1) // CHUNK
-  for cy = cy0, cy1 do
-    for cx = cx0, min(self.cw - 1, cx1) do
-      local k = cy * self.cw + cx + 1
-      local list = self.chunks[k]
-      if not list then list = {}; self.chunks[k] = list end
-      list[#list + 1] = p
-    end
-  end
 end
 
 function World:add(e)
@@ -78,27 +60,9 @@ end
 
 -- Zeichnet alles Sichtbare; die Kamera ist schon gesetzt (camera(cam_x, cam_y)).
 function World:draw(cam_x, cam_y, view_w, view_h)
-  local vis, n = self.visible, 0
+  local vis = self.visible
   local vx1, vy1 = cam_x + view_w, cam_y + view_h
-  local seen = self.seen or {}
-  self.seen = seen
-  local stamp = (self.stamp or 0) + 1
-  self.stamp = stamp
-  for cy = max(0, cam_y // CHUNK), (vy1 - 1) // CHUNK do
-    for cx = max(0, cam_x // CHUNK), min(self.cw - 1, (vx1 - 1) // CHUNK) do
-      local list = self.chunks[cy * self.cw + cx + 1]
-      if list then
-        for k = 1, #list do
-          local p = list[k]
-          if seen[p] ~= stamp and p.x1 > cam_x and p.x0 < vx1 and p.y1 > cam_y and p.y0 < vy1 then
-            seen[p] = stamp
-            n = n + 1
-            vis[n] = p
-          end
-        end
-      end
-    end
-  end
+  local n = self.map:props_in(cam_x, cam_y, vx1, vy1, vis, 0)
   for _, e in ipairs(self.entities) do
     local r = e.reach or 32
     if e.x + r > cam_x and e.x - r < vx1 and e.y + r > cam_y and e.y - r * 2 < vy1 then
@@ -118,6 +82,8 @@ function World:draw(cam_x, cam_y, view_w, view_h)
         local p = parts[k]
         sspr(img, p[1], p[2], p[3], p[4], p[5], p[6], p[3], p[4], p[7])
       end
+    elseif o[1] then
+      sspr(img, o[1], o[2], o[3], o[4], o[5], o[6], o[3], o[4], o[7])
     elseif o.draw then
       o:draw()
     end

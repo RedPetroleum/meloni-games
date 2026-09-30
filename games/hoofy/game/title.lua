@@ -1,13 +1,12 @@
 -- Titelbild: der Hof im Hintergrund, START oder A: los.
 local Stage = require("game.stage")
-local Maps = require("game.maps")
 
 local Title = {}
 
 local ctx, t
 
 function Title.enter()
-  ctx = Stage.build(Maps.start)
+  ctx = Stage.build(1)
   ctx.player.frozen = true
   t = 0
 end

@@ -48,11 +48,15 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### A Pferdeleben
 
-- [ ] **A1 Kartengenerator Heimattal**: 96×80 Kacheln aus Seed, Wiesen, Wald, Fluss mit Brücken,
+- [x] **A1 Kartengenerator Heimattal**: 96×80 Kacheln aus Seed, Wiesen, Wald, Fluss mit Brücken,
   Wege, Hof-Grundstück, Dorf (E12), Palette „sattgrün“. Technik nach LOOP.md.
   Prüfung: Szenario `karte_ganz` zeichnet die Karte verkleinert (1 Kachel = 2 px) → Screenshot
   ansehen; Selbsttest: gleicher Seed = gleiche Karte, jeder begehbare Bereich vom Hof erreichbar
   (Flutfüllung); Speicher geloggt.
+  *Erledigt:* `game/mapgen.lua`, neue `lib/tilemap.lua` (Ebenen als Strings je Zeile, Objekte in
+  16×16-Blöcken, höchstens 12 Blöcke mit Zeichenteilen), `lib/rng.lua`. Szenario `karte_ganz`
+  (`SCENARIO_OPTS='seed = 2'`), Seeds 1–5 angesehen. Selbsttest 5 Seeds erreichbar.
+  Speicher: Karte 198 KB, Lua gesamt 482 KB. Entscheidungen E17–E21.
 - [ ] **A2 Spieler und Kamera**: Figur (Sprites, 4 Richtungen, Laufanimation), rennen mit B,
   Kollision, Kamera folgt, Tiefensortierung.
   Prüfung: Shot-Sheet eines Laufs quer über Wiese, Brücke, am Wald entlang.

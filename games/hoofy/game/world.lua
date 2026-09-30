@@ -1,14 +1,13 @@
 -- Die Welt-Szene: herumlaufen im aktuellen Gebiet. Pferde, Tag/Nacht, Menüs kommen mit den
 -- Aufgaben aus PLAN.md dazu.
 local Stage = require("game.stage")
-local Maps = require("game.maps")
 
 local WorldScene = {}
 
 local ctx, paused, anim_frame, t
 
 function WorldScene.enter()
-  ctx = Stage.build(Maps.start)
+  ctx = Stage.build(1)
   paused, anim_frame, t = false, 1, 0
 end
 

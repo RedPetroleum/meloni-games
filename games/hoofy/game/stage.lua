@@ -1,7 +1,7 @@
--- Baut aus einer Karte (game/maps.lua) die laufende Welt: Karte, Figuren, Kamera, Spur.
+-- Baut aus einem Gebiet (game/area.lua) die laufende Welt: Karte, Figuren, Kamera, Spur.
 -- Das Ergebnis (ctx) ist der gemeinsame Zustand, den Spieler, Pferde und Szenen benutzen.
 local S = require("sprites")
-local Map = require("lib.tilemap")
+local Area = require("game.area")
 local World = require("lib.world")
 local Camera = require("lib.camera")
 local Trail = require("lib.trail")
@@ -24,24 +24,37 @@ Stage.COLORS = {
   grass = Tiles.COLORS.grass,
 }
 
-function Stage.build(area)
+-- nr: Gebiet (1 = Heimattal), seed: Welt-Seed (nil: Standard).
+function Stage.build(nr, seed)
+  local area = Area.get(nr, seed)
   local ctx = {S = S, sfx = SFX, colors = Stage.COLORS, area = area}
-  ctx.map = Map.new({
-    rows = area.map, legend = Tiles.LEGEND, grounds = Tiles.GROUNDS, props = Tiles.PROPS,
-    sprites = S, seed = area.seed or 3,
-  })
+  ctx.map = area.map
   ctx.world = World.new(ctx.map)
   ctx.fx = FX.new(S)
-  local px, py
-  for _, sp in ipairs(ctx.map.spawns) do
-    if sp.kind == "player" then px, py = sp.x, sp.y end
-  end
-  if not px then error("map has no @ (start)") end
+  local st = area.places.start
+  local px, py = st[1] * 16 + 8, st[2] * 16 + 14
   ctx.player = ctx.world:add(Player.new(ctx, px, py))
   ctx.trail = Trail.new(px, py)
   ctx.camera = Camera.new(ctx.map.pw, ctx.map.ph, {top = Stage.HUD_H, dz_w = 72, dz_h = 48})
   ctx.camera:snap(px, py)
   return ctx
+end
+
+-- Namen der Orte im Dorf über Tür bzw. Stand (Weltkoordinaten, Kamera ist gesetzt).
+local function draw_labels(ctx)
+  local cam = ctx.camera
+  for id, L in pairs(Area.LABELS) do
+    local p = ctx.area.places[id]
+    if p then
+      local text = L[1]
+      local x = p[1] * 16 + 8 + L[2] - textw(text) // 2
+      local y = p[2] * 16 + L[3]
+      if x + 80 > cam.x and x < cam.x + SCREEN_W and y + 8 > cam.y and y < cam.y + SCREEN_H then
+        rectfill(x - 2, y - 1, x + textw(text) + 1, y + 8, Stage.COLORS.panel)
+        print(text, x, y, Stage.COLORS.gold)
+      end
+    end
+  end
 end
 
 -- Zeichnet Boden, Welt und Effekte aus Sicht der Kamera.
@@ -51,6 +64,7 @@ function Stage.draw_world(ctx, extra)
   cam:apply()
   ctx.map:draw(cam.x, cam.y, SCREEN_W, SCREEN_H)
   ctx.world:draw(cam.x, cam.y, SCREEN_W, SCREEN_H)
+  draw_labels(ctx)
   if extra then extra() end
   ctx.fx:draw()
   camera()

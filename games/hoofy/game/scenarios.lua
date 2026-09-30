@@ -5,10 +5,11 @@
 -- (Name und Argument wie in main.lua), z. B. "world".
 local Scenarios = {}
 
--- Alle Selbsttests aus game/tests/ (Liste in game/tests/list.lua). save.only = "modul": nur dieses.
+-- Alle Selbsttests aus game/tests/ (Liste in game/tests/list.lua). save.only = "modul": nur dieses,
+-- save.list = "game.tests.andere_liste": andere Liste (z. B. für eine einmalige Messung).
 -- Loggt "SELFTEST OK <n>" oder wirft beim ersten Fehler (Runner endet mit Status 1).
 function Scenarios.selftest(save)
-  local modules = require("game.tests.list")
+  local modules = require(save.list or "game.tests.list")
   local n = 0
   for _, name in ipairs(modules) do
     if not save.only or save.only == name then
@@ -26,6 +27,11 @@ end
 
 function Scenarios.welt()
   return "world"
+end
+
+-- Ganzes Gebiet verkleinert (1 Kachel = 2 px). save.gebiet (Standard 1), save.seed.
+function Scenarios.karte_ganz(save)
+  return "overview", {nr = save.gebiet or 1, seed = save.seed}
 end
 
 -- save: der geladene Spielstand mit save.scenario. Gibt Szene und Argument zurück.

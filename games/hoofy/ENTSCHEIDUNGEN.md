@@ -43,6 +43,18 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   den Spieler (außen schwarz, gezeichnet mit ein paar Dutzend `rectfill`-Streifen), die
   Sattellampe vergrößert ihn.
 
+- **E17** (A1) Start-Grundstück: 20×20 Kacheln (2×2 Landstücke aus KATALOG §9) in der Mitte des
+  Heimattals, auf dem 10er-Raster der Landstücke.
+- **E18** (A1) Welt-Seed: Jedes neue Spiel würfelt einen Seed und speichert ihn (kommt mit A14);
+  bis dahin fest Seed 1. Gebiet n nutzt Seed + n × 1000.
+- **E19** (A1) Wald: dichtes Blätterdach als feste Bodenkachel, Bäume nur am Waldrand (etwa jede
+  Randkachel). Ein Baum pro Waldkachel wäre auf der Konsole zu langsam.
+- **E20** (A1) Dorf aus einer festen Vorlage (26×15 Kacheln: Laden, Wohnhaus, Marktstand mit
+  Koppel, Jobbrett, Turnierplatz mit Hindernissen), 8 Kacheln neben dem Hof. Der Fluss fließt auf
+  der anderen Seite von Nord nach Süd. Wege: Hof → Dorf, Hof → Nord-, Süd- und Flussrand.
+- **E21** (A1) Laden, Pferdemarkt, Jobbrett und Turnierplatz tragen ein Namensschild (Text über
+  dem Gebäude), damit man sie ohne Innenräume findet.
+
 ## Werte
 
 - **E15** Bindung-Startwert: Rassenwert ± 5 zufällig; schreckhaft −10, faul +5, verfressen +5,

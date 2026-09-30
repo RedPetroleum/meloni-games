@@ -3,4 +3,5 @@
 return {
   "util",
   "katalog",
+  "karte",
 }
