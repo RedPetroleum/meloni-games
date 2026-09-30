@@ -116,10 +116,31 @@ local function set_char(rows, cx, cy, ch)
   rows[cy + 1] = sub(row, 1, cx) .. ch .. sub(row, cx + 2)
 end
 
--- Ändert eine Ebene ("ground", "deco", "coll") und merkt sich die Änderung gegenüber dem Seed.
-function Map:set(layer, cx, cy, ch)
+-- Ändert eine Ebene ("ground", "deco", "coll") und merkt sich die Änderung gegenüber dem Seed
+-- (nolog: nicht merken, z. B. wenn der Hof die Änderung selbst speichert).
+function Map:set(layer, cx, cy, ch, nolog)
   set_char(self[layer], cx, cy, ch)
-  self.changes[#self.changes + 1] = {layer, cx, cy, ch}
+  if not nolog then self.changes[#self.changes + 1] = {layer, cx, cy, ch} end
+end
+
+-- Entfernt ein Objekt (Art und Kachel müssen stimmen). Gibt zurück, ob es eins gab.
+function Map:remove_object(kind, cx, cy)
+  local k = (cy // BLOCK) * self.bw + cx // BLOCK + 1
+  local list = self.blocks[k]
+  if not list then return false end
+  for i, o in ipairs(list) do
+    if o[1] == kind and o[2] == cx and o[3] == cy then
+      table.remove(list, i)
+      self:drop_block(k)
+      return true
+    end
+  end
+  return false
+end
+
+-- Zeichenteile des Blocks mit der Kachel neu bauen lassen (z. B. nach Zaun-Änderungen).
+function Map:refresh_block_at(cx, cy)
+  self:drop_block((cy // BLOCK) * self.bw + cx // BLOCK + 1)
 end
 
 -- Ist ein Rechteck (x1, y1 exklusiv) irgendwo blockiert? Außerhalb der Karte ist immer blockiert.

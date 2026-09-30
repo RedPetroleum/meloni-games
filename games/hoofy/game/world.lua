@@ -113,6 +113,10 @@ function WorldScene.enter(arg)
   ctx.wild = wild
   ctx.sfx.music(clock:is_night() and "night" or "day")
   ctx.day = clock.day
+  ctx.on_plot = function()
+    local p, pl = ctx.player, ctx.area.plot
+    return p.x >= pl.x * 16 and p.x < (pl.x + pl.w) * 16 and p.y >= pl.y * 16 and p.y < (pl.y + pl.h) * 16
+  end
   ctx.save = function() end
   if arg and arg.geld then ctx.money = arg.geld end
   ctx.saving_ok = saving
@@ -142,11 +146,12 @@ function WorldScene.enter(arg)
   Buyers.sync(ctx, clock:is_night())
   if arg and arg.screen then
     local name = arg.screen
-    if name ~= "none" then nav.push(Screens.pause(ctx, nav)) end
+    if name ~= "none" and name ~= "bauen" then nav.push(Screens.pause(ctx, nav)) end
     if name == "horses" or name == "info" or name == "keyboard" then nav.push(Screens.horses(ctx)) end
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "bauen" then nav.push(Screens.build(ctx)) end
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end

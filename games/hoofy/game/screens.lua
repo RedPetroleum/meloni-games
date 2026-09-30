@@ -15,6 +15,7 @@ local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
 local Jobs = require("game.jobs")
+local Farm = require("game.farm")
 
 local Screens = {}
 
@@ -674,6 +675,103 @@ function Screens.stammbaum(ctx, data)
   return s
 end
 
+-- ---- Baumodus (E8): Cursor im Kachelraster, A setzen, B gehalten + Steuerkreuz wählt ----
+
+function Screens.build(ctx)
+  local farm = ctx.area.farm
+  local plot = farm.plot
+  local cat, item = 1, 1
+  local cx = mid(plot.x, flr(ctx.player.x / 16), plot.x + plot.w - 1)
+  local cy = mid(plot.y, flr((ctx.player.y - 2) / 16), plot.y + plot.h - 1)
+  local msg, msg_t = "Steuerkreuz: Cursor. B halten + Links/Rechts: Art, Hoch/Runter: Bauteil.", 400
+  local b_used = false
+  local s = {}
+  local function cur_item()
+    local c = Farm.CATEGORIES[cat]
+    return c.items[item], c
+  end
+  local function say(text) msg, msg_t = text, 180 end
+  function s.update(nav)
+    local c = Farm.CATEGORIES[cat]
+    if btn(BTN_B) then
+      local moved = false
+      if btnp(BTN_LEFT) then cat = (cat - 2) % #Farm.CATEGORIES + 1; item, moved = 1, true end
+      if btnp(BTN_RIGHT) then cat = cat % #Farm.CATEGORIES + 1; item, moved = 1, true end
+      c = Farm.CATEGORIES[cat]
+      if #c.items > 0 then
+        if btnp(BTN_UP) then item = (item - 2) % #c.items + 1; moved = true end
+        if btnp(BTN_DOWN) then item = item % #c.items + 1; moved = true end
+      end
+      if moved then b_used = true; SFX.select() end
+    else
+      if btnp(BTN_LEFT) then cx = max(plot.x, cx - 1) end
+      if btnp(BTN_RIGHT) then cx = min(plot.x + plot.w - 1, cx + 1) end
+      if btnp(BTN_UP) then cy = max(plot.y, cy - 1) end
+      if btnp(BTN_DOWN) then cy = min(plot.y + plot.h - 1, cy + 1) end
+      if btnp(BTN_A) then
+        local id = c.items[item]
+        if c.id == "abriss" then
+          local sum, why = Farm.remove(ctx, cx, cy)
+          if sum then SFX.brush() say("Abgerissen: +" .. sum .. " G.") else SFX.snort() say(why .. ".") end
+        else
+          local ok, why = Farm.place(ctx, id, cx, cy)
+          if ok then SFX.ok() say(K.bauteil(id).name .. " gebaut.")
+          else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
+        end
+      end
+    end
+    -- B allein (ohne gewählt zu haben) beim Loslassen: zurück
+    if not btn(BTN_B) then
+      if s.b_was and not b_used then SFX.back() nav.pop() end
+      b_used = false
+    end
+    s.b_was = btn(BTN_B)
+    if msg_t > 0 then msg_t = msg_t - 1 end
+    ctx.camera:follow(cx * 16 + 8, cy * 16 + 8)
+  end
+  function s.draw()
+    local cam = ctx.camera
+    local id, c = cur_item()
+    local w, h = 1, 1
+    local ok = true
+    if c.id == "abriss" then
+      ok = Farm.item_at(farm, cx, cy) ~= nil
+    else
+      local it = Farm.ITEMS[id]
+      w, h = it.w or 1, it.h or 1
+      ok = Farm.can_place(ctx.map, farm, id, cx, cy, ctx.player) and ctx.money >= K.bauteil(id).preis
+    end
+    -- Grundstücksgrenze und Cursor (Weltkoordinaten)
+    camera(cam.x, cam.y)
+    rect(plot.x * 16 - 1, plot.y * 16 - 1, (plot.x + plot.w) * 16, (plot.y + plot.h) * 16, C.gold)
+    for dy = 0, h - 1 do
+      for dx = 0, w - 1 do ctx.S.draw(ok and "cursor_ok" or "cursor_bad", (cx + dx) * 16, (cy + dy) * 16) end
+    end
+    camera()
+    -- Leiste unten
+    rectfill(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel)
+    rect(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel_light)
+    local x = 6
+    for i, cc in ipairs(Farm.CATEGORIES) do
+      print(cc.name, x, SCREEN_H - 31, i == cat and C.gold or C.dim)
+      x = x + textw(cc.name) + 8
+    end
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, SCREEN_H - 31, C.gold)
+    local line
+    if c.id == "abriss" then
+      local it = Farm.item_at(farm, cx, cy)
+      line = it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
+    else
+      local b = K.bauteil(id)
+      line = "< " .. b.name .. " >  " .. b.preis .. " G" .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
+    end
+    print(line, 6, SCREEN_H - 20, ok and C.text or C.red)
+    if msg_t > 0 then print(msg, 6, SCREEN_H - 9, C.dim) else print("A: bauen  B: zurück", 6, SCREEN_H - 9, C.dim) end
+  end
+  return s
+end
+
 -- ---- Inventar ----
 
 function Screens.inventory(ctx)
@@ -806,7 +904,7 @@ function Screens.pause(ctx, nav)
     {label = "Inventar", id = "inventory"},
     {label = "Bestellungen", id = "orders"},
     {label = "Karte", id = "map"},
-    {label = "Bauen (bald)", id = "build", dim = true},
+    {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot()},
     {label = "Album (bald)", id = "album", dim = true},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok},
   }
@@ -818,6 +916,9 @@ function Screens.pause(ctx, nav)
     if r == "close" or r == "resume" then n.pop()
     elseif r == "horses" then n.push(Screens.horses(ctx))
     elseif r == "map" then n.push(Screens.map(ctx))
+    elseif r == "build" then
+      n.pop()
+      n.push(Screens.build(ctx))
     elseif r == "orders" then n.push(Screens.orders(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then

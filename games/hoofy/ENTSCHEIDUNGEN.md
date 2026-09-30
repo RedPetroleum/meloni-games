@@ -74,6 +74,13 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E45** (C1) Baumodus: Pausenmenü → Bauen (nur wenn der Spieler auf dem Grundstück steht). Cursor im
+  Kachelraster (Steuerkreuz), A baut bzw. reißt ab, **B gehalten + Links/Rechts** wählt die Art (Deko, Wege,
+  Zaun, Abreißen), **B gehalten + Hoch/Runter** das Bauteil, B allein schließt. Cursor gelb = möglich, rot =
+  nicht möglich (belegt, im Weg, zu wenig Geld, nicht auf Gras, du stehst drauf). Startbauten (Wohnwagen,
+  Stall S, Weide) lassen sich nicht abreißen. Abreißen erstattet den vollen Kaufpreis. Wege und Böden
+  verändern nur den Boden (Abreißen stellt das Gras wieder her). Ställe, Gebäude und Beete kommen mit C3 und C5;
+  Weide-Erkennung und Plätze aus Zäunen mit C2. Gebaut wird im Hof (`farm.items`), nicht als Kartenänderung.
 - **E44** (B7) Stammbaum und Inzucht: In der Pferde-Info zeigt Rechts den Stammbaum (Pferd, Eltern,
   Großeltern, Urgroßeltern; Vater oben, Mutter unten). Mehr speichert ein Pferd nicht (917 Bytes
   Ahnen bei 3 Ebenen). Verwandtschaft nach dem Katalog: Eltern/Kind und Vollgeschwister −15 %,

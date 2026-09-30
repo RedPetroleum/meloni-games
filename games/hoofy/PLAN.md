@@ -208,9 +208,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### C Hof bauen
 
-- [ ] **C1 Baumodus**: Cursor (E8), Kategorien, Kosten, Abreißen mit Erstattung, Kollision,
+- [x] **C1 Baumodus**: Cursor (E8), Kategorien, Kosten, Abreißen mit Erstattung, Kollision,
   nur auf dem Grundstück.
   Prüfung: `INPUT`-Drehbuch baut Bank und Weg, Screenshot.
+  *Erledigt:* `Farm.place/remove/can_place` (game/farm.lua), `Screens.build`, 10 neue Sprites (Deko,
+  Cursor). Szenario `bauen`, Drehbuch `--input "5:RIGHT,9:RIGHT,13:A,17:DOWN,21:A,25-42:B,30:RIGHT,44:UP,46:UP,50:A,54:LEFT,58:A,62:LEFT,66:A,70:LEFT,74:A"`
+  (2 Bänke, 4 Wegkacheln). E45.
 - [ ] **C2 Zäune und Weiden**: Zaunelemente, Tor, geschlossene Weide per Flutfüllung erkennen,
   mehrere Weiden, Plätze nach Fläche.
   Prüfung: Selbsttest offene/geschlossene Weide; Screenshot.

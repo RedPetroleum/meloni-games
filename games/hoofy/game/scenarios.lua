@@ -56,6 +56,11 @@ function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
 end
 
+-- Baumodus: am Hof, save.geld setzt das Geld. Start im Baumodus, Drehbuch per INPUT (A setzt, B + Tasten wählt).
+function Scenarios.bauen(save)
+  return "world", {ort = "start", screen = "bauen", geld = save.geld or 500}
+end
+
 -- Stammbaum: ein Pferd mit drei Generationen bekannter Ahnen, Bildschirm offen.
 function Scenarios.stammbaum()
   return "world", {ort = "start", stammbaum = true, screen = "stammbaum"}

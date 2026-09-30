@@ -45,4 +45,9 @@ function Area.get(nr, seed, farm)
   return area
 end
 
+-- Vergisst das gemerkte Gebiet (Tests, die mit demselben Seed frisch anfangen wollen).
+function Area.clear()
+  cache = {}
+end
+
 return Area

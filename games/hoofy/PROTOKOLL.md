@@ -65,3 +65,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:36 | B-Ende | begonnen | – | –
 2026-10-01 01:36 | B-Ende | fertig | Cover, README, Version 0.2.0, Checkliste, make test grün; Push → Release prüfen | Hoofy Phase B
 2026-10-01 01:37 | Release Phase B | fertig | Lauf success, „Update games“ bringt Hoofy 0.2.0 (494 KB) | f4ca2be
+2026-10-01 01:39 | C1 Baumodus | begonnen | – | –
+2026-10-01 01:42 | C1 Baumodus | fertig | Drehbuch baut Bank und Weg (Screenshot), SELFTEST OK 140, Spielstand mit 4 Bauten 1,3 KB, make test grün | Hoofy C1

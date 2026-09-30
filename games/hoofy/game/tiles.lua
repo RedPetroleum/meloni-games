@@ -40,6 +40,10 @@ T.SHAPES = {
   o = {{2, 9, 14, 16}},     -- Stein
   X = {{0, 0, 16, 16}},     -- Gebäude
   Y = {{1, 6, 15, 12}},     -- Hindernis
+  B = {{1, 8, 15, 16}},     -- Bank
+  H = {{0, 6, 16, 16}},     -- Hecke
+  L = {{5, 10, 11, 16}},    -- Lampe, Statue
+  K = {{2, 8, 14, 16}},     -- Blumenkübel
 }
 -- Zaun: "A" + Maske der Nachbarn (1 links, 2 rechts, 4 oben, 8 unten), Pfosten + Latten.
 T.FENCE_BASE = string.byte("A")
@@ -52,7 +56,7 @@ for mask = 0, 15 do
 end
 
 -- Höhe der Hindernisse in Pixeln: wer höher springt, kommt drüber (Bäume und Häuser nie).
-T.HEIGHTS = {u = 12, o = 16, Y = 14}
+T.HEIGHTS = {u = 12, o = 16, Y = 14, B = 10, H = 14, K = 10}
 for mask = 0, 15 do T.HEIGHTS[string.char(T.FENCE_BASE + mask)] = 18 end
 
 local function fence_mask(map, cx, cy)
@@ -90,6 +94,13 @@ T.PROPS = {
   wohnwagen = {sprite = "wohnwagen", w = 3, h = 2, coll = "X", map = rgb(0xfb, 0xf8, 0xef)},
   stall_s = {sprite = "stable", w = 4, h = 3, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
   gate = {sprite = "gate", map = rgb(0x7b, 0x4c, 0x2b)},
+  bank = {sprite = "bank", coll = "B", map = rgb(0xb0, 0x7a, 0x44)},
+  lampe = {sprite = "lampe", coll = "L", map = rgb(0xf7, 0xd6, 0x5a)},
+  blumenkuebel = {sprite = "blumenkuebel", coll = "K", map = rgb(0xe0, 0x47, 0x5a)},
+  hecke = {sprite = "hecke", coll = "H", map = rgb(0x37, 0x68, 0x2d)},
+  brunnen = {sprite = "brunnen", w = 2, h = 2, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
+  teich = {sprite = "teich", w = 2, h = 2, coll = "X", dy = 4, map = rgb(0x4a, 0x8c, 0xc0)},
+  statue = {sprite = "statue", coll = "L", map = rgb(0xc8, 0xcd, 0xd1)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
 
