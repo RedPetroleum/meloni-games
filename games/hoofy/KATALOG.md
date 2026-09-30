@@ -67,6 +67,8 @@ Vier Körperformen (Pony, Warmblut, Kaltblut, Einhorn), Farben per Recolor. Jede
 | Araber | Warmblut | 5 | 75 | 35 | 50 | 95 | 15 | +40 | 5 000 |
 | Einhorn | Einhorn | 6 | 80 | 50 | 70 | 90 | 10 | +45 | 10 000 |
 
+Spanne: so weit lässt sich ein Pferd über seine Gen-Stats hinaus trainieren (Max-Potenzial = Gen-Stat + Spanne ± σ 5, gilt für alle vier Gen-Werte).
+
 ## 4. Farben
 Fell- und Mähnenfarbe per Recolor, Muster (Schecke, Tupfen, Streifen) als Overlay.
 
