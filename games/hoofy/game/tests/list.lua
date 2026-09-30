@@ -8,4 +8,5 @@ return {
   "pferdegrafik",
   "pferd",
   "wild",
+  "blasen",
 }

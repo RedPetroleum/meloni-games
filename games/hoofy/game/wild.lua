@@ -5,10 +5,12 @@ local K = require("game.katalog")
 local H = require("game.horse_model")
 local G = require("game.horse_gfx")
 local Body = require("lib.body")
+local Bubbles = require("game.bubbles")
 local Rng = require("lib.rng")
 local U = require("lib.util")
 
 local Wild = {}
+Wild.Horse = nil
 
 local FLEE_DIST = 72     -- so nah darf der Spieler kommen, bevor das Pferd flieht
 local CALM_DIST = 110    -- ab hier beruhigt es sich wieder
@@ -17,6 +19,7 @@ local FAR_EVERY = 30
 
 local Horse = {}
 Horse.__index = Horse
+Wild.Horse = Horse
 
 function Horse.new(ctx, data, x, y)
   return setmetatable({
@@ -96,6 +99,13 @@ end
 
 function Horse:draw()
   G.draw(self.coat, self.body, self:pose(), self.x, self.y, self.dir == "left")
+end
+
+-- Blase über dem Kopf (E10). Wildpferde, die fliehen, haben Angst.
+function Horse:draw_over()
+  if self.state == "flee" then self.scared = true elseif not self.demo then self.scared = false end
+  local b = Bubbles.choose(self, frame())
+  if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
 
 -- Stellt die Wildpferde ein. Gibt den Verwalter {ctx, list, rng, slot} zurück.

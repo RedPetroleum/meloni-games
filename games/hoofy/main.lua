@@ -9,6 +9,7 @@ local scenes = {
   world = require("game.world"),
   overview = require("game.overview"),
   gallery = require("game.gallery"),
+  bubbles = require("game.bubbles_demo"),
 }
 
 local current

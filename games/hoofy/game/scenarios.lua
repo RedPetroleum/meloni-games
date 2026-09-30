@@ -41,6 +41,11 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
+-- Je ein Pferd pro Blasen-Zustand (E10). Charakter-Blasen erscheinen nur zeitweise: mehrere Shots.
+function Scenarios.blasen()
+  return "bubbles"
+end
+
 -- Alle Rassen mit je drei Farben, Posen laufen durch (Seite wechselt alle 4 s).
 function Scenarios.galerie()
   return "gallery"

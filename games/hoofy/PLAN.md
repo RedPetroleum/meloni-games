@@ -18,6 +18,7 @@ Checklisten des Loops für jede fertige Phase.
 
 ## Stand
 - Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
+- Phase A läuft: A1–A6 fertig (Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen).
 
 ## Aufgaben
 
@@ -82,8 +83,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/wild.lua` (`Wild:new_day(tag)` ruft A12 beim Tageswechsel auf), Szenario
   `wildpferde`. Fliehen bei < 72 px, weit entfernte Pferde nur alle 30 Frames. Wechsel nur
   getestet, noch nicht an einen Tageszähler gehängt (kommt mit A12).
-- [ ] **A6 Sprechblasen**: Emoji-Sprites, Vorrang und Schwellen (E10, E11), Charakter-Blasen.
+- [x] **A6 Sprechblasen**: Emoji-Sprites, Vorrang und Schwellen (E10, E11), Charakter-Blasen.
   Prüfung: Szenario `blasen` mit je einem Pferd pro Zustand, Screenshot.
+  *Erledigt:* `game/bubbles.lua` (`B.choose(pferd, frame)`), 5 neue Symbole (Nase, Dreck, Mond,
+  Glitzer, Apfel), Wildpferde zeigen Angst beim Fliehen. Charakter-Blase alle 12 s für 2 s.
 - [ ] **A7 Zähmen**: Minispiel nach E16, Schwierigkeit nach Bindung.
   Prüfung: `INPUT`-Drehbuch, das bei SEED 1 zähmt; eines, das beim Hinschauen läuft und scheitert.
 - [ ] **A8 Leine und Folgen**: Führen zu Fuß und reitend, Ausreißen nach KATALOG §2 Leine,

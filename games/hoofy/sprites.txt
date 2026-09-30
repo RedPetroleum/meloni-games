@@ -1229,6 +1229,84 @@ sprite dust
 jjjj
 .jj.
 
+
+
+# Sprechblasen (E10), 13 breit: Blase V mit Zipfel unten, Symbol darin
+sprite emo_nose
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVKKVVVVVVk
+kVVVVKKKKVVVVVk
+kVVVVKKKKVVVVVk
+kVVVVKKKKKVVVk
+kVVVKKkKkKKVVk
+kVVVVVKKKKVVVk
+.kVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_dirty
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVnnVVVVVk
+kVVVVnNNnVVVVk
+kVVVnNNNNnnVVk
+kVVVnNnNNNNnVk
+kVVVVnnNNnnVVk
+kVVVVVVnnVVVVk
+.kVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_moon
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVYYYVVVVVk
+kVVVYYVVVVVVVk
+kVVVYYVVVVVVVk
+kVVVYYVVVYVVVk
+kVVVVYYYYVVVVk
+kVVVVVVVVVVVVk
+.kVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_sparkle
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVVYVVVVVk
+kVVVVVVYVVVVVk
+kVVVYYYYYYYVVk
+kVVVVVVYVVVVVk
+kVVVVVYVYVVVVk
+kVVVVVVVVVVVVk
+.kVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_apple
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVVfVVVVVk
+kVVVVDDDfDVVVk
+kVVVDDPDDDDVVk
+kVVVDDDDDDDVVk
+kVVVVDDDDDVVVk
+kVVVVVDDDVVVVk
+.kVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 
 sprite horse_pony_side
