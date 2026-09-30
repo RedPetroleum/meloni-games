@@ -61,6 +61,11 @@ function Scenarios.bauen(save)
   return "world", {ort = "start", screen = "bauen", geld = save.geld or 500}
 end
 
+-- Weiden: zweite Weide mit Tor und eine geschlossene Koppel ohne Tor (zählt nicht), Baumodus offen.
+function Scenarios.weiden()
+  return "world", {ort = "start", screen = "weiden", weiden = true}
+end
+
 -- Stammbaum: ein Pferd mit drei Generationen bekannter Ahnen, Bildschirm offen.
 function Scenarios.stammbaum()
   return "world", {ort = "start", stammbaum = true, screen = "stammbaum"}

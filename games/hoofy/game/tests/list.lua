@@ -28,4 +28,5 @@ return {
   "stammbaum",
   "wirtschaft",
   "bauen",
+  "weiden",
 }

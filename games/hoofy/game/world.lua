@@ -54,7 +54,14 @@ function WorldScene.enter(arg)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
-  if arg and arg.stammbaum then
+  if arg and arg.weiden then
+    -- Zweite Weide rechts neben der ersten (6×5 innen, Tor oben) und eine offene Koppel ohne Tor
+    local pl = ctx.area.plot
+    ctx.money = 1000
+    Farm.fence_rect(ctx, pl.x + 14, pl.y + 10, pl.x + 19, pl.y + 15, {pl.x + 16, pl.y + 10})
+    Farm.fence_rect(ctx, pl.x + 14, pl.y + 2, pl.x + 18, pl.y + 6, nil)
+    wild.count = 0
+  elseif arg and arg.stammbaum then
     -- Vier Generationen: 8 wilde Urgroßeltern → Großeltern → Eltern → Fohlen C
     wild.count = 0
     local rng = Rng.new(17)
@@ -146,12 +153,12 @@ function WorldScene.enter(arg)
   Buyers.sync(ctx, clock:is_night())
   if arg and arg.screen then
     local name = arg.screen
-    if name ~= "none" and name ~= "bauen" then nav.push(Screens.pause(ctx, nav)) end
+    if name ~= "none" and name ~= "bauen" and name ~= "weiden" then nav.push(Screens.pause(ctx, nav)) end
     if name == "horses" or name == "info" or name == "keyboard" then nav.push(Screens.horses(ctx)) end
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
-    if name == "bauen" then nav.push(Screens.build(ctx)) end
+    if name == "bauen" or name == "weiden" then nav.push(Screens.build(ctx)) end
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end

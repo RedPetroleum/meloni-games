@@ -686,6 +686,18 @@ function Screens.build(ctx)
   local msg, msg_t = "Steuerkreuz: Cursor. B halten + Links/Rechts: Art, Hoch/Runter: Bauteil.", 400
   local b_used = false
   local s = {}
+  local pastures = Farm.pastures(ctx.map, farm)
+  -- Nach jedem Umbau: Weiden neu berechnen, Pferde umsetzen, Meldung
+  local function changed()
+    local before = 0
+    for _, w in ipairs(pastures) do before = before + w.plaetze end
+    pastures = Farm.pastures(ctx.map, farm)
+    local after = 0
+    for _, w in ipairs(pastures) do after = after + w.plaetze end
+    local lost = ctx.wild and ctx.wild:rehome() or {}
+    if #lost > 0 then return "Weide weg: " .. lost[1] .. " kommt an die Leine." end
+    if after ~= before then return "Weiden: " .. #pastures .. ", Plätze " .. after .. "." end
+  end
   local function cur_item()
     local c = Farm.CATEGORIES[cat]
     return c.items[item], c
@@ -712,10 +724,10 @@ function Screens.build(ctx)
         local id = c.items[item]
         if c.id == "abriss" then
           local sum, why = Farm.remove(ctx, cx, cy)
-          if sum then SFX.brush() say("Abgerissen: +" .. sum .. " G.") else SFX.snort() say(why .. ".") end
+          if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
         else
           local ok, why = Farm.place(ctx, id, cx, cy)
-          if ok then SFX.ok() say(K.bauteil(id).name .. " gebaut.")
+          if ok then SFX.ok() say(changed() or (K.bauteil(id).name .. " gebaut."))
           else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
         end
       end
@@ -744,6 +756,17 @@ function Screens.build(ctx)
     -- Grundstücksgrenze und Cursor (Weltkoordinaten)
     camera(cam.x, cam.y)
     rect(plot.x * 16 - 1, plot.y * 16 - 1, (plot.x + plot.w) * 16, (plot.y + plot.h) * 16, C.gold)
+    -- Weiden: grüne Punkte auf jeder Kachel, Beschriftung an der ersten
+    for _, w in ipairs(pastures) do
+      for _, t in ipairs(w.list) do
+        local x, y = t[1] * 16, t[2] * 16
+        if x + 16 > cam.x and x < cam.x + SCREEN_W and y + 16 > cam.y and y < cam.y + SCREEN_H then
+          rectfill(x + 7, y + 7, x + 8, y + 8, rgb(0xf3, 0xd5, 0x7f))
+        end
+      end
+      local t = w.list[1]
+      print("Weide " .. w.plaetze .. " Plätze", t[1] * 16 + 2, t[2] * 16 + 2, rgb(0xf3, 0xd5, 0x7f))
+    end
     for dy = 0, h - 1 do
       for dx = 0, w - 1 do ctx.S.draw(ok and "cursor_ok" or "cursor_bad", (cx + dx) * 16, (cy + dy) * 16) end
     end

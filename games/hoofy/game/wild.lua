@@ -405,32 +405,96 @@ function Wild:adopt(data)
   return h
 end
 
--- Unterbringung (E32): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
+-- Legt die Bewegungsgrenzen eines Pferds auf eine Weide (Kachelmenge) fest.
+local function confine_to(h, pasture)
+  h.data.weide_id = pasture.id
+  h.bounds = nil
+  h.allow = function(x, y) return Farm.in_pasture(pasture, x, y) end
+end
+
+-- Unterbringung (E32, C2): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
 function Wild:house(h, ort)
   local farm = self.ctx.area.farm
   local cap = Farm.capacity(farm)
   local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
   if n >= cap[ort] then return false, "voll" end
   if ort == "frei" and not Farm.may_roam(h.data, H) then return false, "zu schwach oder zu scheu" end
+  local pasture
+  if ort == "weide" then
+    -- erste Weide mit freiem Platz
+    for _, w in ipairs(Farm.pastures(self.ctx.map, farm)) do
+      local used = Farm.count_pasture(self.ctx.herd, w.id) - ((h.data.ort == "weide" and h.data.weide_id == w.id) and 1 or 0)
+      if used < w.plaetze then pasture = w break end
+    end
+    if not pasture then return false, "voll" end
+  end
   for i, e in ipairs(self.ctx.lead) do
     if e == h then table.remove(self.ctx.lead, i) break end
   end
   h.data.ort = ort
   h.scared = false
   if ort == "stall" then
+    h.data.weide_id = nil
     h.state, h.hidden = "stall", true
     return true
   end
-  local b = ort == "weide" and Farm.weide_bounds(farm) or Farm.plot_bounds(farm)
-  h.bounds = b
-  h.allow = function(x, y) return x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4] end
-  -- auf einen freien Platz in der Fläche setzen
-  for _ = 1, 100 do
-    local x, y = b[1] + rnd() * (b[3] - b[1]), b[2] + rnd() * (b[4] - b[2])
-    if not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
+  if ort == "weide" then
+    confine_to(h, pasture)
+    -- auf eine freie Kachel der Weide setzen
+    for _ = 1, 100 do
+      local t = pasture.list[1 + flr(rnd() * #pasture.list)]
+      local x, y = t[1] * 16 + 8, t[2] * 16 + 14
+      if not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
+    end
+  else
+    h.data.weide_id = nil
+    local b = Farm.plot_bounds(farm)
+    h.bounds = b
+    h.allow = function(x, y) return x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4] end
+    for _ = 1, 100 do
+      local x, y = b[1] + rnd() * (b[3] - b[1]), b[2] + rnd() * (b[4] - b[2])
+      if not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
+    end
   end
   h.state, h.timer, h.vx, h.vy, h.hidden = "free", 60, 0, 0, false
   return true
+end
+
+-- Nach einem Umbau: Weiden neu berechnen. Weidenpferde bleiben auf ihrer Weide, wenn es sie noch gibt
+-- und Platz ist; sonst suchen sie eine andere, und wenn keine da ist, kommen sie an die Leine.
+-- Gibt die Namen der Pferde zurück, die ihre Weide verloren haben.
+function Wild:rehome()
+  local farm = self.ctx.area.farm
+  local pastures = Farm.pastures(self.ctx.map, farm)
+  local by_id = {}
+  for _, w in ipairs(pastures) do by_id[w.id] = w end
+  local used = {}
+  for _, w in ipairs(pastures) do used[w.id] = 0 end
+  local lost = {}
+  for _, h in ipairs(self.ctx.herd_horses) do
+    if h.data.ort == "weide" then
+      local w = by_id[h.data.weide_id]
+      if w and used[w.id] < w.plaetze then
+        used[w.id] = used[w.id] + 1
+        confine_to(h, w)
+      else
+        -- andere Weide mit Platz?
+        local other
+        for _, o in ipairs(pastures) do if used[o.id] < o.plaetze then other = o break end end
+        if other then
+          used[other.id] = used[other.id] + 1
+          confine_to(h, other)
+          local t = other.list[1]
+          h.x, h.y = t[1] * 16 + 8, t[2] * 16 + 14
+        else
+          lost[#lost + 1] = h.data.name
+          h.data.ort, h.data.weide_id, h.allow, h.bounds = nil, nil, nil, nil
+          h.state, h.timer = "free", 60
+        end
+      end
+    end
+  end
+  return lost
 end
 
 -- Aus Stall, Weide oder freier Haltung zurück an die Leine (Spieler steht daneben).

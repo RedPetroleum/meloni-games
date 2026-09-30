@@ -96,11 +96,11 @@ return {
       w:house(h, "weide")
       hs[i] = h
     end
-    local b = Farm.weide_bounds(ctx.area.farm)
+    local pasture = Farm.pastures(ctx.map, ctx.area.farm)[1]
     for _ = 1, 2000 do
       ctx.world:update()
       for _, h in ipairs(hs) do
-        C.ok(h.x >= b[1] - 1 and h.x <= b[3] + 1 and h.y >= b[2] - 1 and h.y <= b[4] + 1, "Pferd verlässt die Weide")
+        C.ok(Farm.in_pasture(pasture, h.x, h.y), "Pferd verlässt die Weide")
       end
     end
   end},

@@ -214,9 +214,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `Farm.place/remove/can_place` (game/farm.lua), `Screens.build`, 10 neue Sprites (Deko,
   Cursor). Szenario `bauen`, Drehbuch `--input "5:RIGHT,9:RIGHT,13:A,17:DOWN,21:A,25-42:B,30:RIGHT,44:UP,46:UP,50:A,54:LEFT,58:A,62:LEFT,66:A,70:LEFT,74:A"`
   (2 Bänke, 4 Wegkacheln). E45.
-- [ ] **C2 Zäune und Weiden**: Zaunelemente, Tor, geschlossene Weide per Flutfüllung erkennen,
+- [x] **C2 Zäune und Weiden**: Zaunelemente, Tor, geschlossene Weide per Flutfüllung erkennen,
   mehrere Weiden, Plätze nach Fläche.
   Prüfung: Selbsttest offene/geschlossene Weide; Screenshot.
+  *Erledigt:* `Farm.pastures` (Flutfüllung), `Wild:rehome`, Überlagerung im Baumodus. Szenario `weiden`
+  (zweite Weide mit Tor und eine Koppel ohne Tor, Screenshot). E46.
 - [ ] **C3 Gebäude**: Ställe S–XL, Häuschen/Villa, Schuppen/Garage/Hangar.
   Prüfung: Screenshot aller Gebäude; Selbsttest Stallplätze.
 - [ ] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.

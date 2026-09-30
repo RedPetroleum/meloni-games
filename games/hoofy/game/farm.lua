@@ -6,6 +6,9 @@ local Tiles = require("game.tiles")
 
 local Farm = {}
 
+-- Karte zu einem Hof merken (nicht im Spielstand), damit Plätze ohne Karte abgefragt werden können.
+local MAPOF = setmetatable({}, {__mode = "k"})
+
 Farm.PASTURE_PER_TILES = 10       -- ein Weideplatz je 10 freie Kacheln (E32)
 Farm.FREE_PER_TILES = 50          -- ein Platz frei auf dem Grundstück je 50 Kacheln (E32)
 
@@ -28,6 +31,7 @@ local PROP = {wohnwagen = "wohnwagen", stall_s = "stall_s"}
 
 -- Trägt den Hof in die Karte ein (Objekte und Kollision). Mehrfaches Anwenden ist nicht vorgesehen.
 function Farm.apply(map, farm)
+  MAPOF[farm] = map
   for _, b in ipairs(farm.buildings) do
     local prop = PROP[b.id] or error("kein Bild für " .. b.id)
     map:add_object(prop, b.cx, b.cy)
@@ -83,18 +87,82 @@ function Farm.bed_door(farm)
 end
 
 -- Plätze: Stall (Summe der Ställe), Weide (Innenfläche / 10), frei (Grundstück / 50).
+-- ---- Weiden (C2): geschlossene Flächen aus Zäunen, Gebäuden und anderen Bauten mit einem Tor ----
+
+local DIRS4 = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+
+-- Alle Weiden des Hofs: {id = "cx,cy" (erste Kachel), tiles = {Kachelschlüssel = true}, n, list = {{cx, cy}…}, plaetze}.
+-- Eine Weide ist eine zusammenhängende Fläche freier Kacheln auf dem Grundstück, die ringsum von Zaun,
+-- Gebäuden oder Bauten begrenzt ist (keine Verbindung zum Rand des Grundstücks) und an ein Tor grenzt.
+function Farm.pastures(map, farm)
+  map = map or MAPOF[farm]
+  local p = farm.plot
+  local gates = {}
+  local function key(cx, cy) return cx * 4096 + cy end
+  for _, it in ipairs(farm.items or {}) do if it.id == "tor" then gates[key(it.cx, it.cy)] = true end end
+  gates[key(farm.weide.gate[1], farm.weide.gate[2])] = true
+  local function open(cx, cy)
+    return map:walkable(cx, cy) and not gates[key(cx, cy)]
+  end
+  local seen, out = {}, {}
+  for cy = p.y, p.y + p.h - 1 do
+    for cx = p.x, p.x + p.w - 1 do
+      if not seen[key(cx, cy)] and open(cx, cy) then
+        local tiles, list, escaped, at_gate = {}, {}, false, false
+        local stack = {{cx, cy}}
+        seen[key(cx, cy)] = true
+        while #stack > 0 do
+          local t = table.remove(stack)
+          tiles[key(t[1], t[2])] = true
+          list[#list + 1] = t
+          for _, d in ipairs(DIRS4) do
+            local nx, ny = t[1] + d[1], t[2] + d[2]
+            if nx < p.x or ny < p.y or nx >= p.x + p.w or ny >= p.y + p.h then
+              escaped = true
+            elseif gates[key(nx, ny)] then
+              at_gate = true
+            elseif open(nx, ny) and not seen[key(nx, ny)] then
+              seen[key(nx, ny)] = true
+              stack[#stack + 1] = {nx, ny}
+            end
+          end
+        end
+        if not escaped and at_gate then
+          out[#out + 1] = {id = cx .. "," .. cy, tiles = tiles, n = #list, list = list,
+            plaetze = flr(#list / Farm.PASTURE_PER_TILES)}
+        end
+      end
+    end
+  end
+  return out
+end
+
+-- Liegt der Fußpunkt (Pixel) in der Weide?
+function Farm.in_pasture(pasture, x, y)
+  return pasture.tiles[flr(x / 16) * 4096 + flr((y - 1) / 16)] == true
+end
+
 function Farm.capacity(farm)
   local stall = 0
   for _, b in ipairs(farm.buildings) do
     if b.id:find("^stall_") then stall = stall + K.bauteil(b.id).plaetze end
   end
-  local w = farm.weide
-  local interior = (w.x1 - w.x0 - 1) * (w.y1 - w.y0 - 1)
+  local weide = 0
+  if MAPOF[farm] then
+    for _, w in ipairs(Farm.pastures(nil, farm)) do weide = weide + w.plaetze end
+  end
   return {
     stall = stall,
-    weide = flr(interior / Farm.PASTURE_PER_TILES),
+    weide = weide,
     frei = flr(farm.plot.w * farm.plot.h / Farm.FREE_PER_TILES),
   }
+end
+
+-- Pferde einer bestimmten Weide (data.weide_id).
+function Farm.count_pasture(herd, id)
+  local n = 0
+  for _, d in ipairs(herd) do if d.ort == "weide" and d.weide_id == id then n = n + 1 end end
+  return n
 end
 
 -- Wie viele Pferde der Liste sind an diesem Ort untergebracht?
@@ -292,6 +360,25 @@ function Farm.remove(ctx, cx, cy)
   local price = K.bauteil(it.id).preis
   ctx.money = ctx.money + price
   return price
+end
+
+-- Zaunring um x0..x1 × y0..y1 (Kacheln, äußerer Rand), Tor an gate = {cx, cy} (nil: geschlossen ohne Tor).
+-- Für Szenarien und Tests; kostet wie beim Bauen. Gibt die Zahl der gebauten Stücke zurück.
+function Farm.fence_rect(ctx, x0, y0, x1, y1, gate)
+  local n = 0
+  for x = x0, x1 do
+    for _, y in ipairs({y0, y1}) do
+      local id = (gate and gate[1] == x and gate[2] == y) and "tor" or "zaun"
+      if Farm.place(ctx, id, x, y) then n = n + 1 end
+    end
+  end
+  for y = y0 + 1, y1 - 1 do
+    for _, x in ipairs({x0, x1}) do
+      local id = (gate and gate[1] == x and gate[2] == y) and "tor" or "zaun"
+      if Farm.place(ctx, id, x, y) then n = n + 1 end
+    end
+  end
+  return n
 end
 
 -- Schönheit des Hofs: Summe der Deko-Punkte (KATALOG §9), für C4.

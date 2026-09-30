@@ -74,6 +74,13 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E46** (C2) Weiden: Eine Weide ist eine zusammenhängende Fläche freier Kacheln auf dem Grundstück, die
+  ringsum von Zaun, Gebäuden oder anderen Bauten begrenzt ist und an ein Tor grenzt (Flutfüllung). Plätze:
+  ein Platz je 10 Kacheln (Bänke, Büsche usw. zählen nicht zur Fläche). Mehrere Weiden gehen; ein Pferd
+  merkt sich seine Weide (`weide_id`). Nach jedem Umbau werden die Weiden neu berechnet: Pferde bleiben auf
+  ihrer Weide, ziehen auf eine andere mit Platz um oder kommen an die Leine (Meldung). Im Baumodus sind
+  Weiden mit gelben Punkten und „Weide N Plätze“ markiert. Zäunt man das ganze Grundstück samt Tor ein,
+  wird der Hof selbst zur großen Weide.
 - **E45** (C1) Baumodus: Pausenmenü → Bauen (nur wenn der Spieler auf dem Grundstück steht). Cursor im
   Kachelraster (Steuerkreuz), A baut bzw. reißt ab, **B gehalten + Links/Rechts** wählt die Art (Deko, Wege,
   Zaun, Abreißen), **B gehalten + Hoch/Runter** das Bauteil, B allein schließt. Cursor gelb = möglich, rot =
