@@ -31,6 +31,8 @@ K f0c8a0   Haut
 J 6a88c8   Schlafanzug
 j 44609c   Schlafanzug dunkel
 Y ffe07a   Gelb
+E 9aa0a8   Metall
+I d4d8de   Metall hell
 
 sprite levi_walk1
 ................kk....kk..
@@ -275,3 +277,53 @@ KK.jjjjjj.KK
 ...JJJ.JJJ..
 ...KKK.KKK..
 ..KKKK.KKKK.
+
+sprite pot
+.....yyyy.....
+..yyyyyyyyyy..
+.yIIIIIIIIIIy.
+yyyyyyyyyyyyyy
+yyEEIEEEEEEEyy
+.yEEIEEEEEEEy.
+.yEEIEEEEEEEy.
+.yEEIEEEEEEEy.
+.yEEEEEEEEEEy.
+..yyyyyyyyyy..
+
+sprite plate
+yyyyyyyyyyyy
+yWWWWRRWWWWy
+.yWWWWWWWWy.
+..yyyyyyyy..
+
+sprite egg
+.yyy.
+yWWWy
+yWWWy
+yWWWy
+yWWWy
+.yyy.
+
+sprite pens
+.R...B.
+.R.Y.B.
+.R.Y.B.
+yyyyyyy
+yJJJJJy
+yJjJjJy
+yJJJJJy
+yJjJjJy
+yJJJJJy
+yyyyyyy
+
+sprite frame
+yyyyyyyyyy
+yOOOOOOOOy
+yOBBBBBBOy
+yOBBBBYBOy
+yOBBBBBBOy
+yOFFBBBBOy
+yOFFFFFFOy
+yOFFFFFFOy
+yOOOOOOOOy
+yyyyyyyyyy

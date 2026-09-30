@@ -1,7 +1,10 @@
 -- Levi & Yrsa: Nachtschicht. Der Mensch schläft, die Katzen räumen die Regale ab.
--- Levi: dick, schwer, springt niedrig, landet laut, schubst auch Vasen und Blumentöpfe.
--- Yrsa: klein, flink, springt hoch, landet leise, ist aber zu leicht für schwere Sachen.
--- Steuerkreuz: laufen   A: springen   B: Tatze   ↓: vom Brett runter   SELECT: Katze wechseln
+-- Levi: dick, schwer, springt niedrig, landet laut. Schubst auch Vasen und Töpfe, drückt die
+--       klemmende Küchentür auf und ist Yrsas Taxi: von seinem Rücken springt sie extra hoch.
+-- Yrsa: klein, flink, springt hoch, landet leise. Zu leicht für schwere Sachen, passt aber als
+--       Einzige durch die Katzenklappe ins Arbeitszimmer.
+-- Räume: Arbeitszimmer | Wohnzimmer | Küche. Nacht 1 nur Wohnzimmer, Nacht 2 mit Küche, dann alle.
+-- Steuerkreuz: laufen   A: springen   B: Tatze   unten: vom Brett runter   SELECT: Katze wechseln
 -- START: los / Pause
 
 local S = require("sprites")
@@ -9,9 +12,9 @@ local S = require("sprites")
 local HUD_H = 16
 local FLOOR = 224
 local GRAV = 0.2
-local NIGHT_LEN = 60 * 100 -- 0 bis 6 Uhr
 local NOISE_WAKE = 100
 local NOISE_STIR = 70
+local TAXI = 1.4 -- Sprungkraft von Levis Rücken
 
 local C = {
   wall = rgb(46, 44, 78),
@@ -34,8 +37,27 @@ local C = {
   sisal_d = rgb(160, 136, 90),
   door = rgb(104, 72, 56),
   door_d = rgb(78, 52, 40),
+  dark = rgb(20, 18, 30),
   light = rgb(255, 224, 130),
   light_d = rgb(230, 180, 90),
+  k_wall = rgb(52, 70, 74),
+  k_tile = rgb(70, 92, 96),
+  k_tile2 = rgb(62, 82, 86),
+  k_floor = rgb(150, 150, 160),
+  k_floor2 = rgb(110, 110, 124),
+  k_front = rgb(190, 180, 160),
+  k_front_d = rgb(150, 140, 124),
+  k_top = rgb(90, 90, 100),
+  fridge = rgb(206, 212, 220),
+  fridge_d = rgb(150, 156, 168),
+  s_wall = rgb(66, 50, 64),
+  s_wall2 = rgb(72, 56, 70),
+  s_floor = rgb(110, 58, 58),
+  s_floor2 = rgb(92, 46, 48),
+  rug = rgb(160, 120, 70),
+  bean = rgb(206, 118, 60),
+  bean_d = rgb(170, 90, 44),
+  screen = rgb(40, 60, 90),
   hud = rgb(24, 20, 36),
   text = rgb(236, 232, 244),
   dim = rgb(150, 144, 172),
@@ -48,51 +70,140 @@ local C = {
   shadow = rgb(30, 28, 50),
 }
 
--- Plattformen: Oberkante y, begehbar von x0 bis x1. stop: bis hierhin rutschen Sachen (Bücher im Weg)
-local P = {
-  floor = {x0 = 0, x1 = 320, y = FLOOR, floor = true},
-  seat = {x0 = 28, x1 = 100, y = 202, soft = true},
-  arm_l = {x0 = 14, x1 = 28, y = 192, soft = true},
-  arm_r = {x0 = 100, x1 = 114, y = 192, soft = true},
-  back = {x0 = 18, x1 = 110, y = 180},
-  table = {x0 = 146, x1 = 190, y = 204},
-  tree1 = {x0 = 214, x1 = 246, y = 190},
-  tree2 = {x0 = 192, x1 = 224, y = 152},
-  tree3 = {x0 = 214, x1 = 246, y = 114},
-  tree4 = {x0 = 200, x1 = 238, y = 80},
-  sill = {x0 = 14, x1 = 94, y = 100},
-  shelf = {x0 = 116, x1 = 176, y = 100},
-  bs1 = {x0 = 252, x1 = 316, y = 194, stop = 298},
-  bs2 = {x0 = 252, x1 = 316, y = 166, stop = 298},
-  bs3 = {x0 = 252, x1 = 316, y = 136, stop = 298},
-  bs4 = {x0 = 252, x1 = 316, y = 106, stop = 298},
-  bs5 = {x0 = 252, x1 = 316, y = 76, stop = 312},
-}
-local PLATS = {P.floor, P.seat, P.arm_l, P.arm_r, P.back, P.table, P.tree1, P.tree2, P.tree3, P.tree4,
-  P.sill, P.shelf, P.bs1, P.bs2, P.bs3, P.bs4, P.bs5}
-
--- Wo Sachen stehen können. heavy: dort kommt Levi hin
-local SPOTS = {
-  {P.back, 34, true}, {P.back, 78, true}, {P.table, 156, true}, {P.table, 176, true},
-  {P.bs1, 262, true}, {P.bs1, 282, true},
-  {P.bs2, 262}, {P.bs2, 282}, {P.bs3, 262}, {P.bs3, 282}, {P.bs4, 262}, {P.bs4, 282}, {P.bs5, 280},
-  {P.sill, 24}, {P.sill, 60}, {P.shelf, 128}, {P.shelf, 156}, {P.tree4, 212},
-}
-
 local KINDS = {
-  cup = {sprite = "cup", heavy = false, noise = 20, pts = 50, word = "KLIRR!", shard = {rgb(246, 246, 242), rgb(208, 72, 72)}},
-  glass = {sprite = "glass", heavy = false, noise = 24, pts = 60, word = "KLIRR!", shard = {rgb(224, 236, 244), rgb(140, 200, 240)}},
-  vase = {sprite = "vase", heavy = true, noise = 38, pts = 150, word = "SCHEPPER!", shard = {rgb(78, 116, 200), rgb(154, 180, 238)}},
-  plant = {sprite = "plant", heavy = true, noise = 32, pts = 120, word = "RUMMS!", shard = {rgb(200, 104, 58), rgb(58, 126, 54), rgb(96, 70, 50)}},
+  cup = {sprite = "cup", noise = 20, pts = 50, word = "KLIRR!", shard = {rgb(246, 246, 242), rgb(208, 72, 72)}},
+  glass = {sprite = "glass", noise = 24, pts = 60, word = "KLIRR!", shard = {rgb(224, 236, 244), rgb(140, 200, 240)}},
+  plate = {sprite = "plate", noise = 24, pts = 60, word = "KLIRR!", shard = {rgb(246, 246, 242), rgb(208, 72, 72)}},
+  egg = {sprite = "egg", noise = 8, pts = 40, word = "PLATSCH!", shard = {rgb(250, 250, 240), rgb(250, 200, 60)}},
+  pens = {sprite = "pens", noise = 12, pts = 40, word = "KLAPPER!", shard = {rgb(208, 72, 72), rgb(140, 200, 240), rgb(255, 224, 122)}},
+  frame = {sprite = "frame", noise = 18, pts = 50, word = "KLIRR!", shard = {rgb(200, 104, 58), rgb(140, 200, 240)}},
+  vase = {sprite = "vase", heavy = true, noise = 36, pts = 150, word = "SCHEPPER!", shard = {rgb(78, 116, 200), rgb(154, 180, 238)}},
+  plant = {sprite = "plant", heavy = true, noise = 30, pts = 120, word = "RUMMS!", shard = {rgb(200, 104, 58), rgb(58, 126, 54), rgb(96, 70, 50)}},
+  pot = {sprite = "pot", heavy = true, noise = 34, pts = 150, word = "DONG!", shard = {rgb(154, 160, 168), rgb(212, 216, 222)}},
 }
-local LIGHT = {"cup", "cup", "glass"}
-local HEAVY = {"vase", "plant"}
 
-local state, t, pause_prev
+-- ---------- Räume ----------
+
+local function plat(x0, x1, y, o)
+  o = o or {}
+  o.x0, o.x1, o.y = x0, x1, y
+  return o
+end
+
+-- Wohnzimmer: Schlafzimmertür, Sofa, Kratzbaum, Bücherregal
+local LP = {
+  floor = plat(0, 320, FLOOR, {floor = true}),
+  seat = plat(28, 100, 202, {soft = true}),
+  arm_l = plat(14, 28, 192, {soft = true}),
+  arm_r = plat(100, 114, 192, {soft = true}),
+  back = plat(18, 110, 180),
+  table = plat(146, 190, 204),
+  tree1 = plat(212, 244, 190),
+  tree2 = plat(192, 222, 152),
+  tree3 = plat(212, 244, 114),
+  tree4 = plat(198, 236, 80),
+  sill = plat(14, 94, 100),
+  shelf = plat(116, 176, 100),
+  bs1 = plat(254, 306, 194, {rstop = 288}),
+  bs2 = plat(254, 306, 166, {rstop = 288}),
+  bs3 = plat(254, 306, 136, {rstop = 288}),
+  bs4 = plat(254, 306, 106, {rstop = 288}),
+  bs5 = plat(254, 306, 76, {rstop = 306}),
+}
+
+-- Küche: Fliesen, hohe Schränke. Hängeschrank, Kühlschrank und Gewürzregal nur mit Levi-Taxi
+local KP = {
+  floor = plat(0, 320, FLOOR, {floor = true}),
+  chair = plat(30, 56, 200),
+  table = plat(64, 124, 186),
+  counter = plat(146, 272, 176),
+  spice = plat(66, 118, 120),
+  cab = plat(150, 262, 72),
+  fridge = plat(278, 316, 98),
+}
+
+-- Arbeitszimmer: Teppich, Sitzsack, Schreibtisch. Nur Yrsa kommt hier rein
+local SP = {
+  floor = plat(0, 320, FLOOR, {floor = true}),
+  sh1 = plat(8, 70, 190, {lstop = 22}),
+  sh2 = plat(8, 70, 154, {lstop = 22}),
+  sh3 = plat(8, 70, 118, {lstop = 22}),
+  sh4 = plat(8, 70, 82, {lstop = 8}),
+  bean = plat(78, 126, 208, {soft = true}),
+  wall = plat(86, 142, 124),
+  chair = plat(150, 176, 196),
+  desk = plat(184, 290, 178),
+  hang = plat(200, 272, 132),
+}
+
+local function list(t, order)
+  local l = {}
+  for _, k in ipairs(order) do l[#l + 1] = t[k] end
+  return l
+end
+
+local ROOMS = {
+  living = {
+    name = "Wohnzimmer", mult = 1,
+    plats = list(LP, {"floor", "seat", "arm_l", "arm_r", "back", "table", "tree1", "tree2", "tree3", "tree4",
+      "sill", "shelf", "bs1", "bs2", "bs3", "bs4", "bs5"}),
+    -- {Brett, x, schwer erlaubt, nur mit Taxi}
+    spots = {
+      {LP.back, 34, true}, {LP.back, 78, true}, {LP.table, 154, true}, {LP.table, 174, true}, {LP.bs1, 262, true},
+      {LP.bs2, 262}, {LP.bs2, 274}, {LP.bs3, 262}, {LP.bs3, 274}, {LP.bs4, 262}, {LP.bs4, 274}, {LP.bs5, 270},
+      {LP.sill, 24}, {LP.sill, 60}, {LP.shelf, 128}, {LP.shelf, 156}, {LP.tree4, 210},
+    },
+    light = {"cup", "cup", "glass"}, heavy = {"vase", "plant"},
+    left = {to = "study", kind = "flap"}, right = {to = "kitchen", kind = "stuck"},
+  },
+  kitchen = {
+    name = "Küche", mult = 1.3,
+    plats = list(KP, {"floor", "chair", "table", "counter", "spice", "cab", "fridge"}),
+    spots = {
+      {KP.chair, 38, true}, {KP.table, 72, true}, {KP.table, 104, true}, {KP.counter, 156, true},
+      {KP.counter, 196}, {KP.counter, 232, true}, {KP.counter, 254},
+      {KP.spice, 74, false, true}, {KP.spice, 98, false, true}, {KP.cab, 160, false, true},
+      {KP.cab, 198, false, true}, {KP.cab, 240, false, true}, {KP.fridge, 292, false, true},
+    },
+    light = {"plate", "glass", "egg", "cup"}, heavy = {"pot", "pot", "vase"},
+    left = {to = "living", kind = "door"},
+    intro = {"Küche: Fliesen, alles ist lauter!", "Zu hoch? Yrsa springt von Levi ab!"},
+  },
+  study = {
+    name = "Arbeitszimmer", mult = 0.7,
+    plats = list(SP, {"floor", "sh1", "sh2", "sh3", "sh4", "bean", "wall", "chair", "desk", "hang"}),
+    spots = {
+      {SP.sh1, 30}, {SP.sh1, 48}, {SP.sh2, 30}, {SP.sh2, 48}, {SP.sh3, 30}, {SP.sh3, 48}, {SP.sh4, 20}, {SP.sh4, 44},
+      {SP.wall, 96}, {SP.wall, 124}, {SP.desk, 196}, {SP.desk, 220}, {SP.desk, 244},
+      {SP.hang, 210}, {SP.hang, 234}, {SP.hang, 258},
+    },
+    light = {"pens", "frame", "cup", "glass"}, heavy = {},
+    right = {to = "living", kind = "door"},
+    intro = {"Arbeitszimmer: Teppich, schön leise.", "Levi ist zu dick für die Klappe."},
+  },
+}
+
+-- Wie viele Sachen pro Raum: {leicht, schwer}
+local function plan(n)
+  if n == 1 then return {living = {4, 2}} end
+  if n == 2 then return {living = {3, 2}, kitchen = {3, 2}} end
+  local e = n - 3
+  return {living = {3 + e // 3, 1 + e // 4}, kitchen = {3 + (e + 1) // 3, 2 + e // 4}, study = {5 + (e + 2) // 3, 0}}
+end
+
+local NIGHT_INTRO = {
+  {"Vasen und Töpfe schafft nur Levi."},
+  {"Nacht 2: heute auch die Küche!", "Die Tür klemmt. Levi drückt sie auf."},
+  {"Nacht 3: auch das Arbeitszimmer!", "Da passt nur Yrsa durch die Klappe."},
+}
+
+local state, t
 local save
 local cats, active, other
 local items, parts, debris, popups, moths, zs
-local night, score, noise, clock, left, combo_t, shake, msg, msg_t, end_t, reason, bonus
+local night, score, noise, clock, night_len, decay, left, combo_t, shake, end_t, reason, bonus
+local msg, msg2, msg_t
+local room_on, seen, door_open, door_push
 local sel_down, sel_other
 
 -- ---------- Helfer ----------
@@ -101,13 +212,13 @@ local function center(text, y, c, scale)
   print(text, (SCREEN_W - textw(text, scale)) // 2, y, c, scale)
 end
 
-local function say(text, frames)
-  msg, msg_t = text, frames or 150
+local function say(a, b, frames)
+  msg, msg2, msg_t = a, b, frames or 200
 end
 
-local function popup(x, y, text, c)
+local function popup(room, x, y, text, c)
   x = mid(2, x, SCREEN_W - 2 - textw(text))
-  popups[#popups + 1] = {x = x, y = y, text = text, c = c or C.text, life = 50}
+  popups[#popups + 1] = {room = room, x = x, y = y, text = text, c = c or C.text, life = 50}
 end
 
 local function big(name, x, y, scale, flip)
@@ -124,9 +235,13 @@ function SFX.tap() tone(1200, 0.02, "triangle", 0.18) end
 function SFX.heavy_tap() tone(180, 0.05, "square", 0.15) end
 function SFX.soft() tone(90, 0.12, "sine", 0.35) end
 function SFX.plumps() tone(60, 0.12, "square", 0.25) tone(80, 0.1, "noise", 0.2) end
+function SFX.creak() tone(140 + rnd(60), 0.12, "saw", 0.12) end
 function SFX.crash(kind)
   if KINDS[kind].heavy then
     tone(55, 0.35, "noise", 0.6) tone(70, 0.2, "square", 0.3)
+  elseif kind == "egg" then
+    tone(200, 0.08, "noise", 0.3)
+    return
   else
     tone(900, 0.12, "noise", 0.4)
   end
@@ -144,9 +259,9 @@ function SFX.clear() stoptune(7) tune("C5 E5 G5 C6:2 G5 C6:3", 360, "triangle", 
 
 -- ---------- Katzen ----------
 
-local function new_cat(name, x, y)
-  local c = {name = name, x = x, y = y, vx = 0, vy = 0, face = 1, on = P.floor, anim = 0, tap_t = 0,
-    drop_t = 0, top_y = y, idle = 0}
+local function new_cat(name, x)
+  local c = {name = name, room = "living", x = x, y = FLOOR, vx = 0, vy = 0, face = 1, on = LP.floor, anim = 0,
+    tap_t = 0, drop_t = 0, top_y = FLOOR, idle = 0, hint_t = 0}
   if name == "levi" then
     c.w, c.h, c.speed, c.accel, c.jump, c.heavy = 26, 18, 1.15, 0.12, 3.3, true
   else
@@ -158,14 +273,30 @@ end
 local function levi() return cats[1] end
 local function yrsa() return cats[2] end
 
+local function add_noise(n, room)
+  noise = noise + n * ROOMS[room].mult
+end
+
 -- Levis Rücken als Brett für Yrsa
 local function levi_plat()
   local l = levi()
   return {x0 = l.x + 3, x1 = l.x + l.w - 3, y = l.y - 14, levi = true}
 end
 
+local function riding()
+  local y = yrsa()
+  return y.on and y.on.levi and y.room == levi().room
+end
+
 local function on_plat(c, p)
   return c.x + c.w - 5 > p.x0 and c.x + 5 < p.x1
+end
+
+local function hint(c, text)
+  if c.hint_t > 0 then return end
+  c.hint_t = 90
+  SFX.heavy_tap()
+  popup(c.room, c.x - 10, c.y - c.h - 14, text, C.orange)
 end
 
 -- Schwerkraft und Landen. true, wenn die Katze in diesem Frame gelandet ist
@@ -173,7 +304,7 @@ local function physics(c)
   if c.on then
     if c.on.levi then
       local lp = levi_plat()
-      if on_plat(c, lp) then c.on, c.y = lp, lp.y return false end
+      if levi().room == c.room and on_plat(c, lp) then c.on, c.y = lp, lp.y return false end
       c.on = nil
     elseif not on_plat(c, c.on) then
       c.on = nil
@@ -187,15 +318,14 @@ local function physics(c)
   c.y = c.y + c.vy
   if c.vy < 0 then c.top_y = min(c.top_y, c.y) return false end
   if c.drop_t > 0 then c.drop_t = c.drop_t - 1 end
-  local cands = PLATS
-  if c == yrsa() then
+  if c == yrsa() and levi().room == c.room then
     local lp = levi_plat()
     if prev <= lp.y and c.y >= lp.y and on_plat(c, lp) then
       c.y, c.vy, c.on = lp.y, 0, lp
       return true
     end
   end
-  for _, p in ipairs(cands) do
+  for _, p in ipairs(ROOMS[c.room].plats) do
     if (p.floor or c.drop_t == 0) and prev <= p.y and c.y >= p.y and on_plat(c, p) then
       c.y, c.vy, c.on = p.y, 0, p
       return true
@@ -208,7 +338,7 @@ local function tap(c)
   c.tap_t = 12
   local best, bd
   for _, it in ipairs(items) do
-    if it.state == "rest" and it.plat == c.on then
+    if it.state == "rest" and it.room == c.room and it.plat == c.on then
       local d
       if c.face > 0 then d = it.x - (c.x + c.w - 8) else d = (c.x + 8) - (it.x + it.w) end
       if d >= -10 and d <= 10 and (not bd or abs(d) < bd) then best, bd = it, abs(d) end
@@ -219,10 +349,10 @@ local function tap(c)
   best.wob = 12
   if k.heavy and not c.heavy then
     SFX.heavy_tap()
-    popup(best.x - 8, best.y - 26, "Zu schwer!", C.orange)
+    popup(c.room, best.x - 8, best.y - 26, "Zu schwer!", C.orange)
     if not best.told then
       best.told = true
-      say("Das schafft nur Levi (SELECT)", 150)
+      say("Das schafft nur Levi (SELECT).", nil, 150)
     end
     return
   end
@@ -234,13 +364,63 @@ local function land(c)
   local fall = c.y - c.top_y
   c.top_y = c.y
   if c.name == "levi" and fall > 34 and not c.on.soft then
-    noise = noise + 6
+    add_noise(8, c.room)
     shake = 4
     SFX.plumps()
-    popup(c.x + 4, c.y - 24, "Plumps!", C.dim)
+    popup(c.room, c.x + 4, c.y - 24, "Plumps!", C.dim)
   elseif c.on.soft then
     tone(120, 0.05, "sine", 0.1)
   end
+end
+
+local function entered(room)
+  if seen[room] then return end
+  seen[room] = true
+  local intro = ROOMS[room].intro
+  if intro then say(intro[1], intro[2], 240) end
+end
+
+-- Durch die Tür am linken (side = -1) oder rechten Rand in den Nachbarraum
+local function try_exit(c, side)
+  local R = ROOMS[c.room]
+  local e = R.right
+  if side < 0 then e = R.left end
+  if not e or not room_on[e.to] then return end
+  if e.kind == "flap" and c.heavy then
+    hint(c, "Levi passt nicht durch!")
+    return
+  end
+  if e.kind == "stuck" and not door_open then
+    if c.heavy then
+      door_push = door_push + 1
+      if door_push % 12 == 1 then SFX.creak() end
+      if door_push >= 45 then
+        door_open = true
+        add_noise(5, c.room)
+        popup(c.room, 250, 150, "Knarz!", C.text)
+      end
+    else
+      hint(c, "Klemmt!")
+      if not seen.door_hint then
+        seen.door_hint = true
+        say("Die Tür klemmt. Levi kann drücken!", nil, 180)
+      end
+    end
+    return
+  end
+  local take = c == levi() and riding()
+  c.room = e.to
+  c.x = side < 0 and SCREEN_W - 11 - c.w or 11
+  c.vx = side * 0.5
+  if take then
+    local y = yrsa()
+    y.room, y.x = e.to, c.x + 2
+  end
+  if c == active then entered(c.room) end
+end
+
+local function edges(c)
+  return 10, SCREEN_W - 10 - c.w
 end
 
 local function control(c)
@@ -250,11 +430,16 @@ local function control(c)
   if dir ~= 0 then c.face = dir end
   local target = dir * c.speed
   if c.vx < target then c.vx = min(target, c.vx + c.accel) elseif c.vx > target then c.vx = max(target, c.vx - c.accel) end
-  c.x = mid(2, c.x + c.vx, SCREEN_W - 2 - c.w)
+  local lo, hi = edges(c)
+  c.x = mid(lo, c.x + c.vx, hi)
+  if c.on and c.on.floor then
+    if dir < 0 and c.x <= lo then try_exit(c, -1)
+    elseif dir > 0 and c.x >= hi then try_exit(c, 1) end
+  end
 
   if c.on then
     if btnp(BTN_A) then
-      c.vy = -c.jump * (c.on.levi and 1.3 or 1)
+      c.vy = -c.jump * (c.on.levi and TAXI or 1)
       c.on = nil
       c.top_y = c.y
       SFX.jump(c)
@@ -273,77 +458,83 @@ end
 
 local function update_cat(c, is_active)
   if is_active then control(c) else c.vx, c.tap_t = 0, 0 end
+  if c.hint_t > 0 then c.hint_t = c.hint_t - 1 end
   if physics(c) then land(c) end
   if is_active then c.idle = 0 else c.idle = c.idle + 1 end
 end
 
 -- ---------- Sachen ----------
 
+local function add_item(room, kind, s)
+  local w, h = S.size(KINDS[kind].sprite)
+  items[#items + 1] = {room = room, kind = kind, plat = s[1], x = s[2], y = s[1].y, w = w, h = h, vx = 0, vy = 0,
+    state = "rest", wob = 0}
+end
+
+local function take(l)
+  return table.remove(l, 1 + flr(rnd(#l)))
+end
+
 local function place_items()
   items = {}
-  local n_light = min(3 + night, 11)
-  local n_heavy = min(1 + night // 2, 5)
-  local heavy_spots, light_spots = {}, {}
-  for _, s in ipairs(SPOTS) do
-    if s[3] then heavy_spots[#heavy_spots + 1] = s else light_spots[#light_spots + 1] = s end
-  end
-  local function take(list)
-    local i = 1 + flr(rnd(#list))
-    return table.remove(list, i)
-  end
-  for _ = 1, n_heavy do
-    local s = take(heavy_spots)
-    local kind = rnd(HEAVY)
-    local w, h = S.size(KINDS[kind].sprite)
-    items[#items + 1] = {kind = kind, plat = s[1], x = s[2], y = s[1].y, w = w, h = h, vx = 0, vy = 0,
-      state = "rest", wob = 0}
-  end
-  -- übrige Levi-Plätze dürfen auch leichte Sachen bekommen
-  for _, s in ipairs(heavy_spots) do light_spots[#light_spots + 1] = s end
-  for _ = 1, n_light do
-    if #light_spots == 0 then break end
-    local s = take(light_spots)
-    local kind = rnd(LIGHT)
-    local w, h = S.size(KINDS[kind].sprite)
-    items[#items + 1] = {kind = kind, plat = s[1], x = s[2], y = s[1].y, w = w, h = h, vx = 0, vy = 0,
-      state = "rest", wob = 0}
+  room_on = {}
+  for _, room in ipairs({"living", "kitchen", "study"}) do
+    local n = plan(night)[room]
+    if n then
+      room_on[room] = true
+      local R = ROOMS[room]
+      local heavy, taxi, normal = {}, {}, {}
+      for _, s in ipairs(R.spots) do
+        if s[3] then heavy[#heavy + 1] = s elseif s[4] then taxi[#taxi + 1] = s else normal[#normal + 1] = s end
+      end
+      for _ = 1, min(n[2], #heavy) do add_item(room, rnd(R.heavy), take(heavy)) end
+      -- In der Küche stehen immer ein paar Sachen dort, wo nur das Levi-Taxi hinkommt
+      local n_light = n[1]
+      for _ = 1, min(#taxi, 2, n_light) do
+        add_item(room, rnd(R.light), take(taxi))
+        n_light = n_light - 1
+      end
+      for _, s in ipairs(heavy) do normal[#normal + 1] = s end
+      for _, s in ipairs(taxi) do normal[#normal + 1] = s end
+      for _ = 1, min(n_light, #normal) do add_item(room, rnd(R.light), take(normal)) end
+    end
   end
   left = #items
 end
 
-local function shards(it)
+local function shards(it, ground)
   local k = KINDS[it.kind]
   for _ = 1, 10 + (k.heavy and 8 or 0) do
-    parts[#parts + 1] = {x = it.x + it.w / 2 + rnd(6) - 3, y = FLOOR - 2, vx = rnd(3) - 1.5, vy = -1 - rnd(2.5),
-      c = rnd(k.shard), s = rnd(1) < 0.3 and 2 or 1}
+    parts[#parts + 1] = {room = it.room, x = it.x + it.w / 2 + rnd(6) - 3, y = ground - 2, ground = ground,
+      vx = rnd(3) - 1.5, vy = -1 - rnd(2.5), c = rnd(k.shard), s = rnd(1) < 0.3 and 2 or 1}
   end
 end
 
-local function knocked(it, soft)
+local function knocked(it, soft, ground)
   local k = KINDS[it.kind]
   it.state = "gone"
   left = left - 1
   local pts = k.pts
   if combo_t > 0 then
     pts = pts * 2
-    popup(it.x - 4, it.y - 34, "Doppelt!", C.gold)
+    popup(it.room, it.x - 4, ground - 34, "Doppelt!", C.gold)
   end
   combo_t = 50
   score = score + pts
   if soft then
-    noise = noise + 3
+    add_noise(3, it.room)
     SFX.soft()
-    popup(it.x - 10, it.y - 20, "Plopp. +" .. pts, C.green)
+    popup(it.room, it.x - 10, ground - 20, "Plopp. +" .. pts, C.green)
   else
-    noise = noise + k.noise
+    add_noise(k.noise, it.room)
     shake = k.heavy and 8 or 4
     SFX.crash(it.kind)
-    shards(it)
-    popup(it.x - 12, FLOOR - 26, k.word, C.text)
-    popup(it.x - 2, FLOOR - 16, "+" .. pts, C.gold)
+    shards(it, ground)
+    popup(it.room, it.x - 12, ground - 26, k.word, C.text)
+    popup(it.room, it.x - 2, ground - 16, "+" .. pts, C.gold)
   end
   if left == 0 then
-    bonus = flr((NIGHT_LEN - clock) / 60) * 2 + flr(max(0, NOISE_WAKE - noise))
+    bonus = flr((night_len - clock) / 60) * 3 + flr(max(0, NOISE_WAKE - noise)) * 2
     score = score + bonus
     state, end_t, popups = "clear", 0, {}
     SFX.clear()
@@ -358,9 +549,10 @@ local function update_items()
         it.x = it.x + it.vx
         it.vx = it.vx * 0.86
         if abs(it.vx) < 0.05 then it.vx = 0 end
-        local stop = (it.plat.stop or SCREEN_W - 2) - it.w
-        if it.x > stop then it.x, it.vx = stop, 0 end
-        if it.x < 2 then it.x, it.vx = 2, 0 end
+        local hi = (it.plat.rstop or SCREEN_W - 10) - it.w
+        local lo = it.plat.lstop or 10
+        if it.x > hi then it.x, it.vx = hi, 0 end
+        if it.x < lo then it.x, it.vx = lo, 0 end
       end
       local cx = it.x + it.w / 2
       if cx < it.plat.x0 or cx > it.plat.x1 then
@@ -372,12 +564,12 @@ local function update_items()
       it.y = it.y + it.vy
       it.x = it.x + it.vx * 0.6
       local cx = it.x + it.w / 2
-      if prev <= P.seat.y and it.y >= P.seat.y and cx > P.seat.x0 and cx < P.seat.x1 and it.plat ~= P.seat then
-        it.y = P.seat.y
-        knocked(it, true)
-      elseif it.y >= FLOOR then
-        it.y = FLOOR
-        knocked(it, false)
+      for _, p in ipairs(ROOMS[it.room].plats) do
+        if p ~= it.plat and prev <= p.y and it.y >= p.y and cx > p.x0 and cx < p.x1 then
+          it.y = p.y
+          knocked(it, p.soft, p.y)
+          break
+        end
       end
     end
   end
@@ -385,9 +577,9 @@ end
 
 -- ---------- Motten ----------
 
-local function update_moths()
+local function update_moths(room)
   if rnd(1) < 1 / 700 and #moths < 2 then
-    moths[#moths + 1] = {x = 50, y = 60, tx = 60 + rnd(200), ty = 40 + rnd(150), life = 600 + flr(rnd(300))}
+    moths[#moths + 1] = {room = room, x = 50, y = 60, tx = 60 + rnd(200), ty = 40 + rnd(150), life = 600 + flr(rnd(300))}
   end
   for i = #moths, 1, -1 do
     local m = moths[i]
@@ -399,12 +591,12 @@ local function update_moths()
     m.x = m.x + mid(-0.9, (m.tx - m.x) * 0.03, 0.9) + rnd(1) - 0.5
     m.y = m.y + mid(-0.9, (m.ty - m.y) * 0.03, 0.9) + math.sin(t * 0.2 + i) * 0.6
     local c = active
-    if m.x + 6 > c.x and m.x < c.x + c.w and m.y + 4 > c.y - c.h and m.y < c.y then
+    if m.room == c.room and m.x + 6 > c.x and m.x < c.x + c.w and m.y + 4 > c.y - c.h and m.y < c.y then
       score = score + 100
       SFX.moth()
-      popup(m.x - 8, m.y - 10, "Motte! +100", C.gold)
+      popup(m.room, m.x - 8, m.y - 10, "Motte! +100", C.gold)
       table.remove(moths, i)
-    elseif m.life < -200 then
+    elseif m.life < -200 or m.room ~= room then
       table.remove(moths, i)
     end
   end
@@ -413,14 +605,26 @@ end
 -- ---------- Ablauf ----------
 
 local function start_night()
-  cats = {new_cat("levi", 50, FLOOR), new_cat("yrsa", 124, FLOOR)}
+  cats = {new_cat("levi", 50), new_cat("yrsa", 150)}
   cats[2].face = -1
   active, other = cats[1], cats[2]
   parts, debris, popups, moths, zs = {}, {}, {}, {}, {}
   noise, clock, combo_t, shake, msg_t = 0, 0, 0, 0, 0
+  seen, door_open, door_push = {living = true}, false, 0
   place_items()
+  local n_rooms = 0
+  for _ in pairs(room_on) do n_rooms = n_rooms + 1 end
+  night_len = 60 * max(45 + 30 * n_rooms - 5 * max(0, night - 3), 25 + 30 * n_rooms)
+  decay = max(0.02, 0.045 - 0.003 * (night - 1))
   state, t = "play", 0
-  say("Nacht " .. night .. ": " .. left .. " Sachen müssen runter!", 180)
+  local intro = NIGHT_INTRO[night]
+  if night == 1 then
+    say("Nacht 1: " .. left .. " Sachen müssen runter!", intro[1], 240)
+  elseif intro then
+    say(intro[1], intro[2], 240)
+  else
+    say("Nacht " .. night .. ": " .. left .. " Sachen müssen runter!", nil, 200)
+  end
   SFX.music()
 end
 
@@ -440,8 +644,16 @@ local function switch_cat()
   active, other = other, active
   active.idle = 0
   SFX.meow(active)
-  popup(active.x + 2, active.y - active.h - 12, active.name == "levi" and "Levi" or "Yrsa",
+  popup(active.room, active.x + 2, active.y - active.h - 12, active.name == "levi" and "Levi" or "Yrsa",
     active.name == "levi" and C.levi or C.yrsa)
+end
+
+local function update_popups()
+  for i = #popups, 1, -1 do
+    local p = popups[i]
+    p.y, p.life = p.y - 0.4, p.life - 1
+    if p.life <= 0 then table.remove(popups, i) end
+  end
 end
 
 local function update_play()
@@ -461,10 +673,11 @@ local function update_play()
 
   -- Yrsa reitet auf Levi mit, wenn sie auf ihm liegt und er läuft
   local l, y = levi(), yrsa()
-  local lx = l.x
+  local lx, lroom = l.x, l.room
+  local ride = active == l and riding()
   update_cat(active, true)
-  if active == l and y.on and y.on.levi then
-    y.x = mid(2, y.x + (l.x - lx), SCREEN_W - 2 - y.w)
+  if ride then
+    if l.room == lroom then y.x = mid(10, y.x + (l.x - lx), SCREEN_W - 10 - y.w) end
     y.y, y.on, y.top_y = l.y - 14, levi_plat(), l.y - 14
     y.idle = y.idle + 1
   else
@@ -473,9 +686,9 @@ local function update_play()
 
   update_items()
   if state ~= "play" then return end
-  update_moths()
+  update_moths(active.room)
 
-  noise = max(0, noise - max(0.025, 0.055 - night * 0.004))
+  noise = max(0, noise - decay)
   if combo_t > 0 then combo_t = combo_t - 1 end
   if shake > 0 then shake = shake - 1 end
   if msg_t > 0 then msg_t = msg_t - 1 end
@@ -496,23 +709,19 @@ local function update_play()
     local p = parts[i]
     p.vy = p.vy + GRAV
     p.x, p.y = p.x + p.vx, p.y + p.vy
-    if p.y >= FLOOR - 1 then
-      p.y = FLOOR - 1 - flr(rnd(2))
-      if #debris > 160 then table.remove(debris, 1) end
+    if p.y >= p.ground - 1 and p.vy > 0 then
+      p.y = p.ground - 1 - flr(rnd(2))
+      if #debris > 200 then table.remove(debris, 1) end
       debris[#debris + 1] = p
       table.remove(parts, i)
     end
   end
-  for i = #popups, 1, -1 do
-    local p = popups[i]
-    p.y, p.life = p.y - 0.4, p.life - 1
-    if p.life <= 0 then table.remove(popups, i) end
-  end
+  update_popups()
 
   if noise >= NOISE_WAKE then
     SFX.wake()
     game_over("wake")
-  elseif clock >= NIGHT_LEN then
+  elseif clock >= night_len then
     SFX.wake()
     game_over("morning")
   end
@@ -522,9 +731,10 @@ function _init()
   save = loaddata() or {}
   state, t = "title", 0
   night, score = 1, 0
-  cats = {new_cat("levi", 60, FLOOR), new_cat("yrsa", 200, FLOOR)}
+  cats = {new_cat("levi", 60), new_cat("yrsa", 200)}
   items, parts, debris, popups, moths, zs = {}, {}, {}, {}, {}, {}
-  noise, clock, shake, msg_t = 0, 0, 0, 0
+  noise, clock, night_len, shake, msg_t = 0, 0, 1, 0, 0
+  room_on, seen, door_open, door_push = {living = true}, {}, false, 0
   active, other = cats[1], cats[2]
 end
 
@@ -538,11 +748,7 @@ function _update()
     update_play()
   elseif state == "clear" then
     end_t = end_t + 1
-    for i = #popups, 1, -1 do
-      local p = popups[i]
-      p.y, p.life = p.y - 0.4, p.life - 1
-      if p.life <= 0 then table.remove(popups, i) end
-    end
+    update_popups()
     if end_t > 60 and (btnp(BTN_A) or btnp(BTN_START)) then
       night = night + 1
       if night > (save.night or 0) then save.night = night savedata(save) end
@@ -558,22 +764,24 @@ end
 
 -- ---------- Zeichnen ----------
 
-local BOOKS = {}
-do
-  local cols = {rgb(170, 60, 60), rgb(60, 110, 160), rgb(210, 170, 70), rgb(80, 140, 90), rgb(140, 90, 150),
-    rgb(200, 120, 60), rgb(90, 90, 110)}
-  local seed = 7
+local BOOK_COLS = {rgb(170, 60, 60), rgb(60, 110, 160), rgb(210, 170, 70), rgb(80, 140, 90), rgb(140, 90, 150),
+  rgb(200, 120, 60), rgb(90, 90, 110)}
+local function books(x0, x1, ys, seed)
+  local l = {}
   local function r(n) seed = (seed * 1103 + 12345) % 30011 return seed % n end
-  for _, y in ipairs({194, 166, 136, 106}) do
-    local x = 299
-    while x < 314 do
+  for _, y in ipairs(ys) do
+    local x = x0
+    while x < x1 do
       local w = 2 + r(3)
       local h = 16 + r(9)
-      BOOKS[#BOOKS + 1] = {x, y - h, min(x + w - 1, 313), y - 1, cols[1 + r(#cols)]}
+      l[#l + 1] = {x, y - h, min(x + w - 1, x1), y - 1, BOOK_COLS[1 + r(#BOOK_COLS)]}
       x = x + w
     end
   end
+  return l
 end
+local L_BOOKS = books(289, 304, {194, 166, 136, 106}, 7)
+local S_BOOKS = books(9, 21, {190, 154, 118}, 11)
 local STARS = {{28, 40}, {44, 34}, {70, 48}, {36, 66}, {80, 36}, {58, 74}, {82, 80}}
 
 local function board(p, c, cl, h)
@@ -581,7 +789,27 @@ local function board(p, c, cl, h)
   line(p.x0, p.y, p.x1, p.y, cl)
 end
 
-local function draw_room(lit)
+local function draw_books(l)
+  for _, b in ipairs(l) do rectfill(b[1], b[2], b[3], b[4], b[5]) end
+end
+
+-- Tür am Rand: x0 ist 0 (links) oder 310 (rechts). kind: "flap", "stuck", "door"; on: Nachbarraum offen
+local function side_door(x0, kind, on)
+  local x1 = x0 + 9
+  rectfill(x0, 118, x1, FLOOR - 1, C.door_d)
+  if kind == "door" or (kind == "stuck" and door_open) then
+    rectfill(x0 + 2, 122, x1 - 2, FLOOR - 1, C.dark)
+    return
+  end
+  rectfill(x0 + 1, 120, x1 - 1, FLOOR - 1, C.door)
+  if kind == "flap" and on then
+    rectfill(x0 + 1, 206, x1 - 1, FLOOR - 2, C.door_d)
+    rectfill(x0 + 2, 208, x1 - 2, FLOOR - 3, C.wood_l)
+  end
+  rectfill(x0 == 0 and x1 - 3 or x0 + 2, 172, x0 == 0 and x1 - 2 or x0 + 3, 176, C.gold)
+end
+
+local function draw_living(lit)
   rectfill(0, HUD_H, 319, FLOOR - 1, C.wall)
   for x = 8, 319, 24 do rectfill(x, HUD_H, x + 3, FLOOR - 7, C.wall2) end
   rectfill(0, FLOOR - 6, 319, FLOOR - 1, C.base)
@@ -597,7 +825,7 @@ local function draw_room(lit)
   for _, s in ipairs(STARS) do pset(s[1], s[2], C.moon) end
   line(54, 30, 54, 96, C.frame)
   line(22, 62, 86, 62, C.frame)
-  board(P.sill, C.wood, C.wood_l, 5)
+  board(LP.sill, C.wood, C.wood_l, 5)
 
   -- Tür zum Schlafzimmer
   if lit then
@@ -614,9 +842,12 @@ local function draw_room(lit)
   end
 
   -- Wandbrett über der Tür
-  board(P.shelf, C.wood, C.wood_l, 4)
+  board(LP.shelf, C.wood, C.wood_l, 4)
   rectfill(122, 104, 124, 110, C.wood_d)
   rectfill(168, 104, 170, 110, C.wood_d)
+
+  side_door(0, "flap", room_on.study)
+  side_door(310, "stuck", room_on.kitchen)
 
   -- Sofa
   rectfill(18, 180, 110, 204, C.sofa_d)
@@ -633,32 +864,134 @@ local function draw_room(lit)
   rectfill(106, 218, 110, FLOOR - 1, C.wood_d)
 
   -- Couchtisch
-  board(P.table, C.wood, C.wood_l, 4)
+  board(LP.table, C.wood, C.wood_l, 4)
   rectfill(150, 208, 153, FLOOR - 1, C.wood_d)
   rectfill(183, 208, 186, FLOOR - 1, C.wood_d)
 
   -- Kratzbaum
-  rectfill(224, 80, 230, FLOOR - 1, C.sisal)
-  for y = 86, FLOOR - 4, 6 do line(224, y, 230, y + 2, C.sisal_d) end
-  rectfill(206, FLOOR - 5, 248, FLOOR - 1, C.carpet_d)
-  for _, p in ipairs({P.tree1, P.tree2, P.tree3, P.tree4}) do
+  rectfill(222, 80, 228, FLOOR - 1, C.sisal)
+  for y = 86, FLOOR - 4, 6 do line(222, y, 228, y + 2, C.sisal_d) end
+  rectfill(204, FLOOR - 5, 246, FLOOR - 1, C.carpet_d)
+  for _, p in ipairs({LP.tree1, LP.tree2, LP.tree3, LP.tree4}) do
     rectfill(p.x0, p.y, p.x1, p.y + 5, C.carpet)
     line(p.x0, p.y + 5, p.x1, p.y + 5, C.carpet_d)
   end
-  -- Spielmaus am Faden
-  line(206, 158, 206, 170, C.dim)
-  circfill(206, 172, 2, C.dim)
+  line(204, 158, 204, 170, C.dim)
+  circfill(204, 172, 2, C.dim)
 
   -- Bücherregal
-  rectfill(250, 72, 318, FLOOR - 1, C.wood_d)
-  rectfill(254, 76, 314, 196, C.shadow)
-  for _, b in ipairs(BOOKS) do rectfill(b[1], b[2], b[3], b[4], b[5]) end
-  for _, p in ipairs({P.bs1, P.bs2, P.bs3, P.bs4, P.bs5}) do board(p, C.wood, C.wood_l, 3) end
-  rectfill(254, 200, 314, FLOOR - 3, C.wood)
-  line(284, 200, 284, FLOOR - 3, C.wood_d)
-  rectfill(280, 210, 282, 212, C.gold)
-  rectfill(286, 210, 288, 212, C.gold)
+  rectfill(252, 72, 308, FLOOR - 1, C.wood_d)
+  rectfill(255, 76, 305, 194, C.shadow)
+  draw_books(L_BOOKS)
+  for _, p in ipairs({LP.bs1, LP.bs2, LP.bs3, LP.bs4, LP.bs5}) do board(p, C.wood, C.wood_l, 3) end
+  rectfill(255, 198, 305, FLOOR - 3, C.wood)
+  line(280, 198, 280, FLOOR - 3, C.wood_d)
+  rectfill(276, 208, 278, 210, C.gold)
+  rectfill(282, 208, 284, 210, C.gold)
 end
+
+local function draw_kitchen()
+  rectfill(0, HUD_H, 319, FLOOR - 1, C.k_wall)
+  -- Fliesenspiegel hinter der Arbeitsplatte
+  rectfill(146, 112, 272, 175, C.k_tile)
+  for x = 146, 272, 12 do line(x, 112, x, 175, C.k_tile2) end
+  for y = 112, 175, 12 do line(146, y, 272, y, C.k_tile2) end
+  -- Boden: Fliesen
+  for x = 0, 319, 16 do
+    rectfill(x, FLOOR, x + 15, 231, (x // 16) % 2 == 0 and C.k_floor or C.k_floor2)
+    rectfill(x, 232, x + 15, 239, (x // 16) % 2 == 1 and C.k_floor or C.k_floor2)
+  end
+  -- Fenster über dem Tisch
+  rectfill(62, 30, 122, 96, C.frame)
+  rectfill(66, 34, 118, 92, C.sky)
+  circfill(104, 50, 5, C.moon)
+  pset(76, 44, C.moon) pset(88, 70, C.moon) pset(110, 80, C.moon)
+  line(92, 34, 92, 92, C.frame)
+  -- Gewürzregal
+  board(KP.spice, C.wood, C.wood_l, 3)
+  rectfill(70, 124, 72, 130, C.wood_d)
+  rectfill(112, 124, 114, 130, C.wood_d)
+  -- Stuhl
+  rectfill(30, 160, 33, 200, C.wood_d)
+  rectfill(30, 160, 50, 164, C.wood_d)
+  board(KP.chair, C.wood, C.wood_l, 3)
+  rectfill(31, 204, 33, FLOOR - 1, C.wood_d)
+  rectfill(52, 204, 54, FLOOR - 1, C.wood_d)
+  -- Tisch
+  board(KP.table, C.wood, C.wood_l, 4)
+  rectfill(68, 191, 71, FLOOR - 1, C.wood_d)
+  rectfill(117, 191, 120, FLOOR - 1, C.wood_d)
+  -- Unterschrank mit Arbeitsplatte
+  rectfill(146, 176, 272, FLOOR - 1, C.k_front)
+  for x = 146, 272, 42 do rect(x + 2, 184, x + 39, FLOOR - 4, C.k_front_d) end
+  for x = 146, 272, 42 do rectfill(x + 18, 188, x + 23, 189, C.fridge_d) end
+  rectfill(144, 174, 274, 179, C.k_top)
+  line(144, 174, 274, 174, C.fridge)
+  -- Hängeschrank
+  rectfill(150, 72, 262, 110, C.k_front)
+  for x = 150, 262, 38 do rect(x + 2, 76, x + 35, 107, C.k_front_d) end
+  for x = 150, 262, 38 do rectfill(x + 15, 102, x + 21, 103, C.fridge_d) end
+  line(150, 72, 262, 72, C.fridge)
+  -- Kühlschrank
+  rectfill(278, 98, 316, FLOOR - 1, C.fridge)
+  rect(278, 98, 316, FLOOR - 1, C.fridge_d)
+  line(278, 140, 316, 140, C.fridge_d)
+  rectfill(282, 110, 283, 132, C.fridge_d)
+  rectfill(282, 148, 283, 176, C.fridge_d)
+  circfill(304, 118, 3, C.red)
+  rectfill(296, 152, 306, 160, C.gold)
+  side_door(0, "door", true)
+end
+
+local function draw_study()
+  rectfill(0, HUD_H, 319, FLOOR - 1, C.s_wall)
+  for x = 0, 319, 20 do rectfill(x, HUD_H, x + 9, FLOOR - 7, C.s_wall2) end
+  rectfill(0, FLOOR - 6, 319, FLOOR - 1, C.base)
+  rectfill(0, FLOOR, 319, 239, C.s_floor)
+  for x = 0, 319, 6 do pset(x + (x // 6) % 3, 230, C.s_floor2) end
+  rectfill(90, 226, 230, 236, C.rug)
+  rect(92, 227, 228, 235, C.bean_d)
+  -- Bild an der Wand
+  rectfill(96, 40, 140, 76, C.frame)
+  rectfill(99, 43, 137, 73, C.sky)
+  circfill(126, 54, 5, C.gold)
+  rectfill(99, 64, 137, 73, rgb(58, 126, 54))
+  -- Bücherregal links
+  rectfill(4, 78, 74, FLOOR - 1, C.wood_d)
+  rectfill(8, 82, 70, 190, C.shadow)
+  draw_books(S_BOOKS)
+  for _, p in ipairs({SP.sh1, SP.sh2, SP.sh3, SP.sh4}) do board(p, C.wood, C.wood_l, 3) end
+  rectfill(8, 194, 70, FLOOR - 3, C.wood)
+  -- Wandbrett
+  board(SP.wall, C.wood, C.wood_l, 3)
+  rectfill(92, 128, 94, 134, C.wood_d)
+  rectfill(134, 128, 136, 134, C.wood_d)
+  -- Sitzsack
+  circfill(102, 216, 11, C.bean_d)
+  rectfill(80, 210, 124, FLOOR - 1, C.bean)
+  circfill(90, 214, 8, C.bean)
+  circfill(114, 214, 8, C.bean)
+  line(84, 210, 120, 210, rgb(230, 150, 90))
+  -- Hängeregal
+  board(SP.hang, C.wood, C.wood_l, 3)
+  rectfill(206, 136, 208, 142, C.wood_d)
+  rectfill(264, 136, 266, 142, C.wood_d)
+  -- Bürostuhl
+  rectfill(170, 158, 174, 196, C.shadow)
+  board(SP.chair, C.shadow, C.dim, 4)
+  rectfill(161, 201, 164, 214, C.shadow)
+  rectfill(152, 214, 174, 216, C.shadow)
+  -- Schreibtisch mit Lampe und Bildschirm
+  board(SP.desk, C.wood, C.wood_l, 4)
+  rectfill(188, 183, 192, FLOOR - 1, C.wood_d)
+  rectfill(282, 183, 286, FLOOR - 1, C.wood_d)
+  rectfill(262, 150, 288, 170, C.shadow)
+  rectfill(264, 152, 286, 168, C.screen)
+  rectfill(273, 171, 277, 177, C.shadow)
+  side_door(310, "flap", true)
+end
+
+local DRAW = {living = draw_living, kitchen = draw_kitchen, study = draw_study}
 
 local function draw_cat(c, is_active)
   local name
@@ -675,7 +1008,6 @@ local function draw_cat(c, is_active)
   local x, y = flr(c.x), flr(c.y) - h
   S.draw(name, x, y, c.face < 0)
   if c.tap_t > 4 then
-    -- Tatze
     local px = c.face > 0 and x + w or x - 4
     local py = y + (c.name == "levi" and 9 or 7)
     rectfill(px, py, px + 3, py + 2, c.name == "levi" and rgb(246, 246, 242) or rgb(201, 184, 160))
@@ -692,60 +1024,91 @@ local function draw_cat(c, is_active)
   end
 end
 
-local function draw_items()
+local function count_in(room)
+  local n = 0
   for _, it in ipairs(items) do
-    if it.state ~= "gone" then
-      local k = KINDS[it.kind]
-      local ox = it.wob > 0 and (it.wob % 4 < 2 and 1 or -1) or 0
-      S.draw(k.sprite, flr(it.x) + ox, flr(it.y) - it.h)
-    end
+    if it.room == room and it.state ~= "gone" then n = n + 1 end
   end
+  return n
 end
 
 local function draw_hud()
   rectfill(0, 0, 319, HUD_H - 1, C.hud)
   print("Nacht " .. night, 4, 4, C.text)
-  local mins = flr(clock * 360 / NIGHT_LEN)
+  local mins = flr(clock * 360 / night_len)
   local tt = string.format("%d:%02d", mins // 60, mins % 60)
-  print(tt, 74, 4, clock > NIGHT_LEN - 600 and C.orange or C.dim)
+  print(tt, 74, 4, clock > night_len - 600 and C.orange or C.dim)
   S.draw("cup", 116, 4)
   print(tostring(left), 129, 4, C.text)
-  -- Lärm: wie tief der Mensch schläft
   print("Zzz", 154, 4, C.dim)
   rectfill(180, 4, 244, 11, C.shadow)
   local f = min(noise, NOISE_WAKE) / NOISE_WAKE
   local col = noise >= NOISE_STIR and C.red or (noise > 40 and C.orange or C.green)
   if f > 0 then rectfill(181, 5, 181 + flr(62 * f), 10, col) end
-  line(181 + flr(62 * NOISE_STIR / NOISE_WAKE), 4, 181 + flr(62 * NOISE_STIR / NOISE_WAKE), 11, C.dim)
+  local sx = 181 + flr(62 * NOISE_STIR / NOISE_WAKE)
+  line(sx, 4, sx, 11, C.dim)
   local s = tostring(score)
   print(s, 316 - textw(s), 4, C.gold)
 end
 
-local function draw_world(lit)
+-- Unten auf dem Boden: Nachbarräume mit übrigen Sachen und wo die andere Katze ist
+local function draw_floor_labels(view)
+  local R = ROOMS[view]
+  local col = rgb(236, 220, 200)
+  for side = -1, 1, 2 do
+    local e = R.right
+    if side < 0 then e = R.left end
+    if e and room_on[e.to] then
+      local text = ROOMS[e.to].name .. " " .. count_in(e.to)
+      if other.room == e.to then text = text .. (other.name == "levi" and " +Levi" or " +Yrsa") end
+      if side < 0 then
+        print("<" .. text, 3, 229, col)
+      else
+        text = text .. ">"
+        print(text, 317 - textw(text), 229, col)
+      end
+    end
+  end
+end
+
+local function draw_world(view, lit)
   local sx = shake > 0 and (rnd(1) < 0.5 and -1 or 1) or 0
   camera(sx, 0)
-  draw_room(lit)
+  DRAW[view](lit)
   for _, d in ipairs(debris) do
-    if d.s == 2 then rectfill(d.x, d.y - 1, d.x + 1, d.y, d.c) else pset(d.x, d.y, d.c) end
+    if d.room == view then
+      if d.s == 2 then rectfill(d.x, d.y - 1, d.x + 1, d.y, d.c) else pset(d.x, d.y, d.c) end
+    end
   end
-  for _, z in ipairs(zs) do print("z", z.x, z.y, C.dim) end
-  draw_items()
-  local y = yrsa()
-  local riding = y.on and y.on.levi
-  if riding then
-    draw_cat(levi(), levi() == active)
-    draw_cat(y, y == active)
+  if view == "living" then
+    for _, z in ipairs(zs) do print("z", z.x, z.y, C.dim) end
+  end
+  for _, it in ipairs(items) do
+    if it.state ~= "gone" and it.room == view then
+      local ox = it.wob > 0 and (it.wob % 4 < 2 and 1 or -1) or 0
+      S.draw(KINDS[it.kind].sprite, flr(it.x) + ox, flr(it.y) - it.h)
+    end
+  end
+  if riding() then
+    if levi().room == view then
+      draw_cat(levi(), levi() == active)
+      draw_cat(yrsa(), yrsa() == active)
+    end
   else
-    draw_cat(other, false)
-    draw_cat(active, true)
+    if other.room == view then draw_cat(other, false) end
+    if active.room == view then draw_cat(active, true) end
   end
   for _, m in ipairs(moths) do
-    S.draw(flr(t / 5) % 2 == 0 and "moth1" or "moth2", flr(m.x), flr(m.y))
+    if m.room == view then S.draw(flr(t / 5) % 2 == 0 and "moth1" or "moth2", flr(m.x), flr(m.y)) end
   end
-  for _, p in ipairs(parts) do pset(p.x, p.y, p.c) end
+  for _, p in ipairs(parts) do
+    if p.room == view then pset(p.x, p.y, p.c) end
+  end
   for _, p in ipairs(popups) do
-    print(p.text, flr(p.x) + 1, flr(p.y) + 1, C.shadow)
-    print(p.text, flr(p.x), flr(p.y), p.c)
+    if p.room == view then
+      print(p.text, flr(p.x) + 1, flr(p.y) + 1, C.shadow)
+      print(p.text, flr(p.x), flr(p.y), p.c)
+    end
   end
   camera()
 end
@@ -757,13 +1120,12 @@ end
 
 local function draw_title()
   cls(C.wall)
-  local save_noise = noise
+  local keep = noise
   noise = 0
-  draw_room(false)
-  noise = save_noise
+  draw_living(false)
+  noise = keep
   rectfill(0, 0, 319, HUD_H - 1, C.hud)
-  rectfill(16, 20, 303, 150, C.hud)
-  rect(16, 20, 303, 150, C.dim)
+  panel(20, 150)
   center("Levi & Yrsa", 30, C.gold, 3)
   center("Nachtschicht", 58, C.text)
   big("levi_loaf", 58, 78, 3)
@@ -786,43 +1148,51 @@ function _draw()
     return
   end
   cls(C.wall)
-  local lit = state == "over"
-  draw_world(lit)
-  if lit then
+  local over = state == "over"
+  local view = over and "living" or active.room
+  draw_world(view, over)
+  if over then
     local r = S.rects.human
     sspr(S.img, r[1], r[2], r[3], r[4], 119, FLOOR - r[4] * 2 + 2, r[3] * 2, r[4] * 2)
   end
   draw_hud()
-  if msg_t > 0 and state == "play" then
-    local w = textw(msg)
-    rectfill((SCREEN_W - w) // 2 - 4, 22, (SCREEN_W + w) // 2 + 3, 33, C.hud)
-    center(msg, 24, C.text)
-  end
-  if night == 1 and state == "play" then
-    print("A Sprung  B Tatze  SELECT Wechsel", 28, 229, rgb(200, 160, 130))
+  if state == "play" then
+    if msg_t > 0 then
+      local w = max(textw(msg), msg2 and textw(msg2) or 0)
+      local y1 = msg2 and 43 or 33
+      rectfill((SCREEN_W - w) // 2 - 4, 20, (SCREEN_W + w) // 2 + 3, y1, C.hud)
+      center(msg, 23, C.text)
+      if msg2 then center(msg2, 34, C.gold) end
+    end
+    if night == 1 then
+      print("A Sprung  B Tatze  SELECT Wechsel", 28, 229, rgb(200, 160, 130))
+    else
+      draw_floor_labels(view)
+    end
   end
   if state == "pause" then
     panel(96, 136)
     center("Pause", 104, C.text, 2)
     center("START: weiter", 124, C.dim)
   elseif state == "clear" then
-    panel(70, 150)
-    center("Nacht geschafft!", 80, C.gold, 2)
-    center("Alles unten, der Mensch schläft.", 102, C.text)
-    center("Bonus +" .. bonus, 116, C.green)
-    center("Punkte " .. score, 128, C.text)
+    panel(66, 154)
+    center("Nacht geschafft!", 76, C.gold, 2)
+    center("Alles unten, der Mensch schläft.", 100, C.text)
+    center("Bonus +" .. bonus, 114, C.green)
+    center("Punkte " .. score, 126, C.text)
     if end_t > 60 then center("A: nächste Nacht", 140, C.dim) end
-  elseif state == "over" then
-    panel(40, 130)
+  elseif over then
+    panel(36, 134)
     if reason == "wake" then
-      center("LEVI! YRSA!", 50, C.red, 2)
-      center("Der Mensch ist aufgewacht.", 72, C.text)
+      center("LEVI! YRSA!", 46, C.red, 2)
+      center("Der Mensch ist aufgewacht.", 68, C.text)
     else
-      center("Der Wecker!", 50, C.orange, 2)
-      center("6 Uhr, und noch " .. left .. (left == 1 and " Sache oben." or " Sachen oben."), 72, C.text)
+      center("6 Uhr!", 46, C.orange, 2)
+      center("Der Wecker klingelt.", 64, C.text)
+      center("Noch " .. left .. (left == 1 and " Sache oben." or " Sachen oben."), 75, C.text)
     end
     center("Nacht " .. night .. "   Punkte " .. score, 90, C.gold)
     center("Rekord " .. (save.best or 0), 104, C.dim)
-    if end_t > 90 then center("A: nochmal", 118, C.dim) end
+    if end_t > 90 then center("A: nochmal", 120, C.dim) end
   end
 end
