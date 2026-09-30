@@ -39,3 +39,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:53 | A13 Menüs | fertig | Screenshots Pause/Liste/Info/Tastatur/Inventar, SELFTEST OK 73, make test grün | Hoofy A13
 2026-10-01 00:55 | A14 Speichern | begonnen | – | –
 2026-10-01 00:56 | A14 Speichern | fertig | Rundlauf-Selbsttest, 24 Pferde 10,4 KB, End-to-End neu→speichern→weiter, SELFTEST OK 77, make test grün | Hoofy A14
+2026-10-01 00:58 | A15 Karte | begonnen | – | –
+2026-10-01 01:00 | A15 Karte | fertig | Screenshot Ritt→Karte, SELECT öffnet, SELFTEST OK 81, make test grün | Hoofy A15

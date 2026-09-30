@@ -83,6 +83,9 @@ return {
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- Inventar
     C.eq(#nav.stack, 2)
     keys(nav.stack[2], nav, {BTN_A})
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Karte
+    C.eq(#nav.stack, 2)
+    keys(nav.stack[2], nav, {BTN_B})
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- ausgegraute Einträge werden übersprungen
     C.eq(#nav.stack, 0, "springt zu Weiter und schließt")
   end},
@@ -94,7 +97,7 @@ return {
     h.data.sattel = "sportsattel"
     local nav = nav_new()
     for _, s in ipairs({Screens.pause(ctx, nav), Screens.horses(ctx), Screens.info(ctx, h.data),
-      Screens.keyboard("Name", "Test", 12), Screens.inventory(ctx)}) do
+      Screens.keyboard("Name", "Test", 12), Screens.inventory(ctx), Screens.map(ctx)}) do
       s.draw()
     end
     ctx.herd = {}

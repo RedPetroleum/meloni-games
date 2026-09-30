@@ -17,4 +17,5 @@ return {
   "tag",
   "menues",
   "speichern",
+  "erkundung",
 }

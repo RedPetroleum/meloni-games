@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E36** (A15) Karte: Zellen zu 4×4 Kacheln gelten als erkundet, sobald ein Stück davon im Bild
+  war (nachts im Sichtkreis). 1 Kachel = 2 Pixel, unerkundet dunkel. Hof-Grundstück und Dorf mit
+  Namen, sobald ihre Mitte erkundet ist; Pferde gelbe Punkte, Spieler roter Punkt mit Pfeil.
+  Öffnen: SELECT antippen oder Pausenmenü; B, A oder SELECT schließt. Die Erkundung wird mit
+  dem Spielstand gespeichert (480 Zeichen).
 - **E35** (A14) Speichern: beim Schlafen, über „Speichern“ im Pausenmenü und beim Beenden über das
   Konsolenmenü (auch mitten im Ritt). Nicht gespeichert werden Wildpferde (sie werden beim Laden
   frisch aus dem Seed gewürfelt), Sprechblasen und Uhrzeit-Feinheiten. Titel: „Weiter“ (Standard,

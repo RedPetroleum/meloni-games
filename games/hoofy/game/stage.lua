@@ -9,6 +9,7 @@ local FX = require("lib.fx")
 local Tiles = require("game.tiles")
 local Player = require("game.player")
 local SFX = require("game.sfx")
+local Explore = require("game.explore")
 
 local Stage = {}
 
@@ -34,6 +35,8 @@ function Stage.build(nr, seed, farm)
   local st = area.places.start
   local px, py = st[1] * 16 + 8, st[2] * 16 + 14
   -- Vorrat (E31): das Startinventar; Kauf und Ernte kommen mit B1/C5
+  ctx.herd, ctx.herd_horses, ctx.lead = {}, {}, {}   -- eigene Pferde: Daten, Figuren, an der Leine
+  ctx.explored = Explore.new(ctx.map.w, ctx.map.h)
   ctx.money = 300                 -- Startgeld (KATALOG §15)
   ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 1}
   ctx.player = ctx.world:add(Player.new(ctx, px, py))

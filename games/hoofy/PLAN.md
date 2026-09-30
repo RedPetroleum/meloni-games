@@ -133,8 +133,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/save.lua`, Laden in `game/world.lua`, Titel mit Weiter/Neues Spiel, `_quit`.
   Selbsttest Rundlauf; 24 Pferde = 10 388 Bytes. Von Hand: Neues Spiel → Pause → Speichern →
   Neustart lädt („Weiter“). E35.
-- [ ] **A15 Karte**: nur Erkundetes, Spieler mit Blickrichtung, Pferde, Hof (E6).
+- [x] **A15 Karte**: nur Erkundetes, Spieler mit Blickrichtung, Pferde, Hof (E6).
   Prüfung: Screenshot nach einem Erkundungsritt.
+  *Erledigt:* `game/explore.lua`, `Screens.map`, SELECT-Antippen in `game/world.lua`. Screenshot:
+  Szenario `ritt` mit `screen = "none"`, Aufsitzen per Menü, Ritt, SELECT (19 % erkundet). E36.
 - [ ] **A16 Töne**: Hufe, Wiehern, Menü-Klicks, ruhige Melodie tags/nachts.
   Prüfung: WAV-Ausgabe erzeugt, Protokoll nennt, was zu hören ist.
 - [ ] **A-Ende**: Cover, README-Tabelle, version 0.1.0, Konsolen-Checkliste, Push.

@@ -6,6 +6,8 @@ local H = require("game.horse_model")
 local G = require("game.horse_gfx")
 local Stage = require("game.stage")
 local Menu = require("game.menu")
+local Tiles = require("game.tiles")
+local Explore = require("game.explore")
 
 local Screens = {}
 
@@ -96,6 +98,7 @@ function Screens.keyboard(title, text, max, on_done)
     end
     footer("A: Zeichen   B: zurück/löschen")
   end
+  s.full = true
   return s
 end
 
@@ -168,6 +171,7 @@ function Screens.info(ctx, data)
     if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, 130, C.dim) end
     footer("A: umbenennen   B: zurück")
   end
+  s.full = true
   return s
 end
 
@@ -202,6 +206,7 @@ function Screens.horses(ctx)
     end
     footer("A: Info   B: zurück")
   end
+  s.full = true
   return s
 end
 
@@ -234,6 +239,93 @@ function Screens.inventory(ctx)
     print("x" .. (ctx.inv.buerste or 0), 150, y, C.dim)
     footer("B: zurück")
   end
+  s.full = true
+  return s
+end
+
+-- ---- Karte (E6): nur Erkundetes, 1 Kachel = 2 Pixel, wird einmal gezeichnet ----
+
+local PX = 2
+
+function Screens.map(ctx)
+  local map, area = ctx.map, ctx.area
+  local ox, oy = (SCREEN_W - map.w * PX) // 2, 22
+  local s = {full = true, static = true}
+  local drawn = false
+  local byte = string.byte
+  local colors = {}
+  for ch, g in pairs(Tiles.GROUNDS) do colors[byte(ch)] = g.map end
+  local cell = Explore.CELL
+  function s.update(nav)
+    if btnp(BTN_B) or btnp(BTN_A) or btnp(BTN_SELECT) then nav.pop() end
+  end
+  local function explored(tx, ty)
+    return Explore.is_explored(ctx.explored, tx // cell, ty // cell)
+  end
+  function s.draw()
+    if drawn then return end
+    drawn = true
+    cls(C.panel)
+    header("Karte: " .. area.name .. "   " .. flr(Explore.share(ctx.explored) * 100) .. " % erkundet")
+    rectfill(ox - 1, oy - 1, ox + map.w * PX, oy + map.h * PX, rgb(0x1a, 0x13, 0x12))
+    for cy = 0, #ctx.explored - 1 do
+      for cx = 0, #ctx.explored[1] - 1 do
+        if Explore.is_explored(ctx.explored, cx, cy) then
+          for ty = cy * cell, min(map.h - 1, cy * cell + cell - 1) do
+            local row = map.ground[ty + 1]
+            local tx = cx * cell
+            local tx1 = min(map.w - 1, tx + cell - 1)
+            while tx <= tx1 do
+              local b = byte(row, tx + 1)
+              local run = tx
+              while run < tx1 and byte(row, run + 2) == b do run = run + 1 end
+              rectfill(ox + tx * PX, oy + ty * PX, ox + run * PX + PX - 1, oy + ty * PX + PX - 1, colors[b])
+              tx = run + 1
+            end
+          end
+        end
+      end
+    end
+    for k = 1, map.bw * map.bh do
+      for _, o in ipairs(map.blocks[k] or {}) do
+        if explored(o[2], o[3]) then
+          local P = map.props[o[1]]
+          local x, y = ox + o[2] * PX, oy + o[3] * PX
+          rectfill(x, y, x + (P.w or 1) * PX - 1, y + (P.h or 1) * PX - 1, P.map)
+        end
+      end
+    end
+    -- Hof und Dorf, sobald etwas davon erkundet ist
+    local p = area.plot
+    if explored(p.x + p.w // 2, p.y + p.h // 2) then
+      rect(ox + p.x * PX - 1, oy + p.y * PX - 1, ox + (p.x + p.w) * PX, oy + (p.y + p.h) * PX, C.gold)
+      print("Hof", ox + p.x * PX + 3, oy + p.y * PX + 3, C.gold)
+    end
+    local v = area.village
+    if v and explored(v.x + v.w // 2, v.y + v.h // 2) then
+      print("Dorf", ox + v.x * PX + 2, oy + (v.y + v.h) * PX + 2, C.text)
+    end
+    -- gezähmte Pferde (gelbe Punkte) und der Spieler mit Blickrichtung (roter Pfeil)
+    for _, h in ipairs(ctx.herd_horses) do
+      if not h.hidden then
+        local x, y = ox + flr(h.x / 16 * PX), oy + flr(h.y / 16 * PX)
+        rectfill(x - 1, y - 1, x + 1, y + 1, C.gold)
+        rect(x - 2, y - 2, x + 2, y + 2, C.panel)
+      end
+    end
+    local pl = ctx.player
+    local x, y = ox + flr(pl.x / 16 * PX), oy + flr(pl.y / 16 * PX)
+    local dx, dy = 0, 1
+    if pl.dir == "left" then dx, dy = -1, 0 elseif pl.dir == "right" then dx, dy = 1, 0 elseif pl.dir == "up" then dx, dy = 0, -1 end
+    local tx, ty = x + dx * 6, y + dy * 6
+    line(x, y, tx, ty, C.red)
+    line(tx, ty, tx - dx * 3 - dy * 3, ty - dy * 3 + dx * 3, C.red)
+    line(tx, ty, tx - dx * 3 + dy * 3, ty - dy * 3 - dx * 3, C.red)
+    circfill(x, y, 2, C.red)
+    circ(x, y, 3, C.text)
+    footer("B: zurück")
+    print("Pfeil: du   Gelb: Pferde", 120, SCREEN_H - 10, C.dim)
+  end
   return s
 end
 
@@ -244,7 +336,7 @@ function Screens.pause(ctx, nav)
     {label = "Weiter", id = "resume"},
     {label = "Pferde", id = "horses"},
     {label = "Inventar", id = "inventory"},
-    {label = "Karte (bald)", id = "map", dim = true},
+    {label = "Karte", id = "map"},
     {label = "Bauen (bald)", id = "build", dim = true},
     {label = "Album (bald)", id = "album", dim = true},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok},
@@ -256,6 +348,7 @@ function Screens.pause(ctx, nav)
     local r = m:update()
     if r == "close" or r == "resume" then n.pop()
     elseif r == "horses" then n.push(Screens.horses(ctx))
+    elseif r == "map" then n.push(Screens.map(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then
       ctx.save()

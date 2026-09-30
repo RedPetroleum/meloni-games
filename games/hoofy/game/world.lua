@@ -10,6 +10,7 @@ local Clock = require("game.clock")
 local Days = require("game.days")
 local Screens = require("game.screens")
 local Save = require("game.save")
+local Explore = require("game.explore")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -19,6 +20,7 @@ local WorldScene = {}
 
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
 local stack, nav = {}, {}
+local select_held, select_used = false, false
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
@@ -93,6 +95,7 @@ function WorldScene.enter(arg)
       ctx.trail:reset(ctx.player.x, ctx.player.y)
       ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
       for _, c in ipairs(snap.aenderungen or {}) do ctx.map:set(c[1], c[2], c[3], c[4]) end
+      if snap.erkundet then ctx.explored = snap.erkundet end
       for _, d in ipairs(snap.herd) do wild:adopt(d) end
     end
   end
@@ -102,6 +105,7 @@ function WorldScene.enter(arg)
     if name == "horses" or name == "info" or name == "keyboard" then nav.push(Screens.horses(ctx)) end
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
+    if name == "map" then nav.push(Screens.map(ctx)) end
     if name == "inventar" then nav.push(Screens.inventory(ctx)) end
   end
 end
@@ -244,6 +248,17 @@ function WorldScene.quit()
   WorldScene.save()
 end
 
+-- Erkundung: alles, was der Spieler gerade sieht (tagsüber der Bildschirm, nachts der Sichtkreis).
+function WorldScene.explore()
+  local p, cam = ctx.player, ctx.camera
+  local r = clock:sight(70, false)
+  if r and r < 400 then
+    Explore.reveal(ctx.explored, p.x - r, p.y - r, p.x + r, p.y + r)
+  else
+    Explore.reveal(ctx.explored, cam.x, cam.y, cam.x + SCREEN_W, cam.y + SCREEN_H)
+  end
+end
+
 function nav.push(screen) stack[#stack + 1] = screen end
 function nav.pop() stack[#stack] = nil end
 
@@ -258,6 +273,21 @@ function WorldScene.update()
     ctx.sfx.select()
     return
   end
+  -- SELECT allein (beim Loslassen, wenn dabei nichts anderes gedrückt wurde): Karte (E6)
+  if btn(BTN_SELECT) then
+    for _, b in ipairs({BTN_LEFT, BTN_RIGHT, BTN_UP, BTN_DOWN, BTN_A, BTN_B, BTN_START}) do
+      if btn(b) then select_used = true end
+    end
+    select_held = true
+  elseif select_held then
+    select_held = false
+    if not select_used then
+      nav.push(Screens.map(ctx))
+      select_used = false
+      return
+    end
+    select_used = false
+  end
   if menu then
     local r = menu.m:update()
     if r then do_action(r) end
@@ -265,6 +295,7 @@ function WorldScene.update()
     return
   end
   t = t + 1
+  if t % 20 == 1 then WorldScene.explore() end
   local ev = clock:update()
   if ev == "dusk" then
     Days.dusk(ctx)
@@ -387,6 +418,8 @@ local function draw_rope()
 end
 
 function WorldScene.draw()
+  local top = stack[#stack]
+  if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
   Stage.draw_world(ctx, draw_rope)
   local radius = clock:sight(70, false)
   if radius and radius < 400 then
