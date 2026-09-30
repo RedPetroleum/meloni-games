@@ -102,7 +102,7 @@ local LP = {
   tree2 = plat(192, 222, 152),
   tree3 = plat(212, 244, 114),
   tree4 = plat(198, 236, 80),
-  sill = plat(14, 94, 100),
+  sill = plat(20, 94, 100),
   shelf = plat(116, 176, 100),
   bs1 = plat(254, 306, 194, {rstop = 288}),
   bs2 = plat(254, 306, 166, {rstop = 288}),
@@ -153,7 +153,7 @@ local ROOMS = {
     spots = {
       {LP.back, 34, true}, {LP.back, 78, true}, {LP.table, 154, true}, {LP.table, 174, true}, {LP.bs1, 262, true},
       {LP.bs2, 262}, {LP.bs2, 274}, {LP.bs3, 262}, {LP.bs3, 274}, {LP.bs4, 262}, {LP.bs4, 274}, {LP.bs5, 270},
-      {LP.sill, 24}, {LP.sill, 60}, {LP.shelf, 128}, {LP.shelf, 156}, {LP.tree4, 210},
+      {LP.sill, 28}, {LP.sill, 62}, {LP.shelf, 128}, {LP.shelf, 156}, {LP.tree4, 210},
     },
     light = {"cup", "cup", "glass"}, heavy = {"vase", "plant"},
     left = {to = "study", kind = "flap"}, right = {to = "kitchen", kind = "stuck"},
@@ -347,9 +347,16 @@ local function tap(c)
   local best, bd
   for _, it in ipairs(items) do
     if it.state == "rest" and it.room == c.room and it.plat == c.on then
-      local d
-      if c.face > 0 then d = it.x - (c.x + c.w - 8) else d = (c.x + 8) - (it.x + it.w) end
-      if d >= -10 and d <= 10 and (not bd or abs(d) < bd) then best, bd = it, abs(d) end
+      -- vor der Katze oder unter ihr (auch wenn sie schon halb darüber steht, z. B. an der Wand)
+      local d, reach
+      if c.face > 0 then
+        d = it.x - (c.x + c.w - 8)
+        reach = it.x + it.w > c.x + 4
+      else
+        d = (c.x + 8) - (it.x + it.w)
+        reach = it.x < c.x + c.w - 4
+      end
+      if reach and d <= 10 and (not bd or abs(d) < bd) then best, bd = it, abs(d) end
     end
   end
   if not best then tone(700, 0.02, "triangle", 0.08) return end
@@ -570,10 +577,11 @@ local function update_items()
       local prev = it.y
       it.vy = min(it.vy + GRAV, 6)
       it.y = it.y + it.vy
-      it.x = it.x + it.vx * 0.6
+      it.vx = it.vx * 0.95
+      it.x = mid(2, it.x + it.vx * 0.6, SCREEN_W - 2 - it.w)
       local cx = it.x + it.w / 2
       for _, p in ipairs(ROOMS[it.room].plats) do
-        if p ~= it.plat and prev <= p.y and it.y >= p.y and cx > p.x0 and cx < p.x1 then
+        if p ~= it.plat and prev <= p.y and it.y >= p.y and (p.floor or (cx > p.x0 and cx < p.x1)) then
           it.y = p.y
           knocked(it, p.soft, p.y)
           break
