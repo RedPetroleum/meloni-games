@@ -683,7 +683,7 @@ function Screens.build(ctx)
   local cat, item = 1, 1
   local cx = mid(plot.x, flr(ctx.player.x / 16), plot.x + plot.w - 1)
   local cy = mid(plot.y, flr((ctx.player.y - 2) / 16), plot.y + plot.h - 1)
-  local msg, msg_t = "Steuerkreuz: Cursor. B halten + Links/Rechts: Art, Hoch/Runter: Bauteil.", 400
+  local msg, msg_t = "B halten + Pfeile: Bauteil", 400
   local b_used = false
   local s = {}
   local pastures = Farm.pastures(ctx.map, farm)
@@ -781,6 +781,9 @@ function Screens.build(ctx)
     end
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, SCREEN_H - 31, C.gold)
+    local bonus, next_at, score = Farm.schoenheit_bonus(farm)
+    local beauty = "Schönheit " .. flr(score) .. (next_at and ("/" .. next_at) or "") .. " (Bindung +" .. bonus .. ")"
+    print(beauty, SCREEN_W - textw(beauty) - 6, SCREEN_H - 9, C.gold)
     local line
     if c.id == "abriss" then
       local it = Farm.item_at(farm, cx, cy)

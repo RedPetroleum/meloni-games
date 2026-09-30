@@ -447,6 +447,18 @@ function Farm.schoenheit(farm)
   return sum
 end
 
+-- Bindung pro Tag für alle Pferde aus der Hof-Schönheit (KATALOG §9): ab 50 / 150 / 400 → +1 / +2 / +3.
+-- Gibt Bonus (0–3) und die Stufe des nächsten Ziels (Schwelle oder nil) zurück.
+function Farm.schoenheit_bonus(farm)
+  local score = Farm.schoenheit(farm)
+  local stufen, bonus = K.bau.schoenheit_stufen, K.bau.schoenheit_bindung
+  local b, next_at = 0, stufen[1]
+  for i, limit in ipairs(stufen) do
+    if score >= limit then b = bonus[i]; next_at = stufen[i + 1] end
+  end
+  return b, next_at, score
+end
+
 -- Spielerbauten beim Laden wieder in die Karte eintragen (Farm.apply ruft das).
 function Farm.apply_items(map, farm)
   farm.items = farm.items or {}

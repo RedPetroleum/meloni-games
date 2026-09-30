@@ -224,7 +224,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* 7 neue Gebäude-Sprites, `Farm.all_buildings/stall_doors/bed_doors/garaged/stall_bonus`,
   Szenario `gebaeude` (Screenshot mit allen Gebäuden). E47. Sprite-Bild jetzt 2,1 MB: auf der Konsole
   Ladezeit und Speicher prüfen.
-- [ ] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.
+- [x] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.
   Prüfung: Selbsttest.
 - [ ] **C5 Anbau**: Beete/Felder, Samen, Wachstum, Ernte ins Inventar (KATALOG §7).
   Prüfung: Selbsttest über Tage; Shot-Sheet Wachstum.

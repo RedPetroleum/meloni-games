@@ -53,6 +53,11 @@ function Days.new_day(ctx, day)
       if d.ort == "stall" then d.bindung = mid(0, d.bindung + bonus, 100) end
     end
   end
+  -- Hof-Schönheit: alle Pferde bekommen Bindung (ab 50 / 150 / 400 Punkten +1 / +2 / +3)
+  local schoen = Farm.schoenheit_bonus(ctx.area.farm)
+  if schoen > 0 then
+    for _, d in ipairs(ctx.herd) do d.bindung = mid(0, d.bindung + schoen, 100) end
+  end
   ctx.wild:new_day(day)
   -- Fohlen kommen zur Welt und folgen dem Spieler (oder stehen lose, wenn die Leine voll ist)
   local born = Breeding.tick(ctx, day)

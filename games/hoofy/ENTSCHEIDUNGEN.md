@@ -74,6 +74,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E48** (C4) Hof-Schönheit: Summe der Deko-Punkte aller gebauten Dinge und Gebäude (Wege/Böden 0,5 je Kachel),
+  ab 50 / 150 / 400 Punkten bekommen **alle** Pferde (auch an der Leine, auf der Weide …) jeden Tageswechsel +1 / +2 / +3
+  Bindung, zusätzlich zum Stallbonus (E47). Anzeige im Baumodus unten rechts („Schönheit 48/50 (Bindung +0)“).
+  Schmuck am Pferd zählt nicht zum Hof.
 - **E47** (C3) Gebäude: im Baumodus unter „Bauten“ (Stall S–XL, Häuschen, Villa, Schuppen, Garage, Hangar), Grundflächen
   in Kacheln: S 4×3, M 6×3, L 8×4, XL 10×4, Häuschen 3×2, Villa 5×3, Schuppen 3×2, Garage 4×3, Hangar 6×4. Stallplätze
   addieren sich über alle Ställe; jeder Stall hat eine Tür (Mitte der Unterkante) für das Stallmenü. **Stall-Bindung:**
