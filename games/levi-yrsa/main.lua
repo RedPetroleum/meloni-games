@@ -116,10 +116,10 @@ local KP = {
   floor = plat(0, 320, FLOOR, {floor = true}),
   chair = plat(30, 56, 200),
   table = plat(64, 124, 186),
-  counter = plat(146, 272, 176),
+  counter = plat(140, 244, 176),
   spice = plat(66, 118, 120),
-  cab = plat(150, 262, 72),
-  fridge = plat(278, 316, 98),
+  cab = plat(144, 236, 72),
+  fridge = plat(256, 294, 98),
 }
 
 -- Arbeitszimmer: Teppich, Sitzsack, Schreibtisch. Nur Yrsa kommt hier rein
@@ -160,10 +160,10 @@ local ROOMS = {
     name = "Küche", mult = 1.3,
     plats = list(KP, {"floor", "chair", "table", "counter", "spice", "cab", "fridge"}),
     spots = {
-      {KP.chair, 38, true}, {KP.table, 72, true}, {KP.table, 104, true}, {KP.counter, 156, true},
-      {KP.counter, 196}, {KP.counter, 232, true}, {KP.counter, 254},
-      {KP.spice, 74, false, true}, {KP.spice, 98, false, true}, {KP.cab, 160, false, true},
-      {KP.cab, 198, false, true}, {KP.cab, 240, false, true}, {KP.fridge, 292, false, true},
+      {KP.chair, 38, true}, {KP.table, 72, true}, {KP.table, 104, true}, {KP.counter, 150, true},
+      {KP.counter, 184}, {KP.counter, 206, true}, {KP.counter, 230},
+      {KP.spice, 74, false, true}, {KP.spice, 98, false, true}, {KP.cab, 154, false, true},
+      {KP.cab, 186, false, true}, {KP.cab, 218, false, true}, {KP.fridge, 270, false, true},
     },
     light = {"plate", "glass", "egg", "cup"}, heavy = {"pot", "pot", "vase"},
     left = {to = "living", kind = "door"},
@@ -327,6 +327,7 @@ local function physics(c)
     local lp = levi_plat()
     if prev <= lp.y and c.y >= lp.y and on_plat(c, lp) then
       c.y, c.vy, c.on = lp.y, 0, lp
+      if c == active then popup(c.room, c.x - 4, c.y - 30, "Taxi!", C.yrsa) end
       return true
     end
   end
@@ -445,9 +446,9 @@ local function control(c)
   if c.on then
     if btnp(BTN_A) then
       c.vy = -c.jump * (c.on.levi and TAXI or 1)
+      if c.on.levi then tune("C6:0.3 G6:0.6", 900, "triangle", 0.2, false, 6) else SFX.jump(c) end
       c.on = nil
       c.top_y = c.y
-      SFX.jump(c)
     elseif btnp(BTN_DOWN) and not c.on.floor then
       c.drop_t, c.on, c.vy = 10, nil, 0.5
       c.top_y = c.y
@@ -898,9 +899,9 @@ end
 local function draw_kitchen()
   rectfill(0, HUD_H, 319, FLOOR - 1, C.k_wall)
   -- Fliesenspiegel hinter der Arbeitsplatte
-  rectfill(146, 112, 272, 175, C.k_tile)
-  for x = 146, 272, 12 do line(x, 112, x, 175, C.k_tile2) end
-  for y = 112, 175, 12 do line(146, y, 272, y, C.k_tile2) end
+  rectfill(140, 112, 244, 175, C.k_tile)
+  for x = 140, 244, 13 do line(x, 112, x, 175, C.k_tile2) end
+  for y = 112, 175, 12 do line(140, y, 244, y, C.k_tile2) end
   -- Boden: Fliesen
   for x = 0, 319, 16 do
     rectfill(x, FLOOR, x + 15, 231, (x // 16) % 2 == 0 and C.k_floor or C.k_floor2)
@@ -927,24 +928,27 @@ local function draw_kitchen()
   rectfill(68, 191, 71, FLOOR - 1, C.wood_d)
   rectfill(117, 191, 120, FLOOR - 1, C.wood_d)
   -- Unterschrank mit Arbeitsplatte
-  rectfill(146, 176, 272, FLOOR - 1, C.k_front)
-  for x = 146, 272, 42 do rect(x + 2, 184, x + 39, FLOOR - 4, C.k_front_d) end
-  for x = 146, 272, 42 do rectfill(x + 18, 188, x + 23, 189, C.fridge_d) end
-  rectfill(144, 174, 274, 179, C.k_top)
-  line(144, 174, 274, 174, C.fridge)
+  rectfill(140, 176, 244, FLOOR - 1, C.k_front)
+  for x = 140, 208, 35 do rect(x + 2, 184, x + 33, FLOOR - 4, C.k_front_d) end
+  for x = 140, 208, 35 do rectfill(x + 15, 188, x + 20, 189, C.fridge_d) end
+  rectfill(138, 174, 246, 179, C.k_top)
+  line(138, 174, 246, 174, C.fridge)
   -- Hängeschrank
-  rectfill(150, 72, 262, 110, C.k_front)
-  for x = 150, 262, 38 do rect(x + 2, 76, x + 35, 107, C.k_front_d) end
-  for x = 150, 262, 38 do rectfill(x + 15, 102, x + 21, 103, C.fridge_d) end
-  line(150, 72, 262, 72, C.fridge)
+  rectfill(144, 72, 236, 110, C.k_front)
+  for x = 144, 205, 31 do rect(x + 2, 76, x + 29, 107, C.k_front_d) end
+  for x = 144, 205, 31 do rectfill(x + 12, 102, x + 18, 103, C.fridge_d) end
+  line(144, 72, 236, 72, C.fridge)
   -- Kühlschrank
-  rectfill(278, 98, 316, FLOOR - 1, C.fridge)
-  rect(278, 98, 316, FLOOR - 1, C.fridge_d)
-  line(278, 140, 316, 140, C.fridge_d)
-  rectfill(282, 110, 283, 132, C.fridge_d)
-  rectfill(282, 148, 283, 176, C.fridge_d)
-  circfill(304, 118, 3, C.red)
-  rectfill(296, 152, 306, 160, C.gold)
+  rectfill(256, 98, 294, FLOOR - 1, C.fridge)
+  rect(256, 98, 294, FLOOR - 1, C.fridge_d)
+  line(256, 140, 294, 140, C.fridge_d)
+  rectfill(260, 110, 261, 132, C.fridge_d)
+  rectfill(260, 148, 261, 176, C.fridge_d)
+  circfill(282, 118, 3, C.red)
+  rectfill(274, 152, 284, 160, C.gold)
+  -- Mülleimer
+  rectfill(300, 198, 314, FLOOR - 1, C.fridge_d)
+  rectfill(298, 194, 316, 198, C.k_top)
   side_door(0, "door", true)
 end
 
