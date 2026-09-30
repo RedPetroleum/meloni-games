@@ -15,3 +15,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:06 | A2 Spieler und Kamera | fertig | Shot-Sheet Brücke→Wiese→Waldrand (Umriss sichtbar), SELFTEST OK 15, make test grün | Hoofy A2
 2026-10-01 00:08 | A3 Pferdegrafik | begonnen | – | –
 2026-10-01 00:15 | A3 Pferdegrafik | fertig | galerie Shot-Sheet (2 Seiten, alle Posen), Vergrößerung aller Körper, SELFTEST OK 19, Bild 640k Pixel, make test grün | Hoofy A3
+2026-10-01 00:17 | A4 Pferdemodell | begonnen | – | –
+2026-10-01 00:18 | A4 Pferdemodell | fertig | 6 Selbsttests je 10 000 Pferde (Mittel/σ, Stufen 40,7/30,1/17,3/9,0/2,9), SELFTEST OK 25, make test grün | Hoofy A4

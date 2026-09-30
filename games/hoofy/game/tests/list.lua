@@ -6,4 +6,5 @@ return {
   "karte",
   "spieler",
   "pferdegrafik",
+  "pferd",
 }

@@ -71,6 +71,14 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E25** (A4) Wildpferd-Rasse: Rassen des aktuellen Gebiets zählen dreifach, Rassen früherer
+  Gebiete einfach („kommen weiter vor, nur seltener“).
+- **E26** (A4) „3 Prozentpunkte je Gebietsstufe von häufig zu den seltenen Stufen“: verteilt im
+  Verhältnis der Anteile (Gebiet 4: häufig 31 %, legendär 3,45 %). Fehlt einer Rasse eine Stufe,
+  verteilt sich deren Anteil ebenso anteilig. Versteckte Farbe: Stufe nach denselben Anteilen,
+  aber nur gleich selten oder seltener.
+- **E27** (A4) Wildpferde bekommen einen Namen aus einer Liste quatschiger Namen (Keks, Günther,
+  Apfelstrudel, Tante Erna …), für Stuten und Hengste gemischt. Charakterzug gleich verteilt.
 
 - **E15** Bindung-Startwert: Rassenwert ± 5 zufällig; schreckhaft −10, faul +5, verfressen +5,
   eitel 0, Nachteule 0.

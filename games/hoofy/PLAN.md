@@ -71,10 +71,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   6 Muster (E23), Körper abgeleitet (E24), Galopp von Hand. Nachtvarianten gestrichen (E14 geändert).
   sprites.png jetzt 256×2498 (≈ 1,8 MB auf der Konsole), sprites.lua ≈ 150 KB Lua-Speicher:
   auf der Konsole Ladezeit und Speicher prüfen.
-- [ ] **A4 Pferdemodell**: Gen/Training/Max-Potenzial, Zustände, Charakter, Geschlecht, sichtbare
+- [x] **A4 Pferdemodell**: Gen/Training/Max-Potenzial, Zustände, Charakter, Geschlecht, sichtbare
   und versteckte Farbe, Name; Wildpferd-Erzeugung nach KATALOG §2–5 (Gebiet → Rasse → Farbe).
   Prüfung: Selbsttest mit 10 000 Wildpferden: Mittelwert/σ der Gen-Stats ≈ Katalog,
   Farbstufen ≈ 40/30/18/9/3 % (±2), Max-Potenzial nie über 100, Ausdauer 50–100.
+  *Erledigt:* `game/horse_model.lua` (`H.wild{gebiet, rasse, rng}`, `H.stat`), Selbsttest `pferd`:
+  Haflinger Mittel/σ passen, Shetlandpony 40,7/30,1/17,3/9,0/2,9 %. Entscheidungen E25–E27.
 - [ ] **A5 Wildpferde in der Welt**: 4 gleichzeitig, grasen/wandern/fliehen, Wechsel alle 3 Tage.
   Prüfung: Shot-Sheet; Selbsttest Wechsel nach 3 Tagen (1–2 neue).
 - [ ] **A6 Sprechblasen**: Emoji-Sprites, Vorrang und Schwellen (E10, E11), Charakter-Blasen.
