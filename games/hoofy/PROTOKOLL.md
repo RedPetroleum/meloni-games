@@ -34,3 +34,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:44 | A11 Hof | fertig | Shot-Sheet hof_start, SELFTEST OK 60, make test grün | Hoofy A11
 2026-10-01 00:46 | A12 Tag und Nacht | begonnen | – | –
 2026-10-01 00:47 | A12 Tag und Nacht | fertig | Shot-Sheets Abend→Nacht und Schlafen, SELFTEST OK 68, make test grün | Hoofy A12
+2026-10-01 00:49 | Release nach A12 | fertig | Lauf success, „Update games“ bringt Hoofy 0.0.1 (Stand A12) | fa6851e
