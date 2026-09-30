@@ -11,6 +11,15 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Phase B (Version 0.2.0)** – Wirtschaft und Zucht
+- [ ] Im Dorf: Laden (Futter, Sättel, Zubehör, Schmuck, Samen), Pferdemarkt (4 Pferde, Preise), Jobbrett. A an Tür bzw. Stand.
+- [ ] Am Hoftor steht tagsüber ein Käufer mit ❗: A, Pferd markieren, Preis und Spruch ansehen, verkaufen. Stimmen die Folgen (Bindung der übrigen)?
+- [ ] START → Bestellungen: alle 3 Tage eine neue; passendes Pferd liefern.
+- [ ] Zucht: Stalltür → „Zucht starten“ (Hengst + Stute im Stall), nach 2 Tagen Fohlen, Info → Rechts: Stammbaum.
+- [ ] Ausrüsten im Pferdemenü (Sattel, Taschen, Lampe, Schmuck), Reiten mit Sattel schneller?
+- [ ] Wie lange bis zum ersten Gewinn? Fühlt sich das Tempo (Fahrrad nach ~1 Stunde) richtig an?
+- [ ] Ruckelt der Hof mit mehreren Pferden? Läuft die Stalltür-Bedienung nachvollziehbar?
+
 **Phase A (Version 0.1.0)** – Bedienung siehe ENTSCHEIDUNGEN.md E1–E3, E5, E6, E29–E31
 - [ ] Hoofy 0.1.0 erscheint nach „Update games“, Cover zeigt den Hof.
 - [ ] Titel → START: neues Spiel. Laufen (B rennt), Dorf im Osten/Westen besuchen, Namen über den Gebäuden.
@@ -30,7 +39,8 @@ Checklisten des Loops für jede fertige Phase.
 ## Stand
 - Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
 - Phase A fertig (0.1.0): Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht, Menüs, Speichern, Karte, Töne.
-- Als Nächstes Phase B (Wirtschaft und Zucht), Start bei B1 Geld und Laden.
+- Phase B fertig (0.2.0): Laden, Markt, Käufer, Bestellungen, Jobs, Zucht, Stammbaum, Inzucht, Wirtschaftscheck.
+- Als Nächstes Phase C (Hof bauen), Start bei C1 Baumodus. Ausstehend: Balance-Befunde (Schlachter, Verkäufe) in ENTSCHEIDUNGEN.md ansehen.
 
 ## Aufgaben
 
@@ -194,7 +204,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Protokoll mit Tagen bis Fahrrad und Mofa.
   *Erledigt:* `game/sim.lua`, Selbsttest `wirtschaft` (loggt `WIRTSCHAFT …`). Fahrrad Tag 4,2, Phase 1
   Tag 7,5, Mofa Tag 11,8, Phase 2 Tag 18,1. Befund unter „Balance“ in ENTSCHEIDUNGEN.md.
-- [ ] **B-Ende**: Cover, version 0.2.0, Konsolen-Checkliste, Push.
+- [x] **B-Ende**: Cover, version 0.2.0, Konsolen-Checkliste, Push.
 
 ### C Hof bauen
 

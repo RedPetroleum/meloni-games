@@ -1,7 +1,7 @@
 {
   "id": "hoofy",
   "name": "Hoofy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "api": 1,
-  "description": "Pferdezüchter im Jahr 2040: Wildpferde im Heimattal finden, anschleichen und zähmen, führen, reiten und springen, füttern, striegeln, trainieren und auf dem Hof unterbringen. Tag und Nacht, Karte, Speichern. Zucht, Handel und Turniere folgen."
+  "description": "Pferdezüchter im Jahr 2040: Wildpferde im Heimattal anschleichen und zähmen, führen, reiten und springen, pflegen, trainieren, züchten (Farbgenetik, Stammbaum, Inzucht) und verkaufen. Laden, Pferdemarkt, Käufer, Bestellungen und Jobs im Dorf, Tag und Nacht, Karte, Speichern. Hofbau, Fahrzeuge und Turniere folgen."
 }
