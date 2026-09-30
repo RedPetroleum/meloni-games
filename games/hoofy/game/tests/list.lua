@@ -16,4 +16,5 @@ return {
   "hof",
   "tag",
   "menues",
+  "speichern",
 }

@@ -127,9 +127,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Screenshot jedes Bildschirms.
   *Erledigt:* `game/screens.lua` (Stapel in `game/world.lua`). Szenario `menues` mit
   `SCENARIO_OPTS='screen = "pause"'` (auch `horses`, `info`, `keyboard`, `inventar`). E34.
-- [ ] **A14 Speichern**: beim Schlafen, Gebietswechsel, `_quit`; Weiter-Eintrag im Titel.
+- [x] **A14 Speichern**: beim Schlafen, Gebietswechsel, `_quit`; Weiter-Eintrag im Titel.
   Prüfung: Selbsttest speichern → laden ergibt gleichen Zustand; Größe des Spielstands mit
   24 Pferden geloggt.
+  *Erledigt:* `game/save.lua`, Laden in `game/world.lua`, Titel mit Weiter/Neues Spiel, `_quit`.
+  Selbsttest Rundlauf; 24 Pferde = 10 388 Bytes. Von Hand: Neues Spiel → Pause → Speichern →
+  Neustart lädt („Weiter“). E35.
 - [ ] **A15 Karte**: nur Erkundetes, Spieler mit Blickrichtung, Pferde, Hof (E6).
   Prüfung: Screenshot nach einem Erkundungsritt.
 - [ ] **A16 Töne**: Hufe, Wiehern, Menü-Klicks, ruhige Melodie tags/nachts.

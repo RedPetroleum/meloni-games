@@ -9,6 +9,7 @@ local Farm = require("game.farm")
 local Clock = require("game.clock")
 local Days = require("game.days")
 local Screens = require("game.screens")
+local Save = require("game.save")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -18,11 +19,21 @@ local WorldScene = {}
 
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
 local stack, nav = {}, {}
+local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
-  ctx = Stage.build(1)
-  if arg then
+  local snap, farm, seed
+  saving = false
+  if arg and arg.laden then
+    snap = Save.read()
+    if snap then seed, farm = snap.seed, snap.hof end
+  end
+  if arg and arg.neu then seed = Save.new_seed() end
+  seed_now = seed
+  saving = (arg and (arg.neu or (arg.laden and snap))) and true or false
+  ctx = Stage.build(1, seed, farm)
+  if arg and (arg.ort or arg.cx) then
     local p = arg.ort and ctx.area.places[arg.ort] or (arg.cx and {arg.cx, arg.cy})
     if not p then error("unbekannter Ort " .. tostring(arg.ort)) end
     ctx.player.x, ctx.player.y = p[1] * 16 + 8, p[2] * 16 + 14
@@ -69,6 +80,22 @@ function WorldScene.enter(arg)
     wild:fill()
   end
   ctx.wild = wild
+  ctx.save = function() end
+  ctx.saving_ok = saving
+  ctx.toast = function(text) toast = {text = text, t = 120} end
+  if saving then
+    ctx.save = WorldScene.save
+    if snap then
+      ctx.money, ctx.inv = snap.geld, snap.inv
+      clock.day, clock.t = snap.tag, snap.zeit
+      clock.woke = clock.t > 0 and clock.t < Clock.DAWN
+      ctx.player.x, ctx.player.y = snap.pos[1], snap.pos[2]
+      ctx.trail:reset(ctx.player.x, ctx.player.y)
+      ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+      for _, c in ipairs(snap.aenderungen or {}) do ctx.map:set(c[1], c[2], c[3], c[4]) end
+      for _, d in ipairs(snap.herd) do wild:adopt(d) end
+    end
+  end
   if arg and arg.screen then
     local name = arg.screen
     if name ~= "none" then nav.push(Screens.pause(ctx, nav)) end
@@ -204,6 +231,19 @@ local function do_action(id)
   end
 end
 
+-- Speichert (Schlafen, Gebietswechsel, Pause-Menü, Beenden). Nur im echten Spiel.
+function WorldScene.save()
+  if not saving then return false end
+  local snap = Save.snapshot(ctx, clock, seed_now)
+  Save.write(snap)
+  return true
+end
+
+-- Beim Beenden über das Menü der Konsole (main.lua ruft _quit).
+function WorldScene.quit()
+  WorldScene.save()
+end
+
 function nav.push(screen) stack[#stack + 1] = screen end
 function nav.pop() stack[#stack] = nil end
 
@@ -265,7 +305,8 @@ function WorldScene.update()
       elseif U.dist(p.x, p.y, ctx.area.places.bett[1] * 16 + 8, ctx.area.places.bett[2] * 16 + 8) <= 26 then
         if clock:sleep() then
           Days.new_day(ctx, clock.day)
-          say("Gut geschlafen. Tag " .. clock.day .. " beginnt.", 180)
+          local saved = WorldScene.save()
+          say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. (saved and " Gespeichert." or ""), 180)
           ctx.sfx.start()
         else
           say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)

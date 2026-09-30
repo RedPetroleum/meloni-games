@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E35** (A14) Speichern: beim Schlafen, über „Speichern“ im Pausenmenü und beim Beenden über das
+  Konsolenmenü (auch mitten im Ritt). Nicht gespeichert werden Wildpferde (sie werden beim Laden
+  frisch aus dem Seed gewürfelt), Sprechblasen und Uhrzeit-Feinheiten. Titel: „Weiter“ (Standard,
+  wenn es einen Spielstand gibt) und „Neues Spiel“; Neues Spiel überschreibt den Stand erst beim
+  nächsten Speichern. Test-Szenarien speichern nie. Größe mit 24 Pferden: 10 KB.
 - **E34** (A13) Bildschirme: START öffnet das Pausenmenü (Weiter, Pferde, Inventar; Karte, Bauen,
   Album, Speichern stehen ausgegraut da, bis es sie gibt). Die Welt steht still, solange ein
   Bildschirm offen ist. Pferdeliste → Info (Balken: Gen gold, Training grün, Max-Potenzial als

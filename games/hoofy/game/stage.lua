@@ -25,8 +25,8 @@ Stage.COLORS = {
 }
 
 -- nr: Gebiet (1 = Heimattal), seed: Welt-Seed (nil: Standard).
-function Stage.build(nr, seed)
-  local area = Area.get(nr, seed)
+function Stage.build(nr, seed, farm)
+  local area = Area.get(nr, seed, farm)
   local ctx = {S = S, sfx = SFX, colors = Stage.COLORS, area = area}
   ctx.map = area.map
   ctx.world = World.new(ctx.map)

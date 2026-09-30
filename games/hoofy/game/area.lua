@@ -20,9 +20,9 @@ Area.LABELS = {
 local cache = {}
 
 -- nr: Gebietsnummer (KATALOG §10), seed: Zahl. Gibt {nr, name, map, plot, places, …} zurück.
-function Area.get(nr, seed)
+function Area.get(nr, seed, farm)
   seed = seed or Area.DEFAULT_SEED
-  local key = nr .. ":" .. seed
+  local key = nr .. ":" .. seed .. (farm and ":farm" or "")
   if cache[key] then return cache[key] end
   local info = K.welt.gebiete[nr] or error("Gebiet " .. tostring(nr) .. " fehlt im Katalog")
   local def = Gen.generate(info, seed + nr * 1000)
@@ -32,8 +32,9 @@ function Area.get(nr, seed)
     map = Map.new(def):prepare(), plot = def.plot, places = def.places, village = def.village,
   }
   if nr == 1 then
-    area.farm = Farm.default(area.plot)
+    area.farm = farm or Farm.default(area.plot)
     Farm.apply(area.map, area.farm)
+    area.map.changes = {}          -- der Hof gehört zum Grundzustand, nur spätere Änderungen werden gespeichert
     area.places.start = {area.plot.x + 10, area.plot.y + 8}   -- im Hof, zwischen Stall und Weide
     local d = Farm.stall_door(area.farm)
     area.places.stalltuer = {d[1], d[2]}

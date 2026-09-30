@@ -29,6 +29,11 @@ function _init()
   end
 end
 
+-- Beenden über das Menü der Konsole: die Szene darf speichern.
+function _quit()
+  if current and current.quit then current.quit() end
+end
+
 function _update()
   local next_scene, arg = current.update()
   if next_scene then go(next_scene, arg) end

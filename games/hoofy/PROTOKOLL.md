@@ -37,3 +37,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:49 | Release nach A12 | fertig | Lauf success, „Update games“ bringt Hoofy 0.0.1 (Stand A12) | fa6851e
 2026-10-01 00:51 | A13 Menüs | begonnen | – | –
 2026-10-01 00:53 | A13 Menüs | fertig | Screenshots Pause/Liste/Info/Tastatur/Inventar, SELFTEST OK 73, make test grün | Hoofy A13
+2026-10-01 00:55 | A14 Speichern | begonnen | – | –
+2026-10-01 00:56 | A14 Speichern | fertig | Rundlauf-Selbsttest, 24 Pferde 10,4 KB, End-to-End neu→speichern→weiter, SELFTEST OK 77, make test grün | Hoofy A14

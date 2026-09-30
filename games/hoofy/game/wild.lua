@@ -383,6 +383,22 @@ function Wild:add_own(opts)
   return h
 end
 
+-- Nimmt ein gespeichertes Pferd (Datentabelle) wieder in den Bestand: untergebracht, wo es war,
+-- sonst an der Leine beim Spieler.
+function Wild:adopt(data)
+  local p = self.ctx.player
+  local h = Horse.new(self.ctx, data, p.x, p.y + 16)
+  h.wild, h.tamed, h.state = false, true, "free"
+  data.wild = nil
+  self.ctx.world:add(h)
+  self.ctx.herd[#self.ctx.herd + 1] = data
+  self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
+  local ort = data.ort
+  data.ort = nil
+  if not ort or not self:house(h, ort) then self:attach(h) end
+  return h
+end
+
 -- Unterbringung (E32): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
 function Wild:house(h, ort)
   local farm = self.ctx.area.farm

@@ -247,7 +247,7 @@ function Screens.pause(ctx, nav)
     {label = "Karte (bald)", id = "map", dim = true},
     {label = "Bauen (bald)", id = "build", dim = true},
     {label = "Album (bald)", id = "album", dim = true},
-    {label = "Speichern (bald)", id = "save", dim = true},
+    {label = "Speichern", id = "save", dim = not ctx.saving_ok},
   }
   local m = Menu.new(items, "Pause")
   local s = {}
@@ -256,7 +256,12 @@ function Screens.pause(ctx, nav)
     local r = m:update()
     if r == "close" or r == "resume" then n.pop()
     elseif r == "horses" then n.push(Screens.horses(ctx))
-    elseif r == "inventory" then n.push(Screens.inventory(ctx)) end
+    elseif r == "inventory" then n.push(Screens.inventory(ctx))
+    elseif r == "save" then
+      ctx.save()
+      ctx.toast("Gespeichert.")
+      n.pop()
+    end
   end
   function s.draw()
     m:draw(100, 50)
