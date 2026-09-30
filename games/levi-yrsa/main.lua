@@ -167,7 +167,7 @@ local ROOMS = {
     },
     light = {"plate", "glass", "egg", "cup"}, heavy = {"pot", "pot", "vase"},
     left = {to = "living", kind = "door"},
-    intro = {"Küche: Fliesen, alles ist lauter!", "Zu hoch? Yrsa springt von Levi ab!"},
+    intro = {"Küche", {"Fliesen: alles", "ist lauter!", "Zu hoch? Yrsa", "springt von Levis", "Rücken ab!"}},
   },
   study = {
     name = "Arbeitszimmer", mult = 0.7,
@@ -179,30 +179,31 @@ local ROOMS = {
     },
     light = {"pens", "frame", "cup", "glass"}, heavy = {},
     right = {to = "living", kind = "door"},
-    intro = {"Arbeitszimmer: Teppich, schön leise.", "Levi ist zu dick für die Klappe."},
+    intro = {"Arbeitszimmer", {"Teppich: hier ist", "es schön leise.", "Levi ist zu dick", "für die Klappe."}},
   },
 }
 
 -- Wie viele Sachen pro Raum: {leicht, schwer}
 local function plan(n)
   if n == 1 then return {living = {4, 2}} end
-  if n == 2 then return {living = {3, 2}, kitchen = {3, 2}} end
+  if n == 2 then return {living = {3, 2}, kitchen = {3, 3}} end
   local e = n - 3
-  return {living = {3 + e // 3, 1 + e // 4}, kitchen = {3 + (e + 1) // 3, 2 + e // 4}, study = {5 + (e + 2) // 3, 0}}
+  return {living = {3 + e // 3, 2 + e // 4}, kitchen = {3 + (e + 1) // 3, 3 + e // 4}, study = {5 + (e + 2) // 3, 0}}
 end
 
+-- Tafel zu Beginn der Nacht (Zeilen mit höchstens 18 Zeichen, große Schrift)
 local NIGHT_INTRO = {
-  {"Vasen und Töpfe schafft nur Levi."},
-  {"Nacht 2: heute auch die Küche!", "Die Tür klemmt. Levi drückt sie auf."},
-  {"Nacht 3: auch das Arbeitszimmer!", "Da passt nur Yrsa durch die Klappe."},
+  [2] = {"Heute auch die", "Küche! Die Tür", "klemmt, nur Levi", "drückt sie auf."},
+  [3] = {"Jetzt auch das", "Arbeitszimmer!", "Nur Yrsa passt", "durch die Klappe."},
 }
+local NEXT_ROOM = {[1] = "Morgen neu: die Küche!", [2] = "Morgen neu: das Arbeitszimmer!"}
 
 local state, t
 local save
 local cats, active, other
 local items, parts, debris, popups, moths, zs
 local night, score, noise, clock, night_len, decay, left, combo_t, shake, end_t, reason, bonus
-local msg, msg2, msg_t
+local card, card_t
 local room_on, seen, door_open, door_push
 local human -- wer heute Nacht im Schlafzimmer liegt: "human_lady" oder "human_guy"
 local sel_down, sel_other
@@ -213,13 +214,16 @@ local function center(text, y, c, scale)
   print(text, (SCREEN_W - textw(text, scale)) // 2, y, c, scale)
 end
 
-local function say(a, b, frames)
-  msg, msg2, msg_t = a, b, frames or 200
+-- Große Tafel mitten im Bild, das Spiel wartet, bis A gedrückt wird
+local function show_card(title, lines)
+  card, card_t, state = {title = title, lines = lines}, 0, "card"
 end
 
 local function popup(room, x, y, text, c)
-  x = mid(2, x, SCREEN_W - 2 - textw(text))
-  popups[#popups + 1] = {room = room, x = x, y = y, text = text, c = c or C.text, life = 50}
+  local scale = utf8.len(text) <= 10 and 2 or 1
+  x = mid(2, x - (scale - 1) * textw(text) // 4, SCREEN_W - 2 - textw(text, scale))
+  popups[#popups + 1] = {room = room, x = x, y = y - (scale - 1) * 8, text = text, c = c or C.text, scale = scale,
+    life = 80}
 end
 
 local function big(name, x, y, scale, flip)
@@ -353,7 +357,7 @@ local function tap(c)
     popup(c.room, best.x - 8, best.y - 26, "Zu schwer!", C.orange)
     if not best.told then
       best.told = true
-      say("Das schafft nur Levi (SELECT).", nil, 150)
+      show_card("Zu schwer!", {"Das schafft nur", "Levi. Mit SELECT", "wechseln."})
     end
     return
   end
@@ -378,7 +382,7 @@ local function entered(room)
   if seen[room] then return end
   seen[room] = true
   local intro = ROOMS[room].intro
-  if intro then say(intro[1], intro[2], 240) end
+  if intro then show_card(intro[1], intro[2]) end
 end
 
 -- Durch die Tür am linken (side = -1) oder rechten Rand in den Nachbarraum
@@ -404,7 +408,7 @@ local function try_exit(c, side)
       hint(c, "Klemmt!")
       if not seen.door_hint then
         seen.door_hint = true
-        say("Die Tür klemmt. Levi kann drücken!", nil, 180)
+        show_card("Tür klemmt!", {"Nur Levi ist", "schwer genug, um", "sie aufzudrücken."})
       end
     end
     return
@@ -491,7 +495,7 @@ local function place_items()
       for _ = 1, min(n[2], #heavy) do add_item(room, rnd(R.heavy), take(heavy)) end
       -- In der Küche stehen immer ein paar Sachen dort, wo nur das Levi-Taxi hinkommt
       local n_light = n[1]
-      for _ = 1, min(#taxi, 2, n_light) do
+      for _ = 1, min(#taxi, 3, n_light) do
         add_item(room, rnd(R.light), take(taxi))
         n_light = n_light - 1
       end
@@ -610,7 +614,7 @@ local function start_night()
   cats[2].face = -1
   active, other = cats[1], cats[2]
   parts, debris, popups, moths, zs = {}, {}, {}, {}, {}
-  noise, clock, combo_t, shake, msg_t = 0, 0, 0, 0, 0
+  noise, clock, combo_t, shake = 0, 0, 0, 0
   seen, door_open, door_push = {living = true}, false, 0
   human = rnd(1) < 0.5 and "human_lady" or "human_guy"
   place_items()
@@ -619,13 +623,10 @@ local function start_night()
   night_len = 60 * max(45 + 30 * n_rooms - 5 * max(0, night - 3), 25 + 30 * n_rooms)
   decay = max(0.02, 0.045 - 0.003 * (night - 1))
   state, t = "play", 0
-  local intro = NIGHT_INTRO[night]
   if night == 1 then
-    say("Nacht 1: " .. left .. " Sachen müssen runter!", intro[1], 240)
-  elseif intro then
-    say(intro[1], intro[2], 240)
+    show_card("Nacht 1", {left .. " Sachen müssen", "runter. Vasen und", "Töpfe schafft", "nur Levi!"})
   else
-    say("Nacht " .. night .. ": " .. left .. " Sachen müssen runter!", nil, 200)
+    show_card("Nacht " .. night, NIGHT_INTRO[night] or {left .. " Sachen müssen", "runter!"})
   end
   SFX.music()
 end
@@ -693,7 +694,6 @@ local function update_play()
   noise = max(0, noise - decay)
   if combo_t > 0 then combo_t = combo_t - 1 end
   if shake > 0 then shake = shake - 1 end
-  if msg_t > 0 then msg_t = msg_t - 1 end
 
   if noise < NOISE_STIR then
     if t % 150 == 0 then SFX.snore() end
@@ -735,7 +735,7 @@ function _init()
   night, score = 1, 0
   cats = {new_cat("levi", 60), new_cat("yrsa", 200)}
   items, parts, debris, popups, moths, zs = {}, {}, {}, {}, {}, {}
-  noise, clock, night_len, shake, msg_t = 0, 0, 1, 0, 0
+  noise, clock, night_len, shake = 0, 0, 1, 0
   room_on, seen, door_open, door_push = {living = true}, {}, false, 0
   active, other = cats[1], cats[2]
 end
@@ -748,6 +748,9 @@ function _update()
     if btnp(BTN_START) then state = "play" end
   elseif state == "play" then
     update_play()
+  elseif state == "card" then
+    card_t = card_t + 1
+    if card_t > 15 and (btnp(BTN_A) or btnp(BTN_START)) then state = "play" end
   elseif state == "clear" then
     end_t = end_t + 1
     update_popups()
@@ -1110,8 +1113,8 @@ local function draw_world(view, lit)
   end
   for _, p in ipairs(popups) do
     if p.room == view then
-      print(p.text, flr(p.x) + 1, flr(p.y) + 1, C.shadow)
-      print(p.text, flr(p.x), flr(p.y), p.c)
+      print(p.text, flr(p.x) + 1, flr(p.y) + 1, C.shadow, p.scale)
+      print(p.text, flr(p.x), flr(p.y), p.c, p.scale)
     end
   end
   camera()
@@ -1161,30 +1164,31 @@ function _draw()
   end
   draw_hud()
   if state == "play" then
-    if msg_t > 0 then
-      local w = max(textw(msg), msg2 and textw(msg2) or 0)
-      local y1 = msg2 and 43 or 33
-      rectfill((SCREEN_W - w) // 2 - 4, 20, (SCREEN_W + w) // 2 + 3, y1, C.hud)
-      center(msg, 23, C.text)
-      if msg2 then center(msg2, 34, C.gold) end
-    end
     if night == 1 then
       print("A Sprung  B Tatze  SELECT Wechsel", 28, 229, rgb(200, 160, 130))
     else
       draw_floor_labels(view)
     end
   end
-  if state == "pause" then
+  if state == "card" then
+    local h = 36 + #card.lines * 18
+    local y0 = 120 - h // 2
+    panel(y0, y0 + h + 14)
+    center(card.title, y0 + 8, C.gold, 2)
+    for i, l in ipairs(card.lines) do center(l, y0 + 12 + i * 18, C.text, 2) end
+    if card_t > 15 and flr(card_t / 20) % 2 == 0 then center("A: weiter", y0 + h + 2, C.dim) end
+  elseif state == "pause" then
     panel(96, 136)
     center("Pause", 104, C.text, 2)
     center("START: weiter", 124, C.dim)
   elseif state == "clear" then
-    panel(66, 154)
-    center("Nacht geschafft!", 76, C.gold, 2)
-    center("Alles unten, der Mensch schläft.", 100, C.text)
-    center("Bonus +" .. bonus, 114, C.green)
-    center("Punkte " .. score, 126, C.text)
-    if end_t > 60 then center("A: nächste Nacht", 140, C.dim) end
+    panel(56, 170)
+    center("Nacht geschafft!", 66, C.gold, 2)
+    center("Alles unten, der Mensch schläft.", 90, C.text)
+    center("Bonus +" .. bonus, 104, C.green)
+    center("Punkte " .. score, 118, C.text)
+    if NEXT_ROOM[night] then center(NEXT_ROOM[night], 136, C.gold) end
+    if end_t > 60 then center("A: nächste Nacht", 154, C.dim) end
   elseif over then
     panel(36, 134)
     if reason == "wake" then
