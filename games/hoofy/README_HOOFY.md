@@ -20,7 +20,8 @@ Die Bevölkerung ist sehr unzufrieden und hat deshalb eine radikale Regierung ge
 * Nur privat – Lizenzprobleme ignorieren
 * Keine FSK-Beschränkung 😈
 * Stil: eher quatschig, lustig, aber auch beruhigend
-* Grafik: 3/4 Perspektive mit Sprites, wie Ausgebüxt.
+* Grafik: 3/4-Perspektive mit Sprites, wie Ausgebüxt
+* Technik: Gebiete aus festem Zufalls-Seed erzeugen, nur Änderungen speichern. Erst ein kleines Gebiet, später größer.
 
 ## 2. Das Pferd
 
@@ -31,10 +32,10 @@ Beispiel: Mustangs haben eine Basis-Geschwindigkeit von 30. Man findet einen wil
 
 - [ ] Geschwindigkeit (0–100)
 - [ ] Stärke (0–100): Sprunghöhe, Ziehen und Zertreten von Sachen, Abwehr von Feinden
-- [ ] Laune/Zuneigung (0–100): niedrig = zickig. Je höher, desto leichter lässt es sich führen, reiten usw. Bei sehr hohem Wert kommt es sogar auf Kommando angelaufen.
-- [ ] Aufspürung (0-100): wie gut es Schätze aufspürt
+- [ ] Bindung (0–100): niedrig = zickig. Je höher, desto leichter lässt es sich führen, reiten usw. Bei sehr hohem Wert folgt es ohne Leine und kommt auf Kommando.
+- [ ] Aufspürung (0–100): wie gut es Schätze aufspürt
 - [ ] Sauberkeit (0–100)
-- [ ] Hunger (0–100): Überfütterung erhöht das Gewicht und senkt trainierte Stärke/Geschwindigkeit. Längerer Hunger senkt die Laune, akuter Hunger wirkt wie etwas schlechtere Laune.
+- [ ] Hunger (0–100): Überfütterung erhöht das Gewicht und senkt trainierte Stärke/Geschwindigkeit. Längerer Hunger senkt die Bindung, akuter Hunger wirkt wie etwas schlechtere Bindung.
 - [ ] Gewicht (0–100), 50 = ideal
 - [ ] Energie (0–100): begrenzt das Training, wird jeden Tag zurückgesetzt
 
@@ -44,36 +45,39 @@ Beispiel: Mustangs haben eine Basis-Geschwindigkeit von 30. Man findet einen wil
 - [ ] Farbe (ca. 30, unterschiedlich selten)
 - [ ] Geschlecht (m/w)
 - [ ] Charakterzug (verfressen, schreckhaft, faul, eitel oder Nachteule): unveränderlich, wirkt sich hauptsächlich auf die Emojis aus
-- [ ] Name. Kann vergeben und verändert werden
+- [ ] Name: frei vergeb- und änderbar
 
 ### Fähigkeiten
-- [ ] Sprechen in Form von Emojis
-- [ ] Können Sachen aufspüren (Blumen, Samen Schätze usw.)
+- [ ] Sprechen in Form von Emojis (Signalisieren Hunger, mangelnde Sauberkeit, Charakterzug, etc.)
+- [ ] Können Sachen aufspüren (Blumen, Samen, Schätze usw.)
 - [ ] Können Ausrüstung tragen (Sattel mit Gepäcktaschen, Lampen)
 - [ ] Stammbaum anzeigbar
 
 ## 3. Mit Pferden spielen
 
 ### Pferde bekommen
-- [ ] Finden: Wildpferde in den Gebieten; je besser das Fahrzeug, desto weiter entfernte Gebiete (siehe Gebiete, Fahrzeuge). 
-- [ ] Zähmen, als Minispiel: anschleichen, solange das Pferd wegschaut, stehen bleiben, wenn es guckt. Wie schwer das ist, hängt von der Laune des Wildpferds ab.
+- [ ] Finden: Wildpferde in den Gebieten; je besser das Fahrzeug, desto weiter entfernte Gebiete (siehe Gebiete, Fahrzeuge)
+- [ ] Zähmen, als Minispiel: anschleichen, solange das Pferd wegschaut, stehen bleiben, wenn es guckt. Wie schwer das ist, hängt von der Bindung des Wildpferds ab.
+- [ ] Heimbringen: aus fremden Gebieten zum Fahrzeug, im Startgebiet auf die Weide oder in den Stall
+- [ ] Leine: Frisch gezähmte Pferde werden an der Leine geführt (zu Fuß oder reitend). Wegen geringer Bindung reißen sie ab und zu aus, eher beim Sprinten oder Reiten.
+- [ ] Zu Fuß kann zusätzlich ein Pferd mit hoher Bindung ohne Leine folgen
 - [ ] Kaufen: Welche Pferde man kaufen kann, hängt von der Fahrzeugklasse ab.
 
 ### Pflegen und trainieren
 - [ ] Füttern: beeinflusst den Hunger, über längere Zeit auch das Gewicht
 - [ ] Striegeln: erhöht die Sauberkeit
-- [ ] Streicheln, Füttern, Reiten (eigentlich alles): erhöht die Laune
+- [ ] Streicheln, Füttern, Reiten (eigentlich alles): erhöht die Bindung
 - [ ] Reiten und Springen: erhöht Geschwindigkeit und Stärke, das Gewicht nimmt etwas ab
 - [ ] Schmücken
 - [ ] Aufspürung verbessert sich mit jedem Fund
 - [ ] Jobs: Kutschtaxi, Postritt oder Pflügen bringen wenig, aber sicheres Geld und trainieren nebenbei Stärke oder Geschwindigkeit
 
-Zusammenhänge: Sauberkeit und Laune beschleunigen den Trainingsfortschritt. Das Gewicht beeinflusst Geschwindigkeit und Stärke.
+Zusammenhänge: Sauberkeit und Bindung beschleunigen den Trainingsfortschritt. Das Gewicht beeinflusst Geschwindigkeit und Stärke.
 
 ### Unterbringung
 - Stall: Trainings-Stats bleiben erhalten.
 - Weide: Trainings-Stats sinken, je stärker das Pferd, desto weniger.
-- Frei auf dem Grundstück: nur für sehr starke Pferde mit hoher Laune; sie verteidigen das Grundstück gegen Tiere.
+- Frei auf dem Grundstück: nur für sehr starke Pferde mit hoher Bindung; sie verteidigen das Grundstück gegen Tiere.
 
 Weide und freie Haltung verringern die Sauberkeit. Die Plätze sind begrenzt: im Stall durch den gebauten Stall, auf Weide und Grundstück durch deren Größe.
 
@@ -107,31 +111,35 @@ Geld ist entscheidend für den Fortschritt, weil man damit Fahrzeuge kauft. Gute
 Leute, die angebotene Pferde kaufen, wenn sie wollen. Sie haben mehrere Sprüche, passend zum angebotenen Pferd. Jeder Käufer gewichtet die Stats anders.
 
 - [ ] Reiche Sammlerin: zahlt besonders viel für seltene Farben und Rassen, verlangt hohe Sauberkeit
-- [ ] Netter Reithof: zahlt eher wenig, aber mehr für gute Laune. Ein Verkauf verbessert die Laune der übrigen Pferde.
-- [ ] Züchter: zahlt besonders viel für Hengste und hohe Geschwindigkeit/Stärke. Ein Verkauf verschlechtert die Laune der übrigen Pferde.
+- [ ] Netter Reithof: zahlt eher wenig, aber mehr für hohe Bindung. Ein Verkauf verbessert die Bindung der übrigen Pferde.
+- [ ] Züchter: zahlt besonders viel für Hengste und hohe Geschwindigkeit/Stärke. Ein Verkauf verschlechtert die Bindung der übrigen Pferde.
 - [ ] Schlachter: zahlt insgesamt gut, besonders viel für hohes Gewicht
 - [ ] Bestellungen: Käufer geben Aufträge wie „braune Stute, Geschwindigkeit über 50, bis Tag 20“ und zahlen dafür einen Bonus
 
 ### Turniere
-Ab und zu gibt es Turniere in verschiedenen Klassen. Es gibt eine Startgebühr, die Gewinnchancen sind vorab sichtbar. Je höher die Fahrzeugklasse, desto lukrativer und schwieriger die Turniere. Für alle ist hohe Laune wichtig, dazu je nach Turnier:
+Es gibt Turniere in verschiedenen Wettbewerben. Es gibt eine Startgebühr, die Gewinnchancen sind vorab sichtbar. Alle paar Tage werden verändern sich die Turniere (Teilnehmer, Chancen). Man kann jederzeit an einem Turnier teilnehmen. Je höher die Fahrzeugklasse, desto lukrativer und schwieriger die Turniere. Für alle ist hohe Bindung wichtig, dazu je nach Wettbewerb:
 
 - [ ] Schönheitswettbewerb: Seltenheit von Farbe und Rasse, Sauberkeit
 - [ ] Springreiten (Minispiel): Stärke
 - [ ] Pferderennen (Minispiel): Geschwindigkeit
 
 ## 5. Hof (Baumodus)
-Schönes Haus, Stall, Deko usw. erhöhen die Laune und teilweise die Trainingsgeschwindigkeit.
+Schönes Haus, Stall, Deko usw. erhöhen die Bindung und teilweise die Trainingsgeschwindigkeit.
 
 - [ ] Grundstück: Man startet klein und kann Land dazukaufen
 - [ ] Haus (verschiedene): nur dekorativ, zum Schlafen/Überspringen der Nacht
 - [ ] Stall (verschiedene): bestimmt die Zahl der Stallplätze
 - [ ] Weide: frei mit Zaunelementen baubar, braucht ein Tor. Mehrere Weiden sind möglich.
+- [ ] Garage: nötig für ein Fahrzeug
 - [ ] Deko (Lampen, Bänke, Brunnen, Wege, Teich, Böden)
 - [ ] Maschinen, die Geld bringen, z. B. ein pferdebetriebener Stromgenerator
 - [ ] Pflanzen/Getreide als Futter
 
 ## 6. Fahrzeuge (Fortschritt)
-Man kauft einen Pferdeanhänger. Entscheidend ist das Zugfahrzeug: anfangs Fahrrad, dann Mofa usw. bis zum edlen SUV und am Ende das Flugzeug. Je besser das Fahrzeug, desto weiter entfernte Gebiete kann man besuchen, um seltenere Pferde zu finden oder an exklusiveren Turnieren teilzunehmen.
+Bestehend aus Pferdeanhänger und Zugfahrzeug.
+- [ ] Pferdeanhänger: 1–4 Plätze, unabhängig vom Zugfahrzeug aufrüstbar
+- [ ] Zugfahrzeug ist entscheidend: anfangs Fahrrad, dann Mofa usw. bis zum edlen SUV und am Ende das Flugzeug. Je besser das Fahrzeug, desto weiter entfernte Gebiete kann man besuchen (teleportieren), um bessere Pferde zu finden oder an exklusiveren Turnieren teilzunehmen.
+- [ ] Fahrtkosten: gering, je nach Entfernung und Fahrzeugstufe
 
 ## 7. Welt
 - [ ] Tag/Nacht-Rhythmus
@@ -139,10 +147,19 @@ Man kauft einen Pferdeanhänger. Entscheidend ist das Zugfahrzeug: anfangs Fahrr
 
 ### Gebiete
 - [ ] Sehr groß, mit Natur, Wiesen, Bäumen, Flüssen, Brücken, Häusern usw.
+- [ ] Lassen sich zu Fuß oder (besser) reitend erkunden
 - [ ] Jedes Gebiet hat eine eigene Farbpalette für Boden und Bäume
 - [ ] Enthalten wilde Pferde und Schätze zum Aufspüren
+- [ ] Je weiter entfernt, desto häufiger seltene Rassen und Farben, hohe Gen-Stats und gute Schätze
+- [ ] Wildpferde wechseln nach einigen Tagen (alte verschwinden, neue kommen)
 - [ ] Das Startgebiet ist ohne Fahrzeug erreichbar, weitere Gebiete erfordern eine höhere Fahrzeugklasse
 - [ ] Das Grundstück liegt im Startgebiet und lässt sich auf das ganze Startgebiet erweitern
+
+### Karte
+- [ ] Zeigt das aktuelle Gebiet (nur Erkundetes)
+- [ ] Zeigt Spieler mit Blickrichtung, gezähmte Pferde, Haus oder Fahrzeug
+- [ ] Markiert, was ein Pferd mit hoher Aufspürung wittert (Schätze, Wildpferde)
+- [ ] Nur bei Bedarf aufrufbar, nicht dauerhaft sichtbar
 
 ### Regierungsreformen
 Ereignissystem: Alle paar Tage verkündet eine Zeitung eine Reform, die für einige Tage die Regeln ändert.
