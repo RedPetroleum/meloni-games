@@ -8,6 +8,7 @@ local Stage = require("game.stage")
 local Menu = require("game.menu")
 local Tiles = require("game.tiles")
 local Explore = require("game.explore")
+local SFX = require("game.sfx")
 
 local Screens = {}
 
@@ -51,16 +52,17 @@ function Screens.keyboard(title, text, max, on_done)
   local function len(str) return utf8.len(str) or #str end
   function s.update(nav)
     local row = chars[cy]
-    if btnp(BTN_LEFT) then cx = cx - 1 end
-    if btnp(BTN_RIGHT) then cx = cx + 1 end
-    if btnp(BTN_UP) then cy = cy - 1 end
-    if btnp(BTN_DOWN) then cy = cy + 1 end
+    if btnp(BTN_LEFT) then cx = cx - 1; SFX.select() end
+    if btnp(BTN_RIGHT) then cx = cx + 1; SFX.select() end
+    if btnp(BTN_UP) then cy = cy - 1; SFX.select() end
+    if btnp(BTN_DOWN) then cy = cy + 1; SFX.select() end
     cy = (cy - 1) % #chars + 1
     row = chars[cy]
     cx = (cx - 1) % #row + 1
     if btnp(BTN_B) then
       if len(text) > 0 then text = text:sub(1, utf8.offset(text, -1) - 1) else nav.pop() end
     elseif btnp(BTN_A) then
+      SFX.key()
       local key = row[cx]
       if key == "LÖSCHEN" then
         if len(text) > 0 then text = text:sub(1, utf8.offset(text, -1) - 1) end
@@ -182,10 +184,10 @@ function Screens.horses(ctx)
   local s = {}
   function s.update(nav)
     local n = #ctx.herd
-    if btnp(BTN_UP) and n > 0 then sel = (sel - 2) % n + 1 end
-    if btnp(BTN_DOWN) and n > 0 then sel = sel % n + 1 end
-    if btnp(BTN_B) then nav.pop() end
-    if btnp(BTN_A) and n > 0 then nav.push(Screens.info(ctx, ctx.herd[sel])) end
+    if btnp(BTN_UP) and n > 0 then sel = (sel - 2) % n + 1; SFX.select() end
+    if btnp(BTN_DOWN) and n > 0 then sel = sel % n + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and n > 0 then SFX.ok() nav.push(Screens.info(ctx, ctx.herd[sel])) end
   end
   function s.draw()
     cls(C.panel)

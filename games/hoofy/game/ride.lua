@@ -4,6 +4,7 @@
 local K = require("game.katalog")
 local H = require("game.horse_model")
 local Care = require("game.care")
+local SFX = require("game.sfx")
 local Body = require("lib.body")
 local U = require("lib.util")
 
@@ -46,6 +47,7 @@ function R.mount(ctx, horse)
   for i, h in ipairs(ctx.lead) do
     if h == horse then table.remove(ctx.lead, i) break end
   end
+  SFX.mount()
   horse.state, horse.rider, horse.moving = "ridden", p, false
   p.riding = horse
   p.x, p.y = horse.x, horse.y
@@ -97,6 +99,13 @@ function R.update(p)
     p.moving = (ok_x and dx ~= 0) or (ok_y and dy ~= 0)
     if p.moving then
       p.anim = p.anim + (p.running and 0.18 or 0.11)
+      -- Hufschlag: Galopp dichter und lauter als Schritt (nicht in der Luft)
+      p.hoof_t = (p.hoof_t or 0) + 1
+      local every = p.running and 8 or 15
+      if p.hoof_t >= every and p.jump_t == 0 then
+        p.hoof_t, p.hoof_n = 0, (p.hoof_n or 0) + 1
+        SFX.hoof(p.running, p.hoof_n)
+      end
       ctx.trail:push(p.x, p.y)
       -- Staub beim Galopp
       p.dust_t = p.dust_t - 1
@@ -123,6 +132,7 @@ function R.update(p)
     if p.jump_t > R.JUMP_FRAMES then
       -- Landen nur auf freiem Boden, sonst in der Luft weiterrutschen (höchstens 30 Frames)
       if Body.free(ctx.map, p.x, p.y, p.fw, p.fh) then
+        SFX.land()
         p.jump_t, p.air, p.clear = 0, 0, nil
       elseif p.jump_t > R.JUMP_FRAMES + 30 then
         p.x, p.y = p.jump_x, p.jump_y
@@ -141,6 +151,7 @@ function R.jump(p)
   if p.jump_t > 0 or d.energie < K.stats.energie.sprung then return false end
   d.energie = d.energie - K.stats.energie.sprung
   Care.train(d, "staerke", 0.2)        -- Sprung trainiert Stärke (E31)
+  SFX.jump()
   p.jump_t, p.air = 1, 0
   p.jump_x, p.jump_y = p.x, p.y
   return true

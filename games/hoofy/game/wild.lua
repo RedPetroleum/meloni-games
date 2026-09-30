@@ -8,6 +8,7 @@ local Body = require("lib.body")
 local Bubbles = require("game.bubbles")
 local Leash = require("game.leash")
 local Ride = require("game.ride")
+local SFX = require("game.sfx")
 local Farm = require("game.farm")
 local Rng = require("lib.rng")
 local U = require("lib.util")
@@ -144,7 +145,7 @@ function Horse:update()
     if d > LEAVE then
       set_state(self, "graze", 60)
     elseif self.state == "away" then
-      if self.timer <= 0 then set_state(self, "warn", WARN); self:face(p) end
+      if self.timer <= 0 then set_state(self, "warn", WARN); self:face(p); SFX.warn() end
     elseif self.state == "warn" then
       if self.timer <= 0 then set_state(self, "look", 60 + flr(rnd() * 60)) end
     elseif self.state == "look" then
@@ -179,6 +180,7 @@ function Horse:face(p)
 end
 
 function Horse:flee(p)
+  SFX.whinny()
   set_state(self, "flee", 90)
   local ax, ay = self.x - p.x, self.y - p.y
   local n = max(1, U.dist(0, 0, ax, ay))
@@ -316,6 +318,8 @@ function Wild:escape(h)
   local ax, ay = h.x - p.x, h.y - p.y
   local n = max(1, U.dist(0, 0, ax, ay))
   h.vx, h.vy = ax / n * 1.8, ay / n * 1.8
+  SFX.snap()
+  SFX.whinny()
   h.state, h.timer = "escape", 70
   h.scared = true
   self.ctx.escaped = h

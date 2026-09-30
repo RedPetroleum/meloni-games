@@ -137,8 +137,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Screenshot nach einem Erkundungsritt.
   *Erledigt:* `game/explore.lua`, `Screens.map`, SELECT-Antippen in `game/world.lua`. Screenshot:
   Szenario `ritt` mit `screen = "none"`, Aufsitzen per Menü, Ritt, SELECT (19 % erkundet). E36.
-- [ ] **A16 Töne**: Hufe, Wiehern, Menü-Klicks, ruhige Melodie tags/nachts.
+- [x] **A16 Töne**: Hufe, Wiehern, Menü-Klicks, ruhige Melodie tags/nachts.
   Prüfung: WAV-Ausgabe erzeugt, Protokoll nennt, was zu hören ist.
+  *Erledigt:* `game/sfx.lua` (E37), Hooks in Menü, Reiten, Wildpferden, Pflege, Tageszeit.
+  WAVs `runner/build/meloni-run --headless --frames 420 --wav out.wav games/hoofy` (mit `--save` auf
+  eine Datei `return {scenario = "ritt", screen = "none"}`). Geprüft mit Lautstärke je 50 ms.
 - [ ] **A-Ende**: Cover, README-Tabelle, version 0.1.0, Konsolen-Checkliste, Push.
 
 ### B Wirtschaft und Zucht

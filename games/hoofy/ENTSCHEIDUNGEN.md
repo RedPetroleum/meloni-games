@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E37** (A16) Töne: Menü-Klicks (Bewegen, Bestätigen, Zurück, Tastatur), Hufschlag beim Reiten
+  (Schritt alle 15 Frames leise, Galopp alle 8 Frames lauter), Wiehern beim Fliehen und
+  Ausreißen, Warnton bei ❗, Jingles beim Zähmen, Streicheln, Dämmerung und Morgen, Sprung und
+  Landung, Fressen, Striegeln, Reißen der Leine. Hintergrundmusik: tagsüber eine ruhige Dreieck-
+  Melodie (96 bpm), nachts eine langsame Sinus-Melodie mit Pausen (56 bpm), beide leise.
 - **E36** (A15) Karte: Zellen zu 4×4 Kacheln gelten als erkundet, sobald ein Stück davon im Bild
   war (nachts im Sichtkreis). 1 Kachel = 2 Pixel, unerkundet dunkel. Hof-Grundstück und Dorf mit
   Namen, sobald ihre Mitte erkundet ist; Pferde gelbe Punkte, Spieler roter Punkt mit Pfeil.

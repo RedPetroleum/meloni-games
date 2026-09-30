@@ -1,5 +1,6 @@
 -- Kleine Auswahlmenüs (E7): Steuerkreuz wählen, A bestätigen, B zurück.
 local Stage = require("game.stage")
+local SFX = require("game.sfx")
 
 local Menu = {}
 Menu.__index = Menu
@@ -20,10 +21,10 @@ end
 
 -- Liefert die id des gewählten Eintrags, "close" bei B, sonst nil.
 function Menu:update()
-  if btnp(BTN_UP) then self.sel = (self.sel - 2) % #self.items + 1; self:skip(-1) end
-  if btnp(BTN_DOWN) then self.sel = self.sel % #self.items + 1; self:skip(1) end
-  if btnp(BTN_B) then return "close" end
-  if btnp(BTN_A) then return self.items[self.sel].id end
+  if btnp(BTN_UP) then self.sel = (self.sel - 2) % #self.items + 1; self:skip(-1); SFX.select() end
+  if btnp(BTN_DOWN) then self.sel = self.sel % #self.items + 1; self:skip(1); SFX.select() end
+  if btnp(BTN_B) then SFX.back() return "close" end
+  if btnp(BTN_A) then SFX.ok() return self.items[self.sel].id end
 end
 
 -- Zeichnet das Menü mit der oberen linken Ecke bei x, y (Bildschirmkoordinaten).

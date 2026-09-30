@@ -82,6 +82,7 @@ function WorldScene.enter(arg)
     wild:fill()
   end
   ctx.wild = wild
+  ctx.sfx.music(clock:is_night() and "night" or "day")
   ctx.save = function() end
   ctx.saving_ok = saving
   ctx.toast = function(text) toast = {text = text, t = 120} end
@@ -192,6 +193,7 @@ local function do_action(id)
     if id == "close" then return open_menu(h) end
     ctx.inv[id] = ctx.inv[id] - 1
     local name, bond = Care.feed(d, id)
+    ctx.sfx.eat()
     say(d.name .. " frisst " .. name .. ". Bindung +" .. bond .. ".")
     h.heart_t = 90
     menu = nil
@@ -200,6 +202,7 @@ local function do_action(id)
   if id == "close" then menu = nil return end
   if id == "stroke" then
     local add = Care.stroke(d)
+    ctx.sfx.pet()
     h.heart_t = 120
     say(add > 0 and d.name .. " genießt das. Bindung +" .. add .. "." or d.name .. " hatte heute schon genug Streicheleinheiten.")
     menu = nil
@@ -209,6 +212,7 @@ local function do_action(id)
     open_house(h)
   elseif id == "brush" then
     local add = Care.brush(d)
+    ctx.sfx.brush()
     say(d.name .. " glänzt. Sauberkeit +" .. add .. ".")
     menu = nil
   elseif id == "leash" then
@@ -225,6 +229,7 @@ local function do_action(id)
       say(d.name .. ": aufgesessen!", 90)
       mounted_hold = true
     else
+      ctx.sfx.snort()
       say(d.name .. " verweigert das Reiten!")
     end
     menu = nil
@@ -270,7 +275,7 @@ function WorldScene.update()
   end
   if btnp(BTN_START) and not btn(BTN_SELECT) then
     nav.push(Screens.pause(ctx, nav))
-    ctx.sfx.select()
+    ctx.sfx.ok()
     return
   end
   -- SELECT allein (beim Loslassen, wenn dabei nichts anderes gedrückt wurde): Karte (E6)
@@ -298,9 +303,13 @@ function WorldScene.update()
   if t % 20 == 1 then WorldScene.explore() end
   local ev = clock:update()
   if ev == "dusk" then
+    ctx.sfx.dusk()
+    ctx.sfx.music("night")
     Days.dusk(ctx)
     say("Es wird dunkel.", 120)
   elseif ev == "day" then
+    ctx.sfx.dawn()
+    ctx.sfx.music("day")
     Days.new_day(ctx, clock.day)
     say("Tag " .. clock.day .. " beginnt.", 150)
   end
@@ -317,7 +326,7 @@ function WorldScene.update()
         toast = {text = "Abgestiegen.", t = 60}
       end
     else
-      if a_hold > 0 and a_hold < 20 and p.riding and Ride.jump(p) then ctx.sfx.select() end
+      if a_hold > 0 and a_hold < 20 and p.riding then Ride.jump(p) end
       a_hold = 0
     end
   elseif btnp(BTN_A) then
@@ -326,7 +335,7 @@ function WorldScene.update()
     if h then
       local how = h.state == "follow" and "gezähmt, folgt dir." or "gezähmt, an der Leine."
       toast = {text = h.data.name .. " ist " .. how, t = 150}
-      ctx.sfx.start()
+      ctx.sfx.tame()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
     else
       local own = wild:nearest_own()
@@ -336,6 +345,8 @@ function WorldScene.update()
       elseif U.dist(p.x, p.y, ctx.area.places.bett[1] * 16 + 8, ctx.area.places.bett[2] * 16 + 8) <= 26 then
         if clock:sleep() then
           Days.new_day(ctx, clock.day)
+          ctx.sfx.dawn()
+          ctx.sfx.music("day")
           local saved = WorldScene.save()
           say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. (saved and " Gespeichert." or ""), 180)
           ctx.sfx.start()
