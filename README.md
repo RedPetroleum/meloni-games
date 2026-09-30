@@ -39,6 +39,7 @@ beim ersten Mal selbst. Quellen in [web/](web/).
 | [Mieznake](games/mieznake/main.lua) | Snake mit einer flauschigen Britisch Kurzhaar in Blue Silver Shaded Shell: Leckerli sammeln, wachsen und nicht in die Wand oder den eigenen Körper laufen. |
 | [Ausgebüxt!](games/ausgebuext/main.lua) | Die Pferde sind ausgebüxt: vor Sonnenuntergang zurück auf die Koppel führen (A: nehmen/loslassen, B: rennen). Pferde sind brav, faul, scheu oder verfressen, in Level 3 („Zickenalarm“) auch zickig (nur von vorne nehmen, am Strick nicht rennen), launisch (bei Gewitterwolke warten) oder eine Diva (nur allein am Strick, will unterwegs Möhren). Technik-Test für Hoofy: scrollende Kachelkarte in 3/4-Ansicht, Tiefensortierung, Level als Daten |
 | [Kuschelwiese](games/kuschelwiese/main.lua) | Ein ganz liebes Hasenspiel: Hoppel sammelt Möhren auf der Blumenwiese. Bis die Gartenzwerge kommen. Dann Kettensäge (A halten), Hechtsprung (B), Wellen, Combos und sehr viel Pixelblut. Rekord wird gespeichert |
+| [Roller-Rowdy](games/roller-rowdy/main.lua) | Fake-3D-Rennen mit dem Leih-E-Scooter durch den Feierabendverkehr: A Gas, B Bremse, links/rechts lenken. Der Akku ist die Zeit (Ladestationen geben Sekunden), die Polizei holt bei jedem Sturz auf. Autos knapp überholen, über Rampen springen und in der Luft Tricks machen (A Tailwhip, B No-Hander, links/rechts 360), sauber gelandet gibt es Turbo. Rekord und weiteste Fahrt werden gespeichert |
 | [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 
 ## Engine ändern
