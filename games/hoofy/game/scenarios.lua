@@ -51,6 +51,11 @@ function Scenarios.menues(save)
   return "world", {ort = "start", hof = true, screen = save.screen or "pause"}
 end
 
+-- Laden: am Ladeneingang, save.geld setzt das Geld. save.screen = "laden" öffnet ihn gleich.
+function Scenarios.laden(save)
+  return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
+end
+
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
 function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}

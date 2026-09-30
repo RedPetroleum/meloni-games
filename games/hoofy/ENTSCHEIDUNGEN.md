@@ -74,6 +74,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E38** (B1) Laden: A an der Ladentür öffnet einen Bildschirm mit Reitern Futter, Sättel,
+  Zubehör, Schmuck, Samen (nur Samen der erreichbaren Gebiete). Gekauft wird 1 Stück je A. Einmalige
+  Waren (Bürste, Samen) sind danach ausgegraut. Ausrüstung: im Pferdemenü „Ausrüsten“: ein Sattel,
+  Taschen nur mit Sattel (gehen mit ihm ab), Lampe und je ein Stück Schmuck. Bauelemente gibt es erst
+  im Baumodus (C1), die Rückgabe zum Kaufpreis ist schon da (`Economy.refund_building`).
+  Pferdemarkt, Käufer und Wert kommen mit B2/B3.
 - **E37** (A16) Töne: Menü-Klicks (Bewegen, Bestätigen, Zurück, Tastatur), Hufschlag beim Reiten
   (Schritt alle 15 Frames leise, Galopp alle 8 Frames lauter), Wiehern beim Fliehen und
   Ausreißen, Warnton bei ❗, Jingles beim Zähmen, Streicheln, Dämmerung und Morgen, Sprung und

@@ -11,6 +11,7 @@ local Days = require("game.days")
 local Screens = require("game.screens")
 local Save = require("game.save")
 local Explore = require("game.explore")
+local Economy = require("game.economy")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -84,6 +85,7 @@ function WorldScene.enter(arg)
   ctx.wild = wild
   ctx.sfx.music(clock:is_night() and "night" or "day")
   ctx.save = function() end
+  if arg and arg.geld then ctx.money = arg.geld end
   ctx.saving_ok = saving
   ctx.toast = function(text) toast = {text = text, t = 120} end
   if saving then
@@ -107,6 +109,7 @@ function WorldScene.enter(arg)
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "laden" then nav.push(Screens.shop(ctx)) end
     if name == "inventar" then nav.push(Screens.inventory(ctx)) end
   end
 end
@@ -129,6 +132,7 @@ local function open_menu(h)
       {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1},
       {label = led and "Leine lösen" or "Anleinen", id = "leash"},
       {label = "Aufsitzen", id = "mount"},
+      {label = "Ausrüsten", id = "gear"},
       {label = "Unterbringen", id = "house"},
       {label = "Info", id = "info"},
     }, h.data.name),
@@ -144,6 +148,34 @@ local function open_food(h)
     items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1}
   end
   menu.stage, menu.m = "food", Menu.new(items, "Füttern")
+end
+
+-- Ausrüstung: anlegen aus dem Vorrat, ablegen was getragen wird.
+local function gear_items(d)
+  local items = {}
+  local worn = {}
+  if d.sattel then worn[#worn + 1] = d.sattel end
+  if d.taschen then worn[#worn + 1] = d.taschen end
+  if d.lampe then worn[#worn + 1] = "sattellampe" end
+  for _, j in ipairs(Economy.JEWELRY) do if d.schmuck and d.schmuck[j] then worn[#worn + 1] = j end end
+  for _, id in ipairs(worn) do
+    items[#items + 1] = {label = "ab: " .. Economy.find(id).name, id = "ab:" .. id}
+  end
+  local all = {}
+  for _, id in ipairs(Economy.SLOTS.sattel) do all[#all + 1] = id end
+  for _, id in ipairs(Economy.SLOTS.taschen) do all[#all + 1] = id end
+  all[#all + 1] = "sattellampe"
+  for _, id in ipairs(Economy.JEWELRY) do all[#all + 1] = id end
+  for _, id in ipairs(all) do
+    local n = ctx.inv[id] or 0
+    if n > 0 then items[#items + 1] = {label = "an: " .. Economy.find(id).name .. " x" .. n, id = "an:" .. id} end
+  end
+  if #items == 0 then items[1] = {label = "Nichts im Vorrat", id = "none", dim = true} end
+  return items
+end
+
+local function open_gear(h)
+  menu.stage, menu.m = "gear", Menu.new(gear_items(h.data), "Ausrüstung " .. h.data.name)
 end
 
 local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei"}
@@ -182,6 +214,19 @@ local function do_action(id)
     end
     return
   end
+  if menu.stage == "gear" then
+    if id == "close" then return open_menu(h) end
+    local kind, what = id:match("^(%a+):(.+)$")
+    if kind == "an" then
+      local ok, why = Economy.equip(ctx, d, what)
+      say(ok and d.name .. " trägt: " .. Economy.find(what).name .. "." or "Geht nicht: " .. tostring(why) .. ".")
+    elseif kind == "ab" then
+      Economy.unequip(ctx, d, what)
+      say(d.name .. " trägt " .. Economy.find(what).name .. " nicht mehr.")
+    end
+    menu = nil
+    return
+  end
   if menu.stage == "house" then
     if id == "close" then return open_menu(h) end
     local ok, why = wild:house(h, id)
@@ -210,6 +255,8 @@ local function do_action(id)
     open_food(h)
   elseif id == "house" then
     open_house(h)
+  elseif id == "gear" then
+    open_gear(h)
   elseif id == "brush" then
     local add = Care.brush(d)
     ctx.sfx.brush()
@@ -353,6 +400,9 @@ function WorldScene.update()
         else
           say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)
         end
+      elseif ctx.area.places.laden and U.dist(p.x, p.y, ctx.area.places.laden[1] * 16 + 8, ctx.area.places.laden[2] * 16 + 8) <= 26 then
+        nav.push(Screens.shop(ctx))
+        ctx.sfx.ok()
       elseif wild:at_stall_door() and #wild:in_stall() > 0 then
         open_stall()
         ctx.sfx.select()

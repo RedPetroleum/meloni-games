@@ -9,6 +9,7 @@ local Menu = require("game.menu")
 local Tiles = require("game.tiles")
 local Explore = require("game.explore")
 local SFX = require("game.sfx")
+local Economy = require("game.economy")
 
 local Screens = {}
 
@@ -212,6 +213,79 @@ function Screens.horses(ctx)
   return s
 end
 
+-- ---- Laden (E13): Menübildschirm an der Tür, keine begehbaren Innenräume ----
+
+function Screens.shop(ctx)
+  local cat, sel, msg, msg_t = 1, 1, nil, 0
+  local function items()
+    local out = {}
+    local id = Economy.CATEGORIES[cat].id
+    for _, it in ipairs(Economy.catalog(ctx.max_gebiet or 1)) do
+      if it.kat == id then out[#out + 1] = it end
+    end
+    return out
+  end
+  local s = {full = true}
+  function s.update(nav)
+    local list = items()
+    if btnp(BTN_LEFT) then cat = (cat - 2) % #Economy.CATEGORIES + 1; sel = 1; SFX.select() end
+    if btnp(BTN_RIGHT) then cat = cat % #Economy.CATEGORIES + 1; sel = 1; SFX.select() end
+    if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and list[sel] then
+      local ok, why = Economy.buy(ctx, list[sel].id)
+      if ok then
+        SFX.eat()
+        msg = list[sel].name .. " gekauft."
+      else
+        SFX.snort()
+        msg = why == "Geld" and "Zu wenig Geld." or "Hast du schon."
+      end
+      msg_t = 120
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Laden")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    -- Reiter
+    local x = 6
+    for i, c in ipairs(Economy.CATEGORIES) do
+      local w = textw(c.name) + 10
+      rectfill(x, 18, x + w - 1, 30, i == cat and C.gold or C.panel_light)
+      print(c.name, x + 5, 21, i == cat and C.panel or C.text)
+      x = x + w + 3
+    end
+    local list = items()
+    local y = 38
+    local first = max(1, sel - 8)
+    for i = first, min(#list, first + 8) do
+      local it = list[i]
+      local price = Economy.price(ctx, it)
+      local n = Economy.owned(ctx, it.id)
+      local can = ctx.money >= price and not (it.einmalig and n > 0)
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
+      print(it.name, 10, y, can and (i == sel and C.gold or C.text) or C.dim)
+      print(price .. " G", 210, y, can and C.gold or C.dim)
+      print(n > 0 and ("x" .. n) or "", 270, y, C.dim)
+      y = y + 14
+    end
+    local cur = list[sel]
+    if cur then
+      rectfill(0, 172, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
+      local t = (cur.text:gsub("−", "-"))
+      local lines = require("lib.util").wrap(t, SCREEN_W - 16)
+      for i, line in ipairs(lines) do if i <= 4 then print(line, 8, 176 + (i - 1) * 10, C.dim) end end
+    end
+    if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
+    footer("A: kaufen   </>: Reiter   B: zurück")
+  end
+  return s
+end
+
 -- ---- Inventar ----
 
 function Screens.inventory(ctx)
@@ -222,23 +296,27 @@ function Screens.inventory(ctx)
   function s.draw()
     cls(C.panel)
     header("Inventar")
-    print("Geld: " .. ctx.money .. " G", 20, 24, C.gold)
-    print("Futter", 20, 44, C.gold)
-    local y = 56
-    for _, f in ipairs(K.futter.kaufen) do
-      if f.id ~= "buerste" then
-        local n = ctx.inv[f.id] or 0
-        print(f.name, 28, y, n > 0 and C.text or C.dim)
-        print("x" .. n, 150, y, n > 0 and C.text or C.dim)
-        print((f.text:gsub("−", "-")):sub(1, 17), 185, y, C.dim)
-        y = y + 12
+    print("Geld: " .. ctx.money .. " G", 20, 20, C.gold)
+    local y, col = 36, 0
+    for _, c in ipairs(Economy.CATEGORIES) do
+      local lines = {}
+      for _, it in ipairs(Economy.catalog(6)) do
+        local n = Economy.owned(ctx, it.id)
+        if it.kat == c.id and (n > 0 or (c.id == "futter" and it.id ~= "buerste")) then
+          lines[#lines + 1] = {it.name, n}
+        end
+      end
+      if #lines > 0 then
+        print(c.name, 20, y, C.gold)
+        y = y + 11
+        for _, l in ipairs(lines) do
+          print(l[1], 28, y, l[2] > 0 and C.text or C.dim)
+          print("x" .. l[2], 200, y, l[2] > 0 and C.text or C.dim)
+          y = y + 10
+        end
+        y = y + 4
       end
     end
-    y = y + 8
-    print("Sonstiges", 20, y, C.gold)
-    y = y + 12
-    print("Bürste", 28, y, (ctx.inv.buerste or 0) > 0 and C.text or C.dim)
-    print("x" .. (ctx.inv.buerste or 0), 150, y, C.dim)
     footer("B: zurück")
   end
   s.full = true

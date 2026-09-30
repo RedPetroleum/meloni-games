@@ -19,4 +19,5 @@ return {
   "speichern",
   "erkundung",
   "toene",
+  "laden",
 }

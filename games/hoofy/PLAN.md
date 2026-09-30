@@ -158,9 +158,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### B Wirtschaft und Zucht
 
-- [ ] **B1 Geld und Laden**: Startgeld 300, Laden im Dorf (Futter, Bürste, Sättel, Schmuck,
+- [x] **B1 Geld und Laden**: Startgeld 300, Laden im Dorf (Futter, Bürste, Sättel, Schmuck,
   Satteltaschen, Samen), Hausinventar, Bauelemente zum Kaufpreis zurück.
   Prüfung: Szenario `laden`, Screenshot; Selbsttest Kauf/Verkauf.
+  *Erledigt:* `game/economy.lua`, Ladenbildschirm, Ausrüsten im Pferdemenü, Inventar nach Kategorien.
+  Szenario `laden` (`SCENARIO_OPTS='geld = 120'`). E38.
 - [ ] **B2 Pferdewert und Markt**: Formel KATALOG §6, Pferdemarkt (kaufen × 1,3).
   Prüfung: Selbsttest Beispielwerte.
 - [ ] **B3 Käufer**: täglich ein Käufer am Hof, 4 Typen mit Formeln, Folgen und mehreren
