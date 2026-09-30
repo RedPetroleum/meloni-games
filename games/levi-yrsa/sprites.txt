@@ -1,0 +1,277 @@
+# Grafik von Levi & Yrsa: ein Zeichen pro Pixel, "." ist durchsichtig.
+# Levi: dicker weißgrauer Britisch Kurzhaar, grünblaue Augen. Yrsa: kleiner, dünner, braungrau getigert, grüne Augen.
+# Alle Katzen schauen nach rechts, nach links wird gespiegelt.
+
+palette
+k 3b3640   Umriss Levi
+L c9ccd4   Levi Fell
+g a3a8b3   Levi Schatten
+W f6f6f2   Weiß
+n e8a0ac   Nase, Ohr innen
+e 3cc4b4   Auge grünblau
+p 16202a   Pupille
+y 2e2620   Umriss Yrsa
+T 8e7e6c   Yrsa Fell
+s 544538   Yrsa Streifen
+c c9b8a0   Yrsa hell
+G 86d23a   Auge grün
+R d04848   Rot
+B 8cc8f0   Wasser
+b e0ecf4   Glas
+P 4e74c8   Vase
+Q 9ab4ee   Vase hell
+O c8683a   Topf
+o 94462a   Topf dunkel
+f 3a7e36   Blatt dunkel
+F 6cc05a   Blatt hell
+M d8c8a8   Motte
+m 8a7a60   Motte dunkel
+h 6a4a3a   Haare
+K f0c8a0   Haut
+J 6a88c8   Schlafanzug
+j 44609c   Schlafanzug dunkel
+Y ffe07a   Gelb
+
+sprite levi_walk1
+................kk....kk..
+...............kLnk..knLk.
+..............kLLLLLLLLLLk
+.kk..........kLLLLLLLLLLLk
+kLLk.........kLLLLLLLeeLLk
+kLgk.kkkkkkkkLLLLLLLepLWWk
+.kLkkLLLLLLLLLLLLLLLLLWWWn
+..kLLLLLLLLLLLLLLLLLLLWWkk
+..kLLLLLLLLLLLLLLLLLLWWWWk
+..kLLLLLLLLLLLLLLLLLWWWWk.
+..kLLLLLLLLLLLLLLLLWWWWWk.
+..kgLLLLLLLLLLLLLLWWWWWk..
+..kggLLLLLLLLLLLLWWWWWWk..
+..kgggLLLLLLLLLLWWWWWWk...
+...kggWWWWWWWWWWWWWWWk....
+...kWWkkkkkkkkkkkWWk......
+...kWWk.........kWWk......
+...kkkk.........kkkk......
+
+sprite levi_walk2
+................kk....kk..
+...............kLnk..knLk.
+..............kLLLLLLLLLLk
+.kk..........kLLLLLLLLLLLk
+kLLk.........kLLLLLLLeeLLk
+kLgk.kkkkkkkkLLLLLLLepLWWk
+.kLkkLLLLLLLLLLLLLLLLLWWWn
+..kLLLLLLLLLLLLLLLLLLLWWkk
+..kLLLLLLLLLLLLLLLLLLWWWWk
+..kLLLLLLLLLLLLLLLLLWWWWk.
+..kLLLLLLLLLLLLLLLLWWWWWk.
+..kgLLLLLLLLLLLLLLWWWWWk..
+..kggLLLLLLLLLLLLWWWWWWk..
+..kgggLLLLLLLLLLWWWWWWk...
+...kggWWWWWWWWWWWWWWWk....
+...kkkWWkkkkkkWWkkkk......
+.....kWWk....kWWk.........
+.....kkkk....kkkk.........
+
+sprite levi_jump
+................kk....kk..
+...............kLnk..knLk.
+..............kLLLLLLLLLLk
+.kk..........kLLLLLLLLLLLk
+kLLk.........kLLLLLLLeeLLk
+kLgk.kkkkkkkkLLLLLLLepLWWk
+.kLkkLLLLLLLLLLLLLLLLLWWWn
+..kLLLLLLLLLLLLLLLLLLLWWkk
+..kLLLLLLLLLLLLLLLLLLWWWWk
+..kLLLLLLLLLLLLLLLLLWWWWk.
+..kLLLLLLLLLLLLLLLLWWWWWk.
+..kgLLLLLLLLLLLLLLWWWWWk..
+..kggLLLLLLLLLLLLWWWWWWk..
+.kkgggLLLLLLLLLLWWWWWWkkk.
+kWWkggWWWWWWWWWWWWWWkWWWk.
+kkkkkkkkkkkkkkkkkkkkkkkk..
+
+sprite levi_loaf
+..........................
+..........................
+................kk....kk..
+...............kLnk..knLk.
+..............kLLLLLLLLLLk
+.............kLLLLLLLLLLLk
+.............kLLLLLLLkkLLk
+.....kkkkkkkkLLLLLLLLLLWWk
+....kLLLLLLLLLLLLLLLLLWWWn
+...kLLLLLLLLLLLLLLLLLLWWkk
+..kLLLLLLLLLLLLLLLLLLWWWWk
+..kLLLLLLLLLLLLLLLLLWWWWk.
+..kLLLLLLLLLLLLLLLLWWWWWk.
+..kgLLLLLLLLLLLLLLWWWWWk..
+.kkggLLLLLLLLLLLLWWWWWWk..
+kLgggLLLLLLLLLLLWWWWWWWk..
+kLLLgggggggggggWWWWWWWWk..
+.kkkkkkkkkkkkkkkkkkkkkk...
+
+sprite yrsa_walk1
+..............y....y..
+.............yTy..yTy.
+y............ysTTsTTy.
+yy..........yTTTTTTTTy
+.y..........yTsTTTGGTy
+.yy.........yTsTTTGpcy
+..y.yyyyyyyyTTTTTTTccn
+..yysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTcccy.
+...yTTTTTTTTTTTTccccy.
+....yccccccccccccccy..
+....yTTyyyyyyyyyTTy...
+....yTTy.......yTTy...
+....yyyy.......yyyy...
+
+sprite yrsa_walk2
+..............y....y..
+.............yTy..yTy.
+y............ysTTsTTy.
+yy..........yTTTTTTTTy
+.y..........yTsTTTGGTy
+.yy.........yTsTTTGpcy
+..y.yyyyyyyyTTTTTTTccn
+..yysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTcccy.
+...yTTTTTTTTTTTTccccy.
+....yccccccccccccccy..
+....yyyTTyyyyTTyyyy...
+......yTTy..yTTy......
+......yyyy..yyyy......
+
+sprite yrsa_jump
+..............y....y..
+.............yTy..yTy.
+y............ysTTsTTy.
+yy..........yTTTTTTTTy
+.y..........yTsTTTGGTy
+.yy.........yTsTTTGpcy
+..y.yyyyyyyyTTTTTTTccn
+..yysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTTccy.
+...ysTTsTTsTTsTTTcccy.
+..yyTTTTTTTTTTTTccccyy
+.yTTyccccccccccccyTTTy
+.yyyyyyyyyyyyyyyyyyyy.
+
+sprite yrsa_loaf
+......................
+......................
+......................
+..............y....y..
+.............yTy..yTy.
+.............ysTTsTTy.
+............yTTTTTTTTy
+............yTsTTTyyTy
+.....yyyyyyyTTsTTTTccn
+....ysTTsTTsTTsTTTTccy
+...ysTTsTTsTTsTTTTcccy
+...ysTTsTTsTTsTTTcccy.
+..yTTTTTTTTTTTTTccccy.
+.ysssyccccccccccccy...
+.yyyyyyyyyyyyyyyyyy...
+
+sprite cup
+.yyyyyyy...
+yWWWWWWWyy.
+yWRWWWRWy.y
+yWWWRWWWy.y
+yWRWWWRWy.y
+yWWWWWWWyy.
+.yWWWWWy...
+..yyyyy....
+
+sprite glass
+y......y
+yb.....y
+yb.....y
+yb.....y
+ybBBBBBy
+ybBBBBBy
+yBBBBBBy
+yBBBBBBy
+.yBBBBy.
+..yyyy..
+
+sprite vase
+...kkkkkk...
+....kQPk....
+....kQPk....
+...kQPPPk...
+..kQPPPPPk..
+.kQPPPPPPPk.
+kQPPWPPPWPPk
+kQPPPPPPPPPk
+kQPWPPPPPWPk
+kQPPPPPPPPPk
+kQPPPWPWPPPk
+.kQPPPPPPPk.
+..kQPPPPPk..
+...kQPPPk...
+...kkkkkk...
+
+sprite plant
+.....f...f....
+..f..fF.fF..f.
+...f.fFfFf.f..
+.f.ffFFFFFff.f
+..fFfFfFFfFf..
+...ffFFFFFf...
+....fFfFFf....
+yyyyyyyyyyyyyy
+yOOOOOOOOOOOOy
+.yOOOOOOOOOOy.
+.yOoOOOOOOoOy.
+.yOOOOOOOOOOy.
+..yOOOOOOOOy..
+..yOoOOOOoOy..
+..yyyyyyyyyy..
+
+sprite moth1
+y.....y
+MMy.yMM
+MMMyMMM
+.mMyMm.
+...y...
+
+sprite moth2
+.M...M.
+mMM.MMm
+.MMyMM.
+...y...
+...y...
+
+sprite human
+....hhhh....
+...hhhhhh...
+..hhKKKKhh..
+..hKKKKKKh..
+..hKpKKpKh..
+...KKKKKK...
+...KKnnKK...
+....KKKK....
+..JJJJJJJJ..
+.JJJJJJJJJJ.
+JJJjJJJJjJJJ
+JJJjJJJJjJJJ
+JJ.jJJJJj.JJ
+JJ.JJJJJJ.JJ
+KK.JJJJJJ.KK
+KK.jjjjjj.KK
+...JJJJJJ...
+...JJJJJJ...
+...JJJ.JJJ..
+...JJJ.JJJ..
+...jJJ.JJj..
+...JJJ.JJJ..
+...JJJ.JJJ..
+...JJJ.JJJ..
+...jJJ.JJj..
+...JJJ.JJJ..
+...KKK.KKK..
+..KKKK.KKKK.
