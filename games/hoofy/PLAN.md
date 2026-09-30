@@ -28,9 +28,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: `make test` grün, Screenshot zeigt die Welt (nicht den Titel).
   *Erledigt:* Szenen `game/title.lua`, `game/world.lua`, `lib/` und `sprites.txt` aus Ausgebüxt,
   Platzhalter-Karte `game/maps.lua` (ersetzt A1; `lib/tilemap.lua` hat noch Tabellen je Kachel).
-- [ ] **0.2 Test-Werkzeug**: `game/scenarios.lua`, Szenario `selftest`, `tools/hoofy-test.sh` (siehe LOOP.md).
+- [x] **0.2 Test-Werkzeug**: `game/scenarios.lua`, Szenario `selftest`, `tools/hoofy-test.sh` (siehe LOOP.md).
   Prüfung: `tools/hoofy-test.sh selftest` loggt `SELFTEST OK`; ein absichtlich falscher Test
   lässt es mit Status 1 enden (danach wieder entfernen).
+  *Erledigt:* beides geprüft. Szenario = Funktion in `game/scenarios.lua`, Testmodule in
+  `game/tests/list.lua` eintragen, Prüfhelfer `game/tests/check.lua`, `SCENARIO_OPTS='only = "util"'`.
 - [ ] **0.3 Katalog-Generator**: `tools/hoofy_katalog.py` liest die Tabellen aus KATALOG.md und
   schreibt `games/hoofy/data/*.lua` (je Abschnitt ein Modul), läuft bei `make test/shot/run` mit.
   Prüfung: Selbsttest: 12 Rassen, Mustang Tempo 40, Einhorn Grundwert 10000, 30 Farben in 5 Stufen,

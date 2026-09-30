@@ -17,7 +17,13 @@ local function go(name, ...)
 end
 
 function _init()
-  go("title")
+  -- Test-Spielstand {scenario = "…"} (tools/hoofy-test.sh): direkt in diese Ausgangslage.
+  local save = loaddata()
+  if save and save.scenario then
+    go(require("game.scenarios").start(save))
+  else
+    go("title")
+  end
 end
 
 function _update()
