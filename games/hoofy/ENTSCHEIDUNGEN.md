@@ -193,3 +193,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Grundwert, also oft mehr als der Wert des Pferds (Haflinger: Wert 330, Schlachter 340; Shetlandpony
   Wert 126, Schlachter 295). Damit ist der Schlachter für billige Pferde der beste Käufer und die Folge
   (−10 Bindung für alle) der einzige Preis. Vorschlag: Gewicht-Term durch einen Faktor auf den Wert ersetzen.
+- **(B8)** Simulation `game/sim.lua` (12 Seeds, 60 Tage; alle 2 Tage ein gezähmtes Wildpferd, zwei Pferde
+  arbeiten täglich im besten Job, überzählige gehen an den Käufer des Tages, Heu bei Hunger, Bestellungen
+  geliefert; ohne Turniere, Anbau, Funde, Reformen). Tage bis zum Ziel gegen KATALOG §15:
+  Fahrrad (400) 4,2 · Phase 1 (900) 7,5 (Katalog: 8) · Mofa (2 000) 11,8 · Phase 2 (3 700) 18,1 (Katalog: 19).
+  Die Werte passen also zur Beispielrechnung. Einnahmen netto im Mittel 277 G/Tag: Verkäufe 178, Jobs 101,
+  Bestellungen 7, Futter −8. Auffällig: Der Verkauf überzähliger Wildpferde trägt fast zwei Drittel, Jobs
+  allein wären nur ~100 G/Tag (Katalog nimmt für Phase 1 ~80 an). Mit Turnieren kämen noch etwas dazu;
+  Phase 1 ginge dann schneller als 8 Tage. Futterkosten 8 G/Tag liegen unter den 11 des Katalogs, weil die
+  Steuer (E4) fehlt und Hafer/Premium nicht gekauft werden. Zahlen nicht geändert.

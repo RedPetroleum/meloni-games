@@ -189,9 +189,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Malus je Verwandtschaftsgrad; Screenshot.
   *Erledigt:* `Breeding.verwandtschaft/inzucht_malus`, `Screens.stammbaum`, Szenario `stammbaum`
   (4 Generationen, Screenshot). Malus −15/−8/−3 %: Fohlen-Mittel 50 → 42,5 / 46 / 48,5. E44.
-- [ ] **B8 Wirtschaft prüfen**: Simulation einer einfachen Spielweise über 20 Tage, Vergleich
+- [x] **B8 Wirtschaft prüfen**: Simulation einer einfachen Spielweise über 20 Tage, Vergleich
   mit KATALOG §15 Phase 1–2. Abweichungen nur in ENTSCHEIDUNGEN.md unter „Balance“ melden.
   Prüfung: Protokoll mit Tagen bis Fahrrad und Mofa.
+  *Erledigt:* `game/sim.lua`, Selbsttest `wirtschaft` (loggt `WIRTSCHAFT …`). Fahrrad Tag 4,2, Phase 1
+  Tag 7,5, Mofa Tag 11,8, Phase 2 Tag 18,1. Befund unter „Balance“ in ENTSCHEIDUNGEN.md.
 - [ ] **B-Ende**: Cover, version 0.2.0, Konsolen-Checkliste, Push.
 
 ### C Hof bauen

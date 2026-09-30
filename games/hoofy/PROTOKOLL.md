@@ -60,3 +60,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:28 | Release nach B6 | fertig | Lauf success, „Update games“ bringt Hoofy 0.1.0 (Stand B6, 475 KB) | 47bb07e
 2026-10-01 01:30 | B7 Stammbaum und Inzucht | begonnen | – | –
 2026-10-01 01:31 | B7 Stammbaum und Inzucht | fertig | Screenshot Stammbaum, Malus je Grad, SELFTEST OK 130, make test grün | Hoofy B7
+2026-10-01 01:33 | B8 Wirtschaft prüfen | begonnen | – | –
+2026-10-01 01:34 | B8 Wirtschaft prüfen | fertig | 12 Seeds/60 Tage: Fahrrad Tag 4,2, Phase 1 (900) 7,5, Mofa 11,8, Phase 2 (3700) 18,1 (Katalog 8/19), Netto 277 G/Tag, SELFTEST OK 132, make test grün | Hoofy B8

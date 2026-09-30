@@ -26,4 +26,5 @@ return {
   "jobs",
   "zucht",
   "stammbaum",
+  "wirtschaft",
 }
