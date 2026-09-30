@@ -332,6 +332,34 @@ function Wild:try_mount()
   return best, "ok"
 end
 
+-- Eigenes Pferd (geführt, folgend oder lose) in Reichweite des Spielers, nächstes zuerst.
+function Wild:nearest_own()
+  local p = self.ctx.player
+  local best, bd = nil, Ride.REACH
+  for _, h in ipairs(self.ctx.herd_horses) do
+    if h.state ~= "ridden" and h.state ~= "escape" then
+      local d = U.dist(h.x, h.y, p.x, p.y)
+      if d <= bd then best, bd = h, d end
+    end
+  end
+  return best
+end
+
+-- Aufsitzen auf h (Menü, E2): "ok" oder "verweigert".
+function Wild:mount(h)
+  if Ride.refuses(h.data, self.rng) then return "verweigert" end
+  Ride.mount(self.ctx, h)
+  return "ok"
+end
+
+-- Leine lösen: das Pferd bleibt lose stehen.
+function Wild:release(h)
+  for i, e in ipairs(self.ctx.lead) do
+    if e == h then table.remove(self.ctx.lead, i) break end
+  end
+  h.state, h.timer, h.vx, h.vy = "free", 90, 0, 0
+end
+
 -- A bei einem losen gezähmten Pferd in Reichweite: wieder anleinen. Gibt das Pferd zurück.
 function Wild:try_leash()
   local p = self.ctx.player

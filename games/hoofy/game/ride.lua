@@ -3,6 +3,7 @@
 -- dem Spieler, das Pferd wird mit Reiter gezeichnet (game/wild.lua, Horse:draw).
 local K = require("game.katalog")
 local H = require("game.horse_model")
+local Care = require("game.care")
 local Body = require("lib.body")
 local U = require("lib.util")
 
@@ -17,7 +18,7 @@ R.SADDLE_SLOWDOWN = 1.0
 function R.tempo(data)
   local bonus = 0
   if data.sattel then bonus = K.artikel(data.sattel).wirkung.tempo or 0 end
-  return H.stat(data, "tempo") + bonus
+  return Care.effective(data, "tempo") + bonus
 end
 
 -- Schritt und Galopp in Pixeln pro Frame (E30).
@@ -28,7 +29,7 @@ end
 
 -- Sprunghöhe in Pixeln aus der Stärke (E30): 6 + 0,3 × Stärke.
 function R.jump_height(data)
-  return 6 + 0.3 * H.stat(data, "staerke")
+  return 6 + 0.3 * Care.effective(data, "staerke")
 end
 
 -- Verweigert das Pferd das Aufsteigen? Bindung < 20: zu 50 % (KATALOG §2).
@@ -107,6 +108,11 @@ function R.update(p)
     -- Energie: 1 je 10 s Reiten, Galopp doppelt (E30)
     local cost = (p.running and 2 or 1) / (K.stats.energie.reiten_sek * 60) * K.stats.energie.reiten
     d.energie = max(0, d.energie - cost)
+    -- Training (E31): Galopp trainiert Tempo (1 je Minute), Reiten Ausdauer (0,5 je Minute)
+    if p.moving then
+      if p.running then Care.train(d, "tempo", 1 / 3600) end
+      Care.train(d, "ausdauer", 0.5 / 3600)
+    end
   end
   -- Sprung: in der Luft Höhe nach Bogen; Hindernisse unter dieser Höhe zählen nicht
   if p.jump_t > 0 then
@@ -134,6 +140,7 @@ function R.jump(p)
   local d = p.riding.data
   if p.jump_t > 0 or d.energie < K.stats.energie.sprung then return false end
   d.energie = d.energie - K.stats.energie.sprung
+  Care.train(d, "staerke", 0.2)        -- Sprung trainiert Stärke (E31)
   p.jump_t, p.air = 1, 0
   p.jump_x, p.jump_y = p.x, p.y
   return true

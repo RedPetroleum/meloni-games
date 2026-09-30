@@ -28,3 +28,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:32 | A8 Leine und Folgen | fertig | Rate 9,1 %/26,6 %, Screenshots Leine, SELFTEST OK 41, make test grün | Hoofy A8
 2026-10-01 00:34 | A9 Reiten | begonnen | – | –
 2026-10-01 00:36 | A9 Reiten | fertig | Shot-Sheet Sprung über Busch, SELFTEST OK 47, make test grün | Hoofy A9
+2026-10-01 00:38 | A10 Pflege und Training | begonnen | – | –
+2026-10-01 00:40 | A10 Pflege und Training | fertig | Screenshots Aktionsmenü und Futtermenü, SELFTEST OK 55, make test grün | Hoofy A10

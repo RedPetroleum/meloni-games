@@ -12,4 +12,5 @@ return {
   "zaehmen",
   "leine",
   "reiten",
+  "pflege",
 }

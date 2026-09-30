@@ -4,11 +4,15 @@ local Stage = require("game.stage")
 local Wild = require("game.wild")
 local Leash = require("game.leash")
 local Ride = require("game.ride")
+local Care = require("game.care")
+local Menu = require("game.menu")
+local K = require("game.katalog")
+local H = require("game.horse_model")
 local U = require("lib.util")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold
+local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
@@ -22,7 +26,7 @@ function WorldScene.enter(arg)
   end
   paused, anim_frame, t = false, 1, 0
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
-  toast, a_hold, a_free = nil, 0, false
+  toast, a_hold, a_free, menu = nil, 0, false, nil
   if arg and arg.ritt then
     -- Ein zahmes Pferd (Bindung 80, Sattel) steht neben dem Spieler; eine Reihe Büsche 6 Kacheln rechts.
     wild.count = 0
@@ -50,12 +54,100 @@ function WorldScene.enter(arg)
   ctx.wild = wild
 end
 
+
+local FOODS = {"heu", "hafer", "karotte", "premiumfutter"}
+
+local function say(text, frames)
+  toast = {text = text, t = frames or 120}
+end
+
+-- Hauptmenü eines eigenen Pferds (E2).
+local function open_menu(h)
+  local led = h.state == "led" or h.state == "follow"
+  menu = {
+    horse = h, stage = "main",
+    m = Menu.new({
+      {label = "Streicheln", id = "stroke"},
+      {label = "Füttern", id = "feed"},
+      {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1},
+      {label = led and "Leine lösen" or "Anleinen", id = "leash"},
+      {label = "Aufsitzen", id = "mount"},
+      {label = "Info", id = "info"},
+    }, h.data.name),
+  }
+end
+
+local function open_food(h)
+  local items = {}
+  for _, id in ipairs(FOODS) do
+    local n = ctx.inv[id] or 0
+    local name = K.futter.kaufen
+    for _, f in ipairs(K.futter.kaufen) do if f.id == id then name = f.name end end
+    items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1}
+  end
+  menu.stage, menu.m = "food", Menu.new(items, "Füttern")
+end
+
+local function do_action(id)
+  local h = menu.horse
+  local d = h.data
+  if menu.stage == "food" then
+    if id == "close" then return open_menu(h) end
+    ctx.inv[id] = ctx.inv[id] - 1
+    local name, bond = Care.feed(d, id)
+    say(d.name .. " frisst " .. name .. ". Bindung +" .. bond .. ".")
+    h.heart_t = 90
+    menu = nil
+    return
+  end
+  if id == "close" then menu = nil return end
+  if id == "stroke" then
+    local add = Care.stroke(d)
+    h.heart_t = 120
+    say(add > 0 and d.name .. " genießt das. Bindung +" .. add .. "." or d.name .. " hatte heute schon genug Streicheleinheiten.")
+    menu = nil
+  elseif id == "feed" then
+    open_food(h)
+  elseif id == "brush" then
+    local add = Care.brush(d)
+    say(d.name .. " glänzt. Sauberkeit +" .. add .. ".")
+    menu = nil
+  elseif id == "leash" then
+    if h.state == "led" or h.state == "follow" then
+      wild:release(h)
+      say(d.name .. " ist frei.")
+    else
+      wild:attach(h)
+      say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
+    end
+    menu = nil
+  elseif id == "mount" then
+    if wild:mount(h) == "ok" then
+      say(d.name .. ": aufgesessen!", 90)
+      mounted_hold = true
+    else
+      say(d.name .. " verweigert das Reiten!")
+    end
+    menu = nil
+  elseif id == "info" then
+    say(string.format("%s, %s: Tempo %d Stärke %d Bindung %d. %s.", d.name, K.rasse(d.rasse).name,
+      H.stat(d, "tempo"), H.stat(d, "staerke"), d.bindung, Care.describe(d)), 240)
+    menu = nil
+  end
+end
+
 function WorldScene.update()
   if btnp(BTN_START) and not btn(BTN_SELECT) then
     paused = not paused
     ctx.sfx.select()
   end
   if paused then return end
+  if menu then
+    local r = menu.m:update()
+    if r then do_action(r) end
+    if toast then toast.t = toast.t - 1; if toast.t <= 0 then toast = nil end end
+    return
+  end
   t = t + 1
   local p = ctx.player
   if p.riding then
@@ -82,24 +174,12 @@ function WorldScene.update()
       ctx.sfx.start()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
     else
-      local m, res = wild:try_mount()
-      if m and res == "ok" then
-        toast = {text = m.data.name .. ": aufgesessen!", t = 150}
-        ctx.sfx.start()
-        a_free = false
-        a_hold = 0
-        mounted_hold = true
-      elseif m then
-        toast = {text = m.data.name .. " verweigert das Reiten!", t = 120}
+      local own = wild:nearest_own()
+      if own then
+        open_menu(own)
         ctx.sfx.select()
       else
-        h = wild:try_leash()
-        if h then
-          toast = {text = h.data.name .. (h.state == "follow" and " folgt dir." or " ist wieder an der Leine."), t = 120}
-          ctx.sfx.select()
-        else
-          a_free = true
-        end
+        a_free = true
       end
     end
   elseif btn(BTN_A) and a_free then
@@ -167,6 +247,10 @@ end
 function WorldScene.draw()
   Stage.draw_world(ctx, draw_rope)
   draw_hud()
+  if menu then
+    local h = menu.horse
+    menu.m:draw(h.x - ctx.camera.x + 24, h.y - ctx.camera.y - 50)
+  end
   if toast then
     local C = ctx.colors
     Stage.panel(40, 200, 279, 226)

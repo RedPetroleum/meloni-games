@@ -71,6 +71,15 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E31** (A10) Pflege und Training: Aktionsmenü per A neben einem eigenen Pferd (Streicheln,
+  Füttern, Striegeln, Leine lösen/Anleinen, Aufsitzen, Info). Aufsitzen geht nur noch über das
+  Menü (ersetzt „A neben dem Pferd sitzt auf“ aus E30). Startvorrat: 3 Heu, 2 Karotten, Bürste
+  (der Katalog nennt nur die Bürste; Futter wird ab B1 gekauft). Streicheln +2 Bindung nur einmal
+  am Tag (`gestreichelt`, A12 setzt es zurück). Trainingsbonus = 1 + 0,25 × Sauberkeit/100 +
+  0,25 × Bindung/100, bis ×1,5; eitel zählt die Sauberkeit doppelt. Training beim Reiten: Galopp
+  Tempo +1 je Minute, Reiten Ausdauer +0,5 je Minute, Sprung Stärke +0,2 (jeweils × Formel).
+  „Reiten senkt das Gewicht etwas“ kommt mit A12 zusammen mit den Tagesregeln. Info zeigt
+  vorerst nur eine Zeile, der Bildschirm kommt mit A13.
 - **E30** (A9) Reiten: A neben einem geführten oder folgenden Pferd (≤ 30 px) steigt auf. Bindung
   < 20: 50 % Verweigern; 20–39 wird nicht eingeschränkt (Katalog sagt nur „≥ 40 reitbar“). Tempo:
   Schritt 1,3 + 0,6 × T/100, Galopp (B) 2,0 + 1,4 × T/100 Pixel je Frame, T = Tempo + Sattel.

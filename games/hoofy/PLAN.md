@@ -105,9 +105,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/ride.lua`, Reiter wird mit dem Pferd gezeichnet, `Map:blocked(…, clear)` mit
   Hindernishöhen. Szenario `ritt` (`--input "5:A,20-110:RIGHT+B,40:A"` springt über die Büsche,
   `SCENARIO_OPTS='staerke = 10'` schafft es nicht). Entscheidung E30.
-- [ ] **A10 Pflege und Training**: Aktionsmenü (E2), Streicheln, Füttern, Striegeln, Werte
+- [x] **A10 Pflege und Training**: Aktionsmenü (E2), Streicheln, Füttern, Striegeln, Werte
   nach Katalog, Trainingsformel mit Bonus, Charakter-Effekte (KATALOG §5).
   Prüfung: Selbsttests für Trainingsformel, Futterwirkung, Bindungsregeln; Screenshot Menü.
+  *Erledigt:* `game/care.lua` (Regeln), `game/menu.lua` (Auswahlmenü), Menü in `game/world.lua`,
+  Training beim Reiten. Screenshot: Szenario `ritt` mit `--input "10:A,20:DOWN,30:A"`. E31.
 - [ ] **A11 Hof**: Start mit Wohnwagen, Stall S, Weide mit Tor, Bürste (KATALOG §15);
   Pferde in Stall/Weide/frei stellen, Plätze begrenzt, Verluste nach KATALOG §2 Unterbringung.
   Prüfung: Szenario `hof_start`, Screenshot; Selbsttest Verluste pro Tag.

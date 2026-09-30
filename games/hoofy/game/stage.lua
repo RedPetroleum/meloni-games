@@ -33,6 +33,8 @@ function Stage.build(nr, seed)
   ctx.fx = FX.new(S)
   local st = area.places.start
   local px, py = st[1] * 16 + 8, st[2] * 16 + 14
+  -- Vorrat (E31): das Startinventar; Kauf und Ernte kommen mit B1/C5
+  ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 1}
   ctx.player = ctx.world:add(Player.new(ctx, px, py))
   ctx.trail = Trail.new(px, py)
   ctx.camera = Camera.new(ctx.map.pw, ctx.map.ph, {top = Stage.HUD_H, dz_w = 72, dz_h = 48})
