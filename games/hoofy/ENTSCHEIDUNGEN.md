@@ -42,6 +42,9 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - **E14** Nacht: dunklere Bodenfarben und dunkle Sprite-Varianten. Die Sicht ist ein Kreis um
   den Spieler (außen schwarz, gezeichnet mit ein paar Dutzend `rectfill`-Streifen), die
   Sattellampe vergrößert ihn.
+  geändert (A3): dunkle Sprite-Varianten → keine für Pferde, im Sichtkreis sind sie normal hell,
+  weil 23 Farben × 4 Körper × 9 Posen doppelt so viel Bildspeicher bräuchten (heute schon 1,8 MB).
+  Dunkle Bodenkacheln bleiben.
 
 - **E17** (A1) Start-Grundstück: 20×20 Kacheln (2×2 Landstücke aus KATALOG §9) in der Mitte des
   Heimattals, auf dem 10er-Raster der Landstücke.
@@ -56,6 +59,16 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   dem Gebäude), damit man sie ohne Innenräume findet.
 - **E22** (A2) Steht die Figur hinter Bäumen oder einem Haus, erscheint sie als Umriss (weiß,
   dunkel gefüllt) über allem. Rennen (B) wirbelt kleine Staubwölkchen auf.
+
+- **E23** (A3) Fellfarben: RGB-Werte selbst gewählt (`recolor` in sprites.txt). Musterfarben sind
+  Grundfarbe + Overlay: Braun-/Rapp-/Fuchsschecke = Brauner/Rappe/Fuchs + weiße Flecken,
+  Tigerschecke = Schimmel + dunkle Tupfen, Apfelschimmel = Grauschimmel + helle Äpfel,
+  Fliegenschimmel = Schimmel + Sprenkel, Zebra = Schimmel + Streifen, Regenbogen = weiß mit
+  Regenbogen-Streifen und rosa Mähne.
+- **E24** (A3) Pony, Kaltblut und Einhorn werden aus dem Warmblut abgeleitet (`tools/hoofy_pferde.py`:
+  Pony kürzer, Kaltblut größer mit weißem Behang, Einhorn mit Horn). Jede Pose lässt sich von Hand
+  neu zeichnen, die Hand-Version gewinnt. Galopp gibt es nur von der Seite, nach oben/unten laufen
+  die Schritt-Posen schneller.
 
 ## Werte
 

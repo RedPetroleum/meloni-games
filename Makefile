@@ -8,6 +8,7 @@
 #   make cover GAME=snake INPUT=... FRAMES=120                      games/snake/cover.png for the launcher
 #   make sprites             games/*/sprites.txt -> sprites.png + sprites.lua (test, run, shot, dist do it too)
 #   make katalog             games/hoofy/KATALOG.md -> games/hoofy/data/*.lua (test, run, shot, dist do it too)
+#   make pferde              Hoofy: Pferdekörper und Fellmuster in games/hoofy/sprites.txt (vor sprites)
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
 #   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly)
@@ -22,12 +23,15 @@ SEED ?= 1
 SHOTS ?=
 EXTRA ?=
 
-.PHONY: runner sprites katalog run test shot cover new dist web clean
+.PHONY: runner pferde sprites katalog run test shot cover new dist web clean
 
 runner:
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
 
-sprites:
+pferde:
+	@python3 tools/hoofy_pferde.py
+
+sprites: pferde
 	@python3 tools/sprites.py games/*/
 
 katalog:

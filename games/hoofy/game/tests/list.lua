@@ -5,4 +5,5 @@ return {
   "katalog",
   "karte",
   "spieler",
+  "pferdegrafik",
 }

@@ -13,3 +13,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:02 | A1 Kartengenerator | fertig | karte_ganz Seeds 1–5, Shot-Sheets Dorf/Fluss/Wald, SELFTEST OK 14, Karte 198 KB, make test grün | Hoofy A1
 2026-10-01 00:04 | A2 Spieler und Kamera | begonnen | – | –
 2026-10-01 00:06 | A2 Spieler und Kamera | fertig | Shot-Sheet Brücke→Wiese→Waldrand (Umriss sichtbar), SELFTEST OK 15, make test grün | Hoofy A2
+2026-10-01 00:08 | A3 Pferdegrafik | begonnen | – | –
+2026-10-01 00:15 | A3 Pferdegrafik | fertig | galerie Shot-Sheet (2 Seiten, alle Posen), Vergrößerung aller Körper, SELFTEST OK 19, Bild 640k Pixel, make test grün | Hoofy A3

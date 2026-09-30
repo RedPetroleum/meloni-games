@@ -8,6 +8,7 @@ local scenes = {
   title = require("game.title"),
   world = require("game.world"),
   overview = require("game.overview"),
+  gallery = require("game.gallery"),
 }
 
 local current

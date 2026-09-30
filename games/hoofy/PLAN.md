@@ -63,10 +63,14 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* Figur aus Ausgebüxt, dazu Staub beim Rennen, Umriss hinter Bäumen (E22), Waldkachel
   als runde Kronen. Szenario `welt` mit `SCENARIO_OPTS='ort = "bruecke"'` (oder `cx = …, cy = …`).
   Selbsttest: über die Brücke ja, ins Wasser und in den Wald nein.
-- [ ] **A3 Pferdegrafik**: 4 Körperformen (Pony, Warmblut, Kaltblut, Einhorn) × 4 Richtungen ×
+- [x] **A3 Pferdegrafik**: 4 Körperformen (Pony, Warmblut, Kaltblut, Einhorn) × 4 Richtungen ×
   stehen/gehen/galopp, alle ~30 Farben per `recolor`, Muster als Overlay, Nachtvarianten (E14).
   Vorlage: Pferde aus Ausgebüxt/Hufhüpfer.
   Prüfung: Szenario `galerie` zeigt alle Rassen und je 3 Farben, Shot-Sheet mit Animation.
+  *Erledigt:* `game/horse_gfx.lua` (`G.draw(farbe, körper, pose, x, y, flip)`), 23 Grundfarben +
+  6 Muster (E23), Körper abgeleitet (E24), Galopp von Hand. Nachtvarianten gestrichen (E14 geändert).
+  sprites.png jetzt 256×2498 (≈ 1,8 MB auf der Konsole), sprites.lua ≈ 150 KB Lua-Speicher:
+  auf der Konsole Ladezeit und Speicher prüfen.
 - [ ] **A4 Pferdemodell**: Gen/Training/Max-Potenzial, Zustände, Charakter, Geschlecht, sichtbare
   und versteckte Farbe, Name; Wildpferd-Erzeugung nach KATALOG §2–5 (Gebiet → Rasse → Farbe).
   Prüfung: Selbsttest mit 10 000 Wildpferden: Mittelwert/σ der Gen-Stats ≈ Katalog,

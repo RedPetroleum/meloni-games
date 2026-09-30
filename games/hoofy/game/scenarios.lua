@@ -36,6 +36,11 @@ function Scenarios.karte_ganz(save)
   return "overview", {nr = save.gebiet or 1, seed = save.seed}
 end
 
+-- Alle Rassen mit je drei Farben, Posen laufen durch (Seite wechselt alle 4 s).
+function Scenarios.galerie()
+  return "gallery"
+end
+
 -- save: der geladene Spielstand mit save.scenario. Gibt Szene und Argument zurück.
 function Scenarios.start(save)
   local f = Scenarios[save.scenario]
