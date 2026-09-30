@@ -1,5 +1,6 @@
--- Schnösel-Sprint: Studio Eitel — Langhantel-Balance im eigenen Schnösel-Gym.
+-- Schnösel im Gym: Langhantel-Curls im Studio Eitel.
 -- Links/rechts: Stange ausgleichen. A: Wiederholung. B: Monster-Boost. Unten: atmen.
+-- Mit jeder sauberen Wiederholung wird der Schnösel fitter: dick, pummelig, sportlich, muskulös.
 
 local S = require("sprites")
 local IMG, RECTS = S.img, S.rects
@@ -7,49 +8,51 @@ local W, H = SCREEN_W, SCREEN_H
 local FITNESS_GOAL = 12
 local REPS_PER_SET = 4
 local SET_COUNT = 3
-local HUD_H = 34
-local FLOOR = 221
+local HUD_H = 26
+local FLOOR = 218          -- Unterkante der Schuhe
+local ZOOM = 2             -- Figur pixelgenau verdoppelt
+local FIG_CX = 25.5        -- Mittelachse der Figur im Sprite
+local GRIP = 27            -- Abstand der Hände von der Mitte (Bildschirm)
+local HAND_Y = {down = 47, mid = 39, up = 30}
+local STAGES = {"fat", "chubby", "sporty", "muscle"}
+local STAGE_NAMES = {"MOPPELIG", "PUMMELIG", "SPORTLICH", "MUSKELPROTZ"}
 
 local state = "title"
 local fitness, set_no, reps_in_set, combo, score, best
 local form, tilt_adjust, stroke, boost_time, drinks, frame_count, flash_time
+local tilt, level_up_time
 
 local C = {
-  wall = rgb(44, 53, 64), wall_dark = rgb(29, 35, 46), wall_light = rgb(76, 88, 99),
-  mirror = rgb(83, 111, 119), mirror_light = rgb(131, 160, 157), mirror_dark = rgb(46, 69, 78),
-  floor = rgb(75, 72, 74), floor_dark = rgb(48, 50, 57), tile = rgb(101, 91, 83),
-  red = rgb(168, 67, 58), red_light = rgb(211, 102, 75), gold = rgb(235, 190, 99),
-  cream = rgb(244, 229, 202), ink = rgb(32, 31, 37), steel = rgb(178, 190, 193),
-  steel_light = rgb(224, 225, 207), steel_dark = rgb(82, 92, 100),
-  green = rgb(131, 190, 91), green_dark = rgb(67, 119, 69),
-  amber = rgb(226, 148, 66), energy = rgb(108, 204, 72),
-  form_bg = rgb(53, 54, 61), skin = rgb(237, 189, 153),
-  panel = rgb(38, 41, 49), shadow = rgb(31, 34, 39),
+  wall = rgb(58, 66, 92), wall_dark = rgb(40, 45, 66), wall_light = rgb(78, 88, 118),
+  mirror = rgb(96, 128, 150), mirror_light = rgb(150, 184, 196), mirror_dark = rgb(64, 88, 112),
+  wood = rgb(176, 120, 74), wood_dark = rgb(132, 86, 54), wood_light = rgb(206, 152, 98),
+  rubber = rgb(44, 46, 54), rubber_light = rgb(62, 64, 74),
+  red = rgb(206, 72, 82), pink = rgb(255, 120, 170), pink_dim = rgb(140, 60, 100),
+  gold = rgb(246, 206, 96), cream = rgb(248, 238, 216), ink = rgb(26, 22, 32),
+  steel = rgb(176, 186, 196), steel_light = rgb(232, 236, 240), steel_dark = rgb(92, 100, 114),
+  plate = rgb(52, 56, 68), plate_light = rgb(84, 90, 106),
+  green = rgb(120, 214, 96), green_dark = rgb(56, 120, 66),
+  energy = rgb(120, 230, 70), sweat = rgb(170, 220, 255),
+  meter_bg = rgb(34, 34, 46), panel = rgb(30, 30, 44), panel_edge = rgb(70, 64, 96),
+  shadow = rgb(24, 24, 32), plant = rgb(74, 150, 88), plant_dark = rgb(44, 100, 64),
+  pot = rgb(226, 222, 210),
 }
-
-local api_line = line
-local function line(points, color, width)
-  width = width or 1
-  local half = flr((width - 1) / 2)
-  for j = 1, #points - 2, 2 do
-    for offset = -half, half do
-      api_line(points[j], points[j + 1] + offset, points[j + 2], points[j + 3] + offset, color)
-    end
-  end
-end
-
-local function clamp(a, b, c) return mid(a, b, c) end
+local STAGE_COL = {rgb(236, 120, 70), rgb(236, 180, 70), rgb(170, 214, 80), rgb(110, 224, 110)}
 
 local function reset_run()
   fitness, set_no, reps_in_set, combo, score = 0, 1, 0, 0, 0
   form, tilt_adjust, stroke, boost_time, drinks = 100, 0, 0, 0, 2
-  frame_count, flash_time = 0, 0
+  frame_count, flash_time, tilt, level_up_time = 0, 0, 0, 0
 end
 
 function _init()
   local save = loaddata()
   best = save and (save.best or 0) or 0
   reset_run()
+end
+
+local function stage_of(fit)
+  return min(4, flr(fit / 3) + 1)
 end
 
 local function finish(won)
@@ -85,13 +88,17 @@ local function lift_window()
 end
 
 function _update()
+  if level_up_time > 0 then level_up_time = level_up_time - 1 end
   if state == "title" then
+    frame_count = frame_count + 1
     if btnp(BTN_START) or btnp(BTN_A) then start_run() end
     return
   elseif state == "over" or state == "win" then
+    frame_count = frame_count + 1
     if btnp(BTN_START) or btnp(BTN_A) then start_run() end
     return
   elseif state == "rest" then
+    frame_count = frame_count + 1
     if btn(BTN_DOWN) then form = min(100, form + 0.32) end
     if btnp(BTN_B) and drinks > 0 then
       drinks = drinks - 1
@@ -128,13 +135,13 @@ function _update()
 
   local wobble_power = 10 + (set_no - 1) * 6
   local shake = boost_time > 0 and 1.75 or 1
-  local tilt = math.sin(frame_count * 0.047 + fitness * 0.61) * wobble_power
-    + math.sin(frame_count * 0.113 + 1.7) * 4 + tilt_adjust
-  tilt = tilt * shake
+  tilt = (math.sin(frame_count * 0.047 + fitness * 0.61) * wobble_power
+    + math.sin(frame_count * 0.113 + 1.7) * 4 + tilt_adjust) * shake
 
   if btnp(BTN_A) then
     local _, in_window = lift_window()
     if in_window and abs(tilt) < 19 + (form < 30 and -5 or 0) then
+      local old_stage = stage_of(fitness)
       fitness = fitness + 1
       reps_in_set = reps_in_set + 1
       combo = combo + 1
@@ -142,7 +149,12 @@ function _update()
       form = max(0, form - 1.1)
       stroke = 0
       flash_time = 18
-      tone(note("E5"), 0.07, "triangle", 0.2)
+      if stage_of(fitness) > old_stage then
+        level_up_time = 90
+        tune("E5 G5 C6", 240, "square", 0.18, false, 6)
+      else
+        tone(note("E5"), 0.07, "triangle", 0.2)
+      end
       if reps_in_set >= REPS_PER_SET then
         if set_no >= SET_COUNT then finish(true)
         else state = "rest"; tune("C5 G5", 180, "triangle", 0.22) end
@@ -158,269 +170,341 @@ function _update()
   if form <= 0 then finish(false) end
 end
 
-local function draw_wall()
-  -- Oberes Studiogeschoss mit Stahlträgern und warmen Deckenleuchten.
-  rectfill(0, HUD_H, W - 1, 70, C.wall_dark)
-  for x = -20, W, 52 do
-    rectfill(x, HUD_H, x + 6, 71, C.wall)
-    line({x + 6, HUD_H, x + 22, 70}, C.wall_light, 2)
-  end
-  for x = 20, W - 20, 70 do
-    rectfill(x, 39, x + 32, 42, C.cream)
-    rectfill(x + 4, 42, x + 28, 45, C.gold)
-  end
+-- ------------------------------------------------------------------ Zeichnen
 
-  -- Spiegelwand, Holzleisten und die Studio-Schrift geben dem Raum einen eigenen Charakter.
-  rectfill(19, 52, 301, 140, C.wall_dark)
-  rectfill(23, 56, 297, 133, C.mirror_dark)
-  rectfill(26, 59, 294, 129, C.mirror)
-  rectfill(28, 61, 292, 63, C.mirror_light)
-  for x = 92, 276, 46 do rectfill(x, 59, x + 2, 129, C.mirror_dark) end
-  rectfill(18, 134, 302, 141, C.red)
-  rectfill(18, 141, 302, 144, C.wall_dark)
-  -- Spiegelreflexe
+local function print_c(text, y, col, scale)
+  print(text, flr((W - textw(text, scale)) / 2), y, col, scale)
+end
+
+local function print_shadow(text, y, col, scale)
+  local x = flr((W - textw(text, scale)) / 2)
+  print(text, x + 1, y + 1, C.ink, scale)
+  print(text, x, y, col, scale)
+end
+
+local function draw_room()
+  -- Rückwand mit Paneelen und Deckenlicht
+  rectfill(0, HUD_H, W - 1, 150, C.wall)
+  rectfill(0, HUD_H, W - 1, HUD_H + 5, C.wall_dark)
+  for x = 0, W, 40 do rectfill(x, HUD_H + 6, x + 1, 150, C.wall_dark) end
+  -- Neon-Schild
+  rectfill(96, 32, 223, 49, C.ink)
+  rect(97, 33, 222, 48, C.pink_dim)
+  local blink = (frame_count % 180) < 170
+  print("STUDIO EITEL", 112, 37, blink and C.pink or C.pink_dim)
+  -- Große Spiegelwand hinter der Figur
+  rectfill(36, 56, 283, 150, C.ink)
+  rectfill(39, 59, 280, 150, C.mirror)
+  rectfill(39, 59, 280, 62, C.mirror_light)
+  for x = 99, 220, 60 do rectfill(x, 59, x + 1, 150, C.mirror_dark) end
+  for i = 0, 3 do
+    local x = 52 + i * 60
+    for k = 0, 2 do
+      local px = x + k * 5
+      for y = 70, 100, 2 do pset(px + (y - 70) / 3, y, C.mirror_light) end
+    end
+  end
+  -- Boden: Gummimatten außen, Holz-Plattform in der Mitte
+  rectfill(0, 150, W - 1, H - 1, C.rubber)
+  for y = 158, H, 14 do rectfill(0, y, W - 1, y, C.rubber_light) end
+  rectfill(0, 150, W - 1, 152, C.shadow)
+  for y = 153, H - 1, 1 do
+    local p = (y - 153) / (H - 153)
+    local half = flr(84 + p * 40)
+    rectfill(160 - half, y, 160 + half, y, C.wood)
+  end
+  for i = -3, 3 do
+    line(160 + i * 24, 153, 160 + i * 34, H - 1, C.wood_dark)
+  end
+  line(76, 153, 36, H - 1, C.wood_light)
+  line(244, 153, 284, H - 1, C.wood_dark)
+end
+
+local function draw_props()
+  -- Hantelständer links
+  rectfill(30, 108, 33, 162, C.ink)
+  rectfill(60, 108, 63, 162, C.ink)
+  for i = 0, 2 do
+    local y = 116 + i * 16
+    rectfill(28, y, 65, y + 2, C.steel_dark)
+    for k = 0, 2 do
+      local x = 34 + k * 10
+      rectfill(x, y - 5, x + 2, y - 1, C.plate)
+      rectfill(x + 6, y - 5, x + 8, y - 1, C.plate)
+      rectfill(x + 3, y - 4, x + 5, y - 2, C.steel)
+    end
+  end
+  -- Grünpflanze im weißen Topf rechts (Schnösel-Studio eben)
+  rectfill(256, 140, 280, 163, C.pot)
+  rectfill(256, 140, 280, 143, C.steel_light)
+  rectfill(277, 144, 280, 163, C.steel)
   for i = 0, 6 do
-    local x = 35 + i * 38
-    line({x, 66, x + 10, 66}, rgb(162, 184, 175), 1)
-    line({x - 4, 70, x + 2, 70}, rgb(112, 145, 148), 1)
-  end
-  rectfill(107, 71, 213, 88, C.ink)
-  rect(108, 72, 212, 87, C.gold)
-  print("STUDIO EITEL", 122, 77, C.cream)
-  rectfill(143, 89, 177, 92, C.red)
-
-  -- Gerahmte Trainingsplakate statt einer austauschbaren Stadtkulisse.
-  rectfill(3, 83, 21, 121, C.ink); rect(4, 84, 20, 120, C.gold)
-  rectfill(6, 87, 18, 116, rgb(78, 74, 71))
-  line({8, 110, 12, 91}, C.cream, 2); line({12, 91, 16, 110}, C.cream, 2)
-  rectfill(299, 83, 317, 121, C.ink); rect(300, 84, 316, 120, C.gold)
-  rectfill(303, 88, 313, 108, C.red)
-  print("NO", 304, 110, C.cream)
-end
-
-local function draw_rack()
-  -- Hanteln und ein roter Trainingshocker stehen beidseits des Hauptbereichs.
-  rectfill(274, 105, 278, 157, C.ink); rectfill(313, 105, 317, 157, C.ink)
-  line({273, 111, 318, 111}, C.steel, 3)
-  line({273, 128, 318, 128}, C.steel, 3)
-  line({273, 145, 318, 145}, C.steel, 3)
-  for y = 103, 138, 17 do
-    for x = 282, 305, 11 do
-      rectfill(x, y, x + 2, y + 10, C.steel_dark)
-      rectfill(x - 2, y + 2, x, y + 8, C.steel)
-      rectfill(x + 3, y + 2, x + 5, y + 8, C.steel_light)
-    end
-  end
-  -- Bank und Hantelscheiben auf der Gegenseite.
-  rectfill(34, 147, 86, 154, C.red); rectfill(38, 154, 43, 174, C.ink)
-  rectfill(77, 154, 82, 174, C.ink); line({31, 144, 91, 144}, C.red_light, 2)
-  for x = 36, 83, 16 do
-    circfill(x, 142, 5, C.ink); circfill(x, 142, 3, C.steel_dark); pset(x, 141, C.steel_light)
+    local a = -2.4 + i * 0.3
+    local x2, y2 = 268 + math.cos(a) * 26, 138 + math.sin(a) * 34
+    line(268, 140, x2, y2, C.plant_dark)
+    circfill(x2, y2, 4, C.plant)
+    pset(x2 - 1, y2 - 1, C.green)
   end
 end
 
-local function draw_floor()
-  rectfill(0, 143, W - 1, H - 1, C.floor_dark)
-  -- Gummifliesen laufen zum Fluchtpunkt und werden zum Spieler hin größer.
-  for i = -3, 11 do
-    local bottom_x = i * 40 - 20
-    line({160, 139, bottom_x, H}, C.tile, 1)
-  end
-  for row = 1, 7 do
-    local p = row / 7
-    local y = 142 + p * p * 94
-    line({0, y, W - 1, y}, row % 2 == 0 and C.floor or C.floor_dark, 1)
-  end
-  -- Mittlere Trainingsmatte wird zum Betrachter hin breiter.
-  for y = 142, H - 1 do
-    local p = (y - 142) / (H - 142)
-    local half = 88 + p * 64
-    rectfill(160 - half, y, 160 + half, y, rgb(58, 59, 65))
-  end
-  line({72, 142, 8, 239}, rgb(114, 75, 67), 2)
-  line({248, 142, 312, 239}, rgb(114, 75, 67), 2)
-  for y = 163, 230, 22 do line({45, y, 275, y}, rgb(68, 68, 73), 1) end
+local function draw_scene()
+  draw_room()
+  draw_props()
 end
 
-local function draw_gym()
-  rectfill(0, 0, W - 1, H - 1, C.wall_dark)
-  draw_wall()
-  draw_floor()
-  draw_rack()
-  -- Kleine Spiegelglanz- und Staubpixel, fest gesetzt für einen ruhigen, konsistenten Stil.
-  for i = 0, 19 do
-    local x = (i * 47 + 13) % W
-    local y = 76 + (i * 31) % 58
-    pset(x, y, i % 3 == 0 and C.gold or C.mirror_light)
-  end
-end
-
-local function draw_character(name, cx, bottom, scale, bob)
+local function sprite2x(name, dx, dy)
   local r = RECTS[name]
-  local dw, dh = r[3] * scale, r[4] * scale
-  sspr(IMG, r[1], r[2], r[3], r[4], flr(cx - dw / 2), flr(bottom - dh + bob), flr(dw + 0.5), flr(dh + 0.5))
+  sspr(IMG, r[1], r[2], r[3], r[4], dx, dy, r[3] * ZOOM, r[4] * ZOOM)
 end
 
-local function player_sprite()
-  if fitness >= 8 then return "snoesel_fit" end
-  if fitness >= 4 then return "snoesel_mid" end
-  return "snoesel_fat"
+local function fig_top()
+  return FLOOR - 70 * ZOOM
 end
 
-local function draw_barbell(y, tilt, phase)
-  local angle = tilt * 0.36
-  local half = 91
-  local dy = math.sin(angle * 0.0174533) * half
-  local x1, y1 = 160 - half, flr(y + dy)
-  local x2, y2 = 160 + half, flr(y - dy)
-  -- Schatten, Chromstange und gerändelte Griffzone.
-  line({x1 - 2, y1 + 2, x2 + 2, y2 + 2}, C.shadow, 5)
-  line({x1, y1, x2, y2}, C.ink, 5)
-  line({x1, y1 - 1, x2, y2 - 1}, C.steel_dark, 3)
-  line({x1 + 9, y1 - 1, x2 - 9, y2 - 1}, C.steel_light, 1)
-  for grip = -1, 1, 2 do
-    local gx = 160 + grip * 31
-    local gy = y - grip * dy * 31 / half
-    for stripe = -4, 4, 2 do line({gx + stripe, gy - 2, gx + stripe + 2, gy + 2}, C.steel, 1) end
-  end
-  local radius = 9 + (set_no - 1) * 3
-  for _, x in ipairs({x1 + 10, x1 + 20, x2 - 10, x2 - 20}) do
-    local side = x < 160 and 1 or -1
-    local py = flr(y + (x - 160) * math.sin(angle * 0.0174533))
-    circfill(x, py, radius + 2, C.ink)
-    local outer = (x == x1 + 10 or x == x2 - 10) and C.steel_dark or C.steel
-    circfill(x, py, radius, outer)
-    circfill(x - 2, py - 2, max(2, radius - 4), C.steel_light)
-    line({x - side * 2, py - radius + 3, x - side * 2, py + radius - 3}, C.steel_dark, 1)
-  end
-  -- Hände um die Stange und ein grüner Blendschutz, wenn der Lift perfekt sitzt.
-  local hand_y = flr(y - 4)
-  rectfill(160 - 34, hand_y, 160 - 27, hand_y + 6, C.skin)
-  rectfill(160 + 27, hand_y, 160 + 34, hand_y + 6, C.skin)
-  if phase >= 0.44 and phase <= 0.57 then
-    line({x1 + 26, y1 - 10, x2 - 26, y2 - 10}, C.green, 1)
+local function draw_figure(name, cx, shift)
+  local dx = flr(cx - ((shift or 0) + FIG_CX) * ZOOM)
+  -- weicher Schatten unter den Füßen
+  rectfill(cx - 46, FLOOR - 3, cx + 46, FLOOR + 2, C.wood_dark)
+  rectfill(cx - 38, FLOOR - 4, cx + 38, FLOOR + 3, C.wood_dark)
+  sprite2x(name, dx, fig_top())
+end
+
+local function plate_stack(x, y, dir, radius)
+  -- Hantelscheiben von der Seite: schmale hohe Rechtecke, außen kleiner
+  local sizes = {radius, radius, radius - 6}
+  for i, r in ipairs(sizes) do
+    local px = x + dir * (i - 1) * 8
+    rectfill(px - 4, y - r - 1, px + 4, y + r + 1, C.ink)
+    rectfill(px - 3, y - r, px + 3, y + r, i == 3 and C.red or C.plate)
+    rectfill(px - 3, y - r, px - 2, y + r, i == 3 and C.pink or C.plate_light)
+    rectfill(px - 3, y - 1, px + 3, y + 1, C.ink)
   end
 end
 
-local function draw_beat_meter(phase, in_window)
-  local x, y, w, h = 25, 43, 270, 15
-  rectfill(x - 2, y - 2, x + w + 2, y + h + 2, C.ink)
-  rectfill(x, y, x + w, y + h, C.form_bg)
-  rectfill(x + flr(w * 0.44), y + 1, x + flr(w * 0.57), y + h - 1, in_window and C.green or C.green_dark)
-  local cx = x + flr(w * phase)
-  rectfill(cx - 2, y - 3, cx + 2, y + h + 3, C.cream)
-  print("OBEN IM GRÜNEN BEREICH DRÜCKEN", 67, 61, in_window and C.green or C.cream)
+local function draw_barbell(cy, ang, set_no_)
+  local c, s = math.cos(ang), math.sin(ang)
+  local half = 108
+  local x1, y1 = 160 - c * half, cy + s * half
+  local x2, y2 = 160 + c * half, cy - s * half
+  -- Stange: Kontur, Stahl, Glanzlinie
+  for o = -2, 2 do line(x1, y1 + o, x2, y2 + o, C.ink) end
+  line(x1, y1, x2, y2, C.steel_dark)
+  line(x1, y1 - 1, x2, y2 - 1, C.steel_light)
+  line(x1 + c * 4, y1, x2 - c * 4, y2, C.steel)
+  local radius = 15 + (set_no_ - 1) * 3
+  for _, side in ipairs({-1, 1}) do
+    local d = 84
+    plate_stack(160 + side * c * d, cy - side * s * d, side, radius)
+    -- Klemme
+    local kx, ky = 160 + side * c * 78, cy - side * s * 78
+    rectfill(kx - 2, ky - 4, kx + 2, ky + 4, C.ink)
+    rectfill(kx - 1, ky - 3, kx + 1, ky + 3, C.red)
+  end
+  -- Fäuste um die Stange
+  for _, side in ipairs({-1, 1}) do
+    local hx, hy = 160 + side * c * GRIP, cy - side * s * GRIP
+    sprite2x("fist", flr(hx - 8), flr(hy - 7))
+  end
 end
 
-local function draw_balance_meter(tilt)
-  local x, y, w = 50, 92, 220
-  rectfill(x - 2, y - 2, x + w + 2, y + 8, C.ink)
-  rectfill(x, y, x + w, y + 6, C.form_bg)
-  rectfill(133, y, 187, y + 6, C.green_dark)
-  local pos = x + flr((tilt + 45) / 90 * w)
-  rectfill(pos - 2, y - 3, pos + 2, y + 9, C.gold)
-  print("AUSGLEICH", 12, 91, C.cream)
-  print("FORM", 12, 104, C.cream)
-  rectfill(51, 106, 162, 114, C.form_bg)
-  local fw = flr(109 * form / 100)
-  rectfill(52, 107, 52 + fw, 113, form < 30 and C.red or C.green)
-  print(tostring(flr(form)) .. "%", 169, 105, C.cream)
+local function pose_for(phase)
+  local u = (1 - math.cos(phase * 6.28318)) / 2
+  if u < 0.3 then return "down" elseif u < 0.72 then return "mid" end
+  return "up"
 end
 
-local function draw_hud(phase, in_window, tilt)
+local function draw_lifter(stage, pose, tilt_deg)
+  draw_figure("snoesel_" .. STAGES[stage] .. "_" .. pose, 160)
+  local ang = tilt_deg * 0.3 * 0.0174533
+  draw_barbell(fig_top() + HAND_Y[pose] * ZOOM + 1, ang, set_no)
+end
+
+local function draw_sweat(intensity)
+  local top = fig_top()
+  for i = 0, intensity - 1 do
+    local t = (frame_count + i * 17) % 40
+    local side = i % 2 == 0 and -1 or 1
+    local x = 160 + side * (26 + i * 3)
+    local y = top + 14 + t / 2
+    rectfill(x, y, x + 1, y + 2, C.sweat)
+    pset(x, y - 1, C.sweat)
+  end
+end
+
+local function draw_boost_aura()
+  local top = fig_top()
+  for i = 0, 7 do
+    local a = frame_count * 0.08 + i * 0.785
+    local r = 62 + math.sin(frame_count * 0.2 + i) * 4
+    local x, y = 160 + math.cos(a) * r, top + 80 + math.sin(a) * r * 0.9
+    rectfill(x - 1, y - 1, x + 1, y + 1, C.energy)
+  end
+end
+
+local function draw_can(x, y)
+  local r = RECTS.monster_can
+  sspr(IMG, r[1], r[2], r[3], r[4], x, y, 11, 18)
+end
+
+local function draw_hud()
   rectfill(0, 0, W - 1, HUD_H - 1, C.panel)
-  rectfill(0, HUD_H - 3, W - 1, HUD_H - 1, C.red)
-  print("SATZ " .. tostring(set_no) .. "/" .. tostring(SET_COUNT), 8, 5, C.cream)
-  print("WIEDERHOLUNGEN", 105, 5, C.cream)
-  print("BEST " .. tostring(best), 245, 5, C.gold)
+  rectfill(0, HUD_H - 2, W - 1, HUD_H - 1, C.panel_edge)
+  print("SATZ " .. set_no .. "/" .. SET_COUNT, 6, 4, C.cream)
+  print(tostring(score), 6, 14, C.gold)
+  -- Wiederholungen im Satz als Kästchen
   for i = 1, REPS_PER_SET do
-    local col = i <= reps_in_set and C.gold or C.form_bg
-    rectfill(129 + (i - 1) * 17, 18, 141 + (i - 1) * 17, 27, col)
-    rect(129 + (i - 1) * 17, 18, 141 + (i - 1) * 17, 27, C.ink)
+    local x = 112 + (i - 1) * 25
+    rectfill(x, 5, x + 20, 18, C.ink)
+    rectfill(x + 1, 6, x + 19, 17, i <= reps_in_set and C.gold or C.meter_bg)
+    if i <= reps_in_set then rectfill(x + 2, 7, x + 18, 8, C.cream) end
   end
-  print("GESAMT " .. tostring(fitness) .. "/" .. tostring(FITNESS_GOAL), 8, 20, C.green)
   for i = 1, 2 do
-    if i <= drinks then
-      local r = RECTS.monster_can
-      sspr(IMG, r[1], r[2], r[3], r[4], 265 + (i - 1) * 18, 18, 9, 13)
-    else
-      rectfill(266 + (i - 1) * 18, 18, 273 + (i - 1) * 18, 29, C.form_bg)
-    end
+    if i <= drinks then draw_can(276 + (i - 1) * 16, 4)
+    else rect(276 + (i - 1) * 16, 5, 286 + (i - 1) * 16, 21, C.panel_edge) end
   end
-  draw_beat_meter(phase, in_window)
-  draw_balance_meter(tilt)
+end
+
+local function vbar(x, y0, y1, frac, col, label)
+  rectfill(x - 1, y0 - 1, x + 11, y1 + 1, C.ink)
+  rectfill(x, y0, x + 10, y1, C.meter_bg)
+  local h = flr((y1 - y0) * mid(0, frac, 1))
+  if h > 0 then
+    rectfill(x, y1 - h, x + 10, y1, col)
+    rectfill(x + 1, y1 - h, x + 2, y1, C.cream)
+  end
+  print(label, x + 5 - flr(textw(label) / 2), y1 + 5, C.cream)
+end
+
+local function draw_side_meters()
+  -- Links: Form (Kraft), rechts: Fitness mit den vier Stufen
+  vbar(8, 70, 196, form / 100, form < 30 and C.red or C.green, "FORM")
+  local x, y0, y1 = 301, 70, 196
+  rectfill(x - 1, y0 - 1, x + 11, y1 + 1, C.ink)
+  rectfill(x, y0, x + 10, y1, C.meter_bg)
+  local seg = (y1 - y0 + 1) / FITNESS_GOAL
+  for i = 1, fitness do
+    local ya, yb = flr(y1 - i * seg + 2), flr(y1 - (i - 1) * seg)
+    rectfill(x + 1, ya, x + 9, yb, STAGE_COL[stage_of(i - 1)])
+  end
+  for k = 1, 3 do
+    local y = flr(y1 - k * 3 * seg + 1)
+    rectfill(x - 3, y, x + 13, y, C.ink)
+  end
+  print("FIT", x + 5 - flr(textw("FIT") / 2), y1 + 5, C.cream)
+end
+
+local function draw_timing(phase, in_window)
+  local x0, x1, y = 60, 259, 228
+  rectfill(x0 - 2, y - 2, x1 + 2, y + 9, C.ink)
+  rectfill(x0, y, x1, y + 7, C.meter_bg)
+  local g0, g1 = x0 + flr((x1 - x0) * 0.44), x0 + flr((x1 - x0) * 0.57)
+  rectfill(g0, y, g1, y + 7, in_window and C.green or C.green_dark)
+  local px = x0 + flr((x1 - x0) * phase)
+  rectfill(px - 1, y - 3, px + 1, y + 10, C.cream)
+  print("TAKT", 20, y, C.cream)
+  print(in_window and "A!" or "", 276, y, C.green)
+end
+
+local function draw_level(t)
+  -- Wasserwaage über dem Kopf zeigt die Schräglage der Stange
+  local x0, x1, y = 120, 199, 62
+  rectfill(x0 - 1, y - 1, x1 + 1, y + 6, C.ink)
+  rectfill(x0, y, x1, y + 5, C.meter_bg)
+  rectfill(146, y, 173, y + 5, C.green_dark)
+  local px = 160 + flr(mid(-45, t, 45) / 45 * 38)
+  local col = abs(t) < 19 and C.gold or C.red
+  circfill(px, y + 2, 3, col)
+  pset(px - 1, y + 1, C.cream)
 end
 
 local function draw_play()
-  draw_gym()
+  draw_scene()
   local phase, in_window = lift_window()
-  local wobble_power = 10 + (set_no - 1) * 6
-  local shake = boost_time > 0 and 1.75 or 1
-  local tilt = (math.sin(frame_count * 0.047 + fitness * 0.61) * wobble_power
-    + math.sin(frame_count * 0.113 + 1.7) * 4 + tilt_adjust) * shake
-  tilt = clamp(-45, 45, tilt)
-  local bar_y = 198 - flr((1 - math.cos(phase * 6.28318)) * 14)
-  local bob = frame_count % 20 < 10 and 0 or 1
-  rectfill(111, FLOOR - 2, 209, FLOOR + 2, C.shadow)
-  draw_character(player_sprite(), 160, FLOOR, 1.52, bob)
-  draw_barbell(bar_y, tilt, phase)
-  draw_hud(phase, in_window, tilt)
-  if boost_time > 0 then
-    print("MONSTER-RUSH!", 121, 128, C.energy)
+  local stage = stage_of(fitness)
+  if boost_time > 0 then draw_boost_aura() end
+  draw_lifter(stage, pose_for(phase), mid(-45, tilt, 45))
+  if form < 45 then draw_sweat(form < 25 and 4 or 2) end
+  draw_hud()
+  draw_side_meters()
+  draw_level(tilt)
+  draw_timing(phase, in_window)
+  -- Rückmeldungen erscheinen groß anstelle des Neon-Schilds
+  local msg, col
+  if level_up_time > 0 then msg, col = STAGE_NAMES[stage] .. "!", STAGE_COL[stage]
+  elseif boost_time > 0 then msg, col = "MONSTER!", C.energy
   elseif flash_time > 0 then
-    print(combo > 0 and "SAUBER!" or "WACKELIG!", 132, 128, combo > 0 and C.green or C.red)
+    if combo > 0 then msg, col = "SAUBER!", C.green else msg, col = "WACKELIG!", C.red end
   end
-  print("LINKS/RECHTS: BALANCE   A: HEBEN", 29, 218, C.cream)
-  print("B: MONSTER   UNTEN: RUHIG ATMEN", 35, 230, C.gold)
+  if msg then
+    rectfill(56, 29, 263, 52, C.ink)
+    print_shadow(msg, 33, col, 2)
+  end
+end
+
+local function panel(x0, y0, x1, y1, edge)
+  rectfill(x0 + 3, y0 + 3, x1 + 3, y1 + 3, C.shadow)
+  rectfill(x0, y0, x1, y1, C.panel)
+  rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, edge)
 end
 
 local function draw_title()
-  draw_gym()
-  rectfill(31, 12, 289, 81, C.panel)
-  rect(32, 13, 288, 80, C.gold)
-  print("SCHNÖSEL IM GYM", 96, 22, C.cream)
-  print("STUDIO EITEL", 115, 38, C.gold)
-  print("KREUZHEBEN MIT BALANCE", 68, 53, C.green)
-  print("A: WENN DIE STANGE OBEN IST", 68, 68, C.cream)
-  draw_character("snoesel_fat", 160, FLOOR, 1.6, 0)
-  draw_barbell(185, 0, 0.5)
-  rectfill(12, 196, 308, 239, C.panel)
-  rect(13, 197, 307, 238, C.red)
-  print("LINKS/RECHTS: AUSGLEICHEN", 52, 202, C.cream)
-  print("B: POWER, ABER STANGE WACKELT", 48, 214, C.energy)
-  print("UNTEN: ATMEN    START: LOS", 69, 227, C.gold)
+  draw_scene()
+  -- Vorher / Nachher
+  draw_figure("snoesel_fat_down", 92)
+  draw_figure("snoesel_muscle_flex", 232, 6)
+  for i = 0, 2 do
+    local x = 150 + i * 8 + (frame_count // 8) % 3
+    line(x, 150, x + 5, 155, C.gold); line(x + 5, 155, x, 160, C.gold)
+  end
+  print("VORHER", 68, 66, C.cream)
+  print("NACHHER", 204, 66, C.gold)
+  rectfill(0, 0, W - 1, 58, C.panel)
+  rectfill(0, 57, W - 1, 58, C.panel_edge)
+  print_shadow("SCHNÖSEL", 6, C.gold, 2)
+  print_shadow("IM GYM", 24, C.pink, 2)
+  print_c("12 saubere Curls bis zum Muskelprotz", 44, C.cream)
+  rectfill(0, 219, W - 1, H - 1, C.panel)
+  print_c("A IM GRÜNEN TAKT  <> BALANCE", 221, C.cream)
+  print_c("B MONSTER  UNTEN ATMEN  START LOS", 231, C.green)
 end
 
 local function draw_rest()
-  draw_gym()
-  draw_character(player_sprite(), 160, FLOOR, 1.52, 0)
-  draw_barbell(202, tilt_adjust * 0.2, 0)
-  draw_hud(0, false, 0)
-  rectfill(38, 54, 282, 125, C.panel)
-  rect(39, 55, 281, 124, C.gold)
-  print("SATZ " .. tostring(set_no) .. " GESCHAFFT", 88, 68, C.green)
-  print("Bisher " .. tostring(fitness) .. " saubere Wiederholungen", 61, 87, C.cream)
-  print("UNTEN HALTEN: FOKUS ZURÜCKHOLEN", 40, 103, C.gold)
-  print("A: NÄCHSTER SATZ", 103, 115, C.cream)
-  print("B: MONSTER TRINKEN   UNTEN: AUSRUHEN", 30, 222, C.cream)
+  draw_scene()
+  local stage = stage_of(fitness)
+  draw_lifter(stage, "down", 0)
+  draw_hud()
+  draw_side_meters()
+  panel(28, 28, 291, 74, C.gold)
+  print_c("SATZ " .. set_no .. " GESCHAFFT!", 35, C.green)
+  print_c("UNTEN: DURCHATMEN   B: MONSTER", 49, C.cream)
+  print_c("A: NÄCHSTER SATZ", 62, C.gold)
 end
 
 local function draw_end(won)
-  draw_gym()
-  draw_character(won and "snoesel_fit" or player_sprite(), 160, FLOOR, 1.55, 0)
-  draw_barbell(185, 0, 0.5)
-  rectfill(32, 46, 288, 116, C.panel)
-  rect(33, 47, 287, 115, won and C.green or C.red)
+  draw_scene()
   if won then
-    print("STUDIO EITEL: ABGERÄUMT!", 76, 60, C.gold)
-    print("Der Schnösel ist jetzt fit.", 76, 78, C.cream)
-    print("Persol sitzt. Blazer spannt.", 73, 94, C.green)
+    for i = 0, 11 do
+      local a = i * 0.5236 + frame_count * 0.02
+      local r = 70 + (i % 2) * 12
+      local x, y = 160 + math.cos(a) * r, 140 + math.sin(a) * r * 0.7
+      rectfill(x - 1, y - 3, x + 1, y + 3, C.gold)
+      rectfill(x - 3, y - 1, x + 3, y + 1, C.gold)
+    end
+    draw_figure("snoesel_muscle_flex", 160, 6)
   else
-    print("DIE STANGE WACKELT!", 87, 61, C.red)
-    print("Atmen, ausgleichen, nochmal.", 69, 80, C.cream)
+    draw_lifter(stage_of(fitness), "down", 20)
+    draw_sweat(4)
   end
-  print("SATZ " .. tostring(set_no) .. "   WIEDERHOLUNGEN " .. tostring(fitness), 84, 185, C.gold)
-  print("A ODER START: NOCH EIN SATZ", 73, 222, C.cream)
+  panel(20, 6, 299, 74, won and C.green or C.red)
+  if won then
+    print_c("GESCHAFFT!", 14, C.gold, 2)
+    print_c("Vom Moppel zum Muskelprotz.", 36, C.cream)
+  else
+    print_c("STANGE WEG!", 14, C.red, 2)
+    print_c("Stufe: " .. STAGE_NAMES[stage_of(fitness)], 36, STAGE_COL[stage_of(fitness)])
+  end
+  print_c("PUNKTE " .. score .. "   REKORD " .. best, 50, C.gold)
+  print_c("A ODER START: NOCHMAL", 62, C.cream)
 end
 
 function _draw()
