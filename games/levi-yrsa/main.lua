@@ -517,15 +517,24 @@ local function place_items()
   left = #items
 end
 
-local function shards(it, ground)
+-- Nächstes Brett unter x, y (Scherben, die neben ihrem Brett landen, fallen weiter)
+local function plat_below(room, x, y)
+  local best = ROOMS[room].plats[1]
+  for _, p in ipairs(ROOMS[room].plats) do
+    if p.y > y and p.y < best.y and x >= p.x0 and x <= p.x1 then best = p end
+  end
+  return best
+end
+
+local function shards(it, ground, plat)
   local k = KINDS[it.kind]
   for _ = 1, 10 + (k.heavy and 8 or 0) do
-    parts[#parts + 1] = {room = it.room, x = it.x + it.w / 2 + rnd(6) - 3, y = ground - 2, ground = ground,
+    parts[#parts + 1] = {room = it.room, x = it.x + it.w / 2 + rnd(6) - 3, y = ground - 2, ground = ground, plat = plat,
       vx = rnd(3) - 1.5, vy = -1 - rnd(2.5), c = rnd(k.shard), s = rnd(1) < 0.3 and 2 or 1}
   end
 end
 
-local function knocked(it, soft, ground)
+local function knocked(it, soft, ground, plat)
   local k = KINDS[it.kind]
   it.state = "gone"
   left = left - 1
@@ -544,7 +553,7 @@ local function knocked(it, soft, ground)
     add_noise(k.noise, it.room)
     shake = k.heavy and 8 or 4
     SFX.crash(it.kind)
-    shards(it, ground)
+    shards(it, ground, plat)
     popup(it.room, it.x - 12, ground - 26, k.word, C.text)
     popup(it.room, it.x - 2, ground - 16, "+" .. pts, C.gold)
   end
@@ -583,7 +592,7 @@ local function update_items()
       for _, p in ipairs(ROOMS[it.room].plats) do
         if p ~= it.plat and prev <= p.y and it.y >= p.y and (p.floor or (cx > p.x0 and cx < p.x1)) then
           it.y = p.y
-          knocked(it, p.soft, p.y)
+          knocked(it, p.soft, p.y, p)
           break
         end
       end
@@ -722,7 +731,10 @@ local function update_play()
     local p = parts[i]
     p.vy = p.vy + GRAV
     p.x, p.y = p.x + p.vx, p.y + p.vy
-    if p.y >= p.ground - 1 and p.vy > 0 then
+    if p.y >= p.ground - 1 and p.vy > 0 and p.plat and (p.x < p.plat.x0 or p.x > p.plat.x1) then
+      p.plat = plat_below(p.room, p.x, p.ground)
+      p.ground = p.plat.y
+    elseif p.y >= p.ground - 1 and p.vy > 0 then
       p.y = p.ground - 1 - flr(rnd(2))
       if #debris > 200 then table.remove(debris, 1) end
       debris[#debris + 1] = p
