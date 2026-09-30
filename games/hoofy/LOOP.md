@@ -21,8 +21,11 @@ Diese Datei ist die Anleitung für Claude, wenn Hoofy im Loop gebaut wird. Start
    `- [ ]` in PLAN.md, die nicht `BLOCKIERT` ist. Ins Protokoll: `begonnen`.
 3. **Umsetzen:** KATALOG.md ist die Quelle für alle Zahlen, README_HOOFY.md für das Verhalten.
    Fehlt etwas: selbst sinnvoll entscheiden, **nicht warten**, und die Entscheidung in
-   ENTSCHEIDUNGEN.md eintragen (Nummer, ein Satz, betroffene Aufgabe). Entscheidungen, die schon
-   dort stehen, gelten; hat der Mensch eine geändert, gilt seine Fassung.
+   ENTSCHEIDUNGEN.md eintragen (Nummer, ein Satz, betroffene Aufgabe).
+   Entscheidungen sind vorläufig: Zeigt sich beim Bauen, dass eine andere Lösung besser ist
+   (Bedienung zu umständlich, Tasten kollidieren, Wert fühlt sich falsch an), darf der Loop sie
+   ändern. Dann den Code anpassen und im Eintrag vermerken: `geändert: alt → neu, weil …`.
+   Nur Einträge mit **✔** hat der Mensch bestätigt; die bleiben, wie sie sind.
 4. **Prüfen:** die Prüfung aus der Aufgabe **und** `make test` (alle Spiele). Screenshots ansehen,
    nicht nur den Exit-Status. Bei Grafik die Shot-Sheet-Übersicht (`SHOTS=…`) nutzen.
 5. **Festhalten:** Häkchen in PLAN.md mit einer kurzen Notiz, Zeile in PROTOKOLL.md

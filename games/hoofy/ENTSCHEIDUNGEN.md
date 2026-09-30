@@ -1,7 +1,10 @@
 # Hoofy – Entscheidungen zum Überprüfen
 
 Alles, was nicht in README_HOOFY.md oder KATALOG.md steht und trotzdem festgelegt werden musste.
-Streichen oder ändern gilt: Der Loop übernimmt beim nächsten Durchlauf die geänderte Fassung.
+Alles hier ist vorläufig: Der Loop darf Einträge ändern, wenn sich beim Bauen etwas Besseres
+zeigt, und vermerkt dann `geändert: alt → neu, weil …`.
+Mensch: ändern oder streichen gilt ab dem nächsten Durchlauf. **✔** vor einem Eintrag = bestätigt,
+den ändert der Loop nicht mehr.
 Format: **E-Nummer** (Aufgabe) Entscheidung.
 
 ## Bedienung
