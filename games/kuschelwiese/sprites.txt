@@ -1,0 +1,284 @@
+# Grafik von Kuschelwiese: ein Zeichen pro Pixel, "." ist durchsichtig.
+# "bunny_" gibt es per recolor als "evil_" (rote Augen, Blut an den Backen).
+
+palette
+k 3a2a3a   Umriss
+V fbf8ef   Fell weiß
+g ddd3e2   Fell Schatten
+p f7a8c4   Ohr innen, Nase
+P f6c0cf   Bäckchen
+i 2b1f2b   Auge
+m ee7a26   Möhre
+M ffae5c   Möhre hell
+l 7cc050   Möhrengrün
+f 4f9a3a   Grün dunkel
+R d8343c   Mütze rot
+r 9c2029   Mütze dunkel
+K f2c29b   Haut
+n e08e6e   Nase Zwerg
+B 3f6fb5   Jacke
+X 2c4f8f   Jacke dunkel
+Z 4a3226   Stiefel
+H f08a24   Säge Motor
+o 9aa0a6   Klinge
+O d8dde2   Klinge hell
+D e0475a   Herz
+d a02a3c   Herz dunkel
+Y f7d65a   Gelb
+y d9a93a   Gelb dunkel
+L b99ae8   Lila
+W ffffff   Weiß
+E 6d737a   Grau
+c 8a1020   Blut dunkel
+C c01828   Blut
+
+recolor bunny evil i=e0202a P=c01828 p=d0607a
+recolor gnome flitz R=f7d65a r=d9a93a B=4f9a3a X=2f6a2a
+recolor gnome brumm R=4f9a3a r=2f6a2a B=8a5a36 X=603c24 V=b8b0b8
+
+sprite bunny_down
+...kk....kk.....
+..kVpk..kpVk....
+..kVpk..kpVk....
+..kVpk..kpVk....
+..kVVkkkkVVk....
+.kVVVVVVVVVVk...
+.kVVVVVVVVVVk...
+.kViiVVVViiVk...
+.kPVVVppVVVPk...
+.kVVVVkkVVVVk...
+..kVVVVVVVVk....
+.kVVVVVVVVVVk...
+kVVgVVVVVVgVVk..
+kVVgVVVVVVgVVk..
+.kVVVVVVVVVVk...
+..kkkk..kkkk....
+
+sprite bunny_up
+...kk....kk.....
+..kVVk..kVVk....
+..kVVk..kVVk....
+..kVVk..kVVk....
+..kVVkkkkVVk....
+.kVVVVVVVVVVk...
+.kVVVVVVVVVVk...
+.kVVVVVVVVVVk...
+.kgVVVVVVVVgk...
+..kgVVVVVVgk....
+..kVVVVVVVVk....
+.kVVVVVVVVVVk...
+kVVVVVggVVVVVk..
+kVVVVgWWgVVVVk..
+.kVVVVggVVVVk...
+..kkkk..kkkk....
+
+sprite bunny_side
+......kk........
+.....kVpk.......
+.....kVpk.kk....
+.....kVpkkVpk...
+......kVVkVpk...
+......kVVVVk....
+.....kVVVVVVkk..
+....kVVVVViVVVk.
+....kVVVVVVVVpk.
+....kVVPVVVVVk..
+.kk.kVVVVVVVkk..
+kVVkkVVVVVVk....
+kVVVVVVVVVVVk...
+.kVgVVVVVVVVk...
+..kVVgVVVVgVk...
+...kkkk..kkkk...
+
+sprite bunny_dead
+................
+................
+................
+................
+................
+....kkkkkkkk....
+.kkkVVVVVVVVkk..
+kpVVVVVVVVVVVVk.
+kpVVkVkVVVVVVVVk
+kpVVVkVVVVVVgVVk
+kpVVkVkVVVVgVVVk
+.kkkVVVVVVVVVkk.
+....kkkkkkkkk...
+
+sprite gnome_walk
+.....kk.....
+....kRRk....
+....kRRk....
+...kRRRRk...
+...kRrRRk...
+..kRRRRRRk..
+.kRRRRRRrRk.
+.kKKKKKKKKk.
+.kKikKKkiKk.
+.kKKKnnKKKk.
+kVVVVVVVVVVk
+kVVVkkkkVVVk
+.kVVVVVVVVk.
+.kBVVVVVVBk.
+kBBBkVVkBBBk
+kBXBBkkBBXBk
+.kZZk..kZZk.
+.kkkk..kkkk.
+
+sprite carrot
+...l.l..
+...lfl..
+....l...
+..kkkk..
+.kMmmmk.
+.kMmmmk.
+..kMmk..
+..kmmk..
+...kk...
+
+sprite heart
+.kk.kk.
+kDDkDDk
+kDWDDDk
+kDDDDdk
+.kDDdk.
+..kdk..
+...k...
+
+sprite heart_empty
+.kk.kk.
+kEEkEEk
+kE...Ek
+kE...Ek
+.kE.Ek.
+..kEk..
+...k...
+
+sprite chick
+..kkk...
+.kYYYk..
+.kYiYkk.
+.kYYYyyk
+kYYYYYk.
+kyYYYYk.
+.kYYYk..
+..k.k...
+
+sprite butterfly1
+kk...kk
+kLk.kLk
+kLLkLLk
+.kLkLk.
+kLLkLLk
+.kk.kk.
+
+sprite butterfly2
+.......
+..k.k..
+.kLkLk.
+.kLkLk.
+..k.k..
+.......
+
+sprite flower_p
+.p.p.
+ppYpp
+.p.p.
+..f..
+..f..
+
+sprite flower_y
+.Y.Y.
+YYDYY
+.Y.Y.
+..f..
+..f..
+
+sprite flower_dead
+.....
+.E...
+..Ek.
+..f..
+.f...
+
+sprite feather
+..VV
+.VVg
+VVg.
+g...
+
+sprite gib_hat
+..kk..
+.kRRk.
+kRRRRk
+kRrRRk
+.kkkk.
+
+sprite gib_beard
+kVVVVk
+kVkkVk
+.kVVk.
+..kk..
+
+sprite gib_boot
+kZZk.
+kZZZk
+kkkkk
+
+sprite gib_eye
+.kk.
+kWWk
+kWik
+.kk.
+
+sprite saw_side1
+.kkkk...........
+kHHHHkkkkkkkkkk.
+kHmmHOoOoOoOoOOk
+kHHHHoOoOoOoOoOk
+kHmmHkkkkkkkkkk.
+.kkkk...........
+
+sprite saw_side2
+.kkkk...........
+kHHHHkkkkkkkkkk.
+kHmmHoOoOoOoOook
+kHHHHOoOoOoOoOok
+kHmmHkkkkkkkkkk.
+.kkkk...........
+
+sprite saw_v1
+.kkkk.
+kHHHHk
+kHmHmk
+kHmHmk
+kHHHHk
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.kOOk.
+..kk..
+
+sprite saw_v2
+.kkkk.
+kHHHHk
+kHmHmk
+kHmHmk
+kHHHHk
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kOok.
+.koOk.
+.kook.
+..kk..

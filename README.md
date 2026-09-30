@@ -27,6 +27,7 @@ Engine aus diesem Repo enthält.
 | [Huf-Hüpfer](games/hufhuepfer/main.lua) | Pferde-Jump-and-Run: springen (hoch), unter Ästen rutschen (runter), Bretterwände kaputt treten (A), Snacks in der Luft und am Boden, Pause (START) |
 | [Mieznake](games/mieznake/main.lua) | Snake mit einer flauschigen Britisch Kurzhaar in Blue Silver Shaded Shell: Leckerli sammeln, wachsen und nicht in die Wand oder den eigenen Körper laufen. |
 | [Ausgebüxt!](games/ausgebuext/main.lua) | Die Pferde sind ausgebüxt: vor Sonnenuntergang zurück auf die Koppel führen (A: nehmen/loslassen, B: rennen). Pferde sind brav, faul, scheu oder verfressen, in Level 3 („Zickenalarm“) auch zickig (nur von vorne nehmen, am Strick nicht rennen), launisch (bei Gewitterwolke warten) oder eine Diva (nur allein am Strick, will unterwegs Möhren). Technik-Test für Hoofy: scrollende Kachelkarte in 3/4-Ansicht, Tiefensortierung, Level als Daten |
+| [Kuschelwiese](games/kuschelwiese/main.lua) | Ein ganz liebes Hasenspiel: Hoppel sammelt Möhren auf der Blumenwiese. Bis die Gartenzwerge kommen. Dann Kettensäge (A halten), Hechtsprung (B), Wellen, Combos und sehr viel Pixelblut. Rekord wird gespeichert |
 | [Hoofy](games/hoofy/README_HOOFY.md) | Größeres Pferdespiel-Konzept |
 
 ## Engine ändern
