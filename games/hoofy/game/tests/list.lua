@@ -7,4 +7,5 @@ return {
   "spieler",
   "pferdegrafik",
   "pferd",
+  "wild",
 }

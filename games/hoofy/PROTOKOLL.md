@@ -17,3 +17,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:15 | A3 Pferdegrafik | fertig | galerie Shot-Sheet (2 Seiten, alle Posen), Vergrößerung aller Körper, SELFTEST OK 19, Bild 640k Pixel, make test grün | Hoofy A3
 2026-10-01 00:17 | A4 Pferdemodell | begonnen | – | –
 2026-10-01 00:18 | A4 Pferdemodell | fertig | 6 Selbsttests je 10 000 Pferde (Mittel/σ, Stufen 40,7/30,1/17,3/9,0/2,9), SELFTEST OK 25, make test grün | Hoofy A4
+2026-10-01 00:20 | A5 Wildpferde in der Welt | begonnen | – | –
+2026-10-01 00:21 | A5 Wildpferde in der Welt | fertig | Shot-Sheet grasen/fliehen, SELFTEST OK 28, make test grün | Hoofy A5

@@ -1,10 +1,11 @@
 -- Die Welt-Szene: herumlaufen im aktuellen Gebiet. Pferde, Tag/Nacht, Menüs kommen mit den
 -- Aufgaben aus PLAN.md dazu.
 local Stage = require("game.stage")
+local Wild = require("game.wild")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t
+local ctx, paused, anim_frame, t, wild
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
@@ -17,6 +18,9 @@ function WorldScene.enter(arg)
     ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
   end
   paused, anim_frame, t = false, 1, 0
+  wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
+  wild:fill()
+  ctx.wild = wild
 end
 
 function WorldScene.update()

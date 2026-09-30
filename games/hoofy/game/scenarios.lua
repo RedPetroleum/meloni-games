@@ -36,6 +36,11 @@ function Scenarios.karte_ganz(save)
   return "overview", {nr = save.gebiet or 1, seed = save.seed}
 end
 
+-- Wildpferde im Sichtfeld: Start am Hof, save.cx/cy überschreiben. Pferde stehen dann nah am Spieler.
+function Scenarios.wildpferde(save)
+  return "world", {ort = "start", wild_nah = true}
+end
+
 -- Alle Rassen mit je drei Farben, Posen laufen durch (Seite wechselt alle 4 s).
 function Scenarios.galerie()
   return "gallery"

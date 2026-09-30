@@ -77,8 +77,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Farbstufen ≈ 40/30/18/9/3 % (±2), Max-Potenzial nie über 100, Ausdauer 50–100.
   *Erledigt:* `game/horse_model.lua` (`H.wild{gebiet, rasse, rng}`, `H.stat`), Selbsttest `pferd`:
   Haflinger Mittel/σ passen, Shetlandpony 40,7/30,1/17,3/9,0/2,9 %. Entscheidungen E25–E27.
-- [ ] **A5 Wildpferde in der Welt**: 4 gleichzeitig, grasen/wandern/fliehen, Wechsel alle 3 Tage.
+- [x] **A5 Wildpferde in der Welt**: 4 gleichzeitig, grasen/wandern/fliehen, Wechsel alle 3 Tage.
   Prüfung: Shot-Sheet; Selbsttest Wechsel nach 3 Tagen (1–2 neue).
+  *Erledigt:* `game/wild.lua` (`Wild:new_day(tag)` ruft A12 beim Tageswechsel auf), Szenario
+  `wildpferde`. Fliehen bei < 72 px, weit entfernte Pferde nur alle 30 Frames. Wechsel nur
+  getestet, noch nicht an einen Tageszähler gehängt (kommt mit A12).
 - [ ] **A6 Sprechblasen**: Emoji-Sprites, Vorrang und Schwellen (E10, E11), Charakter-Blasen.
   Prüfung: Szenario `blasen` mit je einem Pferd pro Zustand, Screenshot.
 - [ ] **A7 Zähmen**: Minispiel nach E16, Schwierigkeit nach Bindung.
