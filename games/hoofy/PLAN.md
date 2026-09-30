@@ -11,6 +11,17 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Phase A (Version 0.1.0)** – Bedienung siehe ENTSCHEIDUNGEN.md E1–E3, E5, E6, E29–E31
+- [ ] Hoofy 0.1.0 erscheint nach „Update games“, Cover zeigt den Hof.
+- [ ] Titel → START: neues Spiel. Laufen (B rennt), Dorf im Osten/Westen besuchen, Namen über den Gebäuden.
+- [ ] Wildpferd anschleichen: stehen bleiben, solange es hinschaut (❗ warnt). A in der Nähe zähmt.
+- [ ] A neben dem eigenen Pferd: Menü. Füttern, Streicheln, Striegeln, Aufsitzen, Unterbringen.
+- [ ] Reiten: B galoppiert, A antippen springt (Busch, Zaun), A halten steigt ab. Energie-Balken unten links.
+- [ ] Nachts: Sichtkreis; am Wohnwagen A = schlafen und speichern. START → Speichern, SELECT → Karte.
+- [ ] Neu starten: Titel zeigt „Weiter“, alles ist da (Pferde, Hof, Karte, Geld).
+- [ ] Ruckelt es beim Scrollen/Reiten? Ladezeit des Spiels (Sprites ≈ 1,8 MB)? Nachtkreis flüssig?
+- [ ] Tastenbelegung okay? Was fehlt oder nervt, unter „Rückmeldungen“ oben eintragen.
+
 **Phase 0 (Version 0.0.1)**
 - [ ] Hoofy erscheint nach „Update games“ im Meloni-Tab, mit Cover.
 - [ ] Titel → START oder A → Welt; herumlaufen, B hält zum Rennen, START pausiert.
@@ -18,7 +29,8 @@ Checklisten des Loops für jede fertige Phase.
 
 ## Stand
 - Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
-- Phase A läuft: A1–A12 fertig (Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht).
+- Phase A fertig (0.1.0): Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht, Menüs, Speichern, Karte, Töne.
+- Als Nächstes Phase B (Wirtschaft und Zucht), Start bei B1 Geld und Laden.
 
 ## Aufgaben
 
@@ -142,7 +154,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/sfx.lua` (E37), Hooks in Menü, Reiten, Wildpferden, Pflege, Tageszeit.
   WAVs `runner/build/meloni-run --headless --frames 420 --wav out.wav games/hoofy` (mit `--save` auf
   eine Datei `return {scenario = "ritt", screen = "none"}`). Geprüft mit Lautstärke je 50 ms.
-- [ ] **A-Ende**: Cover, README-Tabelle, version 0.1.0, Konsolen-Checkliste, Push.
+- [x] **A-Ende**: Cover, README-Tabelle, version 0.1.0, Konsolen-Checkliste, Push.
 
 ### B Wirtschaft und Zucht
 
