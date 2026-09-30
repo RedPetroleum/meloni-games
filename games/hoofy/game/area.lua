@@ -37,6 +37,8 @@ function Area.get(nr, seed)
     area.places.start = {area.plot.x + 10, area.plot.y + 8}   -- im Hof, zwischen Stall und Weide
     local d = Farm.stall_door(area.farm)
     area.places.stalltuer = {d[1], d[2]}
+    local bd = Farm.bed_door(area.farm)
+    area.places.bett = {bd[1], bd[2]}
   end
   cache = {[key] = area}   -- nur ein Gebiet im Speicher
   return area

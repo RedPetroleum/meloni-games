@@ -41,6 +41,11 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
+-- Tageszeit: save.zeit = Frame im Tag (0–18000, ab 10800 ist es dunkel), save.tag = Tagesnummer.
+function Scenarios.abend(save)
+  return "world", {ort = "start", zeit = save.zeit or 9800, tag = save.tag}
+end
+
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
 function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}

@@ -34,6 +34,7 @@ function Stage.build(nr, seed)
   local st = area.places.start
   local px, py = st[1] * 16 + 8, st[2] * 16 + 14
   -- Vorrat (E31): das Startinventar; Kauf und Ernte kommen mit B1/C5
+  ctx.money = 300                 -- Startgeld (KATALOG §15)
   ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 1}
   ctx.player = ctx.world:add(Player.new(ctx, px, py))
   ctx.trail = Trail.new(px, py)
@@ -55,6 +56,25 @@ local function draw_labels(ctx)
         rectfill(x - 2, y - 1, x + textw(text) + 1, y + 8, Stage.COLORS.panel)
         print(text, x, y, Stage.COLORS.gold)
       end
+    end
+  end
+end
+
+-- Nacht (E14): außerhalb eines Kreises um (cx, cy) ist alles schwarz. Gezeichnet mit waagerechten
+-- Streifen von STRIP Pixeln Höhe (ein paar Dutzend rectfill), der Kreis wird dadurch treppenförmig.
+local STRIP = 4
+function Stage.draw_night(cx, cy, radius)
+  local top = Stage.HUD_H
+  for y0 = top, SCREEN_H - 1, STRIP do
+    local y1 = min(SCREEN_H - 1, y0 + STRIP - 1)
+    -- engster Abstand zur Mitte in diesem Streifen bestimmt die Breite (Kreis bleibt innen)
+    local dy = max(abs(y0 - cy), abs(y1 - cy))
+    if dy >= radius then
+      rectfill(0, y0, SCREEN_W - 1, y1, 0)
+    else
+      local hw = flr(math.sqrt(radius * radius - dy * dy))
+      if cx - hw > 0 then rectfill(0, y0, cx - hw - 1, y1, 0) end
+      if cx + hw < SCREEN_W - 1 then rectfill(cx + hw, y0, SCREEN_W - 1, y1, 0) end
     end
   end
 end

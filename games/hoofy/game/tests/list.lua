@@ -14,4 +14,5 @@ return {
   "reiten",
   "pflege",
   "hof",
+  "tag",
 }

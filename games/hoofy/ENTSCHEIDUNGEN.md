@@ -45,6 +45,9 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   geändert (A3): dunkle Sprite-Varianten → keine für Pferde, im Sichtkreis sind sie normal hell,
   weil 23 Farben × 4 Körper × 9 Posen doppelt so viel Bildspeicher bräuchten (heute schon 1,8 MB).
   Dunkle Bodenkacheln bleiben.
+  geändert (A12): dunkle Bodenkacheln → keine, Bilder lassen sich nicht einfärben; Nacht = schwarz
+  außerhalb eines Sichtkreises (Radius 70 px, ≈ 91 rectfill je Frame), Dämmerung 15 s und Sonnenaufgang
+  10 s als weicher Übergang.
 
 - **E17** (A1) Start-Grundstück: 20×20 Kacheln (2×2 Landstücke aus KATALOG §9) in der Mitte des
   Heimattals, auf dem 10er-Raster der Landstücke.
@@ -71,6 +74,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E33** (A12) Tag: Start am Morgen, 10 800 Frames hell, dann 7 200 dunkel. Schlafen: nur nachts
+  (A an der Wohnwagentür), überspringt den Rest der Nacht, sonst „Noch nicht müde“. Pause und Menüs
+  halten die Uhr an. Reihenfolge des Tageswechsels: Bindung (aus gestrigen Zuständen), Gewicht,
+  Unterbringung, Hunger +25, Energie zurück, Fohlenalter +¼. Nachteulen: +20 Energie bei Einbruch
+  der Nacht (darf über die Ausdauer gehen), morgens Ausdauer −10. HUD: Tag, Sonne/Mond mit Fortschritt,
+  Geld (Startgeld 300, Ausgeben kommt mit B1). Speichern beim Schlafen kommt mit A14.
 - **E32** (A11) Hof: Grundstück 20×20 (E17). Wohnwagen und Stall S im Norden, Weide (Zaunring
   10×7 mit Tor oben, Innenfläche 8×5) im Süden, Start im Hof dazwischen. Plätze: Stall nach
   KATALOG §9, Weide 1 je 10 Innenkacheln (= 4), frei auf dem Grundstück 1 je 50 Kacheln (= 8).

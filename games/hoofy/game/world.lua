@@ -6,6 +6,8 @@ local Leash = require("game.leash")
 local Ride = require("game.ride")
 local Care = require("game.care")
 local Farm = require("game.farm")
+local Clock = require("game.clock")
+local Days = require("game.days")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -13,7 +15,7 @@ local U = require("lib.util")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu
+local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
@@ -28,6 +30,8 @@ function WorldScene.enter(arg)
   paused, anim_frame, t = false, 1, 0
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
   toast, a_hold, a_free, menu = nil, 0, false, nil
+  clock = Clock.new(arg and arg.tag, arg and arg.zeit)
+  ctx.clock = clock
   if arg and arg.hof then
     -- Drei eigene Pferde: eins auf der Weide, eins im Stall, eins an der Leine
     wild.count = 0
@@ -202,6 +206,14 @@ function WorldScene.update()
     return
   end
   t = t + 1
+  local ev = clock:update()
+  if ev == "dusk" then
+    Days.dusk(ctx)
+    say("Es wird dunkel.", 120)
+  elseif ev == "day" then
+    Days.new_day(ctx, clock.day)
+    say("Tag " .. clock.day .. " beginnt.", 150)
+  end
   local p = ctx.player
   if p.riding then
     -- Reiten (E3): A antippen = springen, A lange halten = absteigen
@@ -231,6 +243,14 @@ function WorldScene.update()
       if own then
         open_menu(own)
         ctx.sfx.select()
+      elseif U.dist(p.x, p.y, ctx.area.places.bett[1] * 16 + 8, ctx.area.places.bett[2] * 16 + 8) <= 26 then
+        if clock:sleep() then
+          Days.new_day(ctx, clock.day)
+          say("Gut geschlafen. Tag " .. clock.day .. " beginnt.", 180)
+          ctx.sfx.start()
+        else
+          say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)
+        end
       elseif wild:at_stall_door() and #wild:in_stall() > 0 then
         open_stall()
         ctx.sfx.select()
@@ -268,13 +288,19 @@ end
 local function draw_hud()
   local C = ctx.colors
   rectfill(0, 0, SCREEN_W - 1, Stage.HUD_H - 1, C.panel)
-  print("Tag 1", 4, 3, C.text)
+  print("Tag " .. clock.day, 4, 3, C.text)
+  local icon, f = clock:face()
+  ctx.S.draw(icon, 50, 3)
+  rectfill(62, 5, 101, 8, C.panel_light)
+  rectfill(62, 5, 62 + flr(39 * f), 8, icon == "icon_sun" and C.gold or C.dim)
+  local money = ctx.money .. " G"
+  print(money, SCREEN_W - textw(money) - 4, 3, C.gold)
   local name = ctx.area.name
   print(name, (SCREEN_W - textw(name)) // 2, 3, C.dim)
   -- Energie des Pferds beim Reiten (E9)
   local r = ctx.player.riding
   if r then
-    local max_e = r.data.gen.ausdauer
+    local max_e = H.stat(r.data, "ausdauer")
     local e = r.data.energie
     local w = 70
     rectfill(4, SCREEN_H - 12, 4 + w + 1, SCREEN_H - 5, C.panel)
@@ -302,6 +328,11 @@ end
 
 function WorldScene.draw()
   Stage.draw_world(ctx, draw_rope)
+  local radius = clock:sight(70, false)
+  if radius and radius < 400 then
+    local p = ctx.player
+    Stage.draw_night(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), radius)
+  end
   draw_hud()
   if menu then
     local h = menu.horse

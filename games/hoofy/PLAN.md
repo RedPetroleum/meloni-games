@@ -18,7 +18,7 @@ Checklisten des Loops für jede fertige Phase.
 
 ## Stand
 - Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
-- Phase A läuft: A1–A6 fertig (Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen).
+- Phase A läuft: A1–A12 fertig (Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht).
 
 ## Aufgaben
 
@@ -115,10 +115,13 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Szenario `hof_start`, Screenshot; Selbsttest Verluste pro Tag.
   *Erledigt:* `game/farm.lua`, Sprites Wohnwagen und Tor, Unterbringen/Stalltür in `game/world.lua`.
   Screenshot `hof_start` (Wohnwagen, Stall, Weide mit Pferd, Pferd an der Leine). Entscheidung E32.
-- [ ] **A12 Tag und Nacht**: 5 min pro Tag (3 hell, 2 dunkel), Nachtdarstellung (E14),
+- [x] **A12 Tag und Nacht**: 5 min pro Tag (3 hell, 2 dunkel), Nachtdarstellung (E14),
   Schlafen im Wohnwagen, Tageswechsel wendet alle Tagesregeln an (Hunger, Gewicht, Sauberkeit,
   Energie-Reset, Fohlenalter …).
   Prüfung: Shot-Sheet Abend → Nacht; Selbsttest Tageswechsel mit Beispielpferd.
+  *Erledigt:* `game/clock.lua`, `game/days.lua`, Nachtkreis `Stage.draw_night`, Schlafen am Wohnwagen.
+  Szenario `abend` (`zeit = 11000` + Drehbuch zum Wohnwagen schläft). Wildpferdwechsel ist jetzt an
+  den Tageszähler gehängt. E14 geändert, E33.
 - [ ] **A13 Menüs**: HUD (E9), Pausenmenü (E5), Pferdeliste, Pferde-Info (Balken mit Gen,
   Training, Max-Potenzial), Umbenennen mit Bildschirmtastatur, Inventar.
   Prüfung: Screenshot jedes Bildschirms.

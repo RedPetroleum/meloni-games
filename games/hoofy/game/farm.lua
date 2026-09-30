@@ -72,6 +72,13 @@ function Farm.stall_door(farm)
   end
 end
 
+-- Kachel vor der Wohnwagentür (Schlafen).
+function Farm.bed_door(farm)
+  for _, b in ipairs(farm.buildings) do
+    if b.id == "wohnwagen" or b.id == "haeuschen" or b.id == "villa" then return {b.cx + 1, b.cy + 2} end
+  end
+end
+
 -- Plätze: Stall (Summe der Ställe), Weide (Innenfläche / 10), frei (Grundstück / 50).
 function Farm.capacity(farm)
   local stall = 0
