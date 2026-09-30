@@ -23,9 +23,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### 0 Grundlagen
 
-- [ ] **0.1 Gerüst**: `main.lua`, `meta.json` (api 1, version 0.0.1), Szenen Titel/Welt wie Ausgebüxt,
+- [x] **0.1 Gerüst**: `main.lua`, `meta.json` (api 1, version 0.0.1), Szenen Titel/Welt wie Ausgebüxt,
   `lib/` aus Ausgebüxt übernommen. Titel → Welt mit START oder A.
   Prüfung: `make test` grün, Screenshot zeigt die Welt (nicht den Titel).
+  *Erledigt:* Szenen `game/title.lua`, `game/world.lua`, `lib/` und `sprites.txt` aus Ausgebüxt,
+  Platzhalter-Karte `game/maps.lua` (ersetzt A1; `lib/tilemap.lua` hat noch Tabellen je Kachel).
 - [ ] **0.2 Test-Werkzeug**: `game/scenarios.lua`, Szenario `selftest`, `tools/hoofy-test.sh` (siehe LOOP.md).
   Prüfung: `tools/hoofy-test.sh selftest` loggt `SELFTEST OK`; ein absichtlich falscher Test
   lässt es mit Status 1 enden (danach wieder entfernen).

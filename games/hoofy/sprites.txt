@@ -1,0 +1,968 @@
+# Grafik von Hoofy (Grundstock aus Ausgebüxt!): ein Zeichen pro Pixel, "." ist durchsichtig.
+# tools/sprites.py macht daraus sprites.png und sprites.lua (make test/run/shot tun das automatisch).
+# Bodenkacheln sind 16x16. Namen mit horse_ gibt es per recolor in weiteren Fellfarben.
+
+palette
+k 2b1f1d   Umriss
+g 7fb04f   Gras
+G 9fcd66   Gras hell
+d 5f8f3e   Gras dunkel
+e d4b077   Weg
+E b99158   Weg dunkel
+j e8cc95   Weg hell
+s ead7a0   Sand
+S d5bb82   Sand dunkel
+q 4a8cc0   Wasser
+Q 8fc8e6   Wasser hell
+z 3a6fa0   Wasser dunkel
+n 8a5a36   Erde
+N 603c24   Erde dunkel
+w 7b4c2b   Holz
+W b07a44   Holz hell
+v 553320   Holz dunkel
+r b8473a   Dach
+R d96a50   Dach hell
+x 8a3129   Dach dunkel
+c f3e5c4   Wand
+C d8c59d   Wand Schatten
+f 4f8b3a   Laub
+F 37682d   Laub dunkel
+l 7cb54b   Laub hell
+o 9aa0a6   Stein
+O c8cdd1   Stein hell
+p 6d737a   Stein dunkel
+a d9b35a   Heu
+A f3d57f   Heu hell
+m ee7a26   Möhre
+M ffae5c   Möhre hell
+P f39bb8   Blüte rosa
+Y f7d65a   Blüte gelb
+V fbf8ef   Weiß
+D e0475a   Herz rot
+h 9a5a34   Fell (braun, andere Farben per recolor)
+H c07f4c   Fell hell
+b 6c3b22   Fell dunkel
+u 3a2721   Mähne, Hufe
+U e9c29c   Maul, Blesse
+i 1e1e24   Auge
+K f2c29b   Haut
+L 6b3e26   Haare
+B 3f6fb5   Hemd
+X 2c4f8f   Hemd dunkel
+T 4f4038   Hose
+Z 3b2a24   Stiefel
+I d9c38c   Strick
+
+# Fuchs
+recolor horse fuchs h=c46c30 H=e39a5e b=8e4a1e u=ecc27c U=f5dcbc
+# Rappe
+recolor horse rappe h=3d3943 H=5c5766 b=28252c u=17151a U=e6ddd2
+# Schimmel
+recolor horse schimmel h=d9d8d0 H=f6f5ee b=b1b0a8 u=8c8a88 U=f0c8c0
+# Falbe
+recolor horse falbe h=d0a860 H=e9c984 b=a78240 u=4a3524 U=f2dcb2
+# Bunt: pink mit türkiser Mähne und gelbem Maul (Konfetti, die Diva)
+recolor horse bunt h=ec5fb4 H=ffa3dc b=9d3fd0 u=2fe0cf U=ffe44d
+
+# Weg, zwei Varianten gegen Wiederholung
+sprite ground_path1
+jeeeeeeeEEeeeEee
+eeeEEeeeeeEeeeee
+eeeEeeeeeejeeeee
+eeeeeeeeEeeeeeee
+eeeeeeeEEeeeeeee
+eeeeeeeeeeeEeeee
+eeeeEeeeeeeeeeee
+EeeeeeeeeeeEEEee
+jeeEjejeeeeeEeee
+jeeeeeEEjejeeeee
+eeeeeeeeEeeeeeee
+eeeEeEeeeeeeeeee
+eeeejeeeeeeEeeee
+eeeeeeeeeeeeEjee
+eeeeeeeeeejejEEe
+eeeeeeeeEeeeeeee
+
+sprite ground_path2
+eeEjeeeeeeejeeee
+eeeeEEeeeeeeeEej
+eeeeeeeeeeeeejee
+eeeeeeeeeeeeeeee
+ejeeeeeeeeeeeeee
+eEeeeeeEeeeejeee
+eeeeEeeejeEeEeej
+eeeEejEeeejeEeee
+eeeeeeeejeejeeej
+eeeeEejEEjjeeeee
+eeeeeeeeeeEEejee
+jeeeeeeeeeeeeeeE
+eeejeeeeeeeeEeje
+eeEeeeeeEeeeEeee
+eeeejjjeeeeEeeee
+eeeeeeeeeeeeeeee
+
+# Koppel
+sprite ground_sand1
+sssssSSsssssssss
+sssssSsssSssssss
+sssssjssssssssss
+ssssssssssssssss
+sSssSssssssSsSss
+sssssSsSssssSsss
+ssssssssssssssss
+sSssSssSssssssSS
+sssssssssssssSss
+sssssssjssssssss
+sssjssssssssssjs
+ssssssssSsssssss
+sssssssSsssSssss
+ssSsssssssssssss
+sssssssssSssSsss
+sssSSjjSssSsssss
+
+sprite ground_sand2
+sjssSssssssssjss
+sssssssssjsssssj
+sssssssssssssssS
+Ssssssssssssssss
+sjSsssssssSsssss
+SssssssssssssssS
+SssssjsssSSsssSs
+ssssssssssSsssss
+SssssssSssssssss
+sjssssssssssssss
+sjsssSssssSsssss
+sSsSsjssssssssss
+ssSSssssssssSssj
+sssssssjjssssssS
+sssssssssssssssS
+sssssjssssssssss
+
+# Wasser, zwei Bilder für leichtes Glitzern
+sprite ground_water1
+qqqqqqzqqqqqqqqq
+zqqQQqqqqqzqqqqq
+qqqqqqqqqqqqqqqq
+zqqqqqqqqqqzqqzq
+qqQQqqqqqqqqqqqq
+qqzqqqqqqqqqqqqq
+qqqqqqqqqqqQQqzq
+qqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+zqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+qqqqzqqqqqqqqqqq
+QQqzqqqqqqzqqqqq
+qzqqqqqqqqqqqqqq
+qqqqqzqqqqqqqqqq
+
+sprite ground_water2
+qqqqqqzqqqqqqqqq
+zqqqqqQQqqzqqqqq
+qqqqqqqqqqqqqqqq
+zqqqqqqqqqqzqqzq
+qqzqqQQqqqqqqqqq
+qqzqqqqqqqqqqqqq
+qQQqqqqqqqqqqqzq
+qqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+zqqqqqqqqqqqqqqq
+qqqqqqqqqqqqqqqq
+qqqqzqqqqqqqqqqq
+qqqQQqqqqqzqqqqq
+qzqqqqqqqqqqqqqq
+qqqqqzqqqqqqqqqq
+
+# Brücke
+sprite ground_bridge
+vvvvvvvvvvvvvvvv
+vWWWvWWWvWWWvWWW
+vWwwvWwwvWwwvWwv
+vWvwvWvwvWvwvWvv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vWvwvWvwvWvwvWvv
+vWwwvWwwvWwwvWwv
+vWwwvWwwvWwwvWwv
+vvvvvvvvvvvvvvvv
+
+# Möhrenbeet
+sprite ground_carrots
+nnnnNnnnnnnnnnnn
+nlnlnnlnlnnlnlnn
+nflfnnflfnnflfnn
+nnfnnnnfnnnnfNnN
+nmMmnnmMmnnmMmnn
+NNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNN
+nnnnnnnnnnnnnNnN
+NnnnnnnNnnnnnnnn
+nlnlnnlnlnnlnlnn
+nflfnnflfnnflfnn
+NnfnnnnfnnnNfnnn
+NmMmnnmMmNnmMmnN
+NNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNN
+nnnnnNNnnnnnNnnn
+
+# Grasrand an Kanten zu Gras (n/s/w/e)
+sprite fringe_n
+ggdgdgddgddgddgg
+.ddg...gg.g..ggg
+.g.g...g
+
+sprite fringe_s
+.g.g...g
+.ddg...gg.g..ggg
+ggdgdgddgddgddgg
+
+sprite fringe_w
+g
+gdg
+dd
+ggg
+d
+g
+d
+dgg
+gg
+d
+dg
+g
+d
+dg
+gg
+gg
+
+sprite fringe_e
+..g
+gdg
+.dd
+ggg
+..d
+..g
+..d
+ggd
+.gg
+..d
+.gd
+..g
+..d
+.gd
+.gg
+.gg
+
+# Ufer
+sprite bank_n
+dddggdgdggdgddgg
+NNnnNnNnnNnnnNNn
+NnNnnnnNnnNNnnnn
+NNnnnnNNNNnNNNnN
+NNNNNNNNNNNNNNNN
+QQ.Q..Q.Q..QQ..Q
+
+sprite bank_s
+.QQQQQQQQQ..QQ
+gddgdddgdggdggdg
+gggggggggggggggg
+
+sprite bank_w
+gg
+gd
+gg
+gdQ
+gdQ
+gd
+ggQ
+ggQ
+gd
+gg
+gdQ
+gg
+ggQ
+gdQ
+ggQ
+gd
+
+sprite bank_e
+.gg
+.dg
+.gg
+Qdg
+Qdg
+.dg
+Qgg
+Qgg
+.dg
+.gg
+Qdg
+.gg
+Qgg
+Qdg
+Qgg
+.dg
+
+# Deko auf dem Gras
+sprite deco_tuft
+..G..
+G.G.G
+dGdGd
+
+sprite deco_tuft2
+.G.G
+dGdG
+.d.d
+
+sprite deco_flower_p
+.P.
+PYP
+.P.
+.d.
+
+sprite deco_flower_y
+.Y.
+YVY
+.Y.
+.d.
+
+sprite deco_pebble
+.O.
+oop
+
+# Baum: Stamm unten Mitte, steht auf dem Feld darunter
+sprite tree
+.............kkkkkk
+..........kkkllllllkkk
+.........klllllllllllfk
+........kllllllllllflflk
+.......klllllllllllllfffk
+......klllllllllllfffffffk
+.....kllllllllllffffffffffk
+.....klllllllllflfffffffffk
+.....kllllllllflffffffffffk
+....kllllllllffffffffffFFFFk
+...klllllllfffffffffffFFFlflk
+..klllllllffffffffffffFFllfffk
+.klllllllffflffffffffflfffffffk
+.kllllllllfffffffffFFllfffffffk
+klllllllfffffffffFFflffffffffFfk
+kllllflfffffflffFfFFfffffffffFFk
+kllllffffffffffFFFFffflfffffFFFk
+kllfffffffffFlffffffffffffffFFFk
+klffffffffffFlfffffffffffFFFFFFk
+kffffffffFFFlffffffffffffFFFFFFk
+.kfffffFfFFFffffffflffFFFFFFFFk
+.kfffffFFFFfffffffFFFFFFFFFFFFk
+..kfffFFFFFffffffFFFFFFFFFFFFk
+...kFFFFFFffffffFFFFFFFFFFFFk
+....kkFFFFffFffFFFFFFFFFFFkk
+......kkkkffFfFFFFFFFFkkkk
+..........kFFFFFFFFFFk
+...........kkFFFFFFkk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+............kNnNNNNk
+...........kNNnNNNNNk
+...........kNNnNNNNNk
+............kkkkkkkk
+
+sprite bush
+......kkllllkk
+.....klllllllfk
+...kklllllflfflkk
+..klllllllffffllfk
+.kllllllflfffllfffk
+.klllllfffffllffffk
+kllllfffffffffffffFk
+klllfffffffffffFfFFk
+kllfffffFFffffFFFFFk
+klfffffFFFfffFFFFFFk
+.kfffffFFFfFffFFFFk
+.kfffFFFFFfFFFFFFFk
+..kfFFFFFFfFFFFFFk
+...kkFFFFkkFFFFkk
+.....kkkk..kkkk
+
+sprite rock
+...kkOOOOkk
+..kOOOOOOOOk
+.kOOOOOOOoook
+.kOOOOOoooook
+kOOOOOoooooopk
+kOOOOooooooook
+kOOooooooooopk
+kooooooooopopk
+kppppppppppppk
+kppppppppppppk
+.kppppppppppk
+
+# Heuballen
+sprite hay
+.kkkkkkkkkkkkkk.
+kAAAAAAAAAAAAAAk
+kAAjAAAAAAjAAAAk
+kAAAAAAAAAAAAjAk
+kaAAAAAAAAAAAAak
+kaaaaaaaaaaaaaak
+kaaEaaaaaaaaEaak
+kaawaaaaaaaawaak
+kaawaaaEaaaawaak
+kaawaaaaaaaawaak
+kEawaaaaaEaawaEk
+kaawaaaaaaaawaak
+kEEwEEEEEEEEwEEk
+.kkkkkkkkkkkkkk.
+
+# Zaun
+sprite fence_post
+kkkk
+kWWk
+kWwk
+kWwk
+kWwk
+kWwk
+kWwk
+kWwk
+kWwk
+kWwk
+kwvk
+kkkk
+
+sprite fence_rail_e
+kkkkkkkk
+WWWWWWWW
+wwwwwwww
+kkkkkkkk
+........
+kkkkkkkk
+WWWWWWWW
+wwwwwwww
+kkkkkkkk
+
+sprite fence_rail_v
+kWwk
+kWwk
+kWwk
+kWwk
+kWwk
+
+# Stall, 4x3 Felder
+sprite stable
+..kRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRk
+.kRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRk
+kRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRk
+xrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrr
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+rrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrr
+rrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrr
+rrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrr
+rrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrr
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+rrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrr
+rrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrr
+rrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrr
+rrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrr
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+rrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrx
+rrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrx
+rrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrx
+rrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+rrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrr
+rrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrr
+rrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrr
+rrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrrrrrrxrrr
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+kkWwCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCwWkk
+.kWwCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCwWk
+.kWwCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCwWk
+.kWwccccccccccccccccccccccccccccccccccccccccccccccccccccccccwWk
+.kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWk
+.kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwk
+.kWwccccccccccccccccccccccccccccccccccccccccccccccccccccccccwWk
+.kWwccccccccccccccccccccccccccccccccccccccccccccccccccccccccwWk
+.kWwcccccccccccccccccvvvvvvvvvvvvvvvvvvvvvvcccccccccccccccccwWk
+.kWwcccccccccccccccccvvwwwwWwwwwWwwwwWwwwvvcccccccccccccccccwWk
+.kWwcccwwwwwwwwwcccccvWvwwwWwwwwWwwwwWwwvwvcccccwwwwwwwwwcccwWk
+.kWwcccwQQQwqqqwcccccvWwvwwWwwwwWwwwwWwvwwvcccccwQQQwqqqwcccwWk
+.kWwcccwQQQwqqqwcccccvWwwvwWwwwwWwwwwWvwwwvcccccwQQQwqqqwcccwWk
+.kWwcccwQQqwqqqwcccccvWwwwvWwwwwWwwwwvwwwwvcccccwQQqwqqqwcccwWk
+.kWwcccwwwwwwwwwcccccvWwwwwvwwwwWwwwvWwwwwvcccccwwwwwwwwwcccwWk
+.kWwcccwqqqwqqqwcccccvWwwwwWvwwwWwwvwWwwwwvcccccwqqqwqqqwcccwWk
+.kWwcccwqqqwqqqwcccccvWwwwwWwvwwWwvwwWwwwwvcccccwqqqwqqqwcccwWk
+.kWwcccwqqqwqqqwcccccvWwwwwWwwvwWvwwwWwwwwvcccccwqqqwqqqwcccwWk
+.kWwcccwwwwwwwwwcccccvWwwwwWwwwvvwwwwWwwwwvcccccwwwwwwwwwcccwWk
+.kWwcccccccccccccccccvWwwwwWwwwvvwwwwWwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwwwWwwvwWvwwwWwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwwwWwvwwWwvwwWwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwwwWvwwwWwwvwWwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwwwvwwwwWwwwvWwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwwvWwwwwWwwwwvwwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwwvwWwwwwWwwwwWvwwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWwvwwWwwwwWwwwwWwvwwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvWvwwwWwwwwWwwwwWwwvwvcccccccccccccccccwWk
+.kWwcccccccccccccccccvvwwwwWwwwwWwwwwWwwwvvcccccccccccccccccwWk
+.kNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNk
+
+# Mensch: down/up/side, _walk ist das Schrittbild (down/up gespiegelt für den anderen Fuß)
+sprite player_down
+...kkkkkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+.kLKKKKKKLk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkBBKKBBkk.
+kBBBBBBBBBBk
+kBBBBBBBBBBk
+kKBBBBBBBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kZZkkZZk..
+..kkkkkkkk..
+
+sprite player_down_walk
+...kkkkkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+.kLKKKKKKLk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkBBKKBBkk.
+kBBBBBBBBBBk
+kBBBBBBBBBBk
+kKBBBBBBBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kZZkkTTk..
+..kkkkkTTk..
+......kZZk..
+......kkkk..
+
+sprite player_up
+...kkkkkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+.kkBBBBBBkk.
+kBBBBBBBBBBk
+kBBXBBBBXBBk
+kKBBXBBXBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kZZkkZZk..
+..kkkkkkkk..
+
+sprite player_up_walk
+...kkkkkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+.kkBBBBBBkk.
+kBBBBBBBBBBk
+kBBXBBBBXBBk
+kKBBXBBXBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kTTkkZZk..
+..kTTkkkkk..
+..kZZk......
+..kkkk......
+
+sprite player_side
+...kkkkk....
+..kLLLLLk...
+.kLLLLLLLk..
+.kLLLKKKKk..
+.kLLKKKiKk..
+.kLKKKKKKKk.
+..kKKKKKKk..
+...kkBBkk...
+..kBBBBBBk..
+..kBBBBBBk..
+..kBXBBBBk..
+..kBXBBBBk..
+..kBKkBBBk..
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kZZZZZk..
+...kkkkkkk..
+
+sprite player_side_walk
+...kkkkk....
+..kLLLLLk...
+.kLLLLLLLk..
+.kLLLKKKKk..
+.kLLKKKiKk..
+.kLKKKKKKKk.
+..kKKKKKKk..
+...kkBBkk...
+..kBBBBBBk..
+..kBBBBBBk..
+..kBBXBBBk..
+..kBBXBBBk..
+..kBBBKBBk..
+...kTTTTk...
+..kTTkTTTk..
+..kTTkkTTk..
+.kTTk.kTTk..
+.kTTk..kTTk.
+kZZZk..kZZZk
+kkkk....kkkk
+
+# Pferd: Grundfarbe braun, weitere Fellfarben per recolor unten
+sprite horse_side
+......................k.k.....
+.....................kukhk....
+....................kuuhhhk...
+...................kuuhhhhhk..
+..................kuuhhhhihhk.
+.................kuuhhhhhhhhhk
+................kuuhhhhkhhUUUk
+...............kuuhhhhk.kUUUk.
+....kkkkkkkkkkkuuhhhhhk..kkk..
+..kkHHHHHHHHHHHuhhhhhhk.......
+.kuhHHhhhhhhhhhhhhhhhhk.......
+kuuhhhhhhhhhhhhhhhhhhhk.......
+kuukhhhhhhhhhhhhhhhhhhk.......
+kuukhhhhhhhhhhhhhhhhhbk.......
+kuukbhhhhhhhhhhhhhhhbbk.......
+ku.kbbhhhhhhhhhhhhhbbk........
+ku.kbbbkkkkkkkkkkkbbbk........
+k..kbbkbbk.....kbbkbbk........
+...kbbkbbk.....kbbkbbk........
+...kbbkbbk.....kbbkbbk........
+...kbbkbbk.....kbbkbbk........
+...kuukuuk.....kuukuuk........
+...kkkkkkk.....kkkkkkk........
+
+sprite horse_side_walk
+......................k.k.....
+.....................kukhk....
+....................kuuhhhk...
+...................kuuhhhhhk..
+..................kuuhhhhihhk.
+.................kuuhhhhhhhhhk
+................kuuhhhhkhhUUUk
+...............kuuhhhhk.kUUUk.
+....kkkkkkkkkkkuuhhhhhk..kkk..
+..kkHHHHHHHHHHHuhhhhhhk.......
+.kuhHHhhhhhhhhhhhhhhhhk.......
+kuuhhhhhhhhhhhhhhhhhhhk.......
+kuukhhhhhhhhhhhhhhhhhhk.......
+kuukhhhhhhhhhhhhhhhhhbk.......
+kuukbhhhhhhhhhhhhhhhbbk.......
+ku.kbbhhhhhhhhhhhhhbbk........
+ku.kbbbkkkkkkkkkkkbbbkk.......
+k.kbbkkbbk......kbbkkbbk......
+..kbbk.kbbk....kbbk..kbbk.....
+.kbbk...kbbk..kbbk....kbbk....
+.kbbk...kbbk..kbbk....kbbk....
+.kuuk...kuuk..kuuk....kuuk....
+.kkkk...kkkk..kkkk....kkkk....
+
+sprite horse_graze
+..............................
+..............................
+..............................
+..............................
+..............................
+..............................
+..............................
+..............................
+....kkkkkkkkkkkkkkkkk.........
+..kkHHHHHHHHHHHHHHHHuk........
+.kuhHHhhhhhhhhhhhhhhuuk.......
+kuuhhhhhhhhhhhhhhhhhhuuk......
+kuukhhhhhhhhhhhhhhhhhhuuk.....
+kuukhhhhhhhhhhhhhhhhhhhuuk....
+kuukbhhhhhhhhhhhhhhhbbkhhuk...
+ku.kbbhhhhhhhhhhhhhbbk.khhhk..
+ku.kbbbkkkkkkkkkkkbbbk..khhik.
+k..kbbkbbk.....kbbkbbk..khhhhk
+...kbbkbbk.....kbbkbbk..khUUUk
+...kbbkbbk.....kbbkbbk...kUUUk
+...kbbkbbk.....kbbkbbk....kkk.
+...kuukuuk.....kuukuuk........
+...kkkkkkk.....kkkkkkk........
+
+sprite horse_down
+....kk....kk....
+....khk..khk....
+....khhkkhhk....
+...khhuuuuhhk...
+...khhhuuhhhk...
+...kihhhhhhik...
+...khhhUUhhhk...
+....khhUUhhk....
+....khhUUhhk....
+....kUUUUUUk....
+....kUiUUiUk....
+..kkkkUUUUkkkk..
+.kHhhhkkkkhhhHk.
+.khhhhhhhhhhhhk.
+.khhhhhhhhhhhhk.
+.khhhhhhhhhhhhk.
+.kbhhhhhhhhhhbk.
+..kbhhhhhhhhbk..
+..kbbkbbbbkbbk..
+..kbbk....kbbk..
+..kbbk....kbbk..
+..kbbk....kbbk..
+..kbbk....kbbk..
+..kuuk....kuuk..
+..kkkk....kkkk..
+
+sprite horse_down_walk
+....kk....kk....
+....khk..khk....
+....khhkkhhk....
+...khhuuuuhhk...
+...khhhuuhhhk...
+...kihhhhhhik...
+...khhhUUhhhk...
+....khhUUhhk....
+....khhUUhhk....
+....kUUUUUUk....
+....kUiUUiUk....
+..kkkkUUUUkkkk..
+.kHhhhkkkkhhhHk.
+.khhhhhhhhhhhhk.
+.khhhhhhhhhhhhk.
+.khhhhhhhhhhhhk.
+.kbhhhhhhhhhhbk.
+..kbhhhhhhhhbk..
+..kbbkbbbbkbbk..
+..kbbk....kbbk..
+..kbbk....kbbk..
+..kuuk....kbbk..
+..kkkk....kbbk..
+..........kuuk..
+..........kkkk..
+
+sprite horse_up
+....kk....kk....
+....kuk..kuk....
+....kuukkuuk....
+.....kuuuuk.....
+.....kuuuuk.....
+....khuuuuhk....
+...khhuuuuhhk...
+..khhhhuuhhhhk..
+.khhHhhhhhhHhhk.
+.khHHhhhhhhHHhk.
+.khhhhhhhhhhhhk.
+.khhhhhkkhhhhhk.
+.khhhhkuukhhhhk.
+.kbhhhkuukhhhbk.
+..kbhhkuukhhbk..
+..kbbbkuukbbbk..
+..kbbkkuukkbbk..
+..kbbk.kuk.kbbk.
+..kbbk.kuk.kbbk.
+..kbbk..k..kbbk.
+..kbbk.....kbbk.
+..kbbk.....kbbk.
+..kuuk.....kuuk.
+..kkkk.....kkkk.
+
+sprite horse_up_walk
+....kk....kk....
+....kuk..kuk....
+....kuukkuuk....
+.....kuuuuk.....
+.....kuuuuk.....
+....khuuuuhk....
+...khhuuuuhhk...
+..khhhhuuhhhhk..
+.khhHhhhhhhHhhk.
+.khHHhhhhhhHHhk.
+.khhhhhhhhhhhhk.
+.khhhhhkkhhhhhk.
+.khhhhkuukhhhhk.
+.kbhhhkuukhhhbk.
+..kbhhkuukhhbk..
+..kbbbkuukbbbk..
+..kbbkkuukkbbk..
+..kbbk.kuk.kbbk.
+..kbbk.kuk.kbbk.
+..kbbk..k..kbbk.
+..kbbk.....kbbk.
+..kuuk.....kbbk.
+..kkkk.....kbbk.
+...........kuuk.
+...........kkkk.
+
+# Symbole für Anzeige und Sprechblasen
+sprite icon_carrot
+..l.l
+..fl.
+.kmk.
+kMmk.
+kmmk.
+kmk..
+.k...
+
+sprite icon_horse
+.kk...kk.
+.khkkkhk.
+khhuuuhhk
+kihhuhhik
+khhhUhhhk
+.khhUhhk.
+.kUUUUUk.
+..kkkkk..
+
+sprite icon_horse_empty
+.kk...kk.
+.kpkkkpk.
+kppoooppk
+kpppoppok
+kpppopppk
+.kpppppk.
+.kpppppk.
+..kkkkk..
+
+sprite icon_sun
+...Y...
+.Y.M.Y.
+..MMM..
+YMMMMMY
+..MMM..
+.Y.M.Y.
+...Y...
+
+sprite icon_moon
+..VVV..
+.VVk...
+VVk....
+VVk....
+VVk....
+.VVk...
+..VVV..
+
+# Sprechblasen
+sprite emo_heart
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVDDVDDVVVVk
+kVVVDDDDDDDVVVk
+kVVVDDDDDDDVVVk
+kVVVVDDDDDVVVVk
+kVVVVVDDDVVVVVk
+kVVVVVVDVVVVVVk
+.kVVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_bang
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVDDVVVVVVk
+kVVVVVDDVVVVVVk
+kVVVVVDDVVVVVVk
+kVVVVVDDVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVDDVVVVVVk
+.kVVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_carrot
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVlVlVVVVVk
+kVVVVVVfVVVVVVk
+kVVVVVmmVVVVVVk
+kVVVVVMmVVVVVVk
+kVVVVVmVVVVVVVk
+.kVVVVVVVVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_zzz
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVkkkkVVVVVk
+kVVVVVVkVVVVVVk
+kVVVVVkVVVVVVVk
+kVVVVkkkkVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVVVkkVVVVk
+.kVVVVVVkkVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite emo_storm
+..kkkkkkkkkkk
+.kVVVVVVVVVVVk
+kVVVVVVVVVVVVVk
+kVVVVVpppVVVVVk
+kVVVVppppppVVVk
+kVVVppppppppVVk
+kVVVVVVYYVVVVVk
+kVVVVVYYVVVVVVk
+kVVVVVVVYVVVVVk
+.kVVVVVVYVVVVk
+..kkkVVkkkkkk
+....kVk
+.....k
+
+sprite heart
+.DD.DD.
+DDDDDDD
+DDDDDDD
+.DDDDD.
+..DDD..
+...D...
+
