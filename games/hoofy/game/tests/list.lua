@@ -2,4 +2,5 @@
 -- Ein Modul gibt eine Liste {{"Beschreibung", function() … end}, …} zurück und prüft mit game.tests.check.
 return {
   "util",
+  "katalog",
 }

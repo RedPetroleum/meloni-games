@@ -33,10 +33,15 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   lässt es mit Status 1 enden (danach wieder entfernen).
   *Erledigt:* beides geprüft. Szenario = Funktion in `game/scenarios.lua`, Testmodule in
   `game/tests/list.lua` eintragen, Prüfhelfer `game/tests/check.lua`, `SCENARIO_OPTS='only = "util"'`.
-- [ ] **0.3 Katalog-Generator**: `tools/hoofy_katalog.py` liest die Tabellen aus KATALOG.md und
+- [x] **0.3 Katalog-Generator**: `tools/hoofy_katalog.py` liest die Tabellen aus KATALOG.md und
   schreibt `games/hoofy/data/*.lua` (je Abschnitt ein Modul), läuft bei `make test/shot/run` mit.
   Prüfung: Selbsttest: 12 Rassen, Mustang Tempo 40, Einhorn Grundwert 10000, 30 Farben in 5 Stufen,
   Farbmatrix für jede Rasse; Katalogwert ändern → nach `make test` im Spiel geändert.
+  *Erledigt:* 15 Module (`data/zeit.lua` … `data/wirtschaft.lua`), Zugriff über `game/katalog.lua`
+  (`K.rasse("mustang")`). Geprüft an einer Kopie (Mustang Tempo 41 → `data/rassen.lua` geändert),
+  KATALOG.md selbst blieb unberührt. Werte werden per Muster aus dem Text gelesen: Wird eine Zeile
+  umformuliert, bricht der Generator mit Abschnitt und Muster ab, dann das Muster anpassen.
+  `make test` führt jetzt auch `tools/hoofy-test.sh selftest` aus.
 
 ### A Pferdeleben
 

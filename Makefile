@@ -1,11 +1,13 @@
 # Meloni games: build, test and pack for the HU-086.
 #
 #   make run GAME=snake      play in a window (needs SDL2: brew install sdl2), reloads on save
-#   make test                every game 10 s headless with button presses, screenshots in build/screens/
+#   make test                every game 10 s headless with button presses, screenshots in build/screens/,
+#                            then the Hoofy self-tests (tools/hoofy-test.sh selftest)
 #   make shot GAME=snake INPUT="5:START,60-90:RIGHT" FRAMES=120   one screenshot, prints the path
 #   make shot GAME=snake INPUT=... SHOTS=60,120,180                 one screenshot after each of these frames
 #   make cover GAME=snake INPUT=... FRAMES=120                      games/snake/cover.png for the launcher
 #   make sprites             games/*/sprites.txt -> sprites.png + sprites.lua (test, run, shot, dist do it too)
+#   make katalog             games/hoofy/KATALOG.md -> games/hoofy/data/*.lua (test, run, shot, dist do it too)
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
 #   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly)
@@ -20,7 +22,7 @@ SEED ?= 1
 SHOTS ?=
 EXTRA ?=
 
-.PHONY: runner sprites run test shot cover new dist web clean
+.PHONY: runner sprites katalog run test shot cover new dist web clean
 
 runner:
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
@@ -28,24 +30,29 @@ runner:
 sprites:
 	@python3 tools/sprites.py games/*/
 
-run: runner sprites
+katalog:
+	@python3 tools/hoofy_katalog.py
+
+run: runner sprites katalog
 	@test -n "$(GAME)" || { echo "usage: make run GAME=<name> (games: $(GAMES))"; exit 1; }
 	$(RUNNER) --save build/$(GAME).sav games/$(GAME)
 
-test: runner sprites
+test: runner sprites katalog
 	@mkdir -p build/screens
 	@fail=0; for g in $(GAMES); do \
 		$(RUNNER) --headless --seed $(SEED) --frames $(FRAMES) --input "$(INPUT)" --screenshot build/screens/$$g.png games/$$g || fail=1; \
-	done; exit $$fail
+	done; \
+	tools/hoofy-test.sh selftest || fail=1; \
+	exit $$fail
 
-shot: runner sprites
+shot: runner sprites katalog
 	@test -n "$(GAME)" || { echo "usage: make shot GAME=<name> [INPUT=...] [FRAMES=...] [SHOTS=...] [SEED=...]"; exit 1; }
 	@mkdir -p build/screens
 	@$(RUNNER) --headless --seed $(SEED) $(if $(SHOTS),--shots $(SHOTS),--frames $(FRAMES)) --input "$(INPUT)" \
 		--screenshot build/screens/$(GAME)-shot.png games/$(GAME)
 	@$(if $(SHOTS),true,echo build/screens/$(GAME)-shot.png)
 
-cover: runner sprites
+cover: runner sprites katalog
 	@test -n "$(GAME)" || { echo "usage: make cover GAME=<name> [INPUT=...] [FRAMES=...]"; exit 1; }
 	@$(RUNNER) --headless --seed $(SEED) --frames $(FRAMES) --input "$(INPUT)" --cover games/$(GAME)/cover.png games/$(GAME)
 
@@ -57,7 +64,7 @@ new:
 	sed -i.bak 's/__ID__/$(GAME)/g' games/$(GAME)/meta.json && rm games/$(GAME)/meta.json.bak
 	@echo "games/$(GAME) created: make run GAME=$(GAME)"
 
-dist: sprites
+dist: sprites katalog
 	python3 tools/release.py $(foreach e,$(EXTRA),--extra $(e))
 
 # Browser player: the same engine compiled to WebAssembly (clang with wasm32 target + wasm-ld,

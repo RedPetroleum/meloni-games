@@ -1,0 +1,58 @@
+-- Erzeugt von tools/hoofy_katalog.py aus KATALOG.md §14 Reformen, nicht von Hand ändern.
+return {
+  liste = {
+    {
+      id = "hunde_frei",
+      name = "Hunde frei",
+      text = "nachts Hunde, zerstören Deko; Pferde mit Stärke ≥ 40 wehren sie ab",
+      abwehr_staerke = 40,
+      tiere = true,
+      tagsueber = false,
+      zerstoert_deko = true,
+    },
+    {
+      id = "woelfe_frei",
+      name = "Wölfe frei",
+      text = "wie Hunde, Stärke ≥ 60",
+      abwehr_staerke = 60,
+      tiere = true,
+      tagsueber = false,
+      zerstoert_deko = true,
+      tage_nach = 4,
+      gebiet = 3,
+    },
+    {
+      id = "krokodile_frei",
+      name = "Krokodile frei",
+      text = "wie Hunde, Stärke ≥ 80, auch tagsüber",
+      abwehr_staerke = 80,
+      tiere = true,
+      tagsueber = true,
+      zerstoert_deko = true,
+      tage_nach = 4,
+      gebiet = 5,
+    },
+    {
+      id = "pferdesteuer",
+      name = "Pferdesteuer",
+      text = "0–10 pro Pferd und Tag, steigt im Spielverlauf",
+      steuer_min = 0,
+      steuer_max = 10,
+    },
+    {
+      id = "hafersteuer",
+      name = "Hafersteuer",
+      text = "Futter +50 %",
+      futter_aufschlag = 50,
+    },
+    {
+      id = "stromsubvention",
+      name = "Stromsubvention",
+      text = "Generator ×2",
+      generator_faktor = 2,
+    },
+  },
+  alle_tage = 4,
+  dauer_min = 3,
+  dauer_max = 5,
+}
