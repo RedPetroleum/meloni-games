@@ -204,6 +204,7 @@ local items, parts, debris, popups, moths, zs
 local night, score, noise, clock, night_len, decay, left, combo_t, shake, end_t, reason, bonus
 local msg, msg2, msg_t
 local room_on, seen, door_open, door_push
+local human -- wer heute Nacht im Schlafzimmer liegt: "human_lady" oder "human_guy"
 local sel_down, sel_other
 
 -- ---------- Helfer ----------
@@ -611,6 +612,7 @@ local function start_night()
   parts, debris, popups, moths, zs = {}, {}, {}, {}, {}
   noise, clock, combo_t, shake, msg_t = 0, 0, 0, 0, 0
   seen, door_open, door_push = {living = true}, false, 0
+  human = rnd(1) < 0.5 and "human_lady" or "human_guy"
   place_items()
   local n_rooms = 0
   for _ in pairs(room_on) do n_rooms = n_rooms + 1 end
@@ -995,8 +997,10 @@ local DRAW = {living = draw_living, kitchen = draw_kitchen, study = draw_study}
 
 local function draw_cat(c, is_active)
   local name
+  -- Auf Levis Rücken schläft Yrsa nicht, sie fährt mit
+  local sits = c.name == "yrsa" and riding()
   if not is_active then
-    name = c.name .. "_loaf"
+    name = sits and "yrsa_sit" or c.name .. "_loaf"
   elseif not c.on then
     name = c.name .. "_jump"
   elseif c.anim > 0 and flr(c.anim / (c.name == "levi" and 9 or 6)) % 2 == 1 then
@@ -1019,7 +1023,7 @@ local function draw_cat(c, is_active)
     line(ax - 2, ay, ax + 2, ay, col)
     line(ax - 1, ay + 1, ax + 1, ay + 1, col)
     pset(ax, ay + 2, col)
-  elseif flr(c.idle / 40) % 3 == 0 and c.idle > 30 then
+  elseif not sits and flr(c.idle / 40) % 3 == 0 and c.idle > 30 then
     print("z", x + (c.face > 0 and w - 2 or -4), y - 6 - (c.idle % 40) // 8, C.dim)
   end
 end
@@ -1152,8 +1156,8 @@ function _draw()
   local view = over and "living" or active.room
   draw_world(view, over)
   if over then
-    local r = S.rects.human
-    sspr(S.img, r[1], r[2], r[3], r[4], 119, FLOOR - r[4] * 2 + 2, r[3] * 2, r[4] * 2)
+    local r = S.rects[human]
+    sspr(S.img, r[1], r[2], r[3], r[4], 116 + (31 - r[3] * 2) // 2, FLOOR - r[4] * 2, r[3] * 2, r[4] * 2)
   end
   draw_hud()
   if state == "play" then
