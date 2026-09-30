@@ -38,7 +38,7 @@ H 2a1e22   Haare dunkel
 X aed4f2   Kimono hellblau
 x 7eaad6   Kimono Falten
 U f2d074   Haare blond
-u b89060   Bartstoppeln, Brusthaare
+u d4a47c   Bartstoppeln, Brusthaare
 V 5c9c52   Schlafanzughose grün
 v 3e7a3a   Schlafanzughose dunkel
 
@@ -230,19 +230,19 @@ sprite human_guy
 ...KPKKKKPK...
 ...KKKKKKKK...
 ...KKKnKKKK...
-...uKKKKKKu...
-...uuKuuKuu...
+...KKKKKKKK...
+...uKKooKKu...
 ....uuuuuu....
 .....KKKK.....
 ..KKKKKKKKKK..
 .KKKKKKKKKKKK.
-.KKKuKKKKuKKK.
-.KKuKuKKuKuKK.
-KKKKKuuuuKKKKK
-KK.KKuuuuKK.KK
-KK.KKKuuKKK.KK
+.KKKKKKKKKKKK.
+.KKKKuKKuKKKK.
+KKKKKKuuKKKKKK
 KK.KKKuKKKK.KK
 KK.KKKKKKKK.KK
+KK.KKKuKKKK.KK
+KK.KKKuKKKK.KK
 KK.KKKKKKKK.KK
 KK.KKKKKKKK.KK
 KK.vvvvvvvv.KK
