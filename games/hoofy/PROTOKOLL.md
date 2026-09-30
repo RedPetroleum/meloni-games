@@ -44,3 +44,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:02 | A16 Töne | begonnen | – | –
 2026-10-01 01:04 | A16 Töne | fertig | WAV Tag/Nacht/Ritt: Musik ≈ RMS 600 (Tag durchgehend, Nacht mit Pausen), Schritt 2 Hufschläge/0,25 s, Galopp dichter und lauter (Spitze 3000 vs 1100), SELFTEST OK 84, make test grün | Hoofy A16
 2026-10-01 01:04 | A-Ende | fertig | Cover, README, Version 0.1.0, Checkliste, make test grün; Push → Release prüfen | Hoofy Phase A
+2026-10-01 01:05 | Release Phase A | fertig | Lauf success, „Update games“ bringt Hoofy 0.1.0 (381 KB) | f8ed8c6
