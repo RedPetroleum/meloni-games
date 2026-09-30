@@ -222,7 +222,7 @@ local function tap(c)
     popup(best.x - 8, best.y - 26, "Zu schwer!", C.orange)
     if not best.told then
       best.told = true
-      say("Das ist was für Levi. SELECT: wechseln", 150)
+      say("Das schafft nur Levi (SELECT)", 150)
     end
     return
   end
@@ -345,7 +345,7 @@ local function knocked(it, soft)
   if left == 0 then
     bonus = flr((NIGHT_LEN - clock) / 60) * 2 + flr(max(0, NOISE_WAKE - noise))
     score = score + bonus
-    state, end_t = "clear", 0
+    state, end_t, popups = "clear", 0, {}
     SFX.clear()
   end
 end
@@ -430,7 +430,7 @@ local function new_game()
 end
 
 local function game_over(why)
-  state, end_t, reason = "over", 0, why
+  state, end_t, reason, popups = "over", 0, why, {}
   if score > (save.best or 0) then save.best = score end
   if night > (save.night or 0) then save.night = night end
   savedata(save)
@@ -482,7 +482,7 @@ local function update_play()
 
   if noise < NOISE_STIR then
     if t % 150 == 0 then SFX.snore() end
-    if t % 70 == 0 then zs[#zs + 1] = {x = 138, y = 116, life = 90} end
+    if t % 70 == 0 then zs[#zs + 1] = {x = 128, y = 116, life = 40} end
   elseif t % 90 == 0 then
     SFX.stir()
   end
@@ -708,15 +708,15 @@ local function draw_hud()
   local mins = flr(clock * 360 / NIGHT_LEN)
   local tt = string.format("%d:%02d", mins // 60, mins % 60)
   print(tt, 74, 4, clock > NIGHT_LEN - 600 and C.orange or C.dim)
-  S.draw("cup", 118, 4)
-  print(tostring(left), 130, 4, C.text)
+  S.draw("cup", 116, 4)
+  print(tostring(left), 129, 4, C.text)
   -- Lärm: wie tief der Mensch schläft
-  print("Zzz", 152, 4, C.dim)
-  rectfill(178, 4, 250, 11, C.shadow)
+  print("Zzz", 154, 4, C.dim)
+  rectfill(180, 4, 244, 11, C.shadow)
   local f = min(noise, NOISE_WAKE) / NOISE_WAKE
   local col = noise >= NOISE_STIR and C.red or (noise > 40 and C.orange or C.green)
-  if f > 0 then rectfill(179, 5, 179 + flr(70 * f), 10, col) end
-  line(179 + flr(70 * NOISE_STIR / NOISE_WAKE), 4, 179 + flr(70 * NOISE_STIR / NOISE_WAKE), 11, C.dim)
+  if f > 0 then rectfill(181, 5, 181 + flr(62 * f), 10, col) end
+  line(181 + flr(62 * NOISE_STIR / NOISE_WAKE), 4, 181 + flr(62 * NOISE_STIR / NOISE_WAKE), 11, C.dim)
   local s = tostring(score)
   print(s, 316 - textw(s), 4, C.gold)
 end
@@ -728,6 +728,7 @@ local function draw_world(lit)
   for _, d in ipairs(debris) do
     if d.s == 2 then rectfill(d.x, d.y - 1, d.x + 1, d.y, d.c) else pset(d.x, d.y, d.c) end
   end
+  for _, z in ipairs(zs) do print("z", z.x, z.y, C.dim) end
   draw_items()
   local y = yrsa()
   local riding = y.on and y.on.levi
@@ -742,7 +743,6 @@ local function draw_world(lit)
     S.draw(flr(t / 5) % 2 == 0 and "moth1" or "moth2", flr(m.x), flr(m.y))
   end
   for _, p in ipairs(parts) do pset(p.x, p.y, p.c) end
-  for _, z in ipairs(zs) do print("z", z.x, z.y, C.dim) end
   for _, p in ipairs(popups) do
     print(p.text, flr(p.x) + 1, flr(p.y) + 1, C.shadow)
     print(p.text, flr(p.x), flr(p.y), p.c)
@@ -772,7 +772,7 @@ local function draw_title()
   print("Yrsa", 206, 136, C.yrsa)
   panel(158, 228)
   center("Alles muss runter, aber leise!", 164, C.text)
-  center("A Sprung   B Tatze   unten: runter", 178, C.dim)
+  center("A Sprung  B Tatze  unten: runter", 178, C.dim)
   center("SELECT: Katze wechseln", 190, C.dim)
   if (save.best or 0) > 0 then
     center("Rekord " .. save.best .. "  (Nacht " .. (save.night or 1) .. ")", 204, C.gold)
@@ -786,9 +786,9 @@ function _draw()
     return
   end
   cls(C.wall)
-  local lit = state == "over" and reason == "wake"
+  local lit = state == "over"
   draw_world(lit)
-  if lit or (state == "over" and reason == "morning") then
+  if lit then
     local r = S.rects.human
     sspr(S.img, r[1], r[2], r[3], r[4], 119, FLOOR - r[4] * 2 + 2, r[3] * 2, r[4] * 2)
   end
@@ -818,8 +818,8 @@ function _draw()
       center("LEVI! YRSA!", 50, C.red, 2)
       center("Der Mensch ist aufgewacht.", 72, C.text)
     else
-      center("6 Uhr, der Wecker!", 50, C.orange, 2)
-      center("Noch " .. left .. " Sachen auf den Regalen.", 72, C.text)
+      center("Der Wecker!", 50, C.orange, 2)
+      center("6 Uhr, und noch " .. left .. (left == 1 and " Sache oben." or " Sachen oben."), 72, C.text)
     end
     center("Nacht " .. night .. "   Punkte " .. score, 90, C.gold)
     center("Rekord " .. (save.best or 0), 104, C.dim)
