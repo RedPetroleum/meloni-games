@@ -11,10 +11,13 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
-- (noch nichts)
+**Phase 0 (Version 0.0.1)**
+- [ ] Hoofy erscheint nach „Update games“ im Meloni-Tab, mit Cover.
+- [ ] Titel → START oder A → Welt; herumlaufen, B hält zum Rennen, START pausiert.
+- [ ] Ruckelt das Scrollen? (Die Karte ist noch ein Platzhalter aus Ausgebüxt.)
 
 ## Stand
-- (noch nichts gebaut)
+- Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
 
 ## Aufgaben
 
