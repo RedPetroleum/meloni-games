@@ -17,6 +17,9 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
   Dieselben Quellen laufen in der Firmware und im Runner.
 - `runner/`: die Engine als Desktop-Programm (Fenster mit SDL2 oder headless), wird von `make` gebaut
 - `tools/release.py`: packt `.mlg`-Dateien und `manifest.json` für den Updater
+- `web/`: Browser-Player (`make web`): Engine als WebAssembly (`web/web.c`), JS-Glue (`web/core.js`),
+  Seite (`web/player.html`), `web/build.py` packt alles mit den Spielen aus `dist/` in eine HTML-Datei.
+  Spiele brauchen dafür nichts Besonderes; bei Engine-Änderungen `make web` mitlaufen lassen.
 
 ## Arbeitsweise
 

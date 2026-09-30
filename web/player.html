@@ -1,0 +1,347 @@
+<title>Meloni Spielkonsole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Figtree:wght@400;600;700&display=swap">
+<style>
+/* Layout: eine Konsole im Melonen-Look, Spielauswahl darüber, Tastenhilfe darunter. Bewusst nur ein dunkler Look. */
+:root {
+  --room: #1d2420;        /* Tisch, auf dem die Konsole liegt */
+  --room-2: #28312b;
+  --shell: #9ccf8f;       /* Gehäuse: Melonenschale */
+  --shell-dark: #6fa565;
+  --shell-edge: #4f7d48;
+  --bezel: #22211f;
+  --flesh: #f2677b;       /* Tasten: Melonenfleisch */
+  --flesh-dark: #b83d52;
+  --seed: #2b2622;
+  --ink: #f3efe6;
+  --ink-dim: #a9b3a6;
+  --on-shell: #22361f;
+  --font-pixel: "Silkscreen", "Courier New", monospace;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: radial-gradient(ellipse at 50% 0%, var(--room-2), var(--room) 70%);
+  background-color: var(--room);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+.wrap {
+  max-width: 560px; margin: 0 auto;
+  padding-inline: 16px; padding-block: 18px 32px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--font-pixel); font-weight: 700; font-size: 20px; margin: 0; letter-spacing: 0.02em; color: var(--shell); }
+h1 span { color: var(--flesh); }
+.sub { color: var(--ink-dim); font-size: 13px; }
+
+.games { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.game {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+  background: var(--room-2); color: var(--ink); border: 1px solid #3a463d; border-radius: 10px;
+  padding: 6px 10px 6px 6px; font: 600 13px var(--font-body); cursor: pointer;
+}
+.game img { width: 40px; height: 30px; image-rendering: pixelated; border-radius: 4px; background: #111; object-fit: cover; }
+.game .ph { width: 40px; height: 30px; border-radius: 4px; background: #111; display: grid; place-items: center; font: 10px var(--font-pixel); color: var(--ink-dim); }
+.game small { display: block; color: var(--ink-dim); font-weight: 400; font-size: 11px; font-variant-numeric: tabular-nums; }
+.game[aria-pressed="true"] { border-color: var(--flesh); background: #3a2a2d; }
+.game:focus-visible, button:focus-visible { outline: 2px solid var(--flesh); outline-offset: 2px; }
+
+/* Die Konsole */
+.console {
+  background: linear-gradient(180deg, var(--shell), var(--shell-dark));
+  border-radius: 22px 22px 48px 22px;
+  padding: 16px 16px 22px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -4px 0 var(--shell-edge), 0 18px 40px rgba(0,0,0,.45);
+  display: flex; flex-direction: column; gap: 16px;
+  user-select: none; -webkit-user-select: none;
+}
+.bezel {
+  background: var(--bezel); border-radius: 12px 12px 28px 12px; padding: 12px 12px 8px;
+  box-shadow: inset 0 0 0 2px #000;
+}
+.screen { position: relative; aspect-ratio: 4 / 3; max-width: 100%; background: #000; }
+canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.start {
+  position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  background: rgba(10, 12, 10, .72); color: var(--ink); border: 0; cursor: pointer;
+  font: 700 16px var(--font-pixel); gap: 6px; padding: 12px;
+}
+.start small { display: block; font: 400 13px var(--font-body); color: var(--ink-dim); margin-top: 6px; }
+.bezel-label { display: flex; justify-content: space-between; align-items: center; margin-top: 6px;
+  font: 400 10px var(--font-pixel); color: #7d7a74; letter-spacing: .08em; }
+.led { width: 7px; height: 7px; border-radius: 50%; background: #3b3b3b; display: inline-block; margin-right: 6px; vertical-align: middle; }
+.led.on { background: var(--flesh); box-shadow: 0 0 6px var(--flesh); }
+
+.controls { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding-inline: 6px; }
+.dpad { position: relative; width: 132px; height: 132px; touch-action: none; justify-self: start; }
+.dpad::before, .dpad::after { content: ""; position: absolute; background: var(--seed); border-radius: 8px;
+  box-shadow: 0 4px 0 #120f0d; }
+.dpad::before { left: 44px; top: 0; width: 44px; height: 132px; }
+.dpad::after { top: 44px; left: 0; height: 44px; width: 132px; }
+.dpad .dot { position: absolute; left: 58px; top: 58px; width: 16px; height: 16px; border-radius: 50%; background: #3d3631; z-index: 2; }
+.dpad .arr { position: absolute; z-index: 2; width: 0; height: 0; border: 7px solid transparent; opacity: .45; }
+.dpad .u { left: 59px; top: 10px; border-bottom-color: var(--ink); }
+.dpad .d { left: 59px; bottom: 10px; border-top-color: var(--ink); }
+.dpad .l { top: 59px; left: 10px; border-right-color: var(--ink); }
+.dpad .r { top: 59px; right: 10px; border-left-color: var(--ink); }
+.dpad .arr.on { opacity: 1; border-width: 8px; }
+.mid { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.pill {
+  touch-action: none; border: 0; cursor: pointer;
+  width: 58px; height: 16px; border-radius: 8px; background: var(--seed); box-shadow: 0 3px 0 #120f0d;
+}
+.pill-label { font: 400 9px var(--font-pixel); color: var(--on-shell); letter-spacing: .08em; text-align: center; margin-top: -6px; }
+.ab { position: relative; width: 132px; height: 112px; justify-self: end; }
+.btn {
+  position: absolute; touch-action: none; border: 0; cursor: pointer;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff9aa8, var(--flesh) 55%, var(--flesh-dark));
+  box-shadow: 0 5px 0 var(--flesh-dark), 0 7px 10px rgba(0,0,0,.3);
+  font: 700 18px var(--font-pixel); color: #fff3f0; text-shadow: 0 1px 0 var(--flesh-dark);
+}
+.btn.b { left: 0; top: 46px; }
+.btn.a { right: 0; top: 4px; }
+.btn.on, .pill.on { transform: translateY(3px); box-shadow: 0 2px 0 var(--flesh-dark); }
+.pill.on { box-shadow: 0 1px 0 #120f0d; }
+.seeds { display: flex; gap: 10px; justify-content: center; }
+.seeds i { width: 5px; height: 9px; border-radius: 50%; background: var(--seed); opacity: .55; }
+
+.bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.tool { background: transparent; color: var(--ink); border: 1px solid #3a463d; border-radius: 8px; padding: 7px 12px; font: 600 13px var(--font-body); cursor: pointer; }
+.tool:hover { border-color: var(--shell-dark); }
+.help { color: var(--ink-dim); font-size: 13px; line-height: 1.55; }
+.help kbd { font: 400 11px var(--font-pixel); background: var(--room-2); border: 1px solid #3a463d; border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; color: var(--ink); }
+.help p { margin: 0; }
+.note { font-size: 12px; color: #7f8a7d; }
+@media (max-width: 420px) {
+  .dpad { transform: scale(.86); transform-origin: left center; }
+  .ab { transform: scale(.86); transform-origin: right center; }
+}
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .btn.on, .pill.on { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Meloni<span>·</span>Konsole</h1>
+    <span class="sub">Die echte Engine der HU-086, hier im Browser</span>
+  </header>
+
+  <nav class="games" id="games" aria-label="Spiel wählen"></nav>
+
+  <section class="console" aria-label="Konsole">
+    <div class="bezel">
+      <div class="screen">
+        <canvas id="screen" width="320" height="240" aria-label="Spielbildschirm"></canvas>
+        <button class="start" id="startBtn" type="button"><span>▶ Einschalten<small id="startName"></small></span></button>
+      </div>
+      <div class="bezel-label"><span><i class="led" id="led"></i>POWER</span><span id="gameLabel">HU-086</span></div>
+    </div>
+    <div class="controls">
+      <div class="dpad" id="dpad" aria-label="Steuerkreuz">
+        <i class="arr u"></i><i class="arr d"></i><i class="arr l"></i><i class="arr r"></i><i class="dot"></i>
+      </div>
+      <div class="mid">
+        <div class="seeds"><i></i><i></i><i></i></div>
+        <button class="pill" data-btn="128" type="button" aria-label="Select"></button>
+        <div class="pill-label">SELECT</div>
+        <button class="pill" data-btn="64" type="button" aria-label="Start"></button>
+        <div class="pill-label">START</div>
+      </div>
+      <div class="ab">
+        <button class="btn b" data-btn="32" type="button">B</button>
+        <button class="btn a" data-btn="16" type="button">A</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="bar">
+    <button class="tool" id="restart" type="button">Neu starten</button>
+    <button class="tool" id="mute" type="button">Ton aus</button>
+  </div>
+  <div class="help">
+    <p>Tastatur: <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> Steuerkreuz, <kbd>X</kbd> oder <kbd>Leertaste</kbd> A, <kbd>Z</kbd> oder <kbd>Y</kbd> B, <kbd>Enter</kbd> Start, <kbd>Shift</kbd> Select. Ein Gamepad geht auch.</p>
+    <p class="note" id="status">Spielstände bleiben in diesem Browser gespeichert.</p>
+  </div>
+</div>
+
+<script>
+__CORE__
+</script>
+<script>
+const GAMES = __GAMES__;
+const WASM_B64 = "__WASM__";
+
+const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const $ = (id) => document.getElementById(id);
+const canvas = $("screen"), ctx2d = canvas.getContext("2d");
+const img = ctx2d.createImageData(320, 240);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const toB64 = (u8) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
+
+let current = GAMES.find(g => g.id === (store.get("meloni-last") || "kuschelwiese")) || GAMES[0];
+let meloni = null, on = false, muted = false, audioCtx = null;
+let touchBits = 0, keyBits = 0, padBits = 0;
+let latch = 0;  // kurz angetippte Tasten zählen mindestens ein Bild lang
+
+function logLine(s) { console.log("[meloni]", s); }
+function boot() {
+  if (!meloni) {
+    meloni = createMeloni(b64(WASM_B64), {
+      onLog: logLine,
+      onSave: (path, data) => { if (path === "game.sav") store.set("meloni-save-" + current.id, toB64(data)); },
+    });
+  }
+}
+function launch(game) {
+  current = game;
+  store.set("meloni-last", game.id);
+  document.querySelectorAll(".game").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === game.id)));
+  $("gameLabel").textContent = game.name.toUpperCase();
+  $("startName").textContent = game.name;
+  if (!on) { drawCover(); return; }
+  boot();
+  const saved = store.get("meloni-save-" + game.id);
+  meloni.start(b64(game.mlg), saved ? b64(saved) : null);
+}
+function drawCover() {
+  ctx2d.fillStyle = "#0b0d0b"; ctx2d.fillRect(0, 0, 320, 240);
+  if (current.cover) {
+    const im = new Image();
+    im.onload = () => { if (!on) { ctx2d.imageSmoothingEnabled = false; ctx2d.globalAlpha = .55; ctx2d.drawImage(im, 0, 0, 320, 240); ctx2d.globalAlpha = 1; } };
+    im.src = "data:image/png;base64," + current.cover;
+  }
+}
+
+// Spielauswahl
+for (const g of GAMES) {
+  const b = document.createElement("button");
+  b.className = "game"; b.type = "button"; b.dataset.id = g.id;
+  b.innerHTML = (g.cover ? `<img alt="" src="data:image/png;base64,${g.cover}">` : `<span class="ph">${g.name.slice(0, 2)}</span>`) +
+    `<span>${g.name}<small>v${g.version}</small></span>`;
+  b.addEventListener("click", () => { launch(g); b.blur(); });
+  $("games").appendChild(b);
+}
+
+// Ton: die Engine mischt Stereo mit 32 kHz
+function startAudio() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { audioCtx = new AC({sampleRate: 32000}); } catch (e) { audioCtx = new AC(); }
+    const rate = audioCtx.sampleRate, ratio = 32000 / rate;
+    const node = audioCtx.createScriptProcessor(2048, 0, 2);
+    node.onaudioprocess = (ev) => {
+      const L = ev.outputBuffer.getChannelData(0), R = ev.outputBuffer.getChannelData(1);
+      const n = L.length;
+      if (!meloni || !on) { L.fill(0); R.fill(0); return; }
+      const need = Math.ceil(n * ratio) + 1;
+      const src = meloni.audio(need);
+      const vol = muted ? 0 : 1 / 32768;
+      for (let i = 0; i < n; i++) {
+        const p = i * ratio, k = p | 0, f = p - k;
+        L[i] = (src[k * 2] * (1 - f) + src[k * 2 + 2] * f) * vol;
+        R[i] = (src[k * 2 + 1] * (1 - f) + src[k * 2 + 3] * f) * vol;
+      }
+    };
+    node.connect(audioCtx.destination);
+    audioCtx.resume();
+  } catch (e) { $("status").textContent = "Ton ist in diesem Browser nicht verfügbar."; }
+}
+
+$("startBtn").addEventListener("click", () => {
+  on = true;
+  $("startBtn").hidden = true;
+  $("led").classList.add("on");
+  startAudio();
+  launch(current);
+});
+$("restart").addEventListener("click", () => { if (on) launch(current); });
+$("mute").addEventListener("click", () => { muted = !muted; $("mute").textContent = muted ? "Ton an" : "Ton aus"; });
+
+// Tasten am Bildschirm
+function holdButton(el, bit) {
+  const down = (e) => { e.preventDefault(); el.setPointerCapture?.(e.pointerId); touchBits |= bit; latch |= bit; el.classList.add("on"); };
+  const up = () => { touchBits &= ~bit; el.classList.remove("on"); };
+  el.addEventListener("pointerdown", down);
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+  el.addEventListener("lostpointercapture", up);
+  el.addEventListener("contextmenu", e => e.preventDefault());
+}
+document.querySelectorAll("[data-btn]").forEach(el => holdButton(el, +el.dataset.btn));
+
+// Steuerkreuz: Richtung aus der Fingerposition, auch schräg
+const dpad = $("dpad"); let dpadId = null, dpadBits = 0;
+function dpadAt(e) {
+  const r = dpad.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+  let b = 0; const dz = .12;
+  if (x < -dz && Math.abs(x) > Math.abs(y) * .45) b |= 1;
+  if (x > dz && Math.abs(x) > Math.abs(y) * .45) b |= 2;
+  if (y < -dz && Math.abs(y) > Math.abs(x) * .45) b |= 4;
+  if (y > dz && Math.abs(y) > Math.abs(x) * .45) b |= 8;
+  dpadBits = b; latch |= b; showDpad();
+}
+function showDpad() {
+  const b = dpadBits | (keyBits & 15) | (padBits & 15);
+  dpad.querySelector(".l").classList.toggle("on", !!(b & 1));
+  dpad.querySelector(".r").classList.toggle("on", !!(b & 2));
+  dpad.querySelector(".u").classList.toggle("on", !!(b & 4));
+  dpad.querySelector(".d").classList.toggle("on", !!(b & 8));
+}
+dpad.addEventListener("pointerdown", e => { e.preventDefault(); dpadId = e.pointerId; dpad.setPointerCapture?.(e.pointerId); dpadAt(e); });
+dpad.addEventListener("pointermove", e => { if (e.pointerId === dpadId) dpadAt(e); });
+const dpadUp = (e) => { if (e.pointerId === dpadId) { dpadId = null; dpadBits = 0; showDpad(); } };
+dpad.addEventListener("pointerup", dpadUp); dpad.addEventListener("pointercancel", dpadUp);
+dpad.addEventListener("contextmenu", e => e.preventDefault());
+
+// Tastatur
+const KEYS = {ArrowLeft: 1, ArrowRight: 2, ArrowUp: 4, ArrowDown: 8, KeyX: 16, Space: 16, KeyK: 16, KeyZ: 32, KeyY: 32, KeyJ: 32, Enter: 64, ShiftLeft: 128, ShiftRight: 128};
+addEventListener("keydown", e => { const b = KEYS[e.code]; if (b && on) { keyBits |= b; latch |= b; e.preventDefault(); } });
+addEventListener("keyup", e => { const b = KEYS[e.code]; if (b) { keyBits &= ~b; } });
+addEventListener("blur", () => { keyBits = 0; touchBits = 0; dpadBits = 0; });
+
+function pollPad() {
+  padBits = 0;
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const p of pads) {
+    if (!p) continue;
+    const pr = (i) => p.buttons[i] && p.buttons[i].pressed;
+    if (pr(14) || p.axes[0] < -.5) padBits |= 1;
+    if (pr(15) || p.axes[0] > .5) padBits |= 2;
+    if (pr(12) || p.axes[1] < -.5) padBits |= 4;
+    if (pr(13) || p.axes[1] > .5) padBits |= 8;
+    if (pr(0)) padBits |= 16;
+    if (pr(1) || pr(2)) padBits |= 32;
+    if (pr(9)) padBits |= 64;
+    if (pr(8)) padBits |= 128;
+  }
+}
+
+// 60 Bilder pro Sekunde, egal wie schnell der Bildschirm ist
+let last = performance.now(), acc = 0;
+function loop(now) {
+  requestAnimationFrame(loop);
+  if (!on || !meloni) { last = now; return; }
+  acc += Math.min(100, now - last); last = now;
+  let ran = false;
+  while (acc >= 1000 / 60) {
+    acc -= 1000 / 60;
+    try { pollPad(); } catch (e) {}
+    showDpad();
+    meloni.frame(touchBits | keyBits | padBits | dpadBits | latch);
+    latch = 0;
+    ran = true;
+  }
+  if (ran) { img.data.set(meloni.pixels()); ctx2d.putImageData(img, 0, 0); }
+}
+launch(current);
+requestAnimationFrame(loop);
+</script>

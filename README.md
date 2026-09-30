@@ -18,6 +18,17 @@ SDL2). Grafik wird als Text in `sprites.txt` gezeichnet und mit
 Die Konsole läuft mit der Firmware [open-086](https://github.com/RedPetroleum/open-086), die die
 Engine aus diesem Repo enthält.
 
+## Im Browser spielen
+
+`make web` baut `build/web/meloni-konsole.html`: eine einzelne Datei mit der Engine (dieselben
+C-Quellen wie auf der Konsole, als WebAssembly) und allen Spielen. Im Browser öffnen, auch am Handy:
+Steuerkreuz und Tasten zum Antippen, am Rechner Pfeiltasten, X/Leertaste (A), Z/Y (B),
+Enter (START), Shift (SELECT), Gamepads gehen auch. Spielstände bleiben im Browser.
+Die GitHub-Action hängt die Datei bei jedem Push auf `main` ans Release `latest` an
+(`meloni-konsole.html`). Braucht `clang` mit WebAssembly-Ziel und `wasm-ld`
+(Linux: `apt install clang lld`, macOS: `brew install llvm lld`), den WASI-Sysroot lädt `make web`
+beim ersten Mal selbst. Quellen in [web/](web/).
+
 ## Spiele
 
 | Spiel | Details |

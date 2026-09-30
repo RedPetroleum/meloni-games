@@ -8,6 +8,7 @@
 #   make sprites             games/*/sprites.txt -> sprites.png + sprites.lua (test, run, shot, dist do it too)
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
+#   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly)
 RUNNER_DIR := runner
 RUNNER := $(RUNNER_DIR)/build/meloni-run
 GAMES := $(patsubst games/%/main.lua,%,$(wildcard games/*/main.lua))
@@ -19,7 +20,7 @@ SEED ?= 1
 SHOTS ?=
 EXTRA ?=
 
-.PHONY: runner sprites run test shot cover new dist clean
+.PHONY: runner sprites run test shot cover new dist web clean
 
 runner:
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
@@ -58,6 +59,33 @@ new:
 
 dist: sprites
 	python3 tools/release.py $(foreach e,$(EXTRA),--extra $(e))
+
+# Browser player: the same engine compiled to WebAssembly (clang with wasm32 target + wasm-ld,
+# e.g. Linux: apt install clang lld, macOS: brew install llvm lld). The WASI sysroot is downloaded once.
+WASI_VERSION := 24
+WASI_DIR := build/wasi
+WASI_SYSROOT := $(WASI_DIR)/wasi-sysroot-$(WASI_VERSION).0
+WASI_RT := $(WASI_DIR)/libclang_rt.builtins-wasm32-wasi-$(WASI_VERSION).0/libclang_rt.builtins-wasm32.a
+WASI_URL := https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-$(WASI_VERSION)
+WASM_CC ?= clang
+WASM_SRCS := web/web.c runner/lodepng/lodepng.c $(wildcard engine/meloni/*.c) \
+	$(filter-out %/lua.c %/luac.c %/loslib.c %/liolib.c %/linit.c,$(wildcard engine/lua/src/*.c))
+
+$(WASI_SYSROOT) $(WASI_RT):
+	@mkdir -p $(WASI_DIR)
+	curl -fsSL $(WASI_URL)/wasi-sysroot-$(WASI_VERSION).0.tar.gz | tar xz -C $(WASI_DIR)
+	curl -fsSL $(WASI_URL)/libclang_rt.builtins-wasm32-wasi-$(WASI_VERSION).0.tar.gz | tar xz -C $(WASI_DIR)
+
+build/web/meloni.wasm: $(WASM_SRCS) engine/meloni/meloni.h | $(WASI_SYSROOT) $(WASI_RT)
+	@mkdir -p build/web
+	$(WASM_CC) --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) -O2 -std=gnu11 \
+		-Iengine/meloni -Iengine/lua/src -Irunner/lodepng \
+		-mllvm -wasm-enable-sjlj -mexec-model=reactor -D_WASI_EMULATED_SIGNAL -D_WASI_EMULATED_PROCESS_CLOCKS \
+		-nodefaultlibs -Wl,-z,stack-size=1048576 -o $@ $(WASM_SRCS) \
+		-lc -lsetjmp -lwasi-emulated-signal -lwasi-emulated-process-clocks $(WASI_RT)
+
+web: build/web/meloni.wasm dist
+	python3 web/build.py build/web/meloni.wasm dist build/web/meloni-konsole.html
 
 clean:
 	rm -rf build dist $(RUNNER_DIR)/build
