@@ -1,5 +1,5 @@
 # Hoofy 🐎
-Ideen, Konzept, Funktionen
+Ideen, Konzept, Funktionen. Konkrete Werte: [KATALOG.md](KATALOG.md)
 
 ## 1. Überblick
 
@@ -34,23 +34,25 @@ Beispiel: Mustangs haben eine Basis-Geschwindigkeit von 30. Man findet einen wil
 - [ ] Stärke (0–100): Sprunghöhe, Ziehen und Zertreten von Sachen, Abwehr von Feinden
 - [ ] Bindung (0–100): niedrig = zickig. Je höher, desto leichter lässt es sich führen, reiten usw. Bei sehr hohem Wert folgt es ohne Leine und kommt auf Kommando.
 - [ ] Aufspürung (0–100): wie gut es Schätze aufspürt
+- [ ] Ausdauer (50–100): legt die tägliche Energie fest, zählt bei Turnieren und für den Züchter
 - [ ] Sauberkeit (0–100)
 - [ ] Hunger (0–100): Überfütterung erhöht das Gewicht und senkt trainierte Stärke/Geschwindigkeit. Längerer Hunger senkt die Bindung, akuter Hunger wirkt wie etwas schlechtere Bindung.
 - [ ] Gewicht (0–100), 50 = ideal
-- [ ] Energie (0–100): begrenzt das Training, wird jeden Tag zurückgesetzt
+- [ ] Energie (0 bis Ausdauer): begrenzt das Training, wird jeden Tag auf die Ausdauer zurückgesetzt
 
 ### Merkmale
 - [ ] Alter: Fohlen oder Pferd. Beim Fohlen zeigt ein Balken, wie weit es bis ausgewachsen ist. Ausgewachsene Pferde altern nicht mehr.
-- [ ] Rasse (ca. 10, unterschiedlich selten)
-- [ ] Farbe (ca. 30, unterschiedlich selten)
+- [ ] Rasse (12, unterschiedlich selten)
+- [ ] Farbe (ca. 30, unterschiedlich selten, je Rasse nur bestimmte)
 - [ ] Geschlecht (m/w)
 - [ ] Charakterzug (verfressen, schreckhaft, faul, eitel oder Nachteule): unveränderlich, wirkt sich hauptsächlich auf die Emojis aus
 - [ ] Name: frei vergeb- und änderbar
 
 ### Fähigkeiten
 - [ ] Sprechen in Form von Emojis (Signalisieren Hunger, mangelnde Sauberkeit, Charakterzug, etc.)
-- [ ] Können Sachen aufspüren (Blumen, Samen, Schätze usw.)
-- [ ] Können Ausrüstung tragen (Sattel mit Gepäcktaschen, Lampen)
+- [ ] Können Sachen aufspüren (Blumen, Samen, Schätze usw.): In der Nähe eines versteckten Schatzes erscheint ein Emoji. Lässt man das Pferd frei gehen, läuft es hin. Je höher die Aufspürung, desto öfter und aus größerem Abstand.
+- [ ] Können Ausrüstung tragen (Sattel, Satteltaschen, Lampen)
+- [ ] Sättel: verschiedene, erhöhen die Geschwindigkeit. Reiten geht auch ohne.
 - [ ] Stammbaum anzeigbar
 
 ## 3. Mit Pferden spielen
@@ -85,7 +87,8 @@ Weide und freie Haltung verringern die Sauberkeit. Die Plätze sind begrenzt: im
 - [ ] Erfordert einen ausgewachsenen Hengst und eine ausgewachsene Stute.
 - [ ] Vererbt werden die Gen-Stats der Eltern, mit statistischer Abweichung.
 - [ ] Premiumfutter für ein Fohlen kann sein Max-Potenzial etwas erhöhen.
-- [ ] Farbgenetik mit versteckten Genen: Jedes Pferd trägt zwei Farbgene, sichtbar ist nur das dominante. So lassen sich seltene Farben gezielt züchten, und der Stammbaum wird zum Werkzeug.
+- [ ] Farbgenetik: Jedes Pferd hat eine sichtbare und eine versteckte Farbe. Das Fohlen bekommt eine der vier Farben der Eltern, die sichtbaren öfter. So lassen sich seltene Farben gezielt züchten.
+- [ ] Rassen mischen: Das Fohlen hat die Rasse von Vater oder Mutter (50:50). Jede Kombination aus Rasse und Farbe ist züchtbar, auch wenn sie in der Wildnis nicht vorkommt.
 - [ ] Inzucht-Malus: Nachkommen naher Verwandter bekommen schlechtere Gen-Stats. Ein zweiter Grund, in den Stammbaum zu schauen und neue Wildpferde zu holen.
 
 ## 4. Geld
@@ -117,11 +120,11 @@ Leute, die angebotene Pferde kaufen, wenn sie wollen. Sie haben mehrere Sprüche
 - [ ] Bestellungen: Käufer geben Aufträge wie „braune Stute, Geschwindigkeit über 50, bis Tag 20“ und zahlen dafür einen Bonus
 
 ### Turniere
-Es gibt Turniere in verschiedenen Wettbewerben. Es gibt eine Startgebühr, die Gewinnchancen sind vorab sichtbar. Alle paar Tage werden verändern sich die Turniere (Teilnehmer, Chancen). Man kann jederzeit an einem Turnier teilnehmen. Je höher die Fahrzeugklasse, desto lukrativer und schwieriger die Turniere. Für alle ist hohe Bindung wichtig, dazu je nach Wettbewerb:
+Es gibt Turniere in verschiedenen Wettbewerben. Es gibt eine Startgebühr, die Gewinnchancen sind vorab sichtbar. Alle paar Tage verändern sich die Turniere (Teilnehmer, Chancen). Man kann jederzeit an einem Turnier teilnehmen, danach ist dieser Wettbewerb bis zur nächsten Runde weg, die anderen bleiben offen. Je höher die Fahrzeugklasse, desto lukrativer und schwieriger die Turniere. Für alle ist hohe Bindung wichtig, dazu je nach Wettbewerb:
 
 - [ ] Schönheitswettbewerb: Seltenheit von Farbe und Rasse, Sauberkeit
-- [ ] Springreiten (Minispiel): Stärke
-- [ ] Pferderennen (Minispiel): Geschwindigkeit
+- [ ] Springreiten (Minispiel): Stärke, Ausdauer
+- [ ] Pferderennen (Minispiel): Geschwindigkeit, Ausdauer
 
 ## 5. Hof (Baumodus)
 Schönes Haus, Stall, Deko usw. erhöhen die Bindung und teilweise die Trainingsgeschwindigkeit.
@@ -133,13 +136,20 @@ Schönes Haus, Stall, Deko usw. erhöhen die Bindung und teilweise die Trainings
 - [ ] Garage: nötig für ein Fahrzeug
 - [ ] Deko (Lampen, Bänke, Brunnen, Wege, Teich, Böden)
 - [ ] Maschinen, die Geld bringen, z. B. ein pferdebetriebener Stromgenerator
-- [ ] Pflanzen/Getreide als Futter
+- [ ] Beete, Felder und Obstbäume für Futter (siehe Futteranbau)
+
+### Futteranbau
+- [ ] Samen einmal kaufen oder finden: Die Pflanze trägt danach unbegrenzt
+- [ ] Ertrag je Pflanze verschieden: Karotte 1, Apfelbaum 3 usw.
+- [ ] Seltene Pflanzen mit besonderer Wirkung erst in weiter entfernten Gebieten
+- [ ] Geerntetes kommt ins Hausinventar
 
 ## 6. Fahrzeuge (Fortschritt)
 Bestehend aus Pferdeanhänger und Zugfahrzeug.
 - [ ] Pferdeanhänger: 1–4 Plätze, unabhängig vom Zugfahrzeug aufrüstbar
 - [ ] Zugfahrzeug ist entscheidend: anfangs Fahrrad, dann Mofa usw. bis zum edlen SUV und am Ende das Flugzeug. Je besser das Fahrzeug, desto weiter entfernte Gebiete kann man besuchen (teleportieren), um bessere Pferde zu finden oder an exklusiveren Turnieren teilzunehmen.
 - [ ] Fahrtkosten: gering, je nach Entfernung und Fahrzeugstufe
+- [ ] Fundstücke: Satteltaschen fassen 1–4, das Fahrzeug unbegrenzt. Ist das Fahrzeug zurück im Startgebiet oder das Pferd auf dem Grundstück, landen sie im Hausinventar.
 
 ## 7. Welt
 - [ ] Tag/Nacht-Rhythmus
@@ -158,12 +168,11 @@ Bestehend aus Pferdeanhänger und Zugfahrzeug.
 ### Karte
 - [ ] Zeigt das aktuelle Gebiet (nur Erkundetes)
 - [ ] Zeigt Spieler mit Blickrichtung, gezähmte Pferde, Haus oder Fahrzeug
-- [ ] Markiert, was ein Pferd mit hoher Aufspürung wittert (Schätze, Wildpferde)
 - [ ] Nur bei Bedarf aufrufbar, nicht dauerhaft sichtbar
 
 ### Regierungsreformen
 Ereignissystem: Alle paar Tage verkündet eine Zeitung eine Reform, die für einige Tage die Regeln ändert.
-- [ ] Gefährliche Tiere werden freigelassen: erst Hunde, dann Wölfe, dann Krokodile. Starke Pferde können sich wehren, die anderen sollten in den Stall. Die Tiere können auch Deko zerstören.
+- [ ] Gefährliche Tiere werden freigelassen: erst Hunde, dann Wölfe (ab Gebiet 3), dann Krokodile (ab Canyon). Starke Pferde können sich wehren, die anderen sollten in den Stall. Die Tiere können auch Deko zerstören.
 - [ ] Pferdesteuer (pro Tag), variiert im Spielverlauf
 - [ ] Hafersteuer: Futter wird teurer
 - [ ] Stromsubvention: Der Generator bringt doppelt so viel
