@@ -22,4 +22,5 @@ return {
   "laden",
   "markt",
   "kaeufer",
+  "bestellungen",
 }

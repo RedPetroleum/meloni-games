@@ -13,6 +13,7 @@ local Economy = require("game.economy")
 local Value = require("game.value")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
+local Orders = require("game.orders")
 
 local Screens = {}
 
@@ -427,6 +428,101 @@ function Screens.buyer(ctx, nav_done)
   return s
 end
 
+-- ---- Bestellungen ----
+
+-- Welches Pferd liefern? Passende Pferde oben mit dem Preis, die übrigen grau.
+local function order_horses(ctx, order, done)
+  local sel = 1
+  local s = {full = true}
+  local function list()
+    local out, rest = {}, {}
+    for _, d in ipairs(ctx.herd) do
+      if Orders.matches(order, d) then out[#out + 1] = d else rest[#rest + 1] = d end
+    end
+    for _, d in ipairs(rest) do out[#out + 1] = d end
+    return out
+  end
+  function s.update(nav)
+    local l = list()
+    if btnp(BTN_UP) and #l > 0 then sel = (sel - 2) % #l + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #l > 0 then sel = sel % #l + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and l[sel] then
+      local name = l[sel].name
+      local sum, why = Orders.deliver(ctx, order, l[sel])
+      if sum then
+        SFX.tame()
+        nav.pop()
+        if done then done(name .. " geliefert: " .. sum .. " G von " .. order.kunde .. ".") end
+      else
+        SFX.snort()
+      end
+    end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Welches Pferd liefern?")
+    local lines = require("lib.util").wrap(order.kunde .. ": " .. Orders.text(order), SCREEN_W - 16)
+    for i, line in ipairs(lines) do print(line, 8, 18 + (i - 1) * 10, C.gold) end
+    local l = list()
+    local first = max(1, sel - 5)
+    for i = first, min(#l, first + 5) do
+      local d = l[i]
+      local y = 44 + (i - first) * 22
+      local ok = Orders.matches(order, d)
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 19, C.panel_light) end
+      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
+      print(d.name .. " (" .. (d.sex == "m" and "Hengst" or "Stute") .. ")", 50, y, ok and (i == sel and C.gold or C.text) or C.dim)
+      print(K.farbe(d.farbe).name .. ", " .. Orders.STATS[order.stat].name .. " " .. flr(H.stat(d, order.stat)), 50, y + 10, C.dim)
+      local t = ok and (Orders.reward(d) .. " G") or "passt nicht"
+      print(t, SCREEN_W - textw(t) - 10, y + 4, ok and C.gold or C.dim)
+    end
+    footer("A: liefern   B: zurück")
+  end
+  return s
+end
+
+function Screens.orders(ctx)
+  local sel = 1
+  local s = {full = true}
+  local msg, msg_t = nil, 0
+  function s.update(nav)
+    local n = #ctx.orders
+    if btnp(BTN_UP) and n > 0 then sel = (sel - 2) % n + 1; SFX.select() end
+    if btnp(BTN_DOWN) and n > 0 then sel = sel % n + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and ctx.orders[sel] then
+      SFX.ok()
+      nav.push(order_horses(ctx, ctx.orders[sel], function(text) msg, msg_t = text, 240 end))
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+    sel = min(sel, max(1, #ctx.orders))
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Bestellungen (" .. #ctx.orders .. ")")
+    local day = ctx.clock and ctx.clock.day or 1
+    if #ctx.orders == 0 then
+      print("Keine offenen Bestellungen.", 20, 40, C.dim)
+      print("Alle 3 Tage gibt jemand eine auf.", 20, 54, C.dim)
+    end
+    for i, o in ipairs(ctx.orders) do
+      local y = 20 + (i - 1) * 44
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 40, C.panel_light) end
+      print(o.kunde, 10, y, i == sel and C.gold or C.text)
+      local lines = require("lib.util").wrap(Orders.text(o), SCREEN_W - 24)
+      for k, line in ipairs(lines) do if k <= 2 then print(line, 10, y + 10 + (k - 1) * 10, C.text) end end
+      local left = o.frist - day
+      local t = left > 0 and ("noch " .. left .. " Tage") or "letzter Tag"
+      print(t, 10, y + 30, left <= 1 and C.red or C.dim)
+      print("Wert x1,5", SCREEN_W - textw("Wert x1,5") - 10, y + 30, C.gold)
+    end
+    if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
+    footer("A: Pferd liefern   B: zurück")
+  end
+  return s
+end
+
 -- ---- Inventar ----
 
 function Screens.inventory(ctx)
@@ -557,6 +653,7 @@ function Screens.pause(ctx, nav)
     {label = "Weiter", id = "resume"},
     {label = "Pferde", id = "horses"},
     {label = "Inventar", id = "inventory"},
+    {label = "Bestellungen", id = "orders"},
     {label = "Karte", id = "map"},
     {label = "Bauen (bald)", id = "build", dim = true},
     {label = "Album (bald)", id = "album", dim = true},
@@ -570,6 +667,7 @@ function Screens.pause(ctx, nav)
     if r == "close" or r == "resume" then n.pop()
     elseif r == "horses" then n.push(Screens.horses(ctx))
     elseif r == "map" then n.push(Screens.map(ctx))
+    elseif r == "orders" then n.push(Screens.orders(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then
       ctx.save()

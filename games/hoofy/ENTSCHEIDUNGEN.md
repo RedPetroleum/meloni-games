@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E41** (B4) Bestellungen: Tag 1, 4, 7 … gibt jemand eine auf (Kunde, Farbe aus einer erreichbaren Rasse
+  (häufig bis selten), Geschlecht, ein Stat mit Mindestwert 40–60 (Ausdauer 60–80), plus 5 je
+  weiteres Gebiet), Frist 5–10 Tage, verfällt danach. Geliefert wird im Pausenmenü → Bestellungen →
+  Pferd wählen (nur passende zahlen): Wert × 1,5, das Pferd geht weg, keine Folgen für die übrigen
+  (der Katalog nennt keine). Gesamtwerte inklusive Training zählen. Mitteilung beim Tageswechsel.
 - **E40** (B3) Käufer: Ab Tagesbeginn steht der Käufer des Tages am Hoftor (Figur in Käuferfarben mit ❗,
   tagsüber, weg nach einem Verkauf oder bei Einbruch der Nacht). A daneben öffnet die Liste deiner
   Pferde mit dem Preis, den er zahlt, einem Spruch zum markierten Pferd und den Folgen. Pro Besuch ein

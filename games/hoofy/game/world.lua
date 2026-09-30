@@ -14,6 +14,7 @@ local Explore = require("game.explore")
 local Economy = require("game.economy")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
+local Orders = require("game.orders")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -95,6 +96,7 @@ function WorldScene.enter(arg)
     ctx.save = WorldScene.save
     if snap then
       ctx.money, ctx.inv, ctx.market, ctx.buyer = snap.geld, snap.inv, snap.markt, snap.kaeufer
+      ctx.orders = snap.bestellungen or {}
       clock.day, clock.t = snap.tag, snap.zeit
       clock.woke = clock.t > 0 and clock.t < Clock.DAWN
       ctx.player.x, ctx.player.y = snap.pos[1], snap.pos[2]
@@ -106,6 +108,11 @@ function WorldScene.enter(arg)
     end
   end
   if not ctx.buyer then ctx.buyer = Buyers.visit(ctx.seed, clock.day) end
+  if not snap and #ctx.orders == 0 and (clock.day - 1) % 3 == 0 then Orders.tick(ctx, clock.day) end
+  if arg and arg.bestellung then
+    local d = ctx.herd[1]
+    ctx.orders = {Orders.for_horse(d, clock.day, "Frau Schmitt"), Orders.generate(ctx.seed, clock.day + 1, 1)}
+  end
   if arg and arg.kaeufer then ctx.buyer = {typ = arg.kaeufer, tag = clock.day, verkauft = false} end
   Buyers.sync(ctx, clock:is_night())
   if arg and arg.screen then
@@ -115,6 +122,7 @@ function WorldScene.enter(arg)
     if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
     if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
     if name == "map" then nav.push(Screens.map(ctx)) end
+    if name == "bestellung" then nav.push(Screens.orders(ctx)) end
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
     if name == "markt" then Market.refresh(ctx, clock.day) nav.push(Screens.market(ctx)) end
     if name == "laden" then nav.push(Screens.shop(ctx)) end
@@ -370,7 +378,10 @@ function WorldScene.update()
     Market.refresh(ctx, clock.day)
     ctx.buyer = Buyers.visit(ctx.seed, clock.day)
     Buyers.sync(ctx, false)
-    say("Tag " .. clock.day .. " beginnt.", 150)
+    local od = Orders.tick(ctx, clock.day)
+    if od.neu then say("Neue Bestellung von " .. od.neu.kunde .. ".", 150) end
+    if #od.verfallen > 0 then say("Eine Bestellung ist verfallen.", 150) end
+    if not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
   end
   local p = ctx.player
   if p.riding then
@@ -407,6 +418,7 @@ function WorldScene.update()
           Market.refresh(ctx, clock.day)
           ctx.buyer = Buyers.visit(ctx.seed, clock.day)
           Buyers.sync(ctx, false)
+          Orders.tick(ctx, clock.day)
           ctx.sfx.dawn()
           ctx.sfx.music("day")
           local saved = WorldScene.save()

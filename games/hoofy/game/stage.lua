@@ -37,6 +37,7 @@ function Stage.build(nr, seed, farm)
   -- Vorrat (E31): das Startinventar; Kauf und Ernte kommen mit B1/C5
   ctx.herd, ctx.herd_horses, ctx.lead = {}, {}, {}   -- eigene Pferde: Daten, Figuren, an der Leine
   ctx.explored = Explore.new(ctx.map.w, ctx.map.h)
+  ctx.orders = {}
   ctx.seed = seed or area.seed
   ctx.max_gebiet = 1              -- weitestes erreichbares Gebiet (Fahrzeuge kommen mit D1)
   ctx.money = 300                 -- Startgeld (KATALOG §15)

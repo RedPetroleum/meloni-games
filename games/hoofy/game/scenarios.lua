@@ -56,6 +56,11 @@ function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
 end
 
+-- Bestellungen: drei Pferde (Hof), eine Bestellung passt auf das erste, Liste offen.
+function Scenarios.bestellung()
+  return "world", {ort = "start", hof = true, bestellung = true, screen = "bestellung"}
+end
+
 -- Käufer: drei Pferde (Hof), save.kaeufer = sammlerin, reithof, zuechter oder schlachter; Dialog offen.
 function Scenarios.kaeufer(save)
   return "world", {ort = "start", hof = true, kaeufer = save.kaeufer or "sammlerin", screen = "kaeufer"}

@@ -83,6 +83,9 @@ return {
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- Inventar
     C.eq(#nav.stack, 2)
     keys(nav.stack[2], nav, {BTN_A})
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Bestellungen
+    C.eq(#nav.stack, 2)
+    keys(nav.stack[2], nav, {BTN_B})
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- Karte
     C.eq(#nav.stack, 2)
     keys(nav.stack[2], nav, {BTN_B})

@@ -172,8 +172,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Preise und Folgen; Screenshot Dialog.
   *Erledigt:* `game/buyers.lua`, Käuferfiguren (Recolor der Spielfigur), Dialog `Screens.buyer`.
   Szenario `kaeufer` (`SCENARIO_OPTS='kaeufer = "zuechter"'`), 4 Screenshots. E40, Balance-Befund zum Schlachter.
-- [ ] **B4 Bestellungen**: alle 3 Tage, Frist 5–10 Tage, Bonus.
+- [x] **B4 Bestellungen**: alle 3 Tage, Frist 5–10 Tage, Bonus.
   Prüfung: Selbsttest Erzeugen/Erfüllen/Verfallen.
+  *Erledigt:* `game/orders.lua`, Bildschirme im Pausenmenü, Mitteilung beim Tageswechsel. Szenario
+  `bestellung` (Screenshot). E41.
 - [ ] **B5 Jobs**: Jobbrett im Dorf, KATALOG §12, ein Job je Pferd und Tag.
   Prüfung: Selbsttest Lohn/Training/Energie; Screenshot.
 - [ ] **B6 Zucht**: Hengst + Stute im Stall, Trächtigkeit, Pause, Fohlen wächst in 4 Tagen,
