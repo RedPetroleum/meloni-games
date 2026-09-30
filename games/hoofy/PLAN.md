@@ -122,9 +122,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/clock.lua`, `game/days.lua`, Nachtkreis `Stage.draw_night`, Schlafen am Wohnwagen.
   Szenario `abend` (`zeit = 11000` + Drehbuch zum Wohnwagen schläft). Wildpferdwechsel ist jetzt an
   den Tageszähler gehängt. E14 geändert, E33.
-- [ ] **A13 Menüs**: HUD (E9), Pausenmenü (E5), Pferdeliste, Pferde-Info (Balken mit Gen,
+- [x] **A13 Menüs**: HUD (E9), Pausenmenü (E5), Pferdeliste, Pferde-Info (Balken mit Gen,
   Training, Max-Potenzial), Umbenennen mit Bildschirmtastatur, Inventar.
   Prüfung: Screenshot jedes Bildschirms.
+  *Erledigt:* `game/screens.lua` (Stapel in `game/world.lua`). Szenario `menues` mit
+  `SCENARIO_OPTS='screen = "pause"'` (auch `horses`, `info`, `keyboard`, `inventar`). E34.
 - [ ] **A14 Speichern**: beim Schlafen, Gebietswechsel, `_quit`; Weiter-Eintrag im Titel.
   Prüfung: Selbsttest speichern → laden ergibt gleichen Zustand; Größe des Spielstands mit
   24 Pferden geloggt.

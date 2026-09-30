@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E34** (A13) Bildschirme: START öffnet das Pausenmenü (Weiter, Pferde, Inventar; Karte, Bauen,
+  Album, Speichern stehen ausgegraut da, bis es sie gibt). Die Welt steht still, solange ein
+  Bildschirm offen ist. Pferdeliste → Info (Balken: Gen gold, Training grün, Max-Potenzial als
+  roter Strich; Zustände darunter) → A benennt um. Tastatur: 6 Reihen Buchstaben samt Umlauten, dazu
+  LÖSCHEN und FERTIG; B löscht das letzte Zeichen (bei leerem Text: zurück). Höchstens 12 Zeichen.
 - **E33** (A12) Tag: Start am Morgen, 10 800 Frames hell, dann 7 200 dunkel. Schlafen: nur nachts
   (A an der Wohnwagentür), überspringt den Rest der Nacht, sonst „Noch nicht müde“. Pause und Menüs
   halten die Uhr an. Reihenfolge des Tageswechsels: Bindung (aus gestrigen Zuständen), Gewicht,

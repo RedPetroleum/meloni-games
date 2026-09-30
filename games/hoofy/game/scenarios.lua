@@ -46,6 +46,11 @@ function Scenarios.abend(save)
   return "world", {ort = "start", zeit = save.zeit or 9800, tag = save.tag}
 end
 
+-- Bildschirme: save.screen = pause, horses, info, keyboard, inventar (Pferde wie in hof_start).
+function Scenarios.menues(save)
+  return "world", {ort = "start", hof = true, screen = save.screen or "pause"}
+end
+
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
 function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}

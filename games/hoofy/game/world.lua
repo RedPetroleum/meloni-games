@@ -8,6 +8,7 @@ local Care = require("game.care")
 local Farm = require("game.farm")
 local Clock = require("game.clock")
 local Days = require("game.days")
+local Screens = require("game.screens")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -16,6 +17,7 @@ local U = require("lib.util")
 local WorldScene = {}
 
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
+local stack, nav = {}, {}
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
@@ -28,6 +30,7 @@ function WorldScene.enter(arg)
     ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
   end
   paused, anim_frame, t = false, 1, 0
+  stack = {}
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
@@ -66,6 +69,14 @@ function WorldScene.enter(arg)
     wild:fill()
   end
   ctx.wild = wild
+  if arg and arg.screen then
+    local name = arg.screen
+    if name ~= "none" then nav.push(Screens.pause(ctx, nav)) end
+    if name == "horses" or name == "info" or name == "keyboard" then nav.push(Screens.horses(ctx)) end
+    if name == "info" or name == "keyboard" then nav.push(Screens.info(ctx, ctx.herd[1])) end
+    if name == "keyboard" then nav.push(Screens.keyboard("Neuer Name", ctx.herd[1].name, 12, function(t) ctx.herd[1].name = t end)) end
+    if name == "inventar" then nav.push(Screens.inventory(ctx)) end
+  end
 end
 
 
@@ -193,12 +204,20 @@ local function do_action(id)
   end
 end
 
+function nav.push(screen) stack[#stack + 1] = screen end
+function nav.pop() stack[#stack] = nil end
+
 function WorldScene.update()
-  if btnp(BTN_START) and not btn(BTN_SELECT) then
-    paused = not paused
-    ctx.sfx.select()
+  -- Bildschirm-Stapel (E5): Pausenmenü und alles, was davon aufgeht; die Welt steht still
+  if #stack > 0 then
+    stack[#stack].update(nav)
+    return
   end
-  if paused then return end
+  if btnp(BTN_START) and not btn(BTN_SELECT) then
+    nav.push(Screens.pause(ctx, nav))
+    ctx.sfx.select()
+    return
+  end
   if menu then
     local r = menu.m:update()
     if r then do_action(r) end
@@ -343,12 +362,7 @@ function WorldScene.draw()
     Stage.panel(40, 200, 279, 226)
     Stage.center(toast.text, 209, C.gold)
   end
-  if paused then
-    local C = ctx.colors
-    Stage.panel(90, 90, 230, 140)
-    Stage.center("Pause", 100, C.gold, 2)
-    Stage.center("START: weiter", 124, C.text)
-  end
+  for i = 1, #stack do stack[i].draw() end
 end
 
 return WorldScene

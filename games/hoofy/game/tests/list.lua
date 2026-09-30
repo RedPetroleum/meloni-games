@@ -15,4 +15,5 @@ return {
   "pflege",
   "hof",
   "tag",
+  "menues",
 }
