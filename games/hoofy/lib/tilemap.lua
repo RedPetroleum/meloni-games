@@ -51,6 +51,7 @@ function Map.new(def)
   self.G = by_byte(def.grounds)
   self.D = by_byte(def.decos or {})
   self.shapes = by_byte(def.shapes or {})
+  self.heights = by_byte(def.heights or {})
   self.props = def.props or {}
   self.seed = def.seed or 1
   self.anim = 1
@@ -122,16 +123,17 @@ function Map:set(layer, cx, cy, ch)
 end
 
 -- Ist ein Rechteck (x1, y1 exklusiv) irgendwo blockiert? Außerhalb der Karte ist immer blockiert.
-function Map:blocked(x0, y0, x1, y1)
+-- clear: Sprunghöhe; Formen mit heights[Zeichen] <= clear werden übersprungen.
+function Map:blocked(x0, y0, x1, y1, clear)
   if x0 < 0 or y0 < 0 or x1 > self.pw or y1 > self.ph then return true end
-  local G, ground, coll, shapes = self.G, self.ground, self.coll, self.shapes
+  local G, ground, coll, shapes, heights = self.G, self.ground, self.coll, self.shapes, self.heights
   for cy = y0 // TILE, (y1 - 1) // TILE do
     local grow, crow = ground[cy + 1], coll and coll[cy + 1]
     for cx = x0 // TILE, (x1 - 1) // TILE do
       if G[byte(grow, cx + 1)].solid then return true end
       if crow then
         local c = byte(crow, cx + 1)
-        if c ~= DOT then
+        if c ~= DOT and not (clear and heights[c] and heights[c] <= clear) then
           local tx, ty = cx * TILE, cy * TILE
           local list = shapes[c]
           for k = 1, #list do

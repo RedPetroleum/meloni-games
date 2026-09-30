@@ -9,9 +9,10 @@ local function box(x, y, fw, fh)
   return x0, y0, x0 + fw, y0 + fh
 end
 
-function Body.free(map, x, y, fw, fh)
+-- clear: Sprunghöhe in Pixeln, niedrigere Hindernisse zählen nicht (nil: alles blockiert)
+function Body.free(map, x, y, fw, fh, clear)
   local x0, y0, x1, y1 = box(x, y, fw, fh)
-  return not map:blocked(x0, y0, x1, y1)
+  return not map:blocked(x0, y0, x1, y1, clear)
 end
 
 -- Bewegt e um dx, dy, getrennt nach Achsen (so rutscht man an Wänden entlang).
@@ -21,7 +22,7 @@ function Body.move(e, dx, dy, map, allow)
   local ok_x, ok_y = true, true
   if dx ~= 0 then
     local nx = e.x + dx
-    if Body.free(map, nx, e.y, e.fw, e.fh) and (not allow or allow(nx, e.y)) then
+    if Body.free(map, nx, e.y, e.fw, e.fh, e.clear) and (not allow or allow(nx, e.y)) then
       e.x = nx
     else
       ok_x = false
@@ -29,7 +30,7 @@ function Body.move(e, dx, dy, map, allow)
   end
   if dy ~= 0 then
     local ny = e.y + dy
-    if Body.free(map, e.x, ny, e.fw, e.fh) and (not allow or allow(e.x, ny)) then
+    if Body.free(map, e.x, ny, e.fw, e.fh, e.clear) and (not allow or allow(e.x, ny)) then
       e.y = ny
     else
       ok_y = false

@@ -51,6 +51,10 @@ for mask = 0, 15 do
   T.SHAPES[string.char(T.FENCE_BASE + mask)] = list
 end
 
+-- Höhe der Hindernisse in Pixeln: wer höher springt, kommt drüber (Bäume und Häuser nie).
+T.HEIGHTS = {u = 12, o = 16, Y = 14}
+for mask = 0, 15 do T.HEIGHTS[string.char(T.FENCE_BASE + mask)] = 18 end
+
 local function fence_mask(map, cx, cy)
   if cx < 0 or cy < 0 or cx >= map.w or cy >= map.h then return 0 end
   local c = string.byte(map.coll[cy + 1], cx + 1) - T.FENCE_BASE

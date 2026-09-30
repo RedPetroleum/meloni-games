@@ -71,6 +71,13 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E30** (A9) Reiten: A neben einem geführten oder folgenden Pferd (≤ 30 px) steigt auf. Bindung
+  < 20: 50 % Verweigern; 20–39 wird nicht eingeschränkt (Katalog sagt nur „≥ 40 reitbar“). Tempo:
+  Schritt 1,3 + 0,6 × T/100, Galopp (B) 2,0 + 1,4 × T/100 Pixel je Frame, T = Tempo + Sattel.
+  Energie: Reiten 1 je 10 s, Galopp doppelt, Sprung 5; bei 0 nur noch langsamer Schritt, kein
+  Sprung. Sprunghöhe 6 + 0,3 × Stärke Pixel; Hindernishöhen: Busch 12, Hürde 14, Stein 16,
+  Zaun 18, Bäume und Häuser nie. **A antippen = springen (beim Loslassen), A halten (½ s) =
+  absteigen** direkt, das Menü aus E3 kommt mit A13. Energie-Balken unten links.
 - **E29** (A8) Leine: Ein frisch gezähmtes Pferd ist sofort angeleint (Seil von der Hand zum Kopf),
   ab Bindung 70 folgt es frei ohne Seil und reißt nie aus. Bis zu 4 Pferde gleichzeitig
   (Karawane, je 20 px Abstand mehr). Ausreißen: einmal pro Sekunde gewürfelt, so dass die Chance je

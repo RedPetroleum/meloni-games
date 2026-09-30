@@ -2,6 +2,7 @@
 -- Spur für die Leine.
 local Body = require("lib.body")
 local U = require("lib.util")
+local Ride = require("game.ride")
 
 local Player = {}
 Player.__index = Player
@@ -20,12 +21,13 @@ end
 function Player.new(ctx, x, y)
   return setmetatable({
     ctx = ctx, x = x, y = y, fw = 8, fh = 4, reach = 24,
-    dir = "down", anim = 0, moving = false, running = false, frozen = false, dust_t = 0,
+    dir = "down", anim = 0, jump_t = 0, air = 0, moving = false, running = false, frozen = false, dust_t = 0,
     knock_t = 0, kvx = 0, kvy = 0,
   }, Player)
 end
 
 function Player:update()
+  if self.riding then return Ride.update(self) end
   self.moving = false
   if self.frozen then return end
   if self.knock_t > 0 then
@@ -75,6 +77,7 @@ function Player:hand()
 end
 
 function Player:draw_shadow()
+  if self.riding then return end
   local c = self.ctx.map:ground_at(self.x, self.y)
   c = c and c.shadow or 0
   local x, y = flr(self.x), flr(self.y)
@@ -84,6 +87,7 @@ end
 
 -- prefix: "player" (normal) oder "xray" (Umriss, wenn die Figur verdeckt ist)
 function Player:draw(prefix)
+  if self.riding then return end   -- der Reiter wird mit dem Pferd gezeichnet
   local S = self.ctx.S
   local names = prefix == "xray" and XRAY or SPRITES
   local phase = self.moving and flr(self.anim) % 4 or 0
@@ -102,6 +106,7 @@ function Player:xray_box()
 end
 
 function Player:draw_xray()
+  if self.riding then return end
   self:draw("xray")
 end
 

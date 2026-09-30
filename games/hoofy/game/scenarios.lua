@@ -41,6 +41,12 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
+-- Reiten: zahmes Pferd mit Sattel neben dem Spieler, Büsche (save.hindernis = "o": Steine) 6 Kacheln
+-- rechts. save.staerke setzt die Stärke, save.bindung die Bindung.
+function Scenarios.ritt(save)
+  return "world", {ort = "start", ritt = true, staerke = save.staerke, bindung = save.bindung, hindernis = save.hindernis}
+end
+
 -- Zähmen: ein Haflinger 140 px rechts vom Spieler am Hof (save.bindung, Standard 35). Übergänge im Log.
 function Scenarios.zaehmen(save)
   return "world", {ort = "start", zaehmen = true, bindung = save.bindung}

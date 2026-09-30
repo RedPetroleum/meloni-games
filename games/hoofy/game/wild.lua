@@ -7,6 +7,7 @@ local G = require("game.horse_gfx")
 local Body = require("lib.body")
 local Bubbles = require("game.bubbles")
 local Leash = require("game.leash")
+local Ride = require("game.ride")
 local Rng = require("lib.rng")
 local U = require("lib.util")
 
@@ -62,7 +63,13 @@ function Horse:update_tamed()
   local ctx, p = self.ctx, self.ctx.player
   local st = self.state
   self.moving = false
-  if st == "led" or st == "follow" then
+  if st == "ridden" then
+    local r = self.rider
+    self.x, self.y, self.moving, self.speed = r.x, r.y, r.moving, r.running and 3 or 1
+    self.anim = r.anim
+    self.ride_dir = r.dir
+    self.dir = (r.dir == "left" or r.dir == "right") and r.dir or self.dir
+  elseif st == "led" or st == "follow" then
     local i = 1
     for n, h in ipairs(ctx.lead) do if h == self then i = n end end
     local tx, ty = ctx.trail:point_at(p.x, p.y, Leash.lead_dist(i))
@@ -178,6 +185,14 @@ function Horse:flee(p)
 end
 
 function Horse:pose()
+  if self.state == "ridden" then
+    local d, walk = self.ride_dir, flr(self.anim * 3) % 2 == 1
+    if d == "up" or d == "down" then
+      return d .. (self.moving and walk and "_walk" or "")
+    end
+    if self.rider.running and self.moving then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
+    return (self.moving and walk) and "side_walk" or "side"
+  end
   if self.tamed then
     if self.state == "escape" then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
     if self.moving then
@@ -203,7 +218,17 @@ function Horse:draw_shadow()
 end
 
 function Horse:draw()
-  G.draw(self.coat, self.body, self:pose(), self.x, self.y, self.dir == "left")
+  local r = self.rider
+  local lift = r and r.air or 0
+  G.draw(self.coat, self.body, self:pose(), self.x, self.y - lift, self.dir == "left")
+  if r then
+    -- Reiter auf dem Rücken: Figur der Blickrichtung
+    local _, bh = G.size(self.coat, self.body, "side")
+    local S = self.ctx.S
+    local names = {down = "player_down", up = "player_up", left = "player_side", right = "player_side"}
+    local d = self.ride_dir or "right"
+    S.draw(names[d], flr(self.x) - 6, flr(self.y - lift) - bh + 4 - 10, d == "left")
+  end
 end
 
 -- Blase über dem Kopf (E10). Wildpferde, die fliehen, haben Angst.
@@ -289,6 +314,22 @@ function Wild:escape(h)
   h.scared = true
   self.ctx.escaped = h
   return h
+end
+
+-- A bei einem geführten oder folgenden Pferd in Reichweite: aufsteigen. Gibt Pferd und Ergebnis
+-- ("ok" oder "verweigert") zurück, nil wenn keins in Reichweite ist.
+function Wild:try_mount()
+  local p = self.ctx.player
+  if p.riding then return nil end
+  local best, bd = nil, Ride.REACH
+  for _, h in ipairs(self.ctx.lead) do
+    local d = U.dist(h.x, h.y, p.x, p.y)
+    if d <= bd then best, bd = h, d end
+  end
+  if not best then return nil end
+  if Ride.refuses(best.data, self.rng) then return best, "verweigert" end
+  Ride.mount(self.ctx, best)
+  return best, "ok"
 end
 
 -- A bei einem losen gezähmten Pferd in Reichweite: wieder anleinen. Gibt das Pferd zurück.

@@ -99,9 +99,12 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   *Erledigt:* `game/leash.lua`, Verhalten in `game/wild.lua` (`led/follow/free/escape`), Seil in
   `game/world.lua`. Rate über 20 000 Fenster: 9,1 % / 26,6 %. „Reitend“ wirkt, sobald A9 `player.riding`
   setzt. Entscheidung E29.
-- [ ] **A9 Reiten**: Auf-/Absitzen (E2, E3), Schritt/Galopp, Springen nach Stärke,
+- [x] **A9 Reiten**: Auf-/Absitzen (E2, E3), Schritt/Galopp, Springen nach Stärke,
   Energieverbrauch nach Katalog, Sattel-Bonus, verweigern bei Bindung < 20.
   Prüfung: Shot-Sheet Ritt mit Sprung über Busch; Selbsttest Energie.
+  *Erledigt:* `game/ride.lua`, Reiter wird mit dem Pferd gezeichnet, `Map:blocked(…, clear)` mit
+  Hindernishöhen. Szenario `ritt` (`--input "5:A,20-110:RIGHT+B,40:A"` springt über die Büsche,
+  `SCENARIO_OPTS='staerke = 10'` schafft es nicht). Entscheidung E30.
 - [ ] **A10 Pflege und Training**: Aktionsmenü (E2), Streicheln, Füttern, Striegeln, Werte
   nach Katalog, Trainingsformel mit Bonus, Charakter-Effekte (KATALOG §5).
   Prüfung: Selbsttests für Trainingsformel, Futterwirkung, Bindungsregeln; Screenshot Menü.

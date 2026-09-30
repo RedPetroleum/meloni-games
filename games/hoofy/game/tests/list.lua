@@ -11,4 +11,5 @@ return {
   "blasen",
   "zaehmen",
   "leine",
+  "reiten",
 }

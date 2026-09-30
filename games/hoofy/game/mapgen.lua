@@ -371,7 +371,7 @@ function Gen.generate(area, seed)
 
   return {
     w = W, h = H, seed = seed, ground = ground, deco = drows, coll = crows, objects = objects,
-    grounds = Tiles.GROUNDS, decos = Tiles.DECOS, shapes = Tiles.SHAPES, props = Tiles.PROPS,
+    grounds = Tiles.GROUNDS, decos = Tiles.DECOS, shapes = Tiles.SHAPES, heights = Tiles.HEIGHTS, props = Tiles.PROPS,
     plot = plot, places = places, village = {x = vx, y = vy, w = vw, h = vh},
   }
 end
