@@ -74,6 +74,13 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E43** (B6) Zucht: An der Stalltür → „Zucht starten“ → Hengst, dann Stute wählen (beide ausgewachsen
+  und im Stall, Stute nicht trächtig/in Pause). Nach 2 Tagen kommt das Fohlen (beim Tageswechsel),
+  folgt an der Leine; die Stute hat 3 Tage Pause. Gen-Stats: Mittel der Eltern ± σ 6, Potenzial wie
+  bei Wildpferden aus der Rasse des Fohlens. Farbe: die mutierte (1 %) Farbe ist die gezeigte, nicht
+  die versteckte. Der Vater wird bei der Paarung festgehalten (wird er verkauft, erbt das Fohlen trotzdem).
+  Jedes Pferd bekommt eine Kennung (`id`) und eine Kurzform der Ahnen (`ahnen`, 3 Ebenen) für B7.
+  Das Fohlen bekommt einen Zufallsnamen und einen zufälligen Charakter.
 - **E42** (B5) Jobs: A am Jobbrett → Job wählen → Pferd wählen (Voraussetzung, Energie und „schon
   gearbeitet“ stehen dabei). Der Job läuft sofort ab (kein Minispiel, keine Wegzeit): Lohn nach
   Katalog mit den Gesamtwerten, Energie ab, Training Basis × Formel.

@@ -3,6 +3,7 @@ local K = require("game.katalog")
 local H = require("game.horse_model")
 local Care = require("game.care")
 local Farm = require("game.farm")
+local Breeding = require("game.breeding")
 
 local Days = {}
 
@@ -46,6 +47,13 @@ function Days.new_day(ctx, day)
   local report = {}
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
   ctx.wild:new_day(day)
+  -- Fohlen kommen zur Welt und folgen dem Spieler (oder stehen lose, wenn die Leine voll ist)
+  local born = Breeding.tick(ctx, day)
+  ctx.geburten = {}
+  for _, b in ipairs(born) do
+    ctx.wild:adopt(b.foal)
+    ctx.geburten[#ctx.geburten + 1] = b.foal.name .. " (Fohlen von " .. b.mutter.name .. ")"
+  end
   return report
 end
 

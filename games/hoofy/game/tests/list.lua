@@ -24,4 +24,5 @@ return {
   "kaeufer",
   "bestellungen",
   "jobs",
+  "zucht",
 }

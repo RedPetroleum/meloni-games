@@ -55,3 +55,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:20 | B4 Bestellungen | fertig | Screenshot Bestellliste, SELFTEST OK 111, make test grün | Hoofy B4
 2026-10-01 01:22 | B5 Jobs | begonnen | – | –
 2026-10-01 01:23 | B5 Jobs | fertig | Screenshots Jobliste/Pferdewahl, SELFTEST OK 117, make test grün | Hoofy B5
+2026-10-01 01:25 | B6 Zucht | begonnen | – | –
+2026-10-01 01:27 | B6 Zucht | fertig | Farben 34,6/14,7/35,0/14,6 %, Gen-Mittel 50,1 σ 6,0, Zeitplan 2+3+4 Tage, SELFTEST OK 125, make test grün | Hoofy B6

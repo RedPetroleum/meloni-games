@@ -178,6 +178,8 @@ function Screens.info(ctx, data)
     state_bar(82, y, "Energie", data.energie, H.stat(data, "ausdauer"))
     if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, 130, C.dim) end
     print("Wert: " .. Value.wert(data) .. " G", 6, 142, C.gold)
+    if data.traechtig then print("Trächtig bis Tag " .. data.traechtig.tag, 6, 154, C.text) end
+    if data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then print("Pause bis Tag " .. data.zucht_pause, 6, 154, C.dim) end
     footer("A: umbenennen   B: zurück")
   end
   s.full = true

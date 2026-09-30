@@ -180,9 +180,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Lohn/Training/Energie; Screenshot.
   *Erledigt:* `game/jobs.lua`, Jobbrett-Bildschirme, Szenario `jobbrett` (Jobliste, Pferdeauswahl).
   E42.
-- [ ] **B6 Zucht**: Hengst + Stute im Stall, Trächtigkeit, Pause, Fohlen wächst in 4 Tagen,
+- [x] **B6 Zucht**: Hengst + Stute im Stall, Trächtigkeit, Pause, Fohlen wächst in 4 Tagen,
   Gen-Vererbung, Farbvererbung mit Mutation, Rasse 50:50, Premiumfutter für Fohlen.
   Prüfung: Selbsttest Farbanteile 35/15/35/15 (±2) über viele Fohlen, Gen-Stats ≈ Elternmittel.
+  *Erledigt:* `game/breeding.lua`, Stalltür-Menü, Fohlen in `game/days.lua`. 20 000 Würfe: 34,6 /
+  14,7 / 35,0 / 14,6 %, Mutation 1,0 %; Fohlen-Tempo Mittel 50,1 σ 6,0. E43.
 - [ ] **B7 Stammbaum und Inzucht**: Stammbaum-Bildschirm (3 Generationen), Inzucht-Malus.
   Prüfung: Selbsttest Malus je Verwandtschaftsgrad; Screenshot.
 - [ ] **B8 Wirtschaft prüfen**: Simulation einer einfachen Spielweise über 20 Tage, Vergleich

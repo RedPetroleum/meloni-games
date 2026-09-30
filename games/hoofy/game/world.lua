@@ -15,6 +15,7 @@ local Economy = require("game.economy")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
+local Breeding = require("game.breeding")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -210,18 +211,47 @@ local function open_house(h)
   menu.stage, menu.m = "house", Menu.new(items, "Wohin mit " .. h.data.name .. "?")
 end
 
--- Menü an der Stalltür: Pferde im Stall herausholen.
+-- Menü an der Stalltür: Pferde im Stall herausholen, Zucht starten.
 local function open_stall()
   local items = {}
-  for i, h in ipairs(wild:in_stall()) do items[#items + 1] = {label = h.data.name, id = i} end
+  for i, h in ipairs(wild:in_stall()) do
+    local d = h.data
+    local tag = d.traechtig and " (trächtig)" or (d.zucht_pause and d.zucht_pause > clock.day and " (Pause)") or ""
+    items[#items + 1] = {label = d.name .. tag, id = i}
+  end
+  local can = #Breeding.stallions(ctx.herd) > 0 and #Breeding.mares(ctx.herd, clock.day) > 0
+  items[#items + 1] = {label = "Zucht starten", id = "breed", dim = not can}
   menu = {horse = ctx.player, stage = "stall", m = Menu.new(items, "Im Stall")}
+end
+
+local function open_pick(stage, list, title)
+  local items = {}
+  for i, d in ipairs(list) do items[#items + 1] = {label = d.name, id = i} end
+  menu.stage, menu.list, menu.m = stage, list, Menu.new(items, title)
 end
 
 local function do_action(id)
   local h = menu.horse
   local d = h.data
+  if menu.stage == "hengst" then
+    if id == "close" then return open_stall() end
+    menu.hengst = menu.list[id]
+    return open_pick("stute", Breeding.mares(ctx.herd, clock.day), "Stute für " .. menu.hengst.name)
+  end
+  if menu.stage == "stute" then
+    if id == "close" then return open_stall() end
+    local mare, stallion = menu.list[id], menu.hengst
+    local ok, why = Breeding.start(ctx, stallion, mare, clock.day)
+    say(ok and (stallion.name .. " und " .. mare.name .. ": Fohlen in " .. K.zeit.traechtig_tage .. " Tagen.") or ("Geht nicht: " .. tostring(why)), 180)
+    if ok then ctx.sfx.pet() end
+    menu = nil
+    return
+  end
   if menu.stage == "stall" then
     if id == "close" then menu = nil return end
+    if id == "breed" then
+      return open_pick("hengst", Breeding.stallions(ctx.herd), "Hengst wählen")
+    end
     local inside = wild:in_stall()
     local sel = inside[id]
     menu = nil
@@ -376,6 +406,7 @@ function WorldScene.update()
     ctx.sfx.dawn()
     ctx.sfx.music("day")
     Days.new_day(ctx, clock.day)
+    if #ctx.geburten > 0 then say("Fohlen geboren: " .. ctx.geburten[1], 200) end
     Market.refresh(ctx, clock.day)
     ctx.buyer = Buyers.visit(ctx.seed, clock.day)
     Buyers.sync(ctx, false)
@@ -423,7 +454,8 @@ function WorldScene.update()
           ctx.sfx.dawn()
           ctx.sfx.music("day")
           local saved = WorldScene.save()
-          say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. (saved and " Gespeichert." or ""), 180)
+          local fohlen = #ctx.geburten > 0 and (" Fohlen geboren: " .. ctx.geburten[1]) or ""
+          say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. fohlen .. (saved and " Gespeichert." or ""), 200)
           ctx.sfx.start()
         else
           say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)

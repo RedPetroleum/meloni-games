@@ -382,6 +382,7 @@ function Wild:add_own(opts)
   if opts.name then h.data.name = opts.name end
   h.data.sattel = opts.sattel
   h.state = "free"
+  require("game.breeding").ensure_id(h.data, self.ctx.herd)
   self.ctx.herd[#self.ctx.herd + 1] = h.data
   self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
   return h
@@ -390,6 +391,7 @@ end
 -- Nimmt ein gespeichertes Pferd (Datentabelle) wieder in den Bestand: untergebracht, wo es war,
 -- sonst an der Leine beim Spieler.
 function Wild:adopt(data)
+  require("game.breeding").ensure_id(data, self.ctx.herd)
   local p = self.ctx.player
   local h = Horse.new(self.ctx, data, p.x, p.y + 16)
   h.wild, h.tamed, h.state = false, true, "free"
