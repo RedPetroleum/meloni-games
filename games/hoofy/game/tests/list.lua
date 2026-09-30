@@ -21,4 +21,5 @@ return {
   "toene",
   "laden",
   "markt",
+  "kaeufer",
 }

@@ -32,7 +32,7 @@ function Save.snapshot(ctx, clock, seed)
     ver = Save.VERSION, seed = seed, gebiet = ctx.area.nr,
     tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv,
     pos = {flr(p.x), flr(p.y)},
-    herd = herd, hof = ctx.area.farm, aenderungen = ctx.map.changes, erkundet = ctx.explored, markt = ctx.market,
+    herd = herd, hof = ctx.area.farm, aenderungen = ctx.map.changes, erkundet = ctx.explored, markt = ctx.market, kaeufer = ctx.buyer,
   }
 end
 

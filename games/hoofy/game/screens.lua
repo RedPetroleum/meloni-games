@@ -12,6 +12,7 @@ local SFX = require("game.sfx")
 local Economy = require("game.economy")
 local Value = require("game.value")
 local Market = require("game.market")
+local Buyers = require("game.buyers")
 
 local Screens = {}
 
@@ -345,6 +346,83 @@ function Screens.market(ctx)
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
     footer("A: kaufen   B: zurück")
+  end
+  return s
+end
+
+-- ---- Käufer am Hof ----
+
+function Screens.buyer(ctx, nav_done)
+  local typ = ctx.buyer.typ
+  local info = Buyers.INFO[typ]
+  local sel, msg = 1, nil
+  local s = {full = true}
+  local function list()
+    local out = {}
+    for _, d in ipairs(ctx.herd) do
+      local riding = false
+      for _, h in ipairs(ctx.herd_horses) do if h.data == d and h.state == "ridden" then riding = true end end
+      if not riding then out[#out + 1] = d end
+    end
+    return out
+  end
+  function s.update(nav)
+    local l = list()
+    if btnp(BTN_UP) and #l > 0 then sel = (sel - 2) % #l + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #l > 0 then sel = sel % #l + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and l[sel] then
+      local d = l[sel]
+      local name = d.name
+      local price, extra = Buyers.sell(ctx, typ, d)
+      if price then
+        SFX.tame()
+        nav.pop()
+        if nav_done then nav_done(name .. " verkauft für " .. price .. " G.") end
+      else
+        SFX.snort()
+        msg = "Das nimmt er nicht: " .. tostring(extra)
+      end
+    end
+  end
+  function s.draw()
+    cls(C.panel)
+    header(info.name .. " kauft")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    local l = list()
+    if #l == 0 then
+      print("Du hast kein Pferd zum Verkaufen.", 20, 40, C.dim)
+    end
+    local first = max(1, sel - 5)
+    for i = first, min(#l, first + 5) do
+      local d = l[i]
+      local y = 20 + (i - first) * 22
+      local price, why = Buyers.offer(typ, d)
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 19, C.panel_light) end
+      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
+      print(d.name, 50, y, i == sel and C.gold or C.text)
+      print(K.rasse(d.rasse).name .. ", " .. K.farbe(d.farbe).name, 50, y + 10, C.dim)
+      local t = price and (price .. " G") or "nein"
+      print(t, SCREEN_W - textw(t) - 10, y + 4, price and C.gold or C.dim)
+    end
+    local d = l[sel]
+    if d then
+      rectfill(0, 152, SCREEN_W - 1, 227, rgb(0x1a, 0x13, 0x12))
+      local spruch = Buyers.spruch(typ, d, ctx.clock and ctx.clock.day or 1)
+      local lines = require("lib.util").wrap("\"" .. spruch .. "\"", SCREEN_W - 16)
+      for i, line in ipairs(lines) do if i <= 3 then print(line, 8, 156 + (i - 1) * 10, C.text) end end
+      local price, why = Buyers.offer(typ, d)
+      if price then
+        print("Er zahlt " .. price .. " G (Wert " .. Value.wert(d) .. " G).", 8, 190, C.gold)
+        local f = Buyers.folge(typ)
+        if f ~= 0 then print("Die übrigen Pferde: Bindung " .. (f > 0 and "+" or "") .. f, 8, 201, f > 0 and C.text or C.red) end
+      else
+        print("Er nimmt es nicht: " .. tostring(why), 8, 190, C.red)
+      end
+      if msg then print(msg, 8, 214, C.red) end
+    end
+    footer("A: verkaufen   B: zurück")
   end
   return s
 end

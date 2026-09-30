@@ -49,3 +49,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:09 | B1 Geld und Laden | fertig | Screenshot Laden, SELFTEST OK 92, make test grün | Hoofy B1
 2026-10-01 01:11 | B2 Pferdewert und Markt | begonnen | – | –
 2026-10-01 01:12 | B2 Pferdewert und Markt | fertig | Screenshot Markt, Beispielwerte, SELFTEST OK 98, make test grün | Hoofy B2
+2026-10-01 01:14 | B3 Käufer | begonnen | – | –
+2026-10-01 01:16 | B3 Käufer | fertig | 4 Dialog-Screenshots, Figur am Hoftor, Preise nach Formel, SELFTEST OK 106, make test grün | Hoofy B3

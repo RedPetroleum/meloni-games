@@ -74,6 +74,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E40** (B3) Käufer: Ab Tagesbeginn steht der Käufer des Tages am Hoftor (Figur in Käuferfarben mit ❗,
+  tagsüber, weg nach einem Verkauf oder bei Einbruch der Nacht). A daneben öffnet die Liste deiner
+  Pferde mit dem Preis, den er zahlt, einem Spruch zum markierten Pferd und den Folgen. Pro Besuch ein
+  Verkauf. Der Spruch ist pro Pferd und Tag fest und hängt von Käufer und Pferd ab (Sauberkeit, Farbe,
+  Fohlen, Geschlecht, Bindung, Tempo/Stärke, Gewicht). Die Bestellung kommt mit B4.
 - **E39** (B2) Pferdemarkt: 4 Pferde zum Kauf, alle 3 Tage neue (aus Seed und Zyklus, bleibt nach dem
   Laden gleich und wird mit dem Spielstand gespeichert). Rassen aus allen erreichbaren Gebieten
   (Gebiet gleichverteilt), Preis = Wert × 1,3. Gekaufte Pferde folgen sofort an der Leine. Mehr
@@ -162,3 +167,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 ## Balance
 
 (Befunde aus Simulationen; Katalogwerte ändert nur der Mensch.)
+- **(B3)** Schlachter: 5 × Gewicht² / 50 + Grundwert × 0,3 zahlt bei Gewicht 50 immer 250 + 30 % vom
+  Grundwert, also oft mehr als der Wert des Pferds (Haflinger: Wert 330, Schlachter 340; Shetlandpony
+  Wert 126, Schlachter 295). Damit ist der Schlachter für billige Pferde der beste Käufer und die Folge
+  (−10 Bindung für alle) der einzige Preis. Vorschlag: Gewicht-Term durch einen Faktor auf den Wert ersetzen.

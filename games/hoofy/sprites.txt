@@ -1220,6 +1220,12 @@ sprite jump
 .DD..........DD.
 
 
+# Käufer am Hof (B3): die Spielfigur in anderen Farben
+recolor player sammlerin B=8a3fb0 X=5e2a80 T=3a2a4a L=e8d090
+recolor player reithof B=4f9a4f X=37702f T=6b4a2a L=8a5a2b
+recolor player zuechter B=b8473a X=8a3129 T=3b2a24 L=2a1a14
+recolor player schlachter B=f0f0f0 X=c8c8c8 T=3a3a3a L=2a1a14
+
 # Umriss der Spielfigur, wenn sie hinter einem Baum oder Haus steht
 recolor player xray k=fbf8ef B=41557a K=41557a L=41557a T=41557a X=41557a Z=41557a i=41557a
 
