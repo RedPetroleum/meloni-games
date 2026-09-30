@@ -21,3 +21,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:21 | A5 Wildpferde in der Welt | fertig | Shot-Sheet grasen/fliehen, SELFTEST OK 28, make test grün | Hoofy A5
 2026-10-01 00:23 | A6 Sprechblasen | begonnen | – | –
 2026-10-01 00:24 | A6 Sprechblasen | fertig | Screenshot blasen (12 Zustände), SELFTEST OK 32, make test grün | Hoofy A6
+2026-10-01 00:25 | Release nach A6 | fertig | Lauf success, „Update games“ bringt Hoofy 0.0.1 (Stand A6) | 07c2e42
