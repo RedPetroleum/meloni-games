@@ -217,16 +217,18 @@ Hof-Schönheit = Summe der Deko-Punkte. Ab 50 / 150 / 400 bekommen alle Pferde +
 
 Das Fahrzeug fasst unbegrenzt viele Fundstücke.
 
-| Gebiet | Palette | Wildpferde gleichzeitig | Neue Rassen |
-|---|---|---|---|
-| 1 Heimattal | sattgrün | 4 | Shetlandpony, Haflinger, Noriker |
-| 2 Birkenwald | dunkelgrün | 5 | Mustang, Schwarzwälder Fuchs |
-| 3 Flussauen | blaugrün | 6 | Quarter Horse, Friese, Fjordpferd |
-| 4 Steppe | gelb | 6 | Andalusier, Achal-Tekkiner |
-| 5 Canyon | rot-orange | 7 | Araber |
-| 6 Nebelinsel | violett | 5 | Einhorn |
+| Gebiet | Palette | Größe (Kacheln) | Wildpferde gleichzeitig | Neue Rassen |
+|---|---|---|---|---|
+| 1 Heimattal | sattgrün | 96 × 80 | 4 | Shetlandpony, Haflinger, Noriker |
+| 2 Birkenwald | dunkelgrün | 112 × 80 | 5 | Mustang, Schwarzwälder Fuchs |
+| 3 Flussauen | blaugrün | 112 × 96 | 6 | Quarter Horse, Friese, Fjordpferd |
+| 4 Steppe | gelb | 128 × 96 | 6 | Andalusier, Achal-Tekkiner |
+| 5 Canyon | rot-orange | 128 × 112 | 7 | Araber |
+| 6 Nebelinsel | violett | 112 × 96 | 5 | Einhorn |
 
 Rassen früherer Gebiete kommen weiter vor, nur seltener.
+
+Größe: Kachel 16 px, Gebiete aus Blöcken zu 16 × 16 Kacheln (Heimattal ≈ 25 Bildschirme, Ausgebüxt Level 2 ≈ 5). Einmal quer durchreiten ≈ 10–15 s. Etwa alle 1–2 Bildschirme etwas zu entdecken (Pferd, Schatz, Brücke, Haus …), also 15–30 Schätze und Orte je Gebiet. Flüsse, Wälder und Zäune lenken die Wege, damit es nicht geradeaus durchgeht. Die Technik-Probe prüft die Obergrenze (256 × 256).
 
 ## 11. Schätze
 In jedem Gebiet sind Schätze versteckt. Kommt ein Pferd in die Nähe, kann es einen aufspüren: Über ihm erscheint ein Emoji 👃. Lässt man es dann frei gehen (nicht mehr steuern), läuft es zum Schatz, und man erhält ihn.
