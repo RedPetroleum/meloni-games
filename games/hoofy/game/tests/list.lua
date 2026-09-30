@@ -13,4 +13,5 @@ return {
   "leine",
   "reiten",
   "pflege",
+  "hof",
 }

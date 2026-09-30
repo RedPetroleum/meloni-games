@@ -8,6 +8,7 @@ local Body = require("lib.body")
 local Bubbles = require("game.bubbles")
 local Leash = require("game.leash")
 local Ride = require("game.ride")
+local Farm = require("game.farm")
 local Rng = require("lib.rng")
 local U = require("lib.util")
 
@@ -52,7 +53,7 @@ local function set_state(h, state, frames)
 end
 
 function Horse:step(dx, dy)
-  local ok_x, ok_y = Body.move(self, dx, dy, self.ctx.map)
+  local ok_x, ok_y = Body.move(self, dx, dy, self.ctx.map, self.allow)
   if dx ~= 0 then self.dir = dx > 0 and "right" or "left" end
   return ok_x or ok_y
 end
@@ -60,6 +61,7 @@ end
 -- Gezähmtes Pferd: "led" an der Leine, "follow" frei hinterher (Bindung ≥ 70), "free" lose,
 -- "stand" bleibt stehen.
 function Horse:update_tamed()
+  if self.state == "stall" then return end
   local ctx, p = self.ctx, self.ctx.player
   local st = self.state
   self.moving = false
@@ -210,6 +212,7 @@ function Horse:pose()
 end
 
 function Horse:draw_shadow()
+  if self.hidden then return end
   local c = self.ctx.map:ground_at(self.x, self.y)
   c = c and c.shadow or 0
   local x, y = flr(self.x), flr(self.y)
@@ -218,6 +221,7 @@ function Horse:draw_shadow()
 end
 
 function Horse:draw()
+  if self.hidden then return end
   local r = self.rider
   local lift = r and r.air or 0
   G.draw(self.coat, self.body, self:pose(), self.x, self.y - lift, self.dir == "left")
@@ -233,6 +237,7 @@ end
 
 -- Blase über dem Kopf (E10). Wildpferde, die fliehen, haben Angst.
 function Horse:draw_over()
+  if self.hidden then return end
   if self.state == "flee" or self.state == "escape" then self.scared = true elseif not self.demo then self.scared = false end
   local b = self.state == "warn" and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
@@ -293,6 +298,7 @@ end
 
 -- Nimmt ein gezähmtes Pferd mit: an die Leine, ab Bindung 70 frei folgend (max. MAX_LEAD).
 function Wild:attach(h)
+  h.data.ort, h.bounds, h.allow, h.hidden = nil, nil, nil, false
   local lead = self.ctx.lead
   if #lead >= 4 then h.state, h.timer = "free", 60; return false end
   lead[#lead + 1] = h
@@ -337,7 +343,7 @@ function Wild:nearest_own()
   local p = self.ctx.player
   local best, bd = nil, Ride.REACH
   for _, h in ipairs(self.ctx.herd_horses) do
-    if h.state ~= "ridden" and h.state ~= "escape" then
+    if h.state ~= "ridden" and h.state ~= "escape" and not h.hidden then
       local d = U.dist(h.x, h.y, p.x, p.y)
       if d <= bd then best, bd = h, d end
     end
@@ -360,6 +366,73 @@ function Wild:release(h)
   h.state, h.timer, h.vx, h.vy = "free", 90, 0, 0
 end
 
+-- Ein eigenes (gezähmtes) Pferd hinzufügen (Szenarien, Tests; später Kauf, Zucht). Gibt es zurück,
+-- noch weder an der Leine noch untergebracht. opts: Felder wie H.wild plus bindung, sattel.
+function Wild:add_own(opts)
+  opts = opts or {}
+  local p = self.ctx.player
+  local h = self:spawn_at(p.x, p.y + 16, {rasse = opts.rasse or "haflinger", rng = self.rng, zug = opts.zug})
+  table.remove(self.list)
+  h.wild, h.data.wild, h.tamed = false, nil, true
+  if opts.bindung then h.data.bindung = opts.bindung end
+  if opts.name then h.data.name = opts.name end
+  h.data.sattel = opts.sattel
+  h.state = "free"
+  self.ctx.herd[#self.ctx.herd + 1] = h.data
+  self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
+  return h
+end
+
+-- Unterbringung (E32): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
+function Wild:house(h, ort)
+  local farm = self.ctx.area.farm
+  local cap = Farm.capacity(farm)
+  local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
+  if n >= cap[ort] then return false, "voll" end
+  if ort == "frei" and not Farm.may_roam(h.data, H) then return false, "zu schwach oder zu scheu" end
+  for i, e in ipairs(self.ctx.lead) do
+    if e == h then table.remove(self.ctx.lead, i) break end
+  end
+  h.data.ort = ort
+  h.scared = false
+  if ort == "stall" then
+    h.state, h.hidden = "stall", true
+    return true
+  end
+  local b = ort == "weide" and Farm.weide_bounds(farm) or Farm.plot_bounds(farm)
+  h.bounds = b
+  h.allow = function(x, y) return x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4] end
+  -- auf einen freien Platz in der Fläche setzen
+  for _ = 1, 100 do
+    local x, y = b[1] + rnd() * (b[3] - b[1]), b[2] + rnd() * (b[4] - b[2])
+    if not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
+  end
+  h.state, h.timer, h.vx, h.vy, h.hidden = "free", 60, 0, 0, false
+  return true
+end
+
+-- Aus Stall, Weide oder freier Haltung zurück an die Leine (Spieler steht daneben).
+function Wild:take_out(h)
+  local p = self.ctx.player
+  h.data.ort, h.bounds, h.allow, h.hidden = nil, nil, nil, false
+  h.x, h.y = p.x, p.y + 12
+  self:attach(h)
+end
+
+-- Pferde im Stall (Liste der Pferd-Objekte).
+function Wild:in_stall()
+  local out = {}
+  for _, h in ipairs(self.ctx.herd_horses) do if h.data.ort == "stall" then out[#out + 1] = h end end
+  return out
+end
+
+-- Steht der Spieler vor der Stalltür?
+function Wild:at_stall_door()
+  local d = self.ctx.area.places.stalltuer
+  local p = self.ctx.player
+  return d and U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26
+end
+
 -- A bei einem losen gezähmten Pferd in Reichweite: wieder anleinen. Gibt das Pferd zurück.
 function Wild:try_leash()
   local p = self.ctx.player
@@ -375,7 +448,7 @@ end
 function Wild:whistle()
   local n = 0
   for _, h in ipairs(self.ctx.herd_horses) do
-    if (h.state == "free" or h.state == "escape") and h.data.bindung >= Leash.WHISTLE then
+    if (h.state == "free" or h.state == "escape") and not h.data.ort and h.data.bindung >= Leash.WHISTLE then
       h.scared = false
       if self:attach(h) then n = n + 1 end
     end

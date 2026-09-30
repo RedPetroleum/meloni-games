@@ -30,3 +30,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 00:36 | A9 Reiten | fertig | Shot-Sheet Sprung über Busch, SELFTEST OK 47, make test grün | Hoofy A9
 2026-10-01 00:38 | A10 Pflege und Training | begonnen | – | –
 2026-10-01 00:40 | A10 Pflege und Training | fertig | Screenshots Aktionsmenü und Futtermenü, SELFTEST OK 55, make test grün | Hoofy A10
+2026-10-01 00:42 | A11 Hof | begonnen | – | –
+2026-10-01 00:44 | A11 Hof | fertig | Shot-Sheet hof_start, SELFTEST OK 60, make test grün | Hoofy A11

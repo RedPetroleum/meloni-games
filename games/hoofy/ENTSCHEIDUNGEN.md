@@ -71,6 +71,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E32** (A11) Hof: Grundstück 20×20 (E17). Wohnwagen und Stall S im Norden, Weide (Zaunring
+  10×7 mit Tor oben, Innenfläche 8×5) im Süden, Start im Hof dazwischen. Plätze: Stall nach
+  KATALOG §9, Weide 1 je 10 Innenkacheln (= 4), frei auf dem Grundstück 1 je 50 Kacheln (= 8).
+  Pferde im Stall sind unsichtbar (A an der Stalltür holt sie heraus); Weide und frei: sie laufen
+  nur innerhalb der Fläche herum. „Unterbringen“ im Pferdemenü, Anleinen löst die Unterbringung.
+  Die Tagesverluste (`Farm.daily`) ruft A12 beim Tageswechsel auf.
 - **E31** (A10) Pflege und Training: Aktionsmenü per A neben einem eigenen Pferd (Streicheln,
   Füttern, Striegeln, Leine lösen/Anleinen, Aufsitzen, Info). Aufsitzen geht nur noch über das
   Menü (ersetzt „A neben dem Pferd sitzt auf“ aus E30). Startvorrat: 3 Heu, 2 Karotten, Bürste

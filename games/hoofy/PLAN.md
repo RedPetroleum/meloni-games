@@ -110,9 +110,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttests für Trainingsformel, Futterwirkung, Bindungsregeln; Screenshot Menü.
   *Erledigt:* `game/care.lua` (Regeln), `game/menu.lua` (Auswahlmenü), Menü in `game/world.lua`,
   Training beim Reiten. Screenshot: Szenario `ritt` mit `--input "10:A,20:DOWN,30:A"`. E31.
-- [ ] **A11 Hof**: Start mit Wohnwagen, Stall S, Weide mit Tor, Bürste (KATALOG §15);
+- [x] **A11 Hof**: Start mit Wohnwagen, Stall S, Weide mit Tor, Bürste (KATALOG §15);
   Pferde in Stall/Weide/frei stellen, Plätze begrenzt, Verluste nach KATALOG §2 Unterbringung.
   Prüfung: Szenario `hof_start`, Screenshot; Selbsttest Verluste pro Tag.
+  *Erledigt:* `game/farm.lua`, Sprites Wohnwagen und Tor, Unterbringen/Stalltür in `game/world.lua`.
+  Screenshot `hof_start` (Wohnwagen, Stall, Weide mit Pferd, Pferd an der Leine). Entscheidung E32.
 - [ ] **A12 Tag und Nacht**: 5 min pro Tag (3 hell, 2 dunkel), Nachtdarstellung (E14),
   Schlafen im Wohnwagen, Tageswechsel wendet alle Tagesregeln an (Hunger, Gewicht, Sauberkeit,
   Energie-Reset, Fohlenalter …).

@@ -5,6 +5,7 @@ local Wild = require("game.wild")
 local Leash = require("game.leash")
 local Ride = require("game.ride")
 local Care = require("game.care")
+local Farm = require("game.farm")
 local Menu = require("game.menu")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -27,7 +28,16 @@ function WorldScene.enter(arg)
   paused, anim_frame, t = false, 1, 0
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
   toast, a_hold, a_free, menu = nil, 0, false, nil
-  if arg and arg.ritt then
+  if arg and arg.hof then
+    -- Drei eigene Pferde: eins auf der Weide, eins im Stall, eins an der Leine
+    wild.count = 0
+    local a = wild:add_own({rasse = "noriker", bindung = 40, name = "Hilde"})
+    local b = wild:add_own({rasse = "haflinger", bindung = 50, name = "Bruno"})
+    local c = wild:add_own({rasse = "shetlandpony", bindung = 30, name = "Keks"})
+    wild:house(a, "weide")
+    wild:house(b, "stall")
+    wild:attach(c)
+  elseif arg and arg.ritt then
     -- Ein zahmes Pferd (Bindung 80, Sattel) steht neben dem Spieler; eine Reihe Büsche 6 Kacheln rechts.
     wild.count = 0
     local h = wild:spawn_at(ctx.player.x + 18, ctx.player.y, {rasse = arg.rasse or "haflinger", rng = wild.rng})
@@ -72,6 +82,7 @@ local function open_menu(h)
       {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1},
       {label = led and "Leine lösen" or "Anleinen", id = "leash"},
       {label = "Aufsitzen", id = "mount"},
+      {label = "Unterbringen", id = "house"},
       {label = "Info", id = "info"},
     }, h.data.name),
   }
@@ -88,9 +99,49 @@ local function open_food(h)
   menu.stage, menu.m = "food", Menu.new(items, "Füttern")
 end
 
+local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei"}
+
+local function open_house(h)
+  local cap = Farm.capacity(ctx.area.farm)
+  local items = {}
+  for _, ort in ipairs({"stall", "weide", "frei"}) do
+    local n = Farm.count(ctx.herd, ort)
+    local full = n >= cap[ort] and h.data.ort ~= ort
+    local weak = ort == "frei" and not Farm.may_roam(h.data, H)
+    items[#items + 1] = {label = string.format("%s %d/%d", HOUSE_NAMES[ort], n, cap[ort]), id = ort,
+      dim = full or weak or h.data.ort == ort}
+  end
+  menu.stage, menu.m = "house", Menu.new(items, "Wohin mit " .. h.data.name .. "?")
+end
+
+-- Menü an der Stalltür: Pferde im Stall herausholen.
+local function open_stall()
+  local items = {}
+  for i, h in ipairs(wild:in_stall()) do items[#items + 1] = {label = h.data.name, id = i} end
+  menu = {horse = ctx.player, stage = "stall", m = Menu.new(items, "Im Stall")}
+end
+
 local function do_action(id)
   local h = menu.horse
   local d = h.data
+  if menu.stage == "stall" then
+    if id == "close" then menu = nil return end
+    local inside = wild:in_stall()
+    local sel = inside[id]
+    menu = nil
+    if sel then
+      wild:take_out(sel)
+      say(sel.data.name .. " ist an der Leine.")
+    end
+    return
+  end
+  if menu.stage == "house" then
+    if id == "close" then return open_menu(h) end
+    local ok, why = wild:house(h, id)
+    say(ok and d.name .. " kommt in: " .. HOUSE_NAMES[id] .. "." or "Geht nicht: " .. tostring(why) .. ".")
+    menu = nil
+    return
+  end
   if menu.stage == "food" then
     if id == "close" then return open_menu(h) end
     ctx.inv[id] = ctx.inv[id] - 1
@@ -108,6 +159,8 @@ local function do_action(id)
     menu = nil
   elseif id == "feed" then
     open_food(h)
+  elseif id == "house" then
+    open_house(h)
   elseif id == "brush" then
     local add = Care.brush(d)
     say(d.name .. " glänzt. Sauberkeit +" .. add .. ".")
@@ -177,6 +230,9 @@ function WorldScene.update()
       local own = wild:nearest_own()
       if own then
         open_menu(own)
+        ctx.sfx.select()
+      elseif wild:at_stall_door() and #wild:in_stall() > 0 then
+        open_stall()
         ctx.sfx.select()
       else
         a_free = true

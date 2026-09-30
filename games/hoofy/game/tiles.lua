@@ -87,6 +87,9 @@ T.PROPS = {
   board = {sprite = "board", coll = "u", map = rgb(0x7b, 0x4c, 0x2b)},
   jump = {sprite = "jump", coll = "Y", dy = -2, map = rgb(0xfb, 0xf8, 0xef)},
   fence = fence,
+  wohnwagen = {sprite = "wohnwagen", w = 3, h = 2, coll = "X", map = rgb(0xfb, 0xf8, 0xef)},
+  stall_s = {sprite = "stable", w = 4, h = 3, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
+  gate = {sprite = "gate", map = rgb(0x7b, 0x4c, 0x2b)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
 

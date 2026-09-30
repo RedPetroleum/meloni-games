@@ -41,6 +41,11 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
+-- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
+function Scenarios.hof_start()
+  return "world", {ort = "start", hof = true}
+end
+
 -- Reiten: zahmes Pferd mit Sattel neben dem Spieler, Büsche (save.hindernis = "o": Steine) 6 Kacheln
 -- rechts. save.staerke setzt die Stärke, save.bindung die Bindung.
 function Scenarios.ritt(save)
