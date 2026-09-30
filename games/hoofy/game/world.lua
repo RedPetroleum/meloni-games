@@ -54,7 +54,18 @@ function WorldScene.enter(arg)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
-  if arg and arg.weiden then
+  if arg and arg.gebaeude then
+    -- Alle Gebäude auf dem Grundstück (Koordinaten relativ zum Grundstück)
+    local pl = ctx.area.plot
+    ctx.money = 100000
+    ctx.player.x, ctx.player.y = (pl.x + 10) * 16, (pl.y + 9) * 16 + 12
+    for _, b in ipairs({{"hangar", 0, 5}, {"stall_xl", 6, 5}, {"garage", 16, 5}, {"stall_l", 12, 0},
+      {"villa", 14, 10}, {"schuppen", 13, 14}, {"haeuschen", 17, 14}, {"stall_m", 0, 17}}) do
+      local ok, why = Farm.place(ctx, b[1], pl.x + b[2], pl.y + b[3])
+      if not ok then error("Gebäude " .. b[1] .. ": " .. tostring(why)) end
+    end
+    wild.count = 0
+  elseif arg and arg.weiden then
     -- Zweite Weide rechts neben der ersten (6×5 innen, Tor oben) und eine offene Koppel ohne Tor
     local pl = ctx.area.plot
     ctx.money = 1000
@@ -488,7 +499,7 @@ function WorldScene.update()
       if own then
         open_menu(own)
         ctx.sfx.select()
-      elseif U.dist(p.x, p.y, ctx.area.places.bett[1] * 16 + 8, ctx.area.places.bett[2] * 16 + 8) <= 26 then
+      elseif wild:at_bed_door() then
         if clock:sleep() then
           Days.new_day(ctx, clock.day)
           Market.refresh(ctx, clock.day)

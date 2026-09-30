@@ -66,6 +66,11 @@ function Scenarios.weiden()
   return "world", {ort = "start", screen = "weiden", weiden = true}
 end
 
+-- Gebäude: alle Gebäude auf dem Grundstück. save.cx, save.cy: Startkachel der Kamera.
+function Scenarios.gebaeude(save)
+  return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
+end
+
 -- Stammbaum: ein Pferd mit drei Generationen bekannter Ahnen, Bildschirm offen.
 function Scenarios.stammbaum()
   return "world", {ort = "start", stammbaum = true, screen = "stammbaum"}

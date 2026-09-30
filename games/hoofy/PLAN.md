@@ -219,8 +219,11 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest offene/geschlossene Weide; Screenshot.
   *Erledigt:* `Farm.pastures` (Flutfüllung), `Wild:rehome`, Überlagerung im Baumodus. Szenario `weiden`
   (zweite Weide mit Tor und eine Koppel ohne Tor, Screenshot). E46.
-- [ ] **C3 Gebäude**: Ställe S–XL, Häuschen/Villa, Schuppen/Garage/Hangar.
+- [x] **C3 Gebäude**: Ställe S–XL, Häuschen/Villa, Schuppen/Garage/Hangar.
   Prüfung: Screenshot aller Gebäude; Selbsttest Stallplätze.
+  *Erledigt:* 7 neue Gebäude-Sprites, `Farm.all_buildings/stall_doors/bed_doors/garaged/stall_bonus`,
+  Szenario `gebaeude` (Screenshot mit allen Gebäuden). E47. Sprite-Bild jetzt 2,1 MB: auf der Konsole
+  Ladezeit und Speicher prüfen.
 - [ ] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.
   Prüfung: Selbsttest.
 - [ ] **C5 Anbau**: Beete/Felder, Samen, Wachstum, Ernte ins Inventar (KATALOG §7).

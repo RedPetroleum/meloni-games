@@ -514,9 +514,20 @@ end
 
 -- Steht der Spieler vor der Stalltür?
 function Wild:at_stall_door()
-  local d = self.ctx.area.places.stalltuer
   local p = self.ctx.player
-  return d and U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26
+  for _, d in ipairs(Farm.stall_doors(self.ctx.area.farm)) do
+    if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return true end
+  end
+  return false
+end
+
+-- Steht der Spieler vor einer Schlaftür (Wohnwagen, Häuschen, Villa)?
+function Wild:at_bed_door()
+  local p = self.ctx.player
+  for _, d in ipairs(Farm.bed_doors(self.ctx.area.farm)) do
+    if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return true end
+  end
+  return false
 end
 
 -- A bei einem losen gezähmten Pferd in Reichweite: wieder anleinen. Gibt das Pferd zurück.

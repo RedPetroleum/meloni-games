@@ -144,7 +144,7 @@ end
 
 function Farm.capacity(farm)
   local stall = 0
-  for _, b in ipairs(farm.buildings) do
+  for _, b in ipairs(Farm.all_buildings(farm)) do
     if b.id:find("^stall_") then stall = stall + K.bauteil(b.id).plaetze end
   end
   local weide = 0
@@ -200,6 +200,7 @@ Farm.CATEGORIES = {
   {id = "deko", name = "Deko", items = {"bank", "lampe", "blumenkuebel", "busch", "hecke", "stein", "baum", "brunnen", "teich", "statue"}},
   {id = "wege", name = "Wege", items = {"weg", "boden"}},
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
+  {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar"}},
   {id = "abriss", name = "Abreißen", items = {}},
 }
 
@@ -210,7 +211,64 @@ Farm.ITEMS = {
   brunnen = {prop = "brunnen", w = 2, h = 2}, teich = {prop = "teich", w = 2, h = 2}, statue = {prop = "statue"},
   weg = {ground = ":"}, boden = {ground = "s"},
   zaun = {prop = "fence", fence = true}, tor = {prop = "gate", gate = true},
+  -- Gebäude (C3): Grundfläche in Kacheln
+  wohnwagen = {prop = "wohnwagen", w = 3, h = 2, building = true},
+  stall_s = {prop = "stall_s", w = 4, h = 3, building = true},
+  stall_m = {prop = "stall_m", w = 6, h = 3, building = true},
+  stall_l = {prop = "stall_l", w = 8, h = 4, building = true},
+  stall_xl = {prop = "stall_xl", w = 10, h = 4, building = true},
+  haeuschen = {prop = "haeuschen", w = 3, h = 2, building = true},
+  villa = {prop = "villa", w = 5, h = 3, building = true},
+  schuppen = {prop = "schuppen", w = 3, h = 2, building = true},
+  garage = {prop = "garage", w = 4, h = 3, building = true},
+  hangar = {prop = "hangar", w = 6, h = 4, building = true},
 }
+
+-- Alle Bauten des Hofs: Startbauten und gebaute Gebäude, {id, cx, cy}.
+function Farm.all_buildings(farm)
+  local out = {}
+  for _, b in ipairs(farm.buildings) do out[#out + 1] = b end
+  for _, it in ipairs(farm.items or {}) do
+    if Farm.ITEMS[it.id].building then out[#out + 1] = it end
+  end
+  return out
+end
+
+-- Türen (Kachel vor der Mitte der Unterkante) aller Gebäude, die die Bedingung erfüllen.
+local function doors(farm, pred)
+  local out = {}
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    if pred(b.id) then
+      local it = Farm.ITEMS[b.id]
+      out[#out + 1] = {b.cx + (it.w - 1) // 2, b.cy + it.h, id = b.id}
+    end
+  end
+  return out
+end
+
+function Farm.stall_doors(farm) return doors(farm, function(id) return id:find("^stall_") ~= nil end) end
+function Farm.bed_doors(farm)
+  return doors(farm, function(id) return id == "wohnwagen" or id == "haeuschen" or id == "villa" end)
+end
+
+-- Bindung pro Tag für Pferde im Stall: der beste Stall zählt (KATALOG §9: 1/2/3/4).
+function Farm.stall_bonus(farm)
+  local best = 0
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    if b.id:find("^stall_") then best = max(best, K.bauteil(b.id).bindung_tag or 0) end
+  end
+  return best
+end
+
+-- Welche Fahrzeuge kann der Hof unterstellen (Schuppen, Garage, Hangar)? Gibt Menge id → true zurück.
+function Farm.garaged(farm)
+  local out = {}
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    local def = K.bauteil(b.id)
+    for _, v in ipairs(def.fahrzeuge or {}) do out[v] = true end
+  end
+  return out
+end
 
 local function size(id)
   local it = Farm.ITEMS[id]

@@ -101,6 +101,14 @@ T.PROPS = {
   brunnen = {sprite = "brunnen", w = 2, h = 2, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
   teich = {sprite = "teich", w = 2, h = 2, coll = "X", dy = 4, map = rgb(0x4a, 0x8c, 0xc0)},
   statue = {sprite = "statue", coll = "L", map = rgb(0xc8, 0xcd, 0xd1)},
+  stall_m = {sprite = "stall_m", w = 6, h = 3, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
+  stall_l = {sprite = "stall_l", w = 8, h = 4, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
+  stall_xl = {sprite = "stall_xl", w = 10, h = 4, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
+  haeuschen = {sprite = "cottage_a", w = 3, h = 2, coll = "X", map = rgb(0x5d, 0x7f, 0xb0)},
+  villa = {sprite = "villa", w = 5, h = 3, coll = "X", map = rgb(0xfb, 0xf8, 0xef)},
+  schuppen = {sprite = "schuppen", w = 3, h = 2, coll = "X", map = rgb(0x7b, 0x4c, 0x2b)},
+  garage = {sprite = "garage", w = 4, h = 3, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
+  hangar = {sprite = "hangar", w = 6, h = 4, coll = "X", map = rgb(0x6d, 0x73, 0x7a)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
 

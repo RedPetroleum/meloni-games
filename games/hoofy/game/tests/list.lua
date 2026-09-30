@@ -29,4 +29,5 @@ return {
   "wirtschaft",
   "bauen",
   "weiden",
+  "gebaeude",
 }

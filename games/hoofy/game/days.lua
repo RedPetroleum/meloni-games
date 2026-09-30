@@ -46,6 +46,13 @@ end
 function Days.new_day(ctx, day)
   local report = {}
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
+  -- Stall: der beste Stall gibt allen Pferden im Stall Bindung (KATALOG §9)
+  local bonus = Farm.stall_bonus(ctx.area.farm)
+  if bonus > 0 then
+    for _, d in ipairs(ctx.herd) do
+      if d.ort == "stall" then d.bindung = mid(0, d.bindung + bonus, 100) end
+    end
+  end
   ctx.wild:new_day(day)
   -- Fohlen kommen zur Welt und folgen dem Spieler (oder stehen lose, wenn die Leine voll ist)
   local born = Breeding.tick(ctx, day)

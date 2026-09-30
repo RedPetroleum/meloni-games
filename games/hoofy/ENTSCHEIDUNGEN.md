@@ -74,6 +74,13 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E47** (C3) Gebäude: im Baumodus unter „Bauten“ (Stall S–XL, Häuschen, Villa, Schuppen, Garage, Hangar), Grundflächen
+  in Kacheln: S 4×3, M 6×3, L 8×4, XL 10×4, Häuschen 3×2, Villa 5×3, Schuppen 3×2, Garage 4×3, Hangar 6×4. Stallplätze
+  addieren sich über alle Ställe; jeder Stall hat eine Tür (Mitte der Unterkante) für das Stallmenü. **Stall-Bindung:**
+  der beste Stall gibt allen Pferden im Stall pro Tag +1/+2/+3/+4 Bindung (KATALOG §9 sagt „pro Tag“ ohne zu
+  sagen, für wen: hier nicht summiert). Schlafen geht an Wohnwagen, Häuschen und Villa. Schuppen, Garage und Hangar
+  merken sich, welche Fahrzeuge der Hof unterstellen kann (`Farm.garaged`, gebraucht ab D1). Weil große
+  Sprites den Bildspeicher wachsen lassen, ist die Sprite-Tabelle jetzt 256×2741 (≈ 2,1 MB auf der Konsole).
 - **E46** (C2) Weiden: Eine Weide ist eine zusammenhängende Fläche freier Kacheln auf dem Grundstück, die
   ringsum von Zaun, Gebäuden oder anderen Bauten begrenzt ist und an ein Tor grenzt (Flutfüllung). Plätze:
   ein Platz je 10 Kacheln (Bänke, Büsche usw. zählen nicht zur Fläche). Mehrere Weiden gehen; ein Pferd
