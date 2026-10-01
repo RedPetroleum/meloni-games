@@ -269,8 +269,7 @@ function Screens.info(ctx, data)
     -- Steckbrief links
     local sexw = data.sex == "m" and (data.alter < 1 and "Hengstfohlen" or "Hengst") or (data.alter < 1 and "Stutfohlen" or "Stute")
     print(sexw .. ", " .. rasse.name, 8, 27, C.text)
-    local f1, f2 = K.farbe(data.farbe).name, K.farbe(data.farbe2).name
-    local farbe = f1 .. (data.farbe2 ~= data.farbe and (" / " .. f2) or "")
+    local farbe = K.farbe(data.farbe).name        -- nur die sichtbare Farbe, die versteckte (farbe2) bleibt geheim
     if textw("Farbe: " .. farbe) <= SCREEN_W - 90 then farbe = "Farbe: " .. farbe end
     print(farbe, 8, 38, C.dim)
     print("Charakter: " .. K.charakter[data.zug].name, 8, 49, C.dim)
