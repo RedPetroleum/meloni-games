@@ -119,48 +119,59 @@ local BAR_X, BAR_W = 76, 196           -- Balken: 100 Punkte = 196 px
 local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Blau; Gold bleibt Geld und Titeln)
 local GEN_COL = rgb(0x9a, 0xdc, 0xb4)   -- Fähigkeit aus den Genen (Mint wie die Überschrift)
 local TRAIN_COL = rgb(0x3a, 0xb0, 0x8e) -- dazutrainiert (kräftiges, gedecktes Türkisgrün)
-local BOX_COL = rgb(0x36, 0x28, 0x23)   -- dezente Kästen auf dem Info-Bildschirm
+-- Info-Bildschirm: Kopfband und je Bereich ein dezent getönter Kasten
+local HEAD_COL = rgb(0x5a, 0x40, 0x2e)
+local BOX_ABOUT = rgb(0x3b, 0x2b, 0x24)   -- Steckbrief: warm
+local BOX_SKILL = rgb(0x24, 0x32, 0x2d)   -- Fähigkeiten: zum Mint
+local BOX_STATE = rgb(0x23, 0x2c, 0x36)   -- Zustand: zum Blau
 
 -- Kasten mit abgeschnittenen Ecken
-local function box(x0, y0, x1, y1)
-  rectfill(x0, y0, x1, y1, BOX_COL)
+local function box(x0, y0, x1, y1, col)
+  rectfill(x0, y0, x1, y1, col)
   pset(x0, y0, C.panel) pset(x1, y0, C.panel) pset(x0, y1, C.panel) pset(x1, y1, C.panel)
 end
 local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
--- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine dunkle Linie
-local function notches(y, h)
+-- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent
+local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), talent = C.panel_light}
+local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x16, 0x21, 0x1d), talent = rgb(0x3b, 0x55, 0x4b)}
+local BAR_STATE = {bg = BOX_STATE, track = rgb(0x16, 0x1d, 0x25)}
+
+-- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine Linie in der Spurfarbe
+local function notches(y, h, th)
   for v = 20, 80, 20 do
     local x = bx_of(v)
-    pset(x, y, C.panel)
-    pset(x, y + h - 1, C.panel)
-    line(x, y + 1, x, y + h - 2, rgb(0x2b, 0x1f, 0x1d))
+    pset(x, y, th.bg)
+    pset(x, y + h - 1, th.bg)
+    line(x, y + 1, x, y + h - 2, th.track)
   end
 end
 
--- Fähigkeit: heller Rahmen bis zum Talent (Potenzial), darin der aktuelle Wert: Gen-Anteil sanft, Training kräftig.
-local function stat_bar(x, y, label, data, key)
+-- Fähigkeit: Rahmen bis zum Talent (Potenzial), darin der aktuelle Wert: Gen-Anteil Mint, Training kräftiger.
+local function stat_bar(x, y, label, data, key, th)
+  th = th or BAR_BROWN
   print(label, x, y, C.text)
   local v = H.stat(data, key)
   local pot = data.pot[key]
-  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))          -- Spur bis 100
-  rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, C.panel_light)                      -- Talent
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)                       -- Spur bis 100
+  rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, th.talent)                         -- Talent
   local g = min(data.gen[key], v)
   if g >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(g) - 1, y + 6, GEN_COL) end
   if bx_of(v) > bx_of(g) then rectfill(max(BAR_X + 1, bx_of(g)), y + 2, bx_of(v) - 1, y + 6, TRAIN_COL) end
-  notches(y, 9)
+  notches(y, 9, th)
   print(tostring(flr(v)), BAR_X + BAR_W + 6, y, SKILL_COL)
 end
 
 -- Zustand: ein Balken 0–100 (value/max), Farbe col (Standard STATE_COL, rot als Warnung).
-local function state_bar(x, y, label, value, max, col)
+local function state_bar(x, y, label, value, max, col, th)
+  th = th or BAR_STATE
   print(label, x, y, C.text)
-  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)
   local v = 100 * value / max
   col = col or STATE_COL
   if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col) end
-  notches(y, 9)
+  notches(y, 9, th)
   print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col)
 end
 
@@ -175,16 +186,17 @@ function Screens.info(ctx, data)
   end
   function s.draw()
     cls(C.panel)
-    -- Kopf: Name groß, Wert rechts
-    rectfill(0, 0, SCREEN_W - 1, 21, C.panel)
+    -- Kopf: helles Band mit Goldlinie, Name groß, Wert rechts
+    rectfill(0, 0, SCREEN_W - 1, 21, HEAD_COL)
+    line(0, 22, SCREEN_W - 1, 22, C.gold)
     font(1)                                          -- feinere große Schrift (API 3)
     print(data.name, 6, 3, C.gold)
     font(0)
     local wert = "Wert " .. Value.wert(data) .. " G"
     print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
-    box(3, 23, SCREEN_W - 4, 80)
-    box(3, 83, SCREEN_W - 4, 146)
-    box(3, 149, SCREEN_W - 4, 224)
+    box(3, 25, SCREEN_W - 4, 80, BOX_ABOUT)
+    box(3, 83, SCREEN_W - 4, 146, BOX_SKILL)
+    box(3, 149, SCREEN_W - 4, 224, BOX_STATE)
     -- Bild oben rechts unter dem Wert
     local rasse = K.rasse(data.rasse)
     Stage.panel(SCREEN_W - 78, 26, SCREEN_W - 8, 74)
@@ -212,7 +224,7 @@ function Screens.info(ctx, data)
     print("Fähigkeiten", 8, 87, SKILL_COL)
     local y = 100
     for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"ausdauer", "Ausdauer"}, {"spuer", "Spürsinn"}}) do
-      stat_bar(8, y, e[2], data, e[1])
+      stat_bar(8, y, e[2], data, e[1], BAR_SKILL)
       y = y + 11
     end
     print("Zustand", 8, 153, STATE_COL)
