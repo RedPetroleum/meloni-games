@@ -85,3 +85,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 08:50 | Push 9029e6b | Release | CI success, Manifest Commit 9029e6b, Hoofy 0.3.0 | –
 2026-10-01 08:50 | D1 Fahrzeuge | begonnen | – | –
 2026-10-01 08:54 | D1 Fahrzeuge | fertig | Szenario reise (Menü, Ankunft, Heimfahrt), SELFTEST OK 176, make test grün | Hoofy D1
+2026-10-01 08:56 | D2 Gebiete 2–6 | begonnen | – | –
+2026-10-01 08:57 | D2 Gebiete 2–6 | fertig | Übersicht aller 6 Gebiete, Karte 122–232 KB, SELFTEST OK 178, make test grün | Hoofy D2

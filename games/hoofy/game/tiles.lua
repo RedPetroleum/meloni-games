@@ -13,6 +13,16 @@ T.COLORS = {
 }
 local C = T.COLORS
 
+-- Gebietspalette (KATALOG §10): Grundfarbe der Wiese, Schatten daneben. Übersichtskarte nimmt die Grundfarbe.
+T.PALETTES = {
+  ["sattgrün"] = {rgb(0x7f, 0xb0, 0x4f), rgb(0x62, 0x92, 0x3f)},
+  ["dunkelgrün"] = {rgb(0x4f, 0x8a, 0x42), rgb(0x3c, 0x6e, 0x33)},
+  ["blaugrün"] = {rgb(0x4f, 0xa0, 0x82), rgb(0x3a, 0x84, 0x6a)},
+  ["gelb"] = {rgb(0xc9, 0xb8, 0x58), rgb(0xa8, 0x98, 0x44)},
+  ["rot-orange"] = {rgb(0xc4, 0x7a, 0x4a), rgb(0xa2, 0x5e, 0x36)},
+  ["violett"] = {rgb(0x8f, 0x72, 0xb0), rgb(0x72, 0x58, 0x92)},
+}
+
 -- Böden (Ebene ground). Kartenfarbe (map) für die Übersichtskarte.
 T.GROUND = {GRASS = ".", FOREST = "F", WATER = "~", BRIDGE = "=", BRIDGE_V = "I", PATH = ":", SAND = "s"}
 T.GROUNDS = {
@@ -29,6 +39,15 @@ T.GROUNDS = {
   s = {sprites = {"ground_sand1", "ground_sand2"}, edges = "fringe", shadow = C.sand_shadow,
     map = rgb(0xea, 0xd7, 0xa0)},
 }
+
+-- Stellt die Wiesenfarben auf die Palette des Gebiets um (name aus K.welt.gebiete).
+function T.set_palette(name)
+  local p = T.PALETTES[name] or T.PALETTES["sattgrün"]
+  T.COLORS.grass, T.COLORS.grass_shadow = p[1], p[2]
+  T.GROUNDS["."].shadow, T.GROUNDS["."].map = p[2], p[1]
+  T.GROUNDS.F.shadow = p[2]
+  T.GROUNDS["~"].shadow = p[2]
+end
 
 -- Pflanzen (C5): pflanze_<id>_<stufe> als Objekte, 1×1 (Apfelbaum 2×2), ohne Kollision
 T.PLANT_IDS = {"gras", "karotte", "apfelbaum", "hafer", "sonnenblume", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}

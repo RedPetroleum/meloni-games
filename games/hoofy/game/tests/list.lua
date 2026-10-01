@@ -35,4 +35,5 @@ return {
   "goepel",
   "land",
   "reise",
+  "gebiete",
 }

@@ -251,7 +251,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **D1 Fahrzeuge** (E52; Shot-Sheet Menü + Ankunft Flussauen, SELFTEST 176): Zugfahrzeuge und Anhänger kaufen, Garage nötig, Reisemenü am Fahrzeug,
   Fahrtkosten, Pferde im Anhänger mitnehmen.
   Prüfung: Szenario `reise`, Screenshots Menü und Ankunft.
-- [ ] **D2 Gebiete 2–6**: Generator mit Palette, Größe, Wildpferden und Rassen je Gebiet
+- [x] **D2 Gebiete 2–6** (E53; Übersicht aller 6 Gebiete, SELFTEST 178): Generator mit Palette, Größe, Wildpferden und Rassen je Gebiet
   (KATALOG §10), frühere Rassen seltener.
   Prüfung: Szenario `karte_ganz` für jedes Gebiet; Speicher beim größten Gebiet geloggt.
 - [ ] **D3 Schätze**: 15–30 je Gebiet, Aufspüren nach KATALOG §11 (E4), Satteltaschen →

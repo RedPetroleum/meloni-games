@@ -12,6 +12,7 @@ local area, drawn
 function Overview.enter(arg)
   arg = arg or {}
   area = Area.get(arg.nr or 1, arg.seed)
+  require("game.tiles").set_palette(area.info.palette)
   drawn = false
 end
 
