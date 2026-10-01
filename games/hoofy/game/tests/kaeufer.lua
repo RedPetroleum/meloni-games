@@ -53,7 +53,7 @@ return {
     C.ok(Buyers.offer("sammlerin", rare) > Buyers.offer("sammlerin", horse()) * 2, "Seltenheit zählt mehr")
   end},
   {"Verkauf: Geld, Pferd weg, Folgen für die übrigen (+5 Reithof, −5 Züchter, −10 Schlachter, 0 Sammlerin)", function()
-    for _, case in ipairs({{"reithof", 5}, {"zuechter", -5}, {"schlachter", -10}, {"sammlerin", 0}}) do
+    for _, case in ipairs({{"reithof", 5}, {"zuechter", -5}, {"schlachter", -20}, {"sammlerin", 0}}) do
       local ctx = Stage.build(1)
       local w = Wild.new(ctx, 3)
       w.count = 0

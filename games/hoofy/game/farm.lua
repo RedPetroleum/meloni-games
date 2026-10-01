@@ -42,25 +42,30 @@ function Farm.apply(map, farm)
       for dx = 0, (P.w or 1) - 1 do map:set("coll", b.cx + dx, b.cy + dy, P.coll) end
     end
   end
-  local w = farm.weide
-  local fence = {}
-  for x = w.x0, w.x1 do fence[x .. "," .. w.y0] = true; fence[x .. "," .. w.y1] = true end
-  for y = w.y0, w.y1 do fence[w.x0 .. "," .. y] = true; fence[w.x1 .. "," .. y] = true end
-  local function f(x, y) return fence[x .. "," .. y] end
-  local base = string.byte("A")
-  for key in pairs(fence) do
-    local x, y = key:match("(%d+),(%d+)")
-    x, y = tonumber(x), tonumber(y)
-    if x == w.gate[1] and y == w.gate[2] then
-      map:add_object("gate", x, y)            -- Tor: begehbar
-    else
-      local m = (f(x - 1, y) and 1 or 0) + (f(x + 1, y) and 2 or 0) + (f(x, y - 1) and 4 or 0) +
-        (f(x, y + 1) and 8 or 0)
-      map:add_object("fence", x, y)
-      map:set("coll", x, y, string.char(base + m))
-    end
-  end
+  Farm.convert_weide(farm)
   Farm.apply_items(map, farm)
+end
+
+-- Die Startweide war bis 1.3.3 fest im Hof (farm.weide) und ließ sich nicht abreißen (Rückmeldung). Einmalig
+-- (neues Spiel wie alter Spielstand): Zaunring und Tor werden normale Bauteile, start = true (geschenkt, bringen
+-- beim Abreißen nichts). farm.weide bleibt mit umgebaut = true als Beschreibung der Startweide stehen.
+function Farm.convert_weide(farm)
+  local w = farm.weide
+  if not w or w.umgebaut then return end
+  farm.items = farm.items or {}
+  local function add(x, y)
+    local gate = x == w.gate[1] and y == w.gate[2]
+    farm.items[#farm.items + 1] = {id = gate and "tor" or "zaun", cx = x, cy = y, start = true}
+  end
+  for x = w.x0, w.x1 do add(x, w.y0) add(x, w.y1) end
+  for y = w.y0 + 1, w.y1 - 1 do add(w.x0, y) add(w.x1, y) end
+  w.umgebaut = true
+end
+
+-- Tor der Startweide, solange sie noch nicht umgebaut ist (sonst ist das Tor ein Bauteil), sonst nil.
+local function start_gate(farm)
+  local w = farm.weide
+  return w and not w.umgebaut and w.gate or nil
 end
 
 -- Grenzen in Pixeln (Fußpunkt darf sich darin bewegen): {x0, y0, x1, y1}
@@ -94,7 +99,8 @@ function Farm.pastures(map, farm)
   local gates = {}
   local function key(cx, cy) return cx * 4096 + cy end
   for _, it in ipairs(farm.items or {}) do if it.id == "tor" then gates[key(it.cx, it.cy)] = true end end
-  gates[key(farm.weide.gate[1], farm.weide.gate[2])] = true
+  local sg = start_gate(farm)
+  if sg then gates[key(sg[1], sg[2])] = true end
   local function open(cx, cy)
     return map:walkable(cx, cy) and not gates[key(cx, cy)]
   end
@@ -442,8 +448,8 @@ end
 
 -- Ist die Kachel ein Tor (gebautes Tor oder das Tor der ersten Weide)?
 function Farm.is_gate(farm, cx, cy)
-  local g = farm.weide.gate
-  if g[1] == cx and g[2] == cy then return true end
+  local g = start_gate(farm)
+  if g and g[1] == cx and g[2] == cy then return true end
   local it = Farm.item_at(farm, cx, cy)
   return it ~= nil and it.id == "tor"
 end
@@ -464,8 +470,8 @@ local function is_fence(map, farm, cx, cy)
   if c >= 0 and c < 16 then return true end
   local it = Farm.item_at(farm, cx, cy)
   if it and it.id == "tor" then return true end
-  local g = farm.weide.gate
-  return g[1] == cx and g[2] == cy
+  local g = start_gate(farm)
+  return g ~= nil and g[1] == cx and g[2] == cy
 end
 
 -- Zaunform einer Kachel aus den Nachbarn neu setzen (nur Zaunstücke mit Kollision, keine Tore).
@@ -500,8 +506,8 @@ function Farm.can_place(map, farm, id, cx, cy, player)
       elseif g ~= "." and g ~= ":" and g ~= "s" then
         return false, "hier nicht möglich"
       end
-      local wg = farm.weide.gate
-      if wg[1] == x and wg[2] == y then return false, "im Weg" end
+      local wg = start_gate(farm)
+      if wg and wg[1] == x and wg[2] == y then return false, "im Weg" end
     end
   end
   if player and not it.ground and not it.gate then
@@ -583,7 +589,7 @@ end
 function Farm.demolish_target(ctx, cx, cy)
   local farm = ctx.area.farm
   local it = Farm.item_at(farm, cx, cy)
-  local refund = it and Farm.erstattung(it.id)
+  local refund = it and (it.start and 0 or Farm.erstattung(it.id))      -- Startzaun war geschenkt
   if not it then it, refund = start_building_at(farm, cx, cy), 0 end
   if not it then return nil, 0, false, "hier steht nichts Abreißbares" end
   if it.id == "goepel_generator" then

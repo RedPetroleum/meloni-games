@@ -35,6 +35,14 @@ local function pferd(ctx, staerke, ort)
   return h.data
 end
 
+
+-- Eigene Bauteile (ohne den Startzaun der Weide, der seit 1.3.3 auch in farm.items steht).
+local function own_items(ctx)
+  local out = {}
+  for _, it in ipairs(ctx.area.farm.items) do if not it.start then out[#out + 1] = it end end
+  return out
+end
+
 return {
   {"Alle 4 Tage eine neue Reform, Dauer 3–5 Tage, Wölfe erst 4 Tage nach Gebiet 3", function()
     local ctx = setup()
@@ -82,7 +90,7 @@ return {
   {"Hunde: ohne starkes Pferd draußen geht Deko kaputt (kein Geld zurück), schwache Pferde erschrecken", function()
     local ctx, p = setup()
     for i = 0, 5 do Farm.place(ctx, "bank", p.x + 13 + i, p.y + 3) end
-    C.eq(#ctx.area.farm.items, 6)
+    C.eq(#own_items(ctx), 6)
     local schwach = pferd(ctx, 20, "weide")
     schwach.bindung = 50
     aktiv(ctx, "hunde_frei")
@@ -90,7 +98,7 @@ return {
     local rep = Reformen.angriffe(ctx, 5)
     C.ok(not rep.abgewehrt)
     C.eq(rep.zerstoert, Reformen.ANGRIFFE * Reformen.SCHADEN)
-    C.eq(#ctx.area.farm.items, 6 - rep.zerstoert)
+    C.eq(#own_items(ctx), 6 - rep.zerstoert)
     C.eq(ctx.money, money, "kein Geld zurück")
     C.eq(schwach.bindung, 50 - Reformen.ANGST)
   end},

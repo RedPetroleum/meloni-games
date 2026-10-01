@@ -1,5 +1,6 @@
 -- Selbsttests für den Hof (Aufgabe A11): Plätze, Unterbringung, Tagesverluste.
 local Stage = require("game.stage")
+local Area = require("game.area")
 local Wild = require("game.wild")
 local Farm = require("game.farm")
 local H = require("game.horse_model")
@@ -18,6 +19,40 @@ local function strong(h)
 end
 
 return {
+  {"Startweide: Zaun und Tor sind normale Bauteile, abreißbar ohne Erstattung; Weide lässt sich vergrößern (Rückmeldung 1.3.3)", function()
+    Area.clear()
+    local ctx = Stage.build(1, 31)
+    local farm, map = ctx.area.farm, ctx.map
+    ctx.inv, ctx.herd = {}, {}
+    local w = farm.weide
+    C.ok(w.umgebaut, "umgebaut")
+    local n = 0
+    for _, it in ipairs(farm.items) do if it.start then n = n + 1 end end
+    C.eq(n, 2 * (w.x1 - w.x0 + 1) + 2 * (w.y1 - w.y0 - 1), "ganzer Ring als Bauteile")
+    C.eq(Farm.item_at(farm, w.gate[1], w.gate[2]).id, "tor")
+    local plaetze = Farm.pastures(map, farm)[1].plaetze
+    C.eq(plaetze, 4, "wie vorher")
+    -- rechte Seite abreißen und 4 Spalten weiter rechts neu ziehen: größere Weide
+    ctx.money = 1000
+    for y = w.y0, w.y1 do C.eq(Farm.remove(ctx, w.x1, y), 0, "Startzaun bringt nichts") end
+    C.eq(ctx.money, 1000)
+    C.eq(#Farm.pastures(map, farm), 0, "offen: keine Weide")
+    for x = w.x1, w.x1 + 4 do C.ok(Farm.place(ctx, "zaun", x, w.y0)) C.ok(Farm.place(ctx, "zaun", x, w.y1)) end
+    for y = w.y0 + 1, w.y1 - 1 do C.ok(Farm.place(ctx, "zaun", w.x1 + 4, y)) end
+    local list = Farm.pastures(map, farm)
+    C.eq(#list, 1)
+    C.ok(list[1].plaetze > plaetze, "mehr Plätze: " .. list[1].plaetze)
+  end},
+  {"Alter Spielstand mit fester Startweide: wird beim Laden umgebaut, eigene Zäune bleiben", function()
+    Area.clear()
+    local plot = {x = 30, y = 30, w = 20, h = 20}
+    local farm = Farm.default(plot)
+    farm.items = {{id = "zaun", cx = plot.x + 14, cy = plot.y + 2}}
+    local ctx = Stage.build(1, 31, farm)
+    C.ok(ctx.area.farm.weide.umgebaut)
+    C.eq(#ctx.area.farm.items, 1 + 2 * 10 + 2 * 5)
+    C.eq(#Farm.pastures(ctx.map, ctx.area.farm), 1, "Weide funktioniert weiter")
+  end},
   {"Startausstattung: Wohnwagen, Stall S, Weide mit Tor, keine Bürste", function()
     local ctx = Stage.build(1)
     local farm = ctx.area.farm

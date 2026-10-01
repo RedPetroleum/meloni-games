@@ -129,8 +129,9 @@ function Sim.run(seed, days)
         end
       end
     end
-    -- Verkauf: ein überzähliges Pferd an den Käufer des Tages, bestes Angebot
-    if kaeufer then
+    -- Verkauf: ein überzähliges Pferd an den Käufer des Tages, bestes Angebot. Den Schlachter (−20 Bindung für alle
+    -- übrigen, Rückmeldung 1.3.3) meidet der Spieler: das kostet mehr Turniergeld, als der Verkauf bringt.
+    if kaeufer and Buyers.folge(kaeufer.typ) > -20 then
       local best_i, best_p
       for i = Sim.KEEP + 1, #ctx.herd do
         local p = Buyers.offer(kaeufer.typ, ctx.herd[i])

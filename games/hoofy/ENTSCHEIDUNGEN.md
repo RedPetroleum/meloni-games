@@ -526,3 +526,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Apfelbaum (Rückmeldung nach 1.3.2): Nach der Ernte bleibt er groß, erst ohne Äpfel, ab halber Zeit bis zur nächsten
   Reife mit grünen Äpfeln (pflanze_apfelbaum_leer/_gruen, Farm.BAUM). Vorher fiel er auf den Setzling zurück. Schon
   geerntete Bäume in alten Spielständen erkennt das Laden am Abstand bis zur nächsten Reife (3 statt 4 Tage).
+- Startweide abreißbar (Rückmeldung nach 1.3.2): Zaunring und Tor der Startweide waren fest im Hof (farm.weide) und
+  ließen sich nicht abreißen. Beim Anwenden des Hofs werden sie einmalig zu normalen Bauteilen (zaun/tor, start = true),
+  in neuen wie alten Spielständen. Abreißen bringt wie bei den Startbauten nichts zurück. Die Weide funktioniert gleich
+  (4 Plätze, gleiche Kennung, Weidepferde bleiben).
+- Schlachter: übrige Pferde −20 statt −10 Bindung (KATALOG §6). Die Wirtschafts-Simulation (game/sim.lua) lässt den
+  Spieler seitdem nicht mehr an den Schlachter verkaufen; sonst brachen die Turniergelder ein (Phase 5: 242 statt
+  ≤ 210 min). Mit dieser Annahme: Phasen 58–115 min, bis zum Flugzeug etwa 7,2 h.
+- Baumodus: Die Welt steht dort schon still (Uhr, Pferde, Tiere; im Test bewegt sich zwischen Frame 10 und 400 nichts
+  außer der Meldungszeile). Nichts geändert, Rückfrage an den Menschen, was sich noch bewegt.

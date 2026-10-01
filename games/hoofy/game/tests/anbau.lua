@@ -232,11 +232,12 @@ return {
     local ctx, p = setup()
     beds(ctx, p.x + 13, p.y + 5, 2, 1)
     Farm.plant(ctx, "karotte", p.x + 14, p.y + 5, 1)
-    ctx.area.farm.items[2].id = "feld"                -- so stand es in alten Spielständen
+    Farm.item_at(ctx.area.farm, p.x + 14, p.y + 5).id = "feld"   -- so stand es in alten Spielständen
     local back = load("return " .. Save.encode(Save.snapshot(ctx, Clock.new(2, 0), 10)), "=x", "t", {})()
     Area.clear()
     local ctx2 = Stage.build(1, 10, back.hof)
-    for _, it in ipairs(ctx2.area.farm.items) do C.eq(it.id, "beet") end
+    for _, it in ipairs(ctx2.area.farm.items) do C.ok(it.id ~= "feld", "kein Feld mehr") end
+    C.eq(Farm.item_at(ctx2.area.farm, p.x + 14, p.y + 5).id, "beet")
     C.eq(ctx2.map:code(p.x + 14, p.y + 5), "b")
     C.ok(Farm.plant_at(ctx2.area.farm, p.x + 14, p.y + 5), "Karotte noch da")
     ctx2.money, ctx2.inv = 0, {}

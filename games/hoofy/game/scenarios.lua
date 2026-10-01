@@ -58,7 +58,7 @@ end
 
 -- Baumodus: am Hof, save.geld setzt das Geld. Start im Baumodus, Drehbuch per INPUT (A setzt, B + Tasten wählt).
 function Scenarios.bauen(save)
-  return "world", {ort = "start", screen = "bauen", geld = save.geld or 500}
+  return "world", {ort = "start", screen = "bauen", geld = save.geld or 500, hof = save.hof}
 end
 
 -- Weiden: zweite Weide mit Tor und eine geschlossene Koppel ohne Tor (zählt nicht), Baumodus offen.

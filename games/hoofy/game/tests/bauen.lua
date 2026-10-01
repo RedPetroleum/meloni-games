@@ -21,6 +21,14 @@ end
 
 local function coll(ctx, cx, cy) return ctx.map.coll[cy + 1]:sub(cx + 1, cx + 1) end
 
+
+-- Eigene Bauteile (ohne den Startzaun der Weide, der seit 1.3.3 auch in farm.items steht).
+local function own_items(ctx)
+  local out = {}
+  for _, it in ipairs(ctx.area.farm.items) do if not it.start then out[#out + 1] = it end end
+  return out
+end
+
 return {
   {"Bank bauen: Preis 40 G abgezogen, Kollision da, Bild im Block, Gras bleibt Gras", function()
     local ctx, p = setup()
@@ -34,7 +42,7 @@ return {
       for _, o in ipairs(ctx.map.blocks[k] or {}) do if o[1] == "bank" and o[2] == cx and o[3] == cy then found = true end end
     end
     C.ok(found, "Objekt eingetragen")
-    C.eq(#ctx.area.farm.items, 1)
+    C.eq(#own_items(ctx), 1)
   end},
   {"Nur auf dem Grundstück, nicht auf Belegtem, nicht im Wasser/Wald, nicht ohne Geld", function()
     local ctx, p = setup(100)
@@ -83,7 +91,7 @@ return {
     C.eq(ctx.money, start, "alles zurück")
     C.eq(ctx.map:code(p.x + 15, p.y + 7), ".", "Gras")
     C.ok(ctx.map:walkable(p.x + 12, p.y + 6), "Brunnen weg, begehbar")
-    C.eq(#ctx.area.farm.items, 0)
+    C.eq(#own_items(ctx), 0)
     local none, why = Farm.remove(ctx, p.x + 12, p.y + 6)
     C.ok(none == nil and why:find("nichts"))
     local st = ctx.area.farm.buildings[2]
@@ -145,9 +153,9 @@ return {
     press({}, {[BTN_A] = true})                             -- Weg gewählt, Auswahl zu
     press({}, {[BTN_DOWN] = true})                          -- Cursor nach unten
     press({}, {[BTN_A] = true})                             -- Weg bauen
-    C.eq(#ctx.area.farm.items, 1)
-    C.eq(ctx.area.farm.items[1].id, "weg")
-    C.eq(ctx.area.farm.items[1].cy, p.y + 8)
+    C.eq(#own_items(ctx), 1)
+    C.eq(own_items(ctx)[1].id, "weg")
+    C.eq(own_items(ctx)[1].cy, p.y + 8)
     press({}, {[BTN_B] = true})                             -- B: Baumodus zu
     C.eq(#nav.stack, 0, "B schließt")
     b.draw()
@@ -167,7 +175,9 @@ return {
     local snap = Save.snapshot(ctx, Clock.new(1, 0), 5)
     local text = Save.encode(snap)
     local back = load("return " .. text, "=x", "t", {})()
-    C.eq(#back.hof.items, 4)
+    local eigene = 0
+    for _, it in ipairs(back.hof.items) do if not it.start then eigene = eigene + 1 end end
+    C.eq(eigene, 4)
     C.eq(back.hof.index, nil, "kein Index im Spielstand")
     C.eq(#snap.aenderungen, 0, "Bauten stehen im Hof, nicht in den Kartenänderungen")
     Area.clear()

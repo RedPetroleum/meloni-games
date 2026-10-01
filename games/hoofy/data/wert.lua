@@ -27,7 +27,7 @@ return {
     schlachter = {
       faktor = 0.9,
       teiler = 50,
-      bindung_andere = -10,
+      bindung_andere = -20,
     },
     bestellung = {
       faktor = 1.5,

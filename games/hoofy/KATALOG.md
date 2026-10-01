@@ -135,7 +135,7 @@ Kaufen beim Händler: Wert × 1,5.
 | Reiche Sammlerin | Wert × (1 + Farbfaktor × 0,1) | nur ab Sauberkeit 70 |
 | Netter Reithof | Wert × 0,7 × (0,5 + Bindung/100) | übrige Pferde +5 Bindung |
 | Züchter | Wert × (0,8 + (Tempo + Stärke + (Ausdauer − 50) × 2)/600), Hengst ×1,25 | übrige Pferde −5 Bindung |
-| Schlachter | Wert × 0,9 × Gewicht / 50 | übrige Pferde −10 Bindung |
+| Schlachter | Wert × 0,9 × Gewicht / 50 | übrige Pferde −20 Bindung |
 | Bestellung | Wert × 1,5 | alle 3 Tage eine, Frist 5–10 Tage |
 
 Pro Tag kommt ein zufälliger Käufer vorbei, der Pferdemarkt im Ort ist immer offen.
