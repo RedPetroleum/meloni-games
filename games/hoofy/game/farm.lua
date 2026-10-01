@@ -714,7 +714,14 @@ function Farm.crop(id)
   error("unbekannte Pflanze " .. tostring(id))
 end
 
-local function pkind(p) return "pflanze_" .. p.id .. "_" .. p.stufe end
+-- Bäume bleiben nach der ersten Ernte groß (Rückmeldung 1.3.3): p.gross, Bilder ohne bzw. mit grünen Früchten.
+Farm.BAUM = {apfelbaum = {"pflanze_apfelbaum_leer", "pflanze_apfelbaum_gruen"}}
+
+local function pkind(p)
+  local baum = p.gross and Farm.BAUM[p.id]
+  if baum and p.stufe < 3 then return baum[p.stufe] end
+  return "pflanze_" .. p.id .. "_" .. p.stufe
+end
 
 -- Kategorien des Baumodus: wie Farm.CATEGORIES, „Pflanzen“ enthält die gekauften Samen (einmalig gekauft = unbegrenzt pflanzbar).
 function Farm.categories(ctx)
@@ -802,6 +809,7 @@ function Farm.harvest(ctx, p, day)
   ctx.map:remove_object(pkind(p), p.cx, p.cy)
   p.start, p.bereit = day, day + crop.dann
   p.stufe = 1
+  if Farm.BAUM[p.id] then p.gross = true end
   put_plant(ctx.map, p)
   return item, crop.ertrag
 end
@@ -849,7 +857,14 @@ end
 -- Pflanzen beim Laden wieder in die Karte eintragen.
 function Farm.apply_plants(map, farm)
   farm.pflanzen = farm.pflanzen or {}
-  for _, p in ipairs(farm.pflanzen) do put_plant(map, p) end
+  for _, p in ipairs(farm.pflanzen) do
+    -- Spielstände bis 1.3.3: schon geerntete Bäume am Abstand bis zur nächsten Reife erkennen („dann alle“)
+    if Farm.BAUM[p.id] and not p.gross then
+      local crop = Farm.crop(p.id)
+      if crop.dann ~= crop.reif and p.bereit - p.start == crop.dann then p.gross = true end
+    end
+    put_plant(map, p)
+  end
 end
 
 return Farm

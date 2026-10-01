@@ -138,3 +138,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 23:46 | Rückmeldungen 1.3.2 | fertig | Feld weg (alte Felder → Beete), Namen nie doppelt, Verkauf mit Rückfrage und Ausrüstung zurück, Beete erkennbar, Hunger beim Füttern (E79); SELFTEST OK 254 | Hoofy 1.3.2 (nicht gepusht)
 2026-10-01 23:51 | Rückmeldung zwei an der Leine | fertig | Leash.MAX_LED 2, Meldungen, Selbsttest; SELFTEST OK 255 | Hoofy 1.3.2 (nicht gepusht)
 2026-10-02 00:00 | Rückmeldung Weide 2/4 | fertig | in der Weide losgelassene/geladene lose Pferde werden Weidepferde (E80); SELFTEST OK 256 | Hoofy 1.3.3 (nicht gepusht)
+2026-10-02 00:05 | Rückmeldung Apfelbaum | fertig | bleibt nach der Ernte groß (ohne/grüne Äpfel), alte Spielstände erkannt; SELFTEST OK 257 | Hoofy 1.3.3 (nicht gepusht)

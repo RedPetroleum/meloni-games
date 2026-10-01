@@ -139,6 +139,10 @@ for _, id in ipairs(T.PLANT_IDS) do
       h = id == "apfelbaum" and 2 or 1, map = rgb(0x4f, 0x8b, 0x3a)}
   end
 end
+-- großer Apfelbaum nach der Ernte (game/farm.lua Farm.BAUM)
+for _, name in ipairs({"pflanze_apfelbaum_leer", "pflanze_apfelbaum_gruen"}) do
+  T.PROPS[name] = {sprite = name, w = 2, h = 2, map = rgb(0x4f, 0x8b, 0x3a)}
+end
 
 -- Stellt Wiese, Böden, Deko, Bäume, Büsche und Steine auf die Palette des Gebiets um (name aus
 -- K.welt.gebiete): Sprite-Namen land_… werden zu <set>_…, dazu Schatten- und Kartenfarben.

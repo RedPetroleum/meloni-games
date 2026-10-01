@@ -523,3 +523,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   unter „Ort“, solange dort Platz ist (Meldung „… bleibt auf der Weide.“). Ist die Weide voll oder steht es draußen,
   bleibt es lose wie bisher. Beim Laden werden lose Pferde, die in einer Weide stehen, ebenso zu Weidepferden, auch in
   vorhandenen Spielständen.
+- Apfelbaum (Rückmeldung nach 1.3.2): Nach der Ernte bleibt er groß, erst ohne Äpfel, ab halber Zeit bis zur nächsten
+  Reife mit grünen Äpfeln (pflanze_apfelbaum_leer/_gruen, Farm.BAUM). Vorher fiel er auf den Setzling zurück. Schon
+  geerntete Bäume in alten Spielständen erkennt das Laden am Abstand bis zur nächsten Reife (3 statt 4 Tage).

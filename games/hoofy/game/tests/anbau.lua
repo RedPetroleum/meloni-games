@@ -257,4 +257,32 @@ return {
     local b = Screens.build(ctx)
     b.draw()
   end},
+  {"Apfelbaum bleibt nach der Ernte groß: erst ohne, dann mit grünen Äpfeln (Rückmeldung 1.3.3)", function()
+    local ctx, p = setup()
+    Farm.plant(ctx, "apfelbaum", p.x + 15, p.y + 5, 1)
+    local a = Farm.plant_at(ctx.area.farm, p.x + 15, p.y + 5)
+    local function bild()
+      for b = 1, ctx.map.bw * ctx.map.bh do
+        for _, o in ipairs(ctx.map.blocks[b] or {}) do if o[1]:find("^pflanze_apfelbaum") then return o[1] end end
+      end
+    end
+    C.eq(bild(), "pflanze_apfelbaum_1", "Setzling")
+    day(ctx, 5)
+    C.eq(bild(), "pflanze_apfelbaum_3")
+    Farm.harvest(ctx, a, 5)
+    C.eq(bild(), "pflanze_apfelbaum_leer", "groß, ohne Äpfel")
+    day(ctx, 7)
+    C.eq(bild(), "pflanze_apfelbaum_gruen", "grüne Äpfel")
+    day(ctx, 8)
+    C.eq(bild(), "pflanze_apfelbaum_3", "wieder reif")
+    -- alter Spielstand: schon geernteter Baum ohne gross
+    Farm.harvest(ctx, a, 8)
+    a.gross = nil
+    local Save = require("game.save")
+    local Clock = require("game.clock")
+    local back = load("return " .. Save.encode(Save.snapshot(ctx, Clock.new(8, 0), 10)), "=x", "t", {})()
+    Area.clear()
+    local ctx2 = Stage.build(1, 10, back.hof)
+    C.ok(Farm.plant_at(ctx2.area.farm, p.x + 15, p.y + 5).gross, "beim Laden erkannt")
+  end},
 }
