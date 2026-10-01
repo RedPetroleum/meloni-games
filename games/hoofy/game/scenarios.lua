@@ -72,6 +72,11 @@ function Scenarios.anbau(save)
 end
 
 -- Gebäude: alle Gebäude auf dem Grundstück. save.cx, save.cy: Startkachel der Kamera.
+-- Reise (D1): am Schuppen mit Mofa und zwei Pferden; Drehbuch: A öffnet das Reisemenü, A fährt.
+function Scenarios.reise(save)
+  return "world", {fahrt = true}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

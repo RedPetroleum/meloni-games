@@ -248,7 +248,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### D Welt
 
-- [ ] **D1 Fahrzeuge**: Zugfahrzeuge und Anhänger kaufen, Garage nötig, Reisemenü am Fahrzeug,
+- [x] **D1 Fahrzeuge** (E52; Shot-Sheet Menü + Ankunft Flussauen, SELFTEST 176): Zugfahrzeuge und Anhänger kaufen, Garage nötig, Reisemenü am Fahrzeug,
   Fahrtkosten, Pferde im Anhänger mitnehmen.
   Prüfung: Szenario `reise`, Screenshots Menü und Ankunft.
 - [ ] **D2 Gebiete 2–6**: Generator mit Palette, Größe, Wildpferden und Rassen je Gebiet

@@ -415,6 +415,7 @@ end
 -- Unterbringung (E32, C2): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
 function Wild:house(h, ort)
   local farm = self.ctx.area.farm
+  if not farm then return false, "nur auf dem Hof" end
   local cap = Farm.capacity(farm)
   local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
   if n >= cap[ort] then return false, "voll" end
@@ -465,6 +466,7 @@ end
 -- Gibt die Namen der Pferde zurück, die ihre Weide verloren haben.
 function Wild:rehome()
   local farm = self.ctx.area.farm
+  if not farm then return {} end
   local pastures = Farm.pastures(self.ctx.map, farm)
   local by_id = {}
   for _, w in ipairs(pastures) do by_id[w.id] = w end
@@ -515,7 +517,7 @@ end
 -- Steht der Spieler vor der Stalltür?
 function Wild:at_stall_door()
   local p = self.ctx.player
-  for _, d in ipairs(Farm.stall_doors(self.ctx.area.farm)) do
+  for _, d in ipairs(self.ctx.area.farm and Farm.stall_doors(self.ctx.area.farm) or {}) do
     if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return true end
   end
   return false
@@ -524,7 +526,7 @@ end
 -- Steht der Spieler vor einer Schlaftür (Wohnwagen, Häuschen, Villa)?
 function Wild:at_bed_door()
   local p = self.ctx.player
-  for _, d in ipairs(Farm.bed_doors(self.ctx.area.farm)) do
+  for _, d in ipairs(self.ctx.area.farm and Farm.bed_doors(self.ctx.area.farm) or {}) do
     if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return true end
   end
   return false

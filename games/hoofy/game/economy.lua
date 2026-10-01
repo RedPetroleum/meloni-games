@@ -1,6 +1,7 @@
 -- Geld und Laden (KATALOG §7, §8, §9): Warenliste, Kaufen, Bauelemente zum Kaufpreis zurück,
 -- Ausrüstung am Pferd. Alles auf ctx.money und ctx.inv (Vorrat, id → Anzahl).
 local K = require("game.katalog")
+local Farm = require("game.farm")
 
 local E = {}
 
@@ -10,6 +11,7 @@ E.CATEGORIES = {
   {id = "zubehoer", name = "Zubehör"},
   {id = "schmuck", name = "Schmuck"},
   {id = "samen", name = "Samen"},
+  {id = "fahrzeuge", name = "Fahrzeuge"},
 }
 
 local function item(cat, e, extra)
@@ -36,7 +38,42 @@ function E.catalog(maxgebiet)
         kat = "samen", einmalig = true, pflanze = p.id}
     end
   end
+  -- Fahrzeuge (D1): Zugfahrzeuge brauchen Schuppen/Garage/Hangar, Anhänger nicht
+  for _, f in ipairs(K.welt.fahrzeuge) do
+    if f.preis > 0 then
+      list[#list + 1] = {id = f.id, name = f.name, preis = f.preis, kat = "fahrzeuge", einmalig = true, fahrzeug = f,
+        text = "Erreicht Gebiet 1–" .. f.gebiete .. ", Fahrtkosten " .. f.fahrtkosten .. " je Gebiet Entfernung."}
+    end
+  end
+  for _, a in ipairs(K.welt.anhaenger) do
+    list[#list + 1] = {id = "anhaenger_" .. a.plaetze, name = "Anhänger " .. a.plaetze .. " Platz" .. (a.plaetze > 1 and "e" or ""),
+      preis = a.preis, kat = "fahrzeuge", einmalig = true, anhaenger = a.plaetze,
+      text = "Nimmt " .. a.plaetze .. " Pferd" .. (a.plaetze > 1 and "e" or "") .. " mit auf die Reise."}
+  end
   return list
+end
+
+-- Bestes Zugfahrzeug im Besitz (Eintrag aus K.welt.fahrzeuge, "zu Fuß" ohne) und Plätze des besten Anhängers.
+function E.fahrzeug(ctx)
+  local best = K.welt.fahrzeuge[1]
+  for _, f in ipairs(K.welt.fahrzeuge) do
+    if f.preis > 0 and (ctx.inv[f.id] or 0) > 0 and f.gebiete > best.gebiete then best = f end
+  end
+  return best
+end
+
+function E.plaetze(ctx)
+  local n = 0
+  for _, a in ipairs(K.welt.anhaenger) do
+    if (ctx.inv["anhaenger_" .. a.plaetze] or 0) > 0 then n = math.max(n, a.plaetze) end
+  end
+  return n
+end
+
+-- Das weiteste erreichbare Gebiet nach dem Fahrzeug im Besitz.
+function E.refresh_gebiet(ctx)
+  ctx.max_gebiet = E.fahrzeug(ctx).gebiete
+  return ctx.max_gebiet
 end
 
 function E.find(id, maxgebiet)
@@ -59,10 +96,15 @@ end
 function E.buy(ctx, id)
   local it = E.find(id)
   if it.einmalig and E.owned(ctx, id) > 0 then return false, "schon da" end
+  if it.fahrzeug then
+    local farm = ctx.hof or ctx.area and ctx.area.farm
+    if not (farm and Farm.garaged(farm)[id]) then return false, "Garage" end
+  end
   local p = E.price(ctx, it)
   if ctx.money < p then return false, "Geld" end
   ctx.money = ctx.money - p
   ctx.inv[id] = E.owned(ctx, id) + 1
+  if it.fahrzeug then E.refresh_gebiet(ctx) end
   return true
 end
 

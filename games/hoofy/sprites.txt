@@ -2609,6 +2609,28 @@ oooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooo
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 
+
+
+sprite fahrzeug
+................................
+................................
+................................
+.kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.
+.kRRRRRRRRRRRRRRRRRRRRRRRRRRRRk.
+.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
+.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
+.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
+.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
+.kxxxxxxxxxxxxxxxxxxxxxxxxxxxxk.
+.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
+.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
+.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+....kkkkkk............kkkkkk....
+....kppppk............kppppk....
+....kppppk............kppppk....
+....kkkkkk............kkkkkk....
+
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 
 sprite horse_pony_side

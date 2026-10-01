@@ -1,0 +1,92 @@
+-- Selbsttests für Fahrzeuge und Reisen (Aufgabe D1).
+local Stage = require("game.stage")
+local Area = require("game.area")
+local Wild = require("game.wild")
+local Farm = require("game.farm")
+local Economy = require("game.economy")
+local Reise = require("game.reise")
+local Clock = require("game.clock")
+local Save = require("game.save")
+local C = require("game.tests.check")
+
+local function setup(money)
+  Area.clear()
+  local ctx = Stage.build(1, 12)
+  ctx.money = money or 200000
+  ctx.wild = Wild.new(ctx, 3)
+  ctx.wild.count = 0
+  ctx.clock = Clock.new()
+  return ctx, ctx.area.plot
+end
+
+return {
+  {"Zugfahrzeug braucht die passende Garage; Gebiet und Anhänger folgen dem Besitz", function()
+    local ctx, p = setup()
+    C.eq(ctx.max_gebiet, 1)
+    local ok, why = Economy.buy(ctx, "fahrrad")
+    C.ok(not ok and why == "Garage", "ohne Schuppen nicht")
+    C.ok(Farm.place(ctx, "schuppen", p.x + 13, p.y + 14))
+    C.ok(Economy.buy(ctx, "fahrrad"))
+    C.eq(ctx.max_gebiet, 2)
+    C.ok(Economy.buy(ctx, "mofa"))
+    C.eq(ctx.max_gebiet, 3)
+    local ok2, why2 = Economy.buy(ctx, "kleinwagen")
+    C.ok(not ok2 and why2 == "Garage", "Kleinwagen braucht die Garage")
+    C.ok(Farm.place(ctx, "garage", p.x + 16, p.y + 5))
+    C.ok(Economy.buy(ctx, "kleinwagen"))
+    C.eq(ctx.max_gebiet, 4)
+    C.eq(Economy.fahrzeug(ctx).id, "kleinwagen")
+    C.eq(Economy.plaetze(ctx), 0)
+    C.ok(Economy.buy(ctx, "anhaenger_1"))
+    C.ok(Economy.buy(ctx, "anhaenger_3"))
+    C.eq(Economy.plaetze(ctx), 3)
+  end},
+  {"Fahrtkosten nach Entfernung; Pferde nur so viele wie der Anhänger hat; Reiten geht nicht", function()
+    local ctx, p = setup()
+    Farm.place(ctx, "garage", p.x + 16, p.y + 5)
+    Economy.buy(ctx, "kleinwagen")
+    Economy.buy(ctx, "anhaenger_1")
+    local z = Reise.ziele(ctx)
+    C.eq(#z, 3, "Gebiete 2, 3, 4")
+    C.eq(z[1].kosten, 10)
+    C.eq(z[3].kosten, 30, "Entfernung 3 × 10")
+    ctx.lead = {{data = {}}, {data = {}}}
+    C.ok(not Reise.ziele(ctx)[1].ok, "zwei Pferde, ein Platz")
+    ctx.lead = {{data = {}}}
+    C.ok(Reise.ziele(ctx)[1].ok)
+    ctx.player.riding = {}
+    C.ok(not Reise.ziele(ctx)[1].ok)
+    ctx.player.riding = nil
+    ctx.money = 5
+    C.ok(not Reise.ziele(ctx)[1].ok, "zu wenig Geld")
+  end},
+  {"Fahrt zahlt, nimmt nur die Pferde an der Leine mit; Heimfahrt bringt den Hof zurück", function()
+    local ctx, p = setup()
+    Farm.place(ctx, "schuppen", p.x + 13, p.y + 14)
+    Economy.buy(ctx, "mofa")
+    Economy.buy(ctx, "anhaenger_1")
+    local a = ctx.wild:add_own({rasse = "noriker", name = "Hilde"})
+    local b = ctx.wild:add_own({rasse = "haflinger", name = "Bruno"})
+    ctx.wild:attach(a)
+    ctx.wild:house(b, "stall")
+    local before = ctx.money
+    local snap = Reise.fahren(ctx, ctx.clock, 12, 3)
+    C.eq(before - ctx.money, 10, "2 Gebiete × 5")
+    C.eq(snap.gebiet, 3)
+    C.ok(snap.mit[a.data] and not snap.mit[b.data])
+    C.eq(#snap.herd, 2)
+    C.ok(snap.heim and snap.heim.pos, "Hof wird gemerkt")
+    -- unterwegs gespeichert: Spielstand liegt zu Hause
+    local away = {area = {nr = 3}, hof = ctx.hof, heim = snap.heim, herd = snap.herd, money = 100, inv = ctx.inv,
+      player = {x = 1, y = 1}, map = {changes = {}}, orders = {}}
+    local save = Save.snapshot(away, ctx.clock, 12)
+    C.eq(save.gebiet, 1)
+    C.eq(save.pos[1], snap.heim.pos[1])
+    -- Heimfahrt
+    away.area, away.lead, away.max_gebiet = {nr = 3, places = {start = {1, 1}}}, {}, 3
+    local back = Reise.fahren(setmetatable(away, {__index = ctx}), ctx.clock, 12, 1)
+    C.eq(back.gebiet, 1)
+    C.eq(back.pos[1], snap.heim.pos[1])
+    C.ok(back.heim == nil)
+  end},
+}

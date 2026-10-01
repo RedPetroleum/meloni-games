@@ -34,4 +34,5 @@ return {
   "anbau",
   "goepel",
   "land",
+  "reise",
 }

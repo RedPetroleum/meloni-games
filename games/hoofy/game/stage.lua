@@ -30,6 +30,7 @@ function Stage.build(nr, seed, farm)
   local area = Area.get(nr, seed, farm)
   local ctx = {S = S, sfx = SFX, colors = Stage.COLORS, area = area}
   ctx.map = area.map
+  ctx.hof = area.farm            -- der Hof (auch in fremden Gebieten, dann ist area.farm leer)
   ctx.world = World.new(ctx.map)
   ctx.fx = FX.new(S)
   local st = area.places.start

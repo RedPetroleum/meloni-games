@@ -287,6 +287,17 @@ local function doors(farm, pred)
   return out
 end
 
+-- Türen der Gebäude, die Fahrzeuge unterstellen: {cx, cy, fahrzeuge = Menge id → true}.
+function Farm.vehicle_doors(farm)
+  local out = doors(farm, function(id) return #(K.bauteil(id).fahrzeuge or {}) > 0 end)
+  for _, d in ipairs(out) do
+    local set = {}
+    for _, v in ipairs(K.bauteil(d.id).fahrzeuge) do set[v] = true end
+    d.fahrzeuge = set
+  end
+  return out
+end
+
 function Farm.stall_doors(farm) return doors(farm, function(id) return id:find("^stall_") ~= nil end) end
 function Farm.bed_doors(farm)
   return doors(farm, function(id) return id == "wohnwagen" or id == "haeuschen" or id == "villa" end)
@@ -632,6 +643,7 @@ function Farm.ripe_near(ctx, reach)
   reach = reach or 26
   local best, bd = nil, reach
   local pl = ctx.player
+  if not ctx.area.farm then return nil end
   for _, p in ipairs(ctx.area.farm.pflanzen or {}) do
     if p.stufe == 3 then
       local crop = Farm.crop(p.id)
@@ -646,6 +658,7 @@ end
 -- Tageswechsel (day = neuer Tag): Pflanzen wachsen, Bilder wechseln. Gibt die Zahl reifer Pflanzen zurück.
 function Farm.grow(ctx, day)
   local ripe = 0
+  if not ctx.area.farm then return ripe end
   for _, p in ipairs(ctx.area.farm.pflanzen or {}) do
     local stufe = stage_of(p, day)
     if stufe ~= p.stufe then

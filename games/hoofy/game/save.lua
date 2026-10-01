@@ -28,6 +28,16 @@ function Save.snapshot(ctx, clock, seed)
   local p = ctx.player
   local herd = {}
   for i, d in ipairs(ctx.herd) do herd[i] = d end
+  -- Unterwegs gespeichert: der Spielstand liegt zu Hause (Fahrzeug fährt heim, Mitgenommene kommen an die Leine)
+  local heim = ctx.heim
+  if heim then
+    return {
+      ver = Save.VERSION, seed = seed, gebiet = 1,
+      tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv, pos = heim.pos,
+      herd = herd, hof = ctx.hof, aenderungen = heim.aenderungen, erkundet = heim.erkundet, markt = ctx.market,
+      kaeufer = ctx.buyer, bestellungen = ctx.orders,
+    }
+  end
   return {
     ver = Save.VERSION, seed = seed, gebiet = ctx.area.nr,
     tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv,

@@ -250,7 +250,7 @@ function Screens.shop(ctx)
         msg = list[sel].name .. " gekauft."
       else
         SFX.snort()
-        msg = why == "Geld" and "Zu wenig Geld." or "Hast du schon."
+        msg = why == "Geld" and "Zu wenig Geld." or why == "Garage" and "Dafür fehlt die Garage (Schuppen/Garage/Hangar)." or "Hast du schon."
       end
       msg_t = 120
     end
@@ -292,6 +292,44 @@ function Screens.shop(ctx)
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
     footer("A: kaufen   </>: Reiter   B: zurück")
+  end
+  return s
+end
+
+-- ---- Reisemenü am Fahrzeug (D1): Ziel wählen, A fährt, B zurück ----
+
+function Screens.reise(ctx, go)
+  local Reise = require("game.reise")
+  local sel, msg, msg_t = 1, nil, 0
+  local s = {full = true}
+  function s.update(nav)
+    local list = Reise.ziele(ctx)
+    if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() end
+    if btnp(BTN_A) and list[sel] then
+      if list[sel].ok then SFX.start() go(list[sel].nr)
+      else SFX.snort() msg, msg_t = (list[sel].grund or "geht nicht") .. ".", 150 end
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Reise  (" .. Economy.fahrzeug(ctx).name .. ", Anhänger " .. Economy.plaetze(ctx) .. " Plätze)")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    local list = Reise.ziele(ctx)
+    local y = 28
+    for i, z in ipairs(list) do
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
+      print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 10, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
+      print(z.kosten .. " G", 250, y, z.ok and C.gold or C.dim)
+      y = y + 14
+    end
+    if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 10, y, C.dim) end
+    print("Mitgenommen: " .. #ctx.lead .. " Pferd(e) an der Leine", 10, 190, C.dim)
+    if msg and msg_t > 0 then print(msg, 10, 204, C.red) end
+    footer("A: losfahren   B: zurück")
   end
   return s
 end

@@ -12,6 +12,7 @@ local Screens = require("game.screens")
 local Save = require("game.save")
 local Explore = require("game.explore")
 local Economy = require("game.economy")
+local Reise = require("game.reise")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
@@ -38,9 +39,12 @@ function WorldScene.enter(arg)
     if snap then seed, farm = snap.seed, snap.hof end
   end
   if arg and arg.neu then seed = Save.new_seed() end
+  local reise = arg and arg.reise            -- Fahrt in ein anderes Gebiet (D1), arg.reise = Reisedaten
+  if reise then snap, seed, farm = reise, reise.seed, reise.hof end
   seed_now = seed
-  saving = (arg and (arg.neu or (arg.laden and snap))) and true or false
-  ctx = Stage.build(1, seed, farm)
+  saving = (arg and (arg.neu or (arg.laden and snap) or (reise and arg.saving))) and true or false
+  ctx = Stage.build(reise and reise.gebiet or 1, seed, farm)
+  ctx.hof = farm or ctx.area.farm
   if arg and (arg.ort or arg.cx) then
     local p = arg.ort and ctx.area.places[arg.ort] or (arg.cx and {arg.cx, arg.cy})
     if not p then error("unbekannter Ort " .. tostring(arg.ort)) end
@@ -68,6 +72,19 @@ function WorldScene.enter(arg)
     Farm.plant(ctx, "apfelbaum", pl.x + 13, pl.y + 7, 1)
     for d = 2, 1 + (arg.tage or 0) do Farm.grow(ctx, d) end
     wild.count = 0
+  elseif arg and arg.fahrt then
+    -- Reise: Schuppen mit Mofa, Anhänger für 2, zwei Pferde an der Leine, vor dem Schuppen
+    local pl = ctx.area.plot
+    ctx.money = 1000
+    assert(Farm.place(ctx, "schuppen", pl.x + 13, pl.y + 14))
+    ctx.money = 500
+    ctx.inv.mofa, ctx.inv.anhaenger_2 = 1, 1
+    Economy.refresh_gebiet(ctx)
+    ctx.player.x, ctx.player.y = (pl.x + 14) * 16 + 8, (pl.y + 16) * 16 + 14
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+    wild.count = 0
+    for _, n in ipairs({"Hilde", "Bruno"}) do wild:attach(wild:add_own({rasse = "noriker", bindung = 40, name = n})) end
   elseif arg and arg.gebaeude then
     -- Alle Gebäude auf dem Grundstück (Koordinaten relativ zum Grundstück)
     local pl = ctx.area.plot
@@ -146,6 +163,7 @@ function WorldScene.enter(arg)
   ctx.sfx.music(clock:is_night() and "night" or "day")
   ctx.day = clock.day
   ctx.on_plot = function()
+    if not ctx.area.farm then return false end
     local p, pl = ctx.player, ctx.area.plot
     return p.x >= pl.x * 16 and p.x < (pl.x + pl.w) * 16 and p.y >= pl.y * 16 and p.y < (pl.y + pl.h) * 16
   end
@@ -153,19 +171,27 @@ function WorldScene.enter(arg)
   if arg and arg.geld then ctx.money = arg.geld end
   ctx.saving_ok = saving
   ctx.toast = function(text) toast = {text = text, t = 120} end
-  if saving then
-    ctx.save = WorldScene.save
-    if snap then
-      ctx.money, ctx.inv, ctx.market, ctx.buyer = snap.geld, snap.inv, snap.markt, snap.kaeufer
-      ctx.orders = snap.bestellungen or {}
-      clock.day, clock.t = snap.tag, snap.zeit
-      clock.woke = clock.t > 0 and clock.t < Clock.DAWN
+  if saving then ctx.save = WorldScene.save end
+  if snap and (saving or reise) then
+    ctx.money, ctx.inv, ctx.market, ctx.buyer = snap.geld, snap.inv, snap.markt, snap.kaeufer
+    ctx.orders = snap.bestellungen or {}
+    Economy.refresh_gebiet(ctx)
+    clock.day, clock.t = snap.tag, snap.zeit
+    clock.woke = not reise and clock.t > 0 and clock.t < Clock.DAWN
+    if snap.pos then
       ctx.player.x, ctx.player.y = snap.pos[1], snap.pos[2]
       ctx.trail:reset(ctx.player.x, ctx.player.y)
       ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
-      for _, c in ipairs(snap.aenderungen or {}) do ctx.map:set(c[1], c[2], c[3], c[4]) end
-      if snap.erkundet then ctx.explored = snap.erkundet end
-      for _, d in ipairs(snap.herd) do wild:adopt(d) end
+    end
+    for _, c in ipairs(snap.aenderungen or {}) do ctx.map:set(c[1], c[2], c[3], c[4]) end
+    if snap.erkundet then ctx.explored = snap.erkundet end
+    ctx.heim = reise and reise.heim or nil
+    for _, d in ipairs(snap.herd) do
+      if ctx.heim and not (snap.mit and snap.mit[d]) then
+        ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
+      else
+        wild:adopt(d)
+      end
     end
   end
   if not ctx.buyer then ctx.buyer = Buyers.visit(ctx.seed, clock.day) end
@@ -417,6 +443,16 @@ function WorldScene.save()
   return true
 end
 
+-- Fährt in Gebiet nr (D1): neue Welt aus den Reisedaten, Spielstand wird gespeichert.
+function WorldScene.reise(nr)
+  local snap, why = Reise.fahren(ctx, clock, seed_now, nr)
+  if not snap then say(why .. ".") return end
+  local keep = saving
+  WorldScene.enter({reise = snap, saving = keep})
+  if keep then WorldScene.save() end
+  say("Angekommen: " .. ctx.area.name .. ".", 150)
+end
+
 -- Beim Beenden über das Menü der Konsole (main.lua ruft _quit).
 function WorldScene.quit()
   WorldScene.save()
@@ -517,7 +553,10 @@ function WorldScene.update()
     else
       local own = wild:nearest_own()
       local ripe = Farm.ripe_near(ctx)
-      if own then
+      if Reise.at_station(ctx) then          -- Fahrzeug hat Vorrang vor dem Pferdemenü (die Pferde stehen immer daneben)
+        nav.push(Screens.reise(ctx, function(nr) WorldScene.reise(nr) end))
+        ctx.sfx.ok()
+      elseif own then
         open_menu(own)
         ctx.sfx.select()
       elseif ripe then
@@ -631,7 +670,13 @@ end
 function WorldScene.draw()
   local top = stack[#stack]
   if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
-  Stage.draw_world(ctx, draw_rope)
+  Stage.draw_world(ctx, function()
+    draw_rope()
+    if ctx.heim then      -- unterwegs steht das Fahrzeug am Ankunftspunkt
+      local st = ctx.area.places.start
+      ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)
+    end
+  end)
   local radius = clock:sight(70, false)
   if radius and radius < 400 then
     local p = ctx.player

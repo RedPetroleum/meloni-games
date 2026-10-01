@@ -46,19 +46,19 @@ end
 function Days.new_day(ctx, day)
   local report = {}
   -- Göpel: Energie und Stärke zählen vor dem Tageswechsel
-  local lauf, je = Farm.goepel_pferde(ctx.area.farm, ctx.herd, H)
+  local lauf, je = Farm.goepel_pferde(ctx.hof or ctx.area.farm, ctx.herd, H)
   ctx.goepel_geld = #lauf * je * (ctx.goepel_mult or 1)
   ctx.money = ctx.money + ctx.goepel_geld
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
   -- Stall: der beste Stall gibt allen Pferden im Stall Bindung (KATALOG §9)
-  local bonus = Farm.stall_bonus(ctx.area.farm)
+  local bonus = Farm.stall_bonus(ctx.hof or ctx.area.farm)
   if bonus > 0 then
     for _, d in ipairs(ctx.herd) do
       if d.ort == "stall" then d.bindung = mid(0, d.bindung + bonus, 100) end
     end
   end
   -- Hof-Schönheit: alle Pferde bekommen Bindung (ab 50 / 150 / 400 Punkten +1 / +2 / +3)
-  local schoen = Farm.schoenheit_bonus(ctx.area.farm)
+  local schoen = Farm.schoenheit_bonus(ctx.hof or ctx.area.farm)
   if schoen > 0 then
     for _, d in ipairs(ctx.herd) do d.bindung = mid(0, d.bindung + schoen, 100) end
   end
