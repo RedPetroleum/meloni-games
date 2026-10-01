@@ -6,6 +6,7 @@ local H = require("game.horse_model")
 local Care = require("game.care")
 local Farm = require("game.farm")
 local Rng = require("lib.rng")
+local Body = require("lib.body")
 
 local R = {}
 
@@ -145,21 +146,78 @@ function R.tick(ctx, day)
   R.anwenden(ctx)
 end
 
--- Bild der freien Tiere (nur zum Anschauen): laufen um den Hof, Hunde und Wölfe nachts, Krokodile immer.
-function R.draw_tiere(ctx, clock, now)
+-- Freie Tiere als Figuren (nur zum Anschauen, Schaden gibt es abstrakt beim Tageswechsel): streifen über den Hof,
+-- Hunde und Wölfe nachts, Krokodile immer. Sie haben einen Fußkasten wie Pferde und laufen nicht durch Zäune,
+-- Gebäude, Bäume oder Wasser (Rückmeldung 0.5.5): Ziel ist ein freier Punkt auf dem eigenen Land, wer hängen
+-- bleibt, sucht ein neues.
+R.TIERE = 4
+R.TIER_SPEED = 0.7
+local SPRITE = {hunde_frei = "tier_hund", woelfe_frei = "tier_wolf", krokodile_frei = "tier_krokodil"}
+
+local Tier = {}
+Tier.__index = Tier
+
+-- Zufälliger freier Punkt auf dem eigenen Land (nil, wenn keiner gefunden wird).
+local function free_spot(ctx, rng, fw, fh)
+  local farm, b = ctx.area.farm, Farm.plot_bounds(ctx.area.farm)
+  for _ = 1, 40 do
+    local x, y = b[1] + rng:next() * (b[3] - b[1]), b[2] + rng:next() * (b[4] - b[2])
+    if Farm.owns(farm, flr(x / 16), flr((y - 1) / 16)) and Body.free(ctx.map, x, y, fw, fh) then return x, y end
+  end
+end
+
+function Tier:update()
+  local ctx = self.ctx
+  if self.wait > 0 then self.wait = self.wait - 1 return end
+  if not self.tx then
+    self.tx, self.ty = free_spot(ctx, self.rng, self.fw, self.fh)
+    if not self.tx then self.wait = 30 return end
+  end
+  local dx, dy = self.tx - self.x, self.ty - self.y
+  local d = math.sqrt(dx * dx + dy * dy)
+  if d < 2 then self.tx, self.wait = nil, 20 + self.rng:int(0, 60) return end
+  local vx, vy = dx / d * R.TIER_SPEED, dy / d * R.TIER_SPEED
+  local farm = ctx.area.farm
+  local ok_x, ok_y = Body.move(self, vx, vy, ctx.map, function(x, y) return Farm.owns(farm, flr(x / 16), flr((y - 1) / 16)) end)
+  if vx ~= 0 then self.flip = vx < 0 end
+  if (not ok_x or abs(vx) < 0.05) and (not ok_y or abs(vy) < 0.05) then
+    self.stuck = self.stuck + 1
+    if self.stuck > 10 then self.tx, self.stuck = nil, 0 end
+  else
+    self.stuck = 0
+  end
+end
+
+function Tier:draw()
+  local w, h = self.ctx.S.size(self.sprite)
+  self.ctx.S.draw(self.sprite, flr(self.x) - w // 2, flr(self.y) - h + 1, self.flip)
+end
+
+-- Jeden Frame: Tiere der aktiven Reform auf den Hof setzen oder wegnehmen. Gibt die Liste zurück.
+function R.tiere(ctx, clock)
   local akt
-  for _, id in ipairs({"krokodile_frei", "woelfe_frei", "hunde_frei"}) do
-    if R.ist_aktiv(ctx, id) then akt = R.def(id) akt.sprite = id:gsub("_frei", "") break end
+  if ctx.area.farm then
+    for _, id in ipairs({"krokodile_frei", "woelfe_frei", "hunde_frei"}) do
+      if R.ist_aktiv(ctx, id) then akt = R.def(id) break end
+    end
   end
-  if not akt or not (akt.tagsueber or clock:is_night()) then return end
-  local sprite = ({hunde_frei = "tier_hund", woelfe_frei = "tier_wolf", krokodile_frei = "tier_krokodil"})[akt.id]
-  local p = ctx.area.plot
-  for i = 1, 4 do
-    local w, h = p.w * 16, p.h * 16
-    local x = p.x * 16 + (now * (0.4 + i * 0.1) + i * 97) % w
-    local y = p.y * 16 + (i * 83 + 40 + math.sin(now / 40 + i) * 6) % h
-    ctx.S.draw(sprite, flr(x), flr(y), ((now // 90) + i) % 2 == 0)
+  local id = akt and (akt.tagsueber or clock:is_night()) and akt.id or nil
+  local list = ctx.tiere or {}
+  if list.id ~= id then
+    for _, e in ipairs(list) do e.dead = true end
+    list = {id = id}
+    if id then
+      local rng = Rng.new((ctx.seed or 1) * 31 + clock.day)
+      for _ = 1, R.TIERE do
+        local e = setmetatable({ctx = ctx, rng = rng, sprite = SPRITE[id], fw = id == "krokodile_frei" and 20 or 10, fh = 4,
+          reach = 24, wait = rng:int(0, 60), stuck = 0, is_tier = true}, Tier)
+        e.x, e.y = free_spot(ctx, rng, e.fw, e.fh)
+        if e.x then list[#list + 1] = ctx.world:add(e) end
+      end
+    end
+    ctx.tiere = list
   end
+  return list
 end
 
 return R

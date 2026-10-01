@@ -10,6 +10,7 @@ local K = require("game.katalog")
 local H = require("game.horse_model")
 local Rng = require("lib.rng")
 local C = require("game.tests.check")
+local U = require("lib.util")
 
 local function setup()
   Area.clear()
@@ -128,5 +129,30 @@ return {
     local st = Reformen.state(ctx)
     for d = 5, 9 do Days.new_day(ctx, d) end
     for _, a in ipairs(st.aktiv) do C.ok(a.bis >= 9, "Abgelaufenes ist weg") end
+  end},  {"Freie Tiere: nachts auf dem Hof, laufen nicht durch Zäune und Gebäude, tagsüber weg (Hunde)", function()
+    local ctx = setup()
+    local Clock = require("game.clock")
+    local clock = Clock.new(5, 0)
+    aktiv(ctx, "hunde_frei")
+    C.eq(#Reformen.tiere(ctx, clock), 0, "tagsüber keine Hunde")
+    clock.t = Clock.LIGHT + 2000
+    local list = Reformen.tiere(ctx, clock)
+    C.eq(#list, Reformen.TIERE, "nachts vier Hunde")
+    local farm = ctx.area.farm
+    local moved = 0
+    local start = {}
+    for i, e in ipairs(list) do start[i] = {e.x, e.y} end
+    for _ = 1, 1200 do
+      ctx.world:update()
+      for _, e in ipairs(list) do
+        C.ok(require("lib.body").free(ctx.map, e.x, e.y, e.fw, e.fh), "Hund steht nie in einem Hindernis")
+        C.ok(Farm.owns(farm, flr(e.x / 16), flr((e.y - 1) / 16)), "Hund bleibt auf dem Hof")
+      end
+    end
+    for i, e in ipairs(list) do if U.dist(e.x, e.y, start[i][1], start[i][2]) > 16 then moved = moved + 1 end end
+    C.ok(moved >= 3, "Hunde streifen umher (" .. moved .. ")")
+    clock.t = 0
+    C.eq(#Reformen.tiere(ctx, clock), 0, "morgens wieder weg")
+    for _, e in ipairs(list) do C.ok(e.dead, "aus der Welt genommen") end
   end},
 }

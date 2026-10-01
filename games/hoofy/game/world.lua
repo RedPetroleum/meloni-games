@@ -724,6 +724,7 @@ function WorldScene.update()
     toast.t = toast.t - 1
     if toast.t <= 0 then toast = nil end
   end
+  Reformen.tiere(ctx, clock)
   ctx.world:update()
   ctx.fx:update()
   local p = ctx.player
@@ -782,7 +783,6 @@ function WorldScene.draw()
   if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
   Stage.draw_world(ctx, function()
     draw_rope()
-    if ctx.area.farm then Reformen.draw_tiere(ctx, clock, t) end
     if ctx.heim then      -- unterwegs steht das Fahrzeug am Ankunftspunkt
       local st = ctx.area.places.start
       ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)

@@ -366,3 +366,9 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   höher, Tag 96 → 112 bpm, Nacht 56 → 66 bpm, etwas leiser (höhere Töne klingen lauter).
 - Sprechblasen 21 × 18 statt 13 × 13, Symbole 11 × 9 mit dunklem Umriss (Herz, Apfel rot; Blitz, Mond, Glitzer gelb mit
   Goldrand; Zzz blau). Die Spitze des Zipfels bleibt, wo sie war; der Ausruf des Käufers nutzt dieselbe Zeichnung.
+- Freie Tiere (Hunde, Wölfe, Krokodile) sind jetzt Figuren in der Welt statt gemalter Bahnen: 4 Stück, Fußkasten wie
+  Pferde (Krokodil breiter), laufen mit 0,7 px/Frame zu zufälligen freien Punkten auf dem eigenen Land und suchen ein
+  neues Ziel, wenn sie hängen bleiben. Sie verlassen das Grundstück nicht, werden richtig nach Tiefe sortiert und
+  verschwinden morgens. Schaden bleibt wie bisher abstrakt beim Tageswechsel.
+- Laterne hängt an der rechten Hand der Figur (von vorn links im Bild, von hinten rechts, seitlich an der sichtbaren
+  Hand), sichtbar erst ab Dunkelheit 0,45, also zusammen mit dem Lichtkreis; vorher (Tag, früher Abend) nicht.

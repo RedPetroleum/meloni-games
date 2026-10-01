@@ -40,8 +40,8 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Musik/Töne: tiefere Töne weglassen. diese scheppern auf billiger hardware. musik etwas schneller. (0.5.5, E67: nichts unter 440 Hz, Musik eine Oktave höher, ~17 % schneller)
 - [x] Bug beheben: wenn man das spiel speichert und dann schließt und wieder öffnet sind die Pferde plätzlich alle außerhalb der weide! diese sollten da aber noch bleiben. (0.5.5, E67: lose Pferde merken sich ihren Platz)
 - [x] Sprechblasen und emoji größer und deutlicher, sind aktuell zu schwer zu sehen/lesen/versehen. (0.5.5, E67: 21 × 18 statt 13 × 13, Symbole mit Umriss)
-- [ ] Hunde (und vermutlich auch andere Gegner) haben keine kollisionen und ziehen einfach über alles drüber. fixen. 
-- [ ] Die tragbare Laterne soll von der Position bei der rechten hand sein, so als würde man die tragen. am Tag ausblenden. 
+- [x] Hunde (und vermutlich auch andere Gegner) haben keine kollisionen und ziehen einfach über alles drüber. fixen. (0.5.5, E67: echte Figuren mit Fußkasten, auch Wölfe/Krokodile)
+- [x] Die tragbare Laterne soll von der Position bei der rechten hand sein, so als würde man die tragen. am Tag ausblenden. (0.5.5, E67: hängt an der rechten Hand, erst ab dem Lichtkreis)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
@@ -49,6 +49,7 @@ Checklisten des Loops für jede fertige Phase.
 **Version 0.5.5** – Rückmeldungen, siehe E67 (gleiche Firmware wie 0.5.3)
 - [ ] Pferde in die Weide führen, Leine lösen (ohne „Ort“), speichern, beenden, Weiter: stehen sie noch drin?
 - [ ] Töne und Musik: scheppert noch etwas? Tempo passend? Sprechblasen gut zu erkennen?
+- [ ] Hundenacht: laufen die Hunde um Zäune und Gebäude herum? Laterne nachts an der Hand, tagsüber weg?
 
 **Version 0.5.4** – Rückmeldungen, siehe E66 (gleiche Firmware wie 0.5.3)
 - [ ] Baumodus → Land: Cursor springt feldweise, grün = kaufbar, A kauft. Verständlich?

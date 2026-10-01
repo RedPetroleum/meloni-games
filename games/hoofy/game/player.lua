@@ -81,6 +81,11 @@ function Player:draw_shadow()
   rectfill(x - 3, y - 2, x + 3, y + 1, c)
 end
 
+-- Laterne: linke obere Ecke relativ zum Fußpunkt je Blickrichtung. Rechte Hand: von vorn links im Bild, von
+-- hinten rechts; seitlich die sichtbare Hand. Der Bügel oben liegt in der Hand.
+local LANTERN = {down = {-10, -10}, up = {3, -10}, right = {-4, -9}, left = {-2, -9}}
+local LANTERN_DARK = 0.45
+
 function Player:draw()
   if self.riding then return end   -- der Reiter wird mit dem Pferd gezeichnet
   local S = self.ctx.S
@@ -88,16 +93,18 @@ function Player:draw()
   local phase = self.moving and flr(self.anim) % 4 or 0
   local step = (phase == 1 or phase == 3) and 2 or 1
   local x, y = flr(self.x), flr(self.y)
-  -- Laterne (wenn gekauft) ab der Dämmerung hochgehalten; von hinten verdeckt sie die Figur nicht
-  local lantern = (self.ctx.inv.laterne or 0) > 0 and self.ctx.clock and self.ctx.clock:darkness() > 0.2
-  local lx = self.dir == "left" and x - 12 or x + 5
-  if lantern and self.dir == "up" then S.draw("laterne", lx, y - 24) end
+  -- Laterne (wenn gekauft) hängt an der rechten Hand der Figur (Rückmeldung 0.5.5), nur wenn es dunkel ist, also
+  -- ab da, wo der Lichtkreis beginnt (Stage.SIGHT_FROM); tagsüber und am frühen Abend nicht.
+  local lantern = (self.ctx.inv.laterne or 0) > 0 and self.ctx.clock and self.ctx.clock:darkness() >= LANTERN_DARK
   if self.dir == "left" or self.dir == "right" then
     S.draw(names.side[step], x - 6, y - 19, self.dir == "left")
   else
     S.draw(names[self.dir][step], x - 6, y - 19, phase == 3)
   end
-  if lantern and self.dir ~= "up" then S.draw("laterne", lx, y - 24) end
+  if lantern then
+    local o = LANTERN[self.dir]
+    S.draw("laterne", x + o[1], y + o[2])
+  end
 end
 
 return Player
