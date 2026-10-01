@@ -515,3 +515,5 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Beete: Das leere Beet ist jetzt helle, gepflügte Erde ohne Grün (vorher das Möhrenbeet, sah bepflanzt aus). Unter
   jeder gesäten Pflanze liegt in allen Stufen ein dunkler, feuchter Erdhügel.
 - Füttern: unten steht zum gewählten Futter „Heu: Hunger -30“ (die Anzahl steht weiter auf der Kachel).
+- Leine: zwei Pferde am Strick statt einem (E65 geändert: 1 → 2, Wunsch des Menschen). Frei folgende zählen weiter
+  nicht, zusammen höchstens 4. Jedes Pferd am Strick würfelt fürs Ausreißen für sich.

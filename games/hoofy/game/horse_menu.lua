@@ -235,7 +235,7 @@ function HM:act(id)
     self:close()
   elseif id == "take" then
     if not wild:can_lead(h) then
-      say("Du führst schon ein Pferd. " .. d.name .. " bleibt im Stall.")
+      say("Du führst schon zwei Pferde. " .. d.name .. " bleibt im Stall.")
     else
       wild:take_out(h)
       say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
@@ -249,7 +249,7 @@ function HM:act(id)
     elseif wild:attach(h) then
       say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
     else
-      say("Du führst schon ein Pferd. Mehr als eins passt nicht an die Leine.")
+      say("Du führst schon zwei Pferde. Mehr passen nicht an die Leine.")
     end
     self:close()
   elseif id == "mount" then

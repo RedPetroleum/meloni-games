@@ -94,4 +94,19 @@ return {
     for _ = 1, 200 do ctx3.world:update() end
     C.eq(w3:whistle(), 0, "Bindung 75 kommt nicht auf Pfiff")
   end},
+  {"Zwei Pferde am Strick, das dritte bleibt lose; frei folgende zählen nicht (Rückmeldung 1.3.2)", function()
+    local ctx = Stage.build(1)
+    local w = Wild.new(ctx, 3)
+    w.count = 0
+    local a = w:add_own({rasse = "haflinger", name = "A", bindung = 40})
+    local b = w:add_own({rasse = "haflinger", name = "B", bindung = 40})
+    local c = w:add_own({rasse = "haflinger", name = "C", bindung = 40})
+    local f = w:add_own({rasse = "haflinger", name = "F", bindung = 80})
+    C.ok(w:attach(a) and a.state == "led")
+    C.ok(w:attach(b) and b.state == "led", "zweites am Strick")
+    C.ok(not w:attach(c), "drittes passt nicht")
+    C.eq(c.state, "free")
+    C.ok(w:attach(f) and f.state == "follow", "frei folgendes geht trotzdem")
+    C.eq(w:led_count(), 2)
+  end},
 }

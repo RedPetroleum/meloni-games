@@ -136,3 +136,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 23:14 | Rückmeldungen 1.3.0 | fertig | 9 Rückmeldungen (E78): Schmuck sichtbar/teurer, Stall von innen, Zähmen schwerer, Apfelbaum/Hacke, Job-Minispiele, Göpel-Pferde, Fohlen im Stall; SELFTEST OK 248, make test grün | Hoofy 1.3.0
 2026-10-01 23:26 | Rückmeldung Zucht hängt | fertig | Endlosschleife in Breeding.ensure_id bei Pferden ohne Kennung (gezähmt, nie geladen), Selbsttest hängt ohne Fix; versteckte Farbe nicht mehr in der Info; SELFTEST OK 249 | Hoofy 1.3.1 (nicht gepusht)
 2026-10-01 23:46 | Rückmeldungen 1.3.2 | fertig | Feld weg (alte Felder → Beete), Namen nie doppelt, Verkauf mit Rückfrage und Ausrüstung zurück, Beete erkennbar, Hunger beim Füttern (E79); SELFTEST OK 254 | Hoofy 1.3.2 (nicht gepusht)
+2026-10-01 23:51 | Rückmeldung zwei an der Leine | fertig | Leash.MAX_LED 2, Meldungen, Selbsttest; SELFTEST OK 255 | Hoofy 1.3.2 (nicht gepusht)
