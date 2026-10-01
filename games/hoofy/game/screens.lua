@@ -113,7 +113,7 @@ end
 -- ---- Pferde-Info (Rückmeldung 0.5.3: aufgeräumt, Balken mit Unterteilung alle 20) ----
 
 local BAR_X, BAR_W = 150, 120          -- Balken: 100 Punkte = 120 px
-local SKILL_COL = C.gold               -- Fähigkeiten: Überschrift, Balken, Zahl
+local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Blau; Gold bleibt Geld und Titeln)
 local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
