@@ -11,6 +11,15 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Phase C (Version 0.3.0)** – Hofbau, Bedienung E8, E32–E51
+- [ ] START → Bauen (oder am Hof): Cursor mit Steuerkreuz, B halten + Pfeile wählt Kategorie/Bauteil, A baut. Nachvollziehbar?
+- [ ] Zäune/Tore schließen eine Weide (grüne Punkte, „Weide n Plätze“); Pferd auf die Weide, Umbau setzt Pferde um.
+- [ ] Gebäude (Ställe S–XL, Häuschen, Villa, Schuppen, Garage, Hangar): Stalltür/Bett wirken auch bei neuen Bauten.
+- [ ] Schönheit-Anzeige unten rechts; Bindungsbonus nach dem Schlafen.
+- [ ] Anbau: Beet bauen, Samen aus dem Laden pflanzen, nach Tagen A zum Ernten, Ernte im Füttern-Menü.
+- [ ] Göpel-Generator bauen: am nächsten Tag Geld bei starken, ausgeruhten Pferden auf dem Hof?
+- [ ] Land kaufen (Kategorie „Land“): Preise 500 + 250 je Stück, Karte/Grundstücksrahmen wächst. Ruckelt der Baumodus?
+
 **Phase B (Version 0.2.0)** – Wirtschaft und Zucht
 - [ ] Im Dorf: Laden (Futter, Sättel, Zubehör, Schmuck, Samen), Pferdemarkt (4 Pferde, Preise), Jobbrett. A an Tür bzw. Stand.
 - [ ] Am Hoftor steht tagsüber ein Käufer mit ❗: A, Pferd markieren, Preis und Spruch ansehen, verkaufen. Stimmen die Folgen (Bindung der übrigen)?
@@ -235,7 +244,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest.
 - [x] **C7 Land kaufen**: 10×10-Stücke, steigender Preis, bis zum ganzen Startgebiet. (E51; Selbsttest, 173 grün; Baumodus-Bild nicht im Shot geprüft)
   Prüfung: Selbsttest Preise; Screenshot Grundstücksgrenze.
-- [ ] **C-Ende**: Cover, version 0.3.0, Konsolen-Checkliste, Push.
+- [x] **C-Ende**: Cover, version 0.3.0, Konsolen-Checkliste, Push.
 
 ### D Welt
 

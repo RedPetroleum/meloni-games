@@ -80,3 +80,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 08:44 | Push 741a117 | Release | CI success, Manifest commit 741a117, Hoofy 0.2.0 | –
 2026-10-01 08:44 | C7 Land kaufen | begonnen | – | –
 2026-10-01 08:45 | C7 Land kaufen | fertig | Streifen/Preise/Kartenrand/Bauen auf neuem Land, SELFTEST OK 173 | Hoofy C7
+2026-10-01 08:47 | C-Ende | begonnen | – | –
+2026-10-01 08:47 | C-Ende | fertig | Cover (Anbau Tag 4), 0.3.0, Checkliste, README, SELFTEST 173 | Hoofy Phase C
