@@ -147,15 +147,23 @@ local FILL_LINE = {
   [STATE_COL] = rgb(0x70, 0xa4, 0xc1), [C.red] = rgb(0xb2, 0x37, 0x47),
 }
 
--- Einschnürung alle 20 Punkte (wirkt leicht abgerundet): oben und unten je ein Pixel in Hintergrundfarbe, dazwischen
--- eine Linie in der Farbe passend zum Untergrund. frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe}}
+-- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze und an den Enden abgerundete Ecken in Hintergrundfarbe,
+-- dazwischen eine Linie in der Farbe passend zum Untergrund. frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe}}
 -- der gefüllten Abschnitte in den inneren Zeilen.
+local function round_ends(x, dir, y, bg)    -- Balkenende abrunden: dir 1 = linkes Ende, -1 = rechtes
+  pset(x, y, bg) pset(x + dir, y, bg) pset(x, y + 1, bg)
+  pset(x, y + 8, bg) pset(x + dir, y + 8, bg) pset(x, y + 7, bg)
+end
+
 local function notches(y, th, frame_x, fills)
+  round_ends(BAR_X, 1, y, th.bg)
+  round_ends(BAR_X + BAR_W - 1, -1, y, th.bg)
   for v = 20, 80, 20 do
     local x = bx_of(v)
-    pset(x, y, th.bg)
-    pset(x, y + 8, th.bg)
-    line(x, y + 1, x, y + 7, x < frame_x and th.talent_line or th.track_line)
+    -- „)(“: an der Grenze oben und unten drei Pixel breit und eins tief ausgespart
+    pset(x - 1, y, th.bg) pset(x, y, th.bg) pset(x + 1, y, th.bg) pset(x, y + 1, th.bg)
+    pset(x - 1, y + 8, th.bg) pset(x, y + 8, th.bg) pset(x + 1, y + 8, th.bg) pset(x, y + 7, th.bg)
+    line(x, y + 2, x, y + 6, x < frame_x and th.talent_line or th.track_line)
     for _, f in ipairs(fills) do
       if x >= f[1] and x <= f[2] then line(x, y + 2, x, y + 6, FILL_LINE[f[3]] or f[3]) end
     end
