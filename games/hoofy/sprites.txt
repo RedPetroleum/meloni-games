@@ -87,8 +87,16 @@ recolor horse gold h=e8b820 H=ffe070 b=b88a10 u=fff0a0 U=ffe8a0
 recolor horse lila h=a070d8 H=c8a0f0 b=7848b0 u=f0c0ff U=e8d8ff
 recolor horse regenbogen h=f4f0f8 H=ffffff b=d8d0e8 u=ec5fb4 U=ffe8f4
 
+# Gebiete (KATALOG §10): land_… ist das Heimattal; jedes weitere Gebiet färbt Wiese (g G d), Laub (f F l),
+# Steine (o O p), Weg (e E j) und Sand (s S) um. Wiese und Kartenfarben stehen auch in game/tiles.lua (PALETTES).
+recolor land birke g=4f8a42 G=64a052 d=3c6e33 f=3e7a36 F=2a5a26 l=62a050 o=8c968a O=b6c0b4 p=5e685e e=b49a6c E=94784c j=ccb488 s=d8cc9c S=bcae7e
+recolor land aue g=4fa082 G=6cbc9c d=3a846a f=2f7c66 F=1f5c4c l=56a88a o=8a9cac O=b8c8d4 p=5e7080 e=c8b48a E=a8946a j=dccaa0 s=e4dcb4 S=c8bf94
+recolor land steppe g=c9b858 G=ddd07a d=a89844 f=7f8c3a F=5c6a2a l=a4b056 o=b0a48c O=d4cab0 p=847a64 e=c49a62 E=a07a48 j=dab47e s=f0e0a8 S=d6c48a
+recolor land canyon g=c47a4a G=d99a66 d=a25e36 f=6f7e44 F=4e5c30 l=93a462 o=b46a4e O=d48e70 p=86462e e=e2b484 E=c49264 j=f0caa0 s=f0cc96 S=d6ae74
+recolor land nebel g=8f72b0 G=a890c8 d=725892 f=4c5c9a F=343f74 l=7488c4 o=a8a4b8 O=d0ccdc p=7a7690 e=c4b4cc E=a494b0 j=dccfe2 s=e6deea S=cabfd6
+
 # Weg, zwei Varianten gegen Wiederholung
-sprite ground_path1
+sprite land_path1
 jeeeeeeeEEeeeEee
 eeeEEeeeeeEeeeee
 eeeEeeeeeejeeeee
@@ -106,7 +114,7 @@ eeeeeeeeeeeeEjee
 eeeeeeeeeejejEEe
 eeeeeeeeEeeeeeee
 
-sprite ground_path2
+sprite land_path2
 eeEjeeeeeeejeeee
 eeeeEEeeeeeeeEej
 eeeeeeeeeeeeejee
@@ -125,7 +133,7 @@ eeeejjjeeeeEeeee
 eeeeeeeeeeeeeeee
 
 # Koppel
-sprite ground_sand1
+sprite land_sand1
 sssssSSsssssssss
 sssssSsssSssssss
 sssssjssssssssss
@@ -143,7 +151,7 @@ ssSsssssssssssss
 sssssssssSssSsss
 sssSSjjSssSsssss
 
-sprite ground_sand2
+sprite land_sand2
 sjssSssssssssjss
 sssssssssjsssssj
 sssssssssssssssS
@@ -237,17 +245,17 @@ NNNNNNNNNNNNNNNN
 nnnnnNNnnnnnNnnn
 
 # Grasrand an Kanten zu Gras (n/s/w/e)
-sprite fringe_n
+sprite land_fringe_n
 ggdgdgddgddgddgg
 .ddg...gg.g..ggg
 .g.g...g
 
-sprite fringe_s
+sprite land_fringe_s
 .g.g...g
 .ddg...gg.g..ggg
 ggdgdgddgddgddgg
 
-sprite fringe_w
+sprite land_fringe_w
 g
 gdg
 dd
@@ -265,7 +273,7 @@ dg
 gg
 gg
 
-sprite fringe_e
+sprite land_fringe_e
 ..g
 gdg
 .dd
@@ -284,7 +292,7 @@ ggd
 .gg
 
 # Ufer
-sprite bank_n
+sprite land_bank_n
 dddggdgdggdgddgg
 NNnnNnNnnNnnnNNn
 NnNnnnnNnnNNnnnn
@@ -292,12 +300,12 @@ NNnnnnNNNNnNNNnN
 NNNNNNNNNNNNNNNN
 QQ.Q..Q.Q..QQ..Q
 
-sprite bank_s
+sprite land_bank_s
 .QQQQQQQQQ..QQ
 gddgdddgdggdggdg
 gggggggggggggggg
 
-sprite bank_w
+sprite land_bank_w
 gg
 gd
 gg
@@ -315,7 +323,7 @@ gdQ
 ggQ
 gd
 
-sprite bank_e
+sprite land_bank_e
 .gg
 .dg
 .gg
@@ -334,34 +342,34 @@ Qgg
 .dg
 
 # Deko auf dem Gras
-sprite deco_tuft
+sprite land_tuft
 ..G..
 G.G.G
 dGdGd
 
-sprite deco_tuft2
+sprite land_tuft2
 .G.G
 dGdG
 .d.d
 
-sprite deco_flower_p
+sprite land_flower_p
 .P.
 PYP
 .P.
 .d.
 
-sprite deco_flower_y
+sprite land_flower_y
 .Y.
 YVY
 .Y.
 .d.
 
-sprite deco_pebble
+sprite land_pebble
 .O.
 oop
 
 # Baum: Stamm unten Mitte, steht auf dem Feld darunter
-sprite tree
+sprite land_tree
 .............kkkkkk
 ..........kkkllllllkkk
 .........klllllllllllfk
@@ -402,7 +410,7 @@ kffffffffFFFlffffffffffffFFFFFFk
 ...........kNNnNNNNNk
 ............kkkkkkkk
 
-sprite bush
+sprite land_bush
 ......kkllllkk
 .....klllllllfk
 ...kklllllflfflkk
@@ -419,7 +427,7 @@ klfffffFFFfffFFFFFFk
 ...kkFFFFkkFFFFkk
 .....kkkk..kkkk
 
-sprite rock
+sprite land_rock
 ...kkOOOOkk
 ..kOOOOOOOOk
 .kOOOOOOOoook
@@ -1067,7 +1075,7 @@ DDDDDDD
 # Hoofy: Wald (Blätterdach, fest), Brücke längs, Dorf (Laden, Wohnhaus per recolor, Marktstand, Jobbrett, Hindernis)
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
 
-sprite ground_forest1
+sprite land_forest1
 fffffffFFfffffFF
 fffffffFFfffffFF
 FfffffFFfFFFFFFF
@@ -1085,7 +1093,7 @@ flllffFfflllfffl
 flllfffFfllffffF
 flllfffFfffffffF
 
-sprite ground_forest2
+sprite land_forest2
 fffffFFFFfllffff
 fffffFFFFfflffff
 ffffFFFFFfffffff
@@ -1103,7 +1111,7 @@ lffffFFfffFFFlll
 lffffFFFFFFFflll
 lffffFFFFFllffll
 
-sprite ground_forest3
+sprite land_forest3
 ffffFFFFFFFFffff
 ffffFFFFFFFFFfff
 fffFFFFfFFFFFFff
@@ -1121,7 +1129,7 @@ lffffFFfffffflll
 lfffFFfFFfffflll
 ffffFFFFFFFFffll
 
-sprite ground_forest4
+sprite land_forest4
 ffffffffffFFffFf
 ffffffffffFFffff
 lFfffFFfFFFlllfl
@@ -2690,25 +2698,221 @@ oooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooo
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 
-sprite fahrzeug
+# Fahrzeuge (KATALOG §10): Zugfahrzeug von der Seite, Front links; Anhänger mit Deichsel links, ein Fenster je Platz.
+sprite fahrzeug_fahrrad
+....kkkkk...............
+......k.....kkkkk.......
+....kYk......kk.........
+.......k......B....wwww.
+...kkkkBXXXXXXXBkkkkkkkk
+..kkk.BkB....B.Bkk.kkk..
+.kkp..BpkB...BkkB.k.pkk.
+kk..p.B..kB..Bk..Bkp..kk
+kk..pBp..kB..Bk..Bkp..kk
+kppppBppppkBBkppBBBppppk
+kk..p.p..kk.XXXXXXXp..kk
+kk..p.p..kk..kk..p.p..kk
+.kkp...pkk....kkp...pkk.
+..kkk.kkk......kkk.kkk..
+...kkkkk........kkkkk...
+
+sprite fahrzeug_mofa
+...kkkkkkk...............
+.kkkk...k................
+.kVYk..k....kuuuuuuuuk...
+.kYYk.kpkk..kkkkkkkkkk...
+.kkkk.kpmk...kkkkkkkkkkk.
+......pMmk...kMMMMMMMMMk.
+......pMmk...kmmmmmmmmmDD
+...kkkpMmk...kmmmmmmmmmDD
+..kkiipMmkkkkkkmmmmmmmmk.
+.kkiipkMmkMMMMkmmmmmmmmk.
+.kiiOpkkkkmmmmkkkkkkkkkk.
+.kiOOpOkkkkkkkkkpppppppk.
+.kiiOOOiik.....kiiOOOpppp
+.kkiiOiikk.....kkiiOiikk.
+..kkiiikk.......kkiiikk..
+...kkkkk.........kkkkk...
+
+sprite fahrzeug_kleinwagen
+..................................
+............kkkkkkkkkkkkkkkkkkk...
+............kRRRRRRRRRRRRRRRRRR...
+..........QQrQQQQQQQrQQQQQrrrrrk..
+..........QrQQQQQQQQrQQQQQrrrrrrD.
+.........krqqqqqqqqqrqqqqqrrrrrrD.
+........krqqqqqqqqqqrqqqqqrrrrrrD.
+....kkkkkkrrrrrrrrrrrrrrrrrrrrrrD.
+..kkrRRRRRRRRRRRRRRRxRRRRRRRRRRRk.
+.YYYrkkkkkrrrrrrrkkrxrrrkkkkkrrrk.
+.YYYkkiiikkrrrrrrrrrxrrkkiiikkrrk.
+.krkkiiOiikkrrrrrrrrxrkkiiOiikkrk.
+pppkiiOOOiikrrrrrrrrxrkiiOOOiikppp
+pppkiOOpOOikxxxxxxxxxxkiOOpOOikppp
+.kxkiiOOOiikxxxxxxxxxxkiiOOOiikxk.
+.kkkkiiOiikkkkkkkkkkkkkkiiOiikkkk.
+....kkiiikk............kkiiikk....
+.....kkkkk..............kkkkk.....
+
+sprite fahrzeug_suv
+................................................
+.............kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.....
+.............kippppppppppppppppppppppppppiik....
+............kizzzzzzzQzziizzzzzzzQziizzzzzzz....
+...........kizzzzzzzQzzziizzzzzzQzziizzzzzzzk...
+..........kizzzzzzzQzzzziizzzzzQzzziizzzzzzQk...
+.........kizzzzzzzzQzzzziizzzzzQzzziizzzzzQzk...
+........kizzzzzzzzQzzzzziizzzzQzzzziizzzzQzzk...
+.......kizzzzzzzzQzzzzzziizzzQzzzzziizzzQzzzk...
+......kiiiiiOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO..
+...ppppppppppiiiiiiiiiiiikiiiiiiiiikiiiiiiiiiik.
+.VVVVVppppkppppppppppppppkpppppppppkppkpppppDDD.
+.OQQQQQkk...kkiiiiiiiiiiikiiiiiiiiikk...kkiiDDD.
+.iiiiik.kkkkk.kiiiOOOiiiikiOOOiiiik.kkkkk.kiDDD.
+.OOOik.kkkkkkk.kiiOOOiiiikiiiiiiik.kkkkkkk.kiDD.
+.iiik.kkkpppkkk.kiiiiiiiikiiiiiik.kkkpppkkk.kik.
+.OOOkkkkpOpOpkkkkuuuuuuuukuuuuuukkkkpOpOpkkkkuk.
+pppp.kkppOVOppkk.iiiiiiiikiiiiii.kkppOVOppkk.ppp
+pppk.kkppVVVOpkk.kiiiiiiikiiiiik.kkppVVVOpkk.kpp
+pppp.kkpOpVpOpkk.OOOOOOOOOOOOOOO.kkpOpVpOpkk.ppp
+.....kkkppOppkkk.................kkkppOppkkk....
+......kkkpppkkk...................kkkpppkkk.....
+.......kkkkkkk.....................kkkkkkk......
+........kkkkk.......................kkkkk.......
+
+sprite fahrzeug_flugzeug
+..................................................................
+..................................................................
+........................................................kkkkk.....
+.......................................................kVVVVk.....
+.......................................................krrrrk.....
+.p....................................................kVrrrrk.....
+.p....................................................kVrrrrk.....
+.p..........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk........kVVVVVVk.....
+.p..........kOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOk.......kVVVVVVVk.....
+.p..........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.......kVVVVVVVk.....
+.p......kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.......kVVVVVVVVk.....
+.pkkkkkkkkVVVkQQQQQQQQQkQQQQQQQQQkVVVkVVVVVVkkkkkkkkVVVVVVVVk.....
+.pkVVVVVVkVVVkQQQQQQQQQkQQQQQQQQQkVVkVVVVVVVVVVVVVkVVVVVVVVVk.....
+kpkVVVVVVkVVVkqqqqqqqqqkqqqqqqqqqkkkVVVVVVVVVVVVVVkOOOOOOOOOOOOOk.
+kkkVVVVVVkVVVkkkkkkkkkkkkkkkkkkkkkVVVVVVVVVVVVVVVVkkkkkkkkkkkkkkk.
+kpkVVVVVVkVVVVVVVVVVVVVVVVVVVVVVkVVVVVVVVVVVVVVVVVVVVkkkk.........
+kpkrrrrrrkrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr.......
+.pkxxxxxxkxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...............
+.pkkkkkkkkVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkkkk.....................
+.p......kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.........................
+.p.......kk..................kkk..................................
+.p.......kkk...................kkk................................
+.p......kiiik.................kiiik...............................
+.p.....kiOOOik...............kiOOOik..............................
+.p.....kiOpOik...............kiOpOik..............................
+.......kiOOOik...............kiOOOik..............................
+........kiiik.................kiiik...............................
+.........kkk...................kkk................................
+
+sprite anhaenger_1
+........................
+........................
+........................
+.........kkkkkkkkkkkkkkk
+........kppppppppppppppk
+.......kOVVVVVVVVVVkVVVk
+......kOVVkkkkkkVVVkVVVk
+.....kOVVVkQQzzkVVVkVVVk
+....kOVVVVkzzzzkVVVkVpVk
+....kVVVVVkkkkkkVVVkVVVk
+....kVVVVVVVVVVVVVVkVVVk
+....kVVVVVVVVVVVVVVkVVVk
+....kBBBBBBBBBBBBBBkBBBk
+....kWWWWWWWWWWWWWWkWWWk
+....kWWWWWWWWWWWWWWkWWWk
+kk..kwwwwwwwwwwwwwwkwwwk
+kkkkkWWWWWWWWWWWWWWkWpWk
+kkkkkWWWWWWWWkkkWWWkWWWk
+...pkvvvvvvvkiiikvvkvvvk
+...pkkkkkkkkiOOOikkkkkkk
+...p.......kiOpOik......
+..kkk......kiOOOik......
+............kiiik.......
+.............kkk........
+
+sprite anhaenger_2
 ................................
 ................................
 ................................
-.kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.
-.kRRRRRRRRRRRRRRRRRRRRRRRRRRRRk.
-.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
-.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
-.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
-.krrQQQQQQrrQQQQQQrrrQQQQQQrrrk.
-.kxxxxxxxxxxxxxxxxxxxxxxxxxxxxk.
-.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
-.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
-.krrrrrrrrrrrrrrrrrrrrrrrrrrrrk.
-kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-....kkkkkk............kkkkkk....
-....kppppk............kppppk....
-....kppppk............kppppk....
-....kkkkkk............kkkkkk....
+.........kkkkkkkkkkkkkkkkkkkkkkk
+........kppppppppppppppppppppppk
+.......kOVVVVVVVVVVVVVVVVVVkVVVk
+......kOVVkkkkkkVVkkkkkkVVVkVVVk
+.....kOVVVkQQzzkVVkQQzzkVVVkVVVk
+....kOVVVVkzzzzkVVkzzzzkVVVkVpVk
+....kVVVVVkkkkkkVVkkkkkkVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kBBBBBBBBBBBBBBBBBBBBBBkBBBk
+....kWWWWWWWWWWWWWWWWWWWWWWkWWWk
+....kWWWWWWWWWWWWWWWWWWWWWWkWWWk
+kk..kwwwwwwwwwwwwwwwwwwwwwwkwwwk
+kkkkkWWWWWWWWWWWWWWWWWWWWWWkWpWk
+kkkkkWWWWWWWWWWWWkkkWWWWWWWkWWWk
+...pkvvvvvvvvvvvkiiikvvvvvvkvvvk
+...pkkkkkkkkkkkkiOOOikkkkkkkkkkk
+...p...........kiOpOik..........
+..kkk..........kiOOOik..........
+................kiiik...........
+.................kkk............
+
+sprite anhaenger_3
+........................................
+........................................
+........................................
+.........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+........kppppppppppppppppppppppppppppppk
+.......kOVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+......kOVVkkkkkkVVkkkkkkVVkkkkkkVVVkVVVk
+.....kOVVVkQQzzkVVkQQzzkVVkQQzzkVVVkVVVk
+....kOVVVVkzzzzkVVkzzzzkVVkzzzzkVVVkVpVk
+....kVVVVVkkkkkkVVkkkkkkVVkkkkkkVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBkBBBk
+....kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWWWk
+....kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWWWk
+kk..kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwkwwwk
+kkkkkWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWpWk
+kkkkkWWWWWWWWWWWWkkkWWWWWkkkWWWWWWWkWWWk
+...pkvvvvvvvvvvvkiiikvvvkiiikvvvvvvkvvvk
+...pkkkkkkkkkkkkiOOOikkkiOOOikkkkkkkkkkk
+...p...........kiOpOik.kiOpOik..........
+..kkk..........kiOOOik.kiOOOik..........
+................kiiik...kiiik...........
+.................kkk.....kkk............
+
+sprite anhaenger_4
+................................................
+................................................
+................................................
+.........kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+........kppppppppppppppppppppppppppppppppppppppk
+.......kOVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+......kOVVkkkkkkVVkkkkkkVVkkkkkkVVkkkkkkVVVkVVVk
+.....kOVVVkQQzzkVVkQQzzkVVkQQzzkVVkQQzzkVVVkVVVk
+....kOVVVVkzzzzkVVkzzzzkVVkzzzzkVVkzzzzkVVVkVpVk
+....kVVVVVkkkkkkVVkkkkkkVVkkkkkkVVkkkkkkVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVkVVVk
+....kBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBkBBBk
+....kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWWWk
+....kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWWWk
+kk..kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwkwwwk
+kkkkkWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWkWpWk
+kkkkkWWWWWWWWWWWWWWWWkkkWWWWWkkkWWWWWWWWWWWkWWWk
+...pkvvvvvvvvvvvvvvvkiiikvvvkiiikvvvvvvvvvvkvvvk
+...pkkkkkkkkkkkkkkkkiOOOikkkiOOOikkkkkkkkkkkkkkk
+...p...............kiOpOik.kiOpOik..............
+..kkk..............kiOOOik.kiOOOik..............
+....................kiiik...kiiik...............
+.....................kkk.....kkk................
 
 sprite tier_hund
 ..........kk....

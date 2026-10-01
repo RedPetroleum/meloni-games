@@ -383,8 +383,16 @@ function Screens.shop(ctx)
     local cur = list[sel]
     if cur then
       rectfill(0, 172, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
+      -- Fahrzeuge und Anhänger mit Bild rechts im Kasten
+      local pic = cur.fahrzeug and "fahrzeug_" .. cur.id or cur.anhaenger and "anhaenger_" .. cur.anhaenger
+      local pw = 0
+      if pic then
+        local w, h = ctx.S.size(pic)
+        pw = w + 10
+        ctx.S.draw(pic, SCREEN_W - 6 - w, 211 - h)
+      end
       local t = (cur.text:gsub("−", "-"))
-      local lines = require("lib.util").wrap(t, SCREEN_W - 16)
+      local lines = require("lib.util").wrap(t, SCREEN_W - 16 - pw)
       for i, line in ipairs(lines) do if i <= 4 then print(line, 8, 176 + (i - 1) * 10, C.dim) end end
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
@@ -424,6 +432,11 @@ function Screens.reise(ctx, go)
       y = y + 14
     end
     if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 10, y, C.dim) end
+    local f = Economy.fahrzeug(ctx)
+    if f.preis > 0 then
+      local w = Reise.rig_width(ctx.S, f.id, Economy.plaetze(ctx))
+      Reise.draw_rig(ctx.S, f.id, Economy.plaetze(ctx), (SCREEN_W - w) // 2, 182)
+    end
     print("Mitgenommen: " .. #ctx.lead .. " Pferd(e) an der Leine", 10, 190, C.dim)
     if msg and msg_t > 0 then print(msg, 10, 204, C.red) end
     footer("A: losfahren   B: zurück")
@@ -1031,11 +1044,11 @@ end
 
 -- Bild eines Bauteils für das Kachelmenü
 local BUILD_ICON = {
-  weg = "ground_path1", boden = "ground_sand1", beet = "ground_carrots", feld = "ground_carrots",
+  weg = "land_path1", boden = "land_sand1", beet = "ground_carrots", feld = "ground_carrots",
   zaun = "fence_post",
 }
 local CAT_ICON = {
-  deko = "blumenkuebel", wege = "ground_path1", anbau = "ground_carrots", pflanzen = "pflanze_karotte_3",
+  deko = "blumenkuebel", wege = "land_path1", anbau = "ground_carrots", pflanzen = "pflanze_karotte_3",
   zaun = "gate", gebaeude = "stable", land = "ico_karte", abriss = "cursor_bad",
 }
 local function build_icon(cat, id)

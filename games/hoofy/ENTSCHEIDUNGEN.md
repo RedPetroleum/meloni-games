@@ -372,3 +372,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   verschwinden morgens. Schaden bleibt wie bisher abstrakt beim Tageswechsel.
 - Laterne hängt an der rechten Hand der Figur (von vorn links im Bild, von hinten rechts, seitlich an der sichtbaren
   Hand), sichtbar erst ab Dunkelheit 0,45, also zusammen mit dem Lichtkreis; vorher (Tag, früher Abend) nicht.
+
+## E68 Fahrzeug-Sprites und Gebietsfarben (Rückmeldung nach 0.5.5)
+- Eigene Sprites für Fahrrad, Mofa, Kleinwagen (kompakt wie ein Golf), Luxus-SUV (schwarz, Chrom, getönte Scheiben)
+  und Flugzeug sowie für die Anhänger mit 1–4 Plätzen (ein Fenster je Platz). Das Gespann steht rechts neben seinem
+  Platz (zu Hause neben der Tür von Schuppen/Garage/Hangar, unterwegs neben dem Ankunftspunkt), damit es Tür und
+  Spieler nicht verdeckt; es wird nach Tiefe sortiert. Laden (Reiter Fahrzeuge) und Reisemenü zeigen das Bild.
+- Gebiete nur per recolor: Wiese, Wald, Bäume, Büsche, Steine, Deko, Wege, Sand, Ufer- und Wegränder heißen `land_…`;
+  jedes Gebiet hat eine recolor-Zeile in sprites.txt (birke, aue, steppe, canyon, nebel) und `Tiles.set_palette`
+  schaltet die Namen um. Wasser, Brücken und Hofbauten bleiben gleich.

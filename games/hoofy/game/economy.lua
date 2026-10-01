@@ -47,7 +47,7 @@ function E.catalog(maxgebiet)
   for _, f in ipairs(K.welt.fahrzeuge) do
     if f.preis > 0 then
       list[#list + 1] = {id = f.id, name = f.name, preis = f.preis, kat = "fahrzeuge", einmalig = true, fahrzeug = f,
-        text = "Erreicht Gebiet 1–" .. f.gebiete .. ", Fahrtkosten " .. f.fahrtkosten .. " je Gebiet Entfernung."}
+        text = "Erreicht Gebiet 1 bis " .. f.gebiete .. ", Fahrtkosten " .. f.fahrtkosten .. " je Gebiet Entfernung."}
     end
   end
   for _, a in ipairs(K.welt.anhaenger) do

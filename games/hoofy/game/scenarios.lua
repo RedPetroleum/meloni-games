@@ -77,6 +77,34 @@ function Scenarios.reise(save)
   return "world", {fahrt = true}
 end
 
+-- Gebiet: am Ankunftspunkt von Gebiet save.gebiet (Standard 2) mit Gespann aus save.fahrzeug und
+-- Anhänger für save.anhaenger Pferde, z. B. SCENARIO_OPTS='gebiet = 5, fahrzeug = "suv", anhaenger = 4'.
+-- save.blick = true: statt am Ankunftspunkt an der Stelle mit dem meisten Wald, Wasser und Weg
+-- (zum Ansehen der Gebietsfarben).
+function Scenarios.gebiet(save)
+  local nr = save.gebiet or 2
+  local arg = {gebiet = nr, fahrzeug = save.fahrzeug or "suv", anhaenger = save.anhaenger or 2}
+  if save.blick then
+    local map = require("game.area").get(nr).map
+    local best = -1
+    for cy = 7, map.h - 8, 3 do
+      for cx = 10, map.w - 11, 3 do
+        local n = {}
+        for y = cy - 7, cy + 6 do
+          for x = cx - 10, cx + 9 do
+            local c = map:code(x, y)
+            n[c] = (n[c] or 0) + 1
+          end
+        end
+        local score = math.min(n.F or 0, 60) + 2 * math.min(n["~"] or 0, 25) + 2 * math.min(n[":"] or 0, 20)
+          + math.min(n["."] or 0, 80)
+        if score > best then best, arg.cx, arg.cy = score, cx, cy end
+      end
+    end
+  end
+  return "world", arg
+end
+
 -- Schatzsuche (D3): Reiter nahe eines Schatzes, ohne Eingabe; Drehbuch nicht nötig (--shots 30,90,150,300).
 function Scenarios.schatz(save)
   return "world", {schatz = true}

@@ -28,7 +28,6 @@ Stage.COLORS = {
 -- nr: Gebiet (1 = Heimattal), seed: Welt-Seed (nil: Standard).
 function Stage.build(nr, seed, farm)
   local area = Area.get(nr, seed, farm)
-  Tiles.set_palette(area.info.palette)
   Stage.COLORS.grass = Tiles.COLORS.grass
   local ctx = {S = S, sfx = SFX, colors = Stage.COLORS, area = area}
   ctx.map = area.map

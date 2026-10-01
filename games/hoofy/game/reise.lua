@@ -27,6 +27,50 @@ function R.at_station(ctx)
   return U.dist(p.x, p.y, s[1] * 16 + 8, s[2] * 16 + 8) <= R.REACH
 end
 
+-- Wie weit der Anhänger unter das Heck des Zugfahrzeugs rückt (Pixel; Flugzeug: Abstand).
+R.HITCH = {fahrrad = 1, mofa = 2, kleinwagen = 2, suv = 2, flugzeug = -4}
+
+-- Breite des Gespanns aus Zugfahrzeug f (id aus K.welt.fahrzeuge) und Anhänger für plaetze Pferde (0: ohne).
+function R.rig_width(S, f, plaetze)
+  local w = S.size("fahrzeug_" .. f)
+  if plaetze == 0 then return w end
+  return w - R.HITCH[f] + S.size("anhaenger_" .. plaetze)
+end
+
+-- Zeichnet das Gespann, Front links; x, y: linke untere Ecke auf dem Boden.
+function R.draw_rig(S, f, plaetze, x, y)
+  local name = "fahrzeug_" .. f
+  local w, h = S.size(name)
+  if plaetze > 0 then
+    local tn = "anhaenger_" .. plaetze
+    local _, th = S.size(tn)
+    S.draw(tn, x + w - R.HITCH[f], y - th)
+  end
+  S.draw(name, x, y - h)
+end
+
+-- Figur für die Welt (ctx.world:add): das eigene Gespann, rechts neben seinem Platz (zu Hause die
+-- Tür von Schuppen/Garage/Hangar, unterwegs der Ankunftspunkt), damit es Tür und Spieler nicht verdeckt.
+-- Prüft alle halbe Sekunde, ob sich Fahrzeug, Anhänger oder Gebäude geändert haben.
+function R.entity(ctx)
+  local e = {x = 0, y = 0, reach = 100, t = 0}
+  local function place()
+    local f = Economy.fahrzeug(ctx)
+    local st = f.preis > 0 and R.station(ctx)
+    e.f, e.plaetze = st and f.id, Economy.plaetze(ctx)
+    if st then e.x0, e.y = st[1] * 16 + 18, st[2] * 16 + 15 e.x = e.x0 + 40 end
+  end
+  place()
+  function e.update()
+    e.t = e.t + 1
+    if e.t % 30 == 0 then place() end
+  end
+  function e.draw()
+    if e.f then R.draw_rig(ctx.S, e.f, e.plaetze, e.x0, e.y) end
+  end
+  return e
+end
+
 -- Fahrtkosten nach nr: Kosten je Gebiet Entfernung × Abstand der Gebietsnummern.
 function R.kosten(ctx, nr)
   return Economy.fahrzeug(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)

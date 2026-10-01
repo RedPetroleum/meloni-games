@@ -48,7 +48,7 @@ function WorldScene.enter(arg)
   if reise then snap, seed, farm = reise, reise.seed, reise.hof end
   seed_now = seed
   saving = (arg and (arg.neu or (arg.laden and snap) or (reise and arg.saving))) and true or false
-  ctx = Stage.build(reise and reise.gebiet or 1, seed, farm)
+  ctx = Stage.build(reise and reise.gebiet or arg and arg.gebiet or 1, seed, farm)
   ctx.hof = ctx.area.farm or farm     -- der geladene Hof (Titel hat ihn schon im Speicher), unterwegs der Hof daheim
   if arg and (arg.ort or arg.cx) then
     local p = arg.ort and ctx.area.places[arg.ort] or (arg.cx and {arg.cx, arg.cy})
@@ -249,6 +249,8 @@ function WorldScene.enter(arg)
     Reformen.anwenden(ctx)
   end
   if arg and arg.fahrzeug then ctx.inv[arg.fahrzeug] = 1 Economy.refresh_gebiet(ctx) end
+  if arg and arg.anhaenger then ctx.inv["anhaenger_" .. arg.anhaenger] = 1 end
+  ctx.world:add(Reise.entity(ctx))
   if arg and arg.screen then
     local name = arg.screen
     if name ~= "none" and name ~= "bauen" and name ~= "weiden" then nav.push(Screens.pause(ctx, nav)) end
@@ -781,13 +783,7 @@ end
 function WorldScene.draw()
   local top = stack[#stack]
   if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
-  Stage.draw_world(ctx, function()
-    draw_rope()
-    if ctx.heim then      -- unterwegs steht das Fahrzeug am Ankunftspunkt
-      local st = ctx.area.places.start
-      ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)
-    end
-  end)
+  Stage.draw_world(ctx, draw_rope)
   local p = ctx.player
   Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.light())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end

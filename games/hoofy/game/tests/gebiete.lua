@@ -20,7 +20,10 @@ return {
       C.eq(ctx.map.w, info.w)
       C.eq(ctx.map.h, info.h)
       C.eq(Wild.new(ctx, 3).count, info.wildpferde)
-      C.eq(Tiles.COLORS.grass, Tiles.PALETTES[info.palette][1], "Palette " .. info.palette)
+      local pal = Tiles.PALETTES[info.palette]
+      C.eq(Tiles.COLORS.grass, pal.grass, "Palette " .. info.palette)
+      C.eq(Tiles.PROPS.tree.sprite, pal.set .. "_tree", "Bäume umgefärbt")
+      C.ok(ctx.S.rects[pal.set .. "_forest1"] and ctx.S.rects[pal.set .. "_fringe_n"], "Sprites des Gebiets")
       C.eq(ctx.area.farm ~= nil, nr == 1)
       C.ok(ctx.area.places.start and ctx.area.places.laden, "Start und Laden")
     end

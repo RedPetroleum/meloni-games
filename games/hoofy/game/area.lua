@@ -5,6 +5,7 @@ local Map = require("lib.tilemap")
 local Gen = require("game.mapgen")
 local K = require("game.katalog")
 local Farm = require("game.farm")
+local Tiles = require("game.tiles")
 
 local Area = {}
 
@@ -20,11 +21,16 @@ Area.LABELS = {
 local cache = {}
 
 -- nr: Gebietsnummer (KATALOG §10), seed: Zahl. Gibt {nr, name, map, plot, places, …} zurück.
+-- Stellt auch Farben und Sprites der Kacheln auf das Gebiet um (Tiles.set_palette).
 function Area.get(nr, seed, farm)
   seed = seed or Area.DEFAULT_SEED
   local key = nr .. ":" .. seed .. (farm and ":farm" or "")
-  if cache[key] then return cache[key] end
   local info = K.welt.gebiete[nr] or error("Gebiet " .. tostring(nr) .. " fehlt im Katalog")
+  Tiles.set_palette(info.palette)
+  if cache[key] then
+    cache[key].map:prepare()
+    return cache[key]
+  end
   local def = Gen.generate(info, seed + nr * 1000)
   def.sprites = S
   local area = {
