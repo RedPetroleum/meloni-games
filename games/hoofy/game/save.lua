@@ -26,6 +26,7 @@ end
 -- dabei nicht abgesattelt, das Pferd bleibt einfach beim Spieler.
 function Save.snapshot(ctx, clock, seed)
   local p = ctx.player
+  if ctx.wild then ctx.wild:mark_loose() end
   local herd = {}
   for i, d in ipairs(ctx.herd) do herd[i] = d end
   -- Unterwegs gespeichert: der Spielstand liegt zu Hause (Fahrzeug fährt heim, Mitgenommene kommen an die Leine)

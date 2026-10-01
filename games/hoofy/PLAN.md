@@ -37,10 +37,18 @@ der nächsten Aufgabe und hakt es ab.
 - [x] beim Stammbaum: unbaknnt ersetzen durch ?. Infos unten weglassen (0.5.4, E66)
 - [x] Karte: Schrift Hof und Dorf und Pfeil: du Gelb: Pferde weglassen. (0.5.4, E66)
 - [x] Karte nicht mehr über select aufrufbar machen (0.5.4, E66: nur Pausenmenü)
-- [ ] Musik: tiefere Töne weglassen. diese scheppern auf billiger hardware. musik etwas schneller.
+- [x] Musik/Töne: tiefere Töne weglassen. diese scheppern auf billiger hardware. musik etwas schneller. (0.5.5, E67: nichts unter 440 Hz, Musik eine Oktave höher, ~17 % schneller)
+- [x] Bug beheben: wenn man das spiel speichert und dann schließt und wieder öffnet sind die Pferde plätzlich alle außerhalb der weide! diese sollten da aber noch bleiben. (0.5.5, E67: lose Pferde merken sich ihren Platz)
+- [x] Sprechblasen und emoji größer und deutlicher, sind aktuell zu schwer zu sehen/lesen/versehen. (0.5.5, E67: 21 × 18 statt 13 × 13, Symbole mit Umriss)
+- [ ] Hunde (und vermutlich auch andere Gegner) haben keine kollisionen und ziehen einfach über alles drüber. fixen. 
+- [ ] Die tragbare Laterne soll von der Position bei der rechten hand sein, so als würde man die tragen. am Tag ausblenden. 
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 0.5.5** – Rückmeldungen, siehe E67 (gleiche Firmware wie 0.5.3)
+- [ ] Pferde in die Weide führen, Leine lösen (ohne „Ort“), speichern, beenden, Weiter: stehen sie noch drin?
+- [ ] Töne und Musik: scheppert noch etwas? Tempo passend? Sprechblasen gut zu erkennen?
 
 **Version 0.5.4** – Rückmeldungen, siehe E66 (gleiche Firmware wie 0.5.3)
 - [ ] Baumodus → Land: Cursor springt feldweise, grün = kaufbar, A kauft. Verständlich?

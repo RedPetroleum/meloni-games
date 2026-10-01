@@ -355,3 +355,14 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Album: nur eigene Pferde (gezähmt, gekauft, gezüchtet) werden eingetragen, Wildpferde im Bild nicht mehr.
 - Karte (Nachtrag): ohne die Schrift „Hof“ und „Dorf“ und ohne die Legende unten; der Hof bleibt gelb umrandet. Nur
   noch über das Pausenmenü, nicht mehr mit SELECT (E6 geändert); A oder B schließt.
+
+## E67 Töne, Laden loser Pferde, Sprechblasen (Rückmeldung nach 0.5.4)
+- Laden: Ursache war wohl, dass die Pferde in die Weide geführt und dort losgelassen, aber nicht über „Ort → Weide“
+  untergebracht waren (seit 0.5.3 kommen sie allein nicht mehr durchs Tor, sehen also aus wie auf der Weide). Gespeichert
+  wurde nur die Unterbringung; ohne kamen beim Laden alle an die Leine, wegen höchstens 1 am Strick standen die übrigen
+  lose neben dem Spieler. Jetzt merken sich lose Pferde beim Speichern und vor einer Reise ihren Platz (`lose = {x, y}`)
+  und stehen nach dem Laden wieder dort. Lose Pferde werden dabei bewusst nicht automatisch zu Weidepferden.
+- Töne: nichts unter A4 (440 Hz), Rauschen ab 400 Hz (Hufschlag, Schnauben, Landung, Fressen ×4 höher). Musik eine Oktave
+  höher, Tag 96 → 112 bpm, Nacht 56 → 66 bpm, etwas leiser (höhere Töne klingen lauter).
+- Sprechblasen 21 × 18 statt 13 × 13, Symbole 11 × 9 mit dunklem Umriss (Herz, Apfel rot; Blitz, Mond, Glitzer gelb mit
+  Goldrand; Zzz blau). Die Spitze des Zipfels bleibt, wo sie war; der Ausruf des Käufers nutzt dieselbe Zeichnung.

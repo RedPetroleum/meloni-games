@@ -6,6 +6,7 @@ local H = require("game.horse_model")
 local V = require("game.value")
 local Rng = require("lib.rng")
 local U = require("lib.util")
+local Bubbles = require("game.bubbles")
 
 local B = {}
 
@@ -178,7 +179,7 @@ function Buyer:draw()
 end
 
 function Buyer:draw_over()
-  self.ctx.S.draw("emo_bang", flr(self.x) - 7, flr(self.y) - 34 - ((frame() // 20) % 2))
+  Bubbles.draw(self.ctx.S, "emo_bang", self.x, self.y - 33, frame())
 end
 
 -- Platz der Figur (Rückmeldung 0.5.2): im Dorf vor dem Wohnhaus, die erste freie Kachel in der Nähe; ohne

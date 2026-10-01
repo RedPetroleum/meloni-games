@@ -38,9 +38,10 @@ function B.choose(h, now)
   return nil
 end
 
--- Zeichnet die Blase über dem Kopf; wippt leicht.
+-- Zeichnet die Blase über dem Kopf; wippt leicht. x: Mitte, y + 12: Spitze des Zipfels.
 function B.draw(S, sprite, x, y, now)
-  S.draw(sprite, flr(x) - 7, flr(y) - 1 - ((now // 20) % 2))
+  local w, h = S.size(sprite)
+  S.draw(sprite, flr(x) - w // 2, flr(y) + 12 - h - ((now // 20) % 2))
 end
 
 return B

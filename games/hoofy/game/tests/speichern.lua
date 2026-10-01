@@ -119,5 +119,32 @@ return {
         C.ok(inside, h.data.name .. " steht auf der Weide")
       end
     end
+  end},  {"Laden: lose Pferde (in die Weide geführt, nicht untergebracht) bleiben an ihrem Platz, nicht an der Leine", function()
+    local Area = require("game.area")
+    Area.clear()
+    local ctx = Stage.build(1, 77)
+    local w = Wild.new(ctx, 3) w.count = 0
+    local g = ctx.area.farm.weide
+    local pos = {}
+    for i = 1, 3 do
+      local h = w:add_own({rasse = "noriker", name = "L" .. i, bindung = 40})
+      h.x, h.y = (g.x0 + i) * 16 + 8, (g.y0 + 2) * 16 + 14
+      pos[i] = {h.x, h.y}
+    end
+    local led = w:add_own({rasse = "haflinger", name = "Strick", bindung = 40})
+    w:attach(led)
+    local snap = load("return " .. Save.encode(Save.snapshot(ctx, Clock.new(3, 100), 77)))()
+    Area.clear()
+    local ctx2 = Stage.build(1, 77, snap.hof)
+    local w2 = Wild.new(ctx2, 3) w2.count = 0
+    for _, d in ipairs(snap.herd) do w2:adopt(d) end
+    C.eq(#ctx2.lead, 1, "nur das Pferd am Strick ist an der Leine")
+    C.eq(ctx2.lead[1].data.name, "Strick")
+    for i = 1, 3 do
+      local h = ctx2.herd_horses[i]
+      C.eq(h.state, "free", h.data.name .. " lose")
+      C.eq(h.x, pos[i][1], h.data.name .. " x") C.eq(h.y, pos[i][2], h.data.name .. " y")
+      C.eq(h.data.lose, nil, "Platz nach dem Laden vergessen")
+    end
   end},
 }

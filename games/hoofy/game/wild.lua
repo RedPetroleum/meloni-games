@@ -484,12 +484,26 @@ function Wild:adopt(data)
   self.ctx.world:add(h)
   self.ctx.herd[#self.ctx.herd + 1] = data
   self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
-  local ort = data.ort
-  data.ort = nil
+  local ort, lose = data.ort, data.lose
+  data.ort, data.lose = nil, nil
+  -- lose gespeichert (z. B. in die Weide geführt, aber nicht untergebracht): bleibt, wo es stand
+  if not ort and lose then
+    h.x, h.y, h.timer = lose[1], lose[2], 60
+    return h
+  end
   -- Gespeicherte Unterbringung wiederherstellen, ohne Platz und Bedingungen neu zu prüfen: was beim Speichern
   -- auf der Weide stand, bleibt dort (Rückmeldung 0.5.1). Nur wenn es gar keine Weide mehr gibt: an die Leine.
   if not ort or not self:house(h, ort, true) then self:attach(h) end
   return h
+end
+
+-- Vor dem Speichern (und vor einer Reise vom Hof): lose eigene Pferde merken sich ihren Platz (data.lose),
+-- damit sie nach dem Laden dort stehen statt an der Leine. Unterwegs gilt das nicht (anderes Gebiet).
+function Wild:mark_loose()
+  for _, h in ipairs(self.ctx.herd_horses) do
+    local loose = (h.state == "free" or h.state == "escape") and not h.data.ort and not self.ctx.heim
+    h.data.lose = loose and {flr(h.x), flr(h.y)} or nil
+  end
 end
 
 -- Legt die Bewegungsgrenzen eines Pferds auf eine Weide (Kachelmenge) fest.

@@ -61,6 +61,7 @@ function R.fahren(ctx, clock, seed, nr)
   for _, h in ipairs(ctx.lead) do mit[h.data] = true end
   local heim = ctx.heim
   if not heim then      -- Abfahrt vom Hof: den Hof so merken, wie er ist
+    if ctx.wild then ctx.wild:mark_loose() end
     heim = {pos = {flr(ctx.player.x), flr(ctx.player.y)}, aenderungen = ctx.map.changes, erkundet = ctx.explored}
   end
   local snap = {
