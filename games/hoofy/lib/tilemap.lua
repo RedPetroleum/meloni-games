@@ -27,11 +27,12 @@ local BLOCK_PX = TILE * BLOCK
 local byte, sub = string.byte, string.sub
 local DOT = 46   -- "."
 
--- Zeichenbefehl für ein Sprite an einer Weltposition: {sx, sy, sw, sh, x, y, flip}
+-- Zeichenbefehl für ein Sprite an einer Weltposition: {sx, sy, sw, sh, x, y, flip, Bild}
+-- (Bild: r[5], wenn tools/sprites.py die Sprites auf mehrere Bilder verteilt hat)
 local function part(S, name, x, y, flip)
   local r = S.rects[name]
   if not r then error("unknown sprite " .. tostring(name), 3) end
-  return {r[1], r[2], r[3], r[4], x, y, flip}
+  return {r[1], r[2], r[3], r[4], x, y, flip, r[5]}
 end
 Map.part = part
 
@@ -189,21 +190,21 @@ function Map:draw(cam_x, cam_y, view_w, view_h)
         local list = g.rects
         if g.frames then list = g.frame_rects[anim] end
         local r = list[1 + (cx * 7 + cy * 13) % #list]
-        sspr(img, r[1], r[2], 16, 16, x, y)
+        sspr(r[5] or img, r[1], r[2], 16, 16, x, y)
         local e = g.edge_rects
         if e then
           local n
           n = byte(up, cx + 1)
-          if n ~= b and cy > 0 and G[n].base then r = e.n; sspr(img, r[1], r[2], r[3], r[4], x, y) end
+          if n ~= b and cy > 0 and G[n].base then r = e.n; sspr(r[5] or img, r[1], r[2], r[3], r[4], x, y) end
           n = byte(down, cx + 1)
-          if n ~= b and cy < h - 1 and G[n].base then r = e.s; sspr(img, r[1], r[2], r[3], r[4], x, y + TILE - r[4]) end
+          if n ~= b and cy < h - 1 and G[n].base then r = e.s; sspr(r[5] or img, r[1], r[2], r[3], r[4], x, y + TILE - r[4]) end
           if cx > 0 then
             n = byte(row, cx)
-            if n ~= b and G[n].base then r = e.w; sspr(img, r[1], r[2], r[3], r[4], x, y) end
+            if n ~= b and G[n].base then r = e.w; sspr(r[5] or img, r[1], r[2], r[3], r[4], x, y) end
           end
           if cx < w - 1 then
             n = byte(row, cx + 2)
-            if n ~= b and G[n].base then r = e.e; sspr(img, r[1], r[2], r[3], r[4], x + TILE - r[3], y) end
+            if n ~= b and G[n].base then r = e.e; sspr(r[5] or img, r[1], r[2], r[3], r[4], x + TILE - r[3], y) end
           end
         end
       end
@@ -212,7 +213,7 @@ function Map:draw(cam_x, cam_y, view_w, view_h)
         if d ~= DOT then
           local r = S[D[d]]
           local hsh = (cx * 374761393 + cy * 668265263 + seed) & 0xffff
-          sspr(img, r[1], r[2], r[3], r[4], x + hsh % (TILE - r[3]), y + (hsh >> 8) % (TILE - r[4]))
+          sspr(r[5] or img, r[1], r[2], r[3], r[4], x + hsh % (TILE - r[3]), y + (hsh >> 8) % (TILE - r[4]))
         end
       end
     end

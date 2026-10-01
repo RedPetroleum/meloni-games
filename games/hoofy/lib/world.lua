@@ -80,10 +80,10 @@ function World:draw(cam_x, cam_y, view_w, view_h)
       local parts = o.parts
       for k = 1, #parts do
         local p = parts[k]
-        sspr(img, p[1], p[2], p[3], p[4], p[5], p[6], p[3], p[4], p[7])
+        sspr(p[8] or img, p[1], p[2], p[3], p[4], p[5], p[6], p[3], p[4], p[7])
       end
     elseif o[1] then
-      sspr(img, o[1], o[2], o[3], o[4], o[5], o[6], o[3], o[4], o[7])
+      sspr(o[8] or img, o[1], o[2], o[3], o[4], o[5], o[6], o[3], o[4], o[7])
     elseif o.draw then
       o:draw()
     end

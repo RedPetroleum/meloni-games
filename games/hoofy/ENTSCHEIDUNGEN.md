@@ -451,3 +451,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Kachel- und Listenmenüs lösen jetzt beim Loslassen von A aus (vorher beim Drücken). Solange A gedrückt ist, ist die
   Kachel hell umrandet und der Name unten weiß statt gold; wer mit gedrückter Taste weiterwählt, bricht ab.
 - Vollbild-Menüs: In der Tastenleiste leuchtet der Teil der gedrückten Taste gold („A: kaufen“, „B: zurück“, „</>“).
+
+## E77 Absturz beim Start auf der Konsole (Rückmeldung nach 1.1.0)
+- Auf der Konsole startete 1.1.0 nicht (Neustart-Schleife). Ursache sehr wahrscheinlich der Speicher: sprites.png war
+  256×2926 RGBA. lodepng hält beim Dekodieren zwei 3-MB-Puffer, die Engine danach 3 MB RGBA plus 2,25 MB Bild, alles
+  zusammenhängend im 8-MB-PSRAM neben dem Lua-Heap. Seit 0.5.5 (2795 Zeilen, lief noch) ist das Blatt gewachsen.
+- tools/sprites.py verteilt Sätze über 512 Zeilen auf mehrere Bilder (Hoofy: sechs, je höchstens 256×510); der 5.
+  Eintrag eines Rechtecks ist sein Bild. Dauerhaft bleibt es bei 2,1 MB, beim Laden kommt nur noch ~1,5 MB dazu.
+  Tilemap, Welt und Menü-Icons zeichnen mit `r[5]`. Selbsttest prüft die Größe des größten Bilds.

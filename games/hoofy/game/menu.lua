@@ -97,7 +97,7 @@ function Menu.icon(name, cx, cy, box)
   local f = box / max(w, h)
   if f >= 1 then f = flr(f) end
   local dw, dh = flr(w * f), flr(h * f)
-  sspr(S.img, r[1], r[2], w, h, cx - dw // 2, cy - dh // 2, dw, dh)
+  sspr(r[5] or S.img, r[1], r[2], w, h, cx - dw // 2, cy - dh // 2, dw, dh)
 end
 
 -- Graut ein Rechteck ab (x0, y0, x1, y1 inklusive).

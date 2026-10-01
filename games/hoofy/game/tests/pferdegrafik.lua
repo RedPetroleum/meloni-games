@@ -30,9 +30,16 @@ return {
     C.ok(kw > ww and kh > wh, "Kaltblut")
   end},
   {"Größe des Sprite-Bilds", function()
-    local px = S.img.w * S.img.h
-    log(string.format("PFERDEGRAFIK sprites.png %dx%d = %d Pixel, etwa %.1f MB auf der Konsole",
-      S.img.w, S.img.h, px, px * 3 / 1048576))
-    C.ok(px < 800000, "Sprite-Bild zu groß")
+    -- tools/sprites.py verteilt große Sätze auf mehrere Bilder; ein Bild allein braucht beim Laden
+    -- auf der Konsole kurz 7 Byte je Pixel am Stück (E77)
+    local px, big = 0, 0
+    for _, img in ipairs(S.imgs or {S.img}) do
+      px = px + img.w * img.h
+      big = max(big, img.w * img.h)
+    end
+    log(string.format("PFERDEGRAFIK %d Bilder, %d Pixel, etwa %.1f MB auf der Konsole, größtes Bild %d Pixel",
+      #(S.imgs or {S.img}), px, px * 3 / 1048576, big))
+    C.ok(px < 800000, "Sprite-Bilder zu groß")
+    C.ok(big <= 256 * 512, "ein Sprite-Bild zu groß zum Laden auf der Konsole")
   end},
 }

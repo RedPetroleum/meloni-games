@@ -104,6 +104,9 @@ Sprites lassen sich als Text schreiben: `games/<id>/sprites.txt` (ein Zeichen pr
 Farbvarianten (z. B. Fellfarben) ohne kopierte Pixel: `recolor horse fuchs b=c46c30 m=ecc27c` in
 `sprites.txt` legt zu jedem `horse_…` ein `fuchs_…` mit getauschten Farben an.
 Beispiel: [games/hufhuepfer/sprites.txt](../games/hufhuepfer/sprites.txt).
+Große Sätze (über 512 Zeilen) verteilt `tools/sprites.py` auf `sprites.png`, `sprites_2.png` …, weil die
+Konsole ein großes Bild beim Laden nicht am Stück in den Speicher bekommt. `S.draw` geht dann wie
+gewohnt; wer selbst `sspr` mit `S.rects[name]` aufruft, nimmt als Bild `r[5] or S.img` (alle Bilder: `S.imgs`).
 
 ## Sound
 

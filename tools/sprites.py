@@ -207,17 +207,35 @@ def parse(path):
     return palette, sprites
 
 
-def pack(sprites, sheet_w=256):
-    """Shelf packing, tallest first; returns the sheet size and sets x, y on every sprite."""
+# Rows per sheet. The console decodes a PNG with two full RGBA copies (lodepng, then the engine's
+# conversion), so one tall sheet needs several MB of contiguous PSRAM at once; a 256x2926 sheet
+# (Hoofy) crashed the console at startup. Taller sets are split into sprites.png, sprites_2.png, ...
+SHEET_MAX_H = 512
+
+
+def pack(sprites, sheet_w=256, max_h=SHEET_MAX_H):
+    """Shelf packing, tallest first, onto sheets of at most max_h rows (a single taller sprite gets
+    a sheet of its own). Sets sheet, x, y on every sprite; returns [(width, height)] per sheet."""
     sheet_w = max(sheet_w, max(s["w"] for s in sprites))
+    sheets = []
     x = y = shelf_h = 0
     for s in sorted(sprites, key=lambda s: (-s["h"], s["name"])):
         if x + s["w"] > sheet_w:
             x, y, shelf_h = 0, y + shelf_h, 0
-        s["x"], s["y"] = x, y
+        if not sheets or (x == 0 and y > 0 and y + s["h"] > max_h):
+            if sheets:
+                sheets[-1] = y
+            sheets.append(0)
+            x = y = shelf_h = 0
+        s["sheet"], s["x"], s["y"] = len(sheets), x, y
         x += s["w"]
         shelf_h = max(shelf_h, s["h"])
-    return sheet_w, y + shelf_h
+    sheets[-1] = y + shelf_h
+    return [(sheet_w, h) for h in sheets]
+
+
+def sheet_file(n):
+    return "sprites.png" if n == 1 else f"sprites_{n}.png"
 
 
 def build(game_dir):
@@ -227,24 +245,33 @@ def build(game_dir):
     palette, sprites = parse(source)
     if not sprites:
         sys.exit(f"{source}: no sprites")
-    width, height = pack(sprites)
-    pixels = [[(0, 0, 0, 0)] * width for _ in range(height)]
+    sheets = pack(sprites)
+    pixels = [[[(0, 0, 0, 0)] * w for _ in range(h)] for w, h in sheets]
     for s in sprites:
+        sheet = pixels[s["sheet"] - 1]
         for dy, row in enumerate(s["rows"]):
             for dx, ch in enumerate(row):
                 color = s.get("colors", {}).get(ch) or palette[ch]
                 if color:
-                    pixels[s["y"] + dy][s["x"] + dx] = color + (255,)
+                    sheet[s["y"] + dy][s["x"] + dx] = color + (255,)
     # Only write what changed: the PNG bytes may differ between zlib versions (CI vs. laptop), and a
     # rewritten file would give the game a new checksum and the console an update for nothing.
-    png_path, lua_path = os.path.join(game_dir, "sprites.png"), os.path.join(game_dir, "sprites.lua")
     changed = False
-    if not os.path.exists(png_path) or read_png(png_path) != (width, height, [[tuple(p) for p in row] for row in pixels]):
-        write_png(png_path, width, height, pixels)
+    for n, ((width, height), rows) in enumerate(zip(sheets, pixels), 1):
+        png_path = os.path.join(game_dir, sheet_file(n))
+        if not os.path.exists(png_path) or read_png(png_path) != (width, height, [[tuple(p) for p in row] for row in rows]):
+            write_png(png_path, width, height, rows)
+            changed = True
+    n = len(sheets) + 1
+    while os.path.exists(os.path.join(game_dir, sheet_file(n))):
+        os.remove(os.path.join(game_dir, sheet_file(n)))
         changed = True
+        n += 1
+    lua_path = os.path.join(game_dir, "sprites.lua")
 
-    rects = "\n".join(f"  {s['name']} = {{{s['x']}, {s['y']}, {s['w']}, {s['h']}}}," for s in sprites)
-    lua = HEADER + f"""local img = loadimg('sprites.png')
+    if len(sheets) == 1:
+        rects = "\n".join(f"  {s['name']} = {{{s['x']}, {s['y']}, {s['w']}, {s['h']}}}," for s in sprites)
+        lua = HEADER + f"""local img = loadimg('sprites.png')
 local rects = {{
 {rects}
 }}
@@ -257,7 +284,27 @@ function S.draw(name, x, y, flip_x, flip_y)
   if not r then error('unknown sprite ' .. tostring(name), 2) end
   sspr(img, r[1], r[2], r[3], r[4], x, y, r[3], r[4], flip_x, flip_y)
 end
+"""
+    else:
+        loads = "\n".join(f"local s{n} = loadimg('{sheet_file(n)}')" for n in range(1, len(sheets) + 1))
+        rects = "\n".join(f"  {s['name']} = {{{s['x']}, {s['y']}, {s['w']}, {s['h']}, s{s['sheet']}}},"
+                           for s in sprites)
+        lua = HEADER + f"""-- Mehrere Bilder (tools/sprites.py SHEET_MAX_H), der 5. Eintrag eines Rechtecks ist sein Bild.
+{loads}
+local rects = {{
+{rects}
+}}
 
+local S = {{img = s1, imgs = {{{", ".join(f"s{n}" for n in range(1, len(sheets) + 1))}}}, rects = rects}}
+
+-- Zeichnet ein Sprite mit der oberen linken Ecke bei x, y.
+function S.draw(name, x, y, flip_x, flip_y)
+  local r = rects[name]
+  if not r then error('unknown sprite ' .. tostring(name), 2) end
+  sspr(r[5], r[1], r[2], r[3], r[4], x, y, r[3], r[4], flip_x, flip_y)
+end
+"""
+    lua += """
 -- Breite und Höhe eines Sprites.
 function S.size(name)
   local r = rects[name]
@@ -272,7 +319,8 @@ return S
             f.write(lua)
         changed = True
     if changed:
-        print(f"{game_dir}: {len(sprites)} sprites -> sprites.png ({width}x{height}), sprites.lua")
+        sizes = ", ".join(f"{sheet_file(n)} ({w}x{h})" for n, (w, h) in enumerate(sheets, 1))
+        print(f"{game_dir}: {len(sprites)} sprites -> {sizes}, sprites.lua")
     return True
 
 
