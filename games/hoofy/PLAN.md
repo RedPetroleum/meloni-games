@@ -56,6 +56,8 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Heimfahrt, wenn das Geld nicht reicht: kostet höchstens so viel, wie man noch hat. (0.5.9, E75)
 - [x] Dach des Schuppens sieht seltsam aus: weglassen, nur was Kleines aus Holz. (0.5.9, E75)
 - [x] Garagenmenü in nicht zu kräftigen Blautönen. (0.5.9, E75)
+- [x] Kurze Intro-Sequenz mit der Story als Hintergrund. (1.1.0, E76)
+- [x] Beim Drücken die Option, die unten angezeigt wird, farblich hervorheben (Klick-Effekt). (1.1.0, E76)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

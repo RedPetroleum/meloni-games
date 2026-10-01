@@ -6,6 +6,7 @@
 --   game/   Hoofy: Szenen, Spieler, Pferde, Regeln
 local scenes = {
   title = require("game.title"),
+  intro = require("game.intro"),
   world = require("game.world"),
   overview = require("game.overview"),
   gallery = require("game.gallery"),

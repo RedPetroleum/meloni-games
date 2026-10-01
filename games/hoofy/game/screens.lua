@@ -28,10 +28,26 @@ end
 
 -- Tastenleiste unten: etwas heller als der Bildschirm, mit Trennlinie
 local FOOTER_BG = rgb(0x3d, 0x2c, 0x25)
+-- Teile wie „A: kaufen“ sind durch mindestens zwei Leerzeichen getrennt; solange die Taste gedrückt ist,
+-- leuchtet ihr Teil gold (Klick-Effekt).
+local FOOTER_KEYS = {A = {BTN_A}, B = {BTN_B}, v = {BTN_DOWN}, ["^"] = {BTN_UP}, START = {BTN_START},
+  ["<"] = {BTN_LEFT, BTN_RIGHT}, ["</>"] = {BTN_LEFT, BTN_RIGHT}, ["A/B"] = {BTN_A, BTN_B}}
+local function held(part)
+  local key = part:match("^(%S+)"):gsub(":$", "")
+  for _, b in ipairs(FOOTER_KEYS[key] or {}) do if btn(b) then return true end end
+  return false
+end
 local function footer(text, bg, edge)
   rectfill(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 1, bg or FOOTER_BG)
   line(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 13, edge or C.panel_light)
-  print(text, 6, SCREEN_H - 10, C.text)
+  local x, pos = 6, 1
+  while pos <= #text do
+    local a, b = text:find("%s%s+", pos)
+    local part = text:sub(pos, (a or #text + 1) - 1)
+    print(part, x, SCREEN_H - 10, held(part) and C.gold or C.text)
+    x = x + textw(text:sub(pos, b or #text))
+    pos = (b or #text) + 1
+  end
 end
 
 local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof", anhaenger = "im Anhänger"}

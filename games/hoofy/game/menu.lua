@@ -16,6 +16,7 @@ Menu.ICON = 24                  -- Bildfläche in der Kachel
 -- der Name steht dann nur unten für den gewählten Eintrag.
 function Menu.new(items, title, opts)
   local self = setmetatable({items = items, title = title, sel = 1, names = not (opts and opts.names == false)}, Menu)
+  self.wait = btn(BTN_A)          -- A vom Öffnen noch gedrückt: zählt erst nach dem Loslassen
   local grid = #items > 0
   for _, it in ipairs(items) do if not it.icon then grid = false end end
   self.grid = grid
@@ -64,12 +65,27 @@ function Menu:update()
     if btnp(BTN_DOWN) then self.sel = self.sel % #self.items + 1; self:skip(1); SFX.select() end
   end
   if btnp(BTN_B) then SFX.back() return "close" end
-  if btnp(BTN_A) then
-    local it = self.items[self.sel]
+  -- A löst beim Loslassen aus; solange es gedrückt ist, leuchtet der gewählte Eintrag (Menu:pressed).
+  -- Wer mit gedrückter Taste weiterwählt, bricht ab.
+  if self.wait then
+    if not btn(BTN_A) then self.wait = false end
+    return nil
+  end
+  if btnp(BTN_A) and not self.down then self.down = self.sel end
+  if self.down and not btn(BTN_A) then
+    local i = self.down
+    self.down = nil
+    if i ~= self.sel then return nil end
+    local it = self.items[i]
     if it.dim then SFX.snort() return nil end
     SFX.ok()
     return it.id
   end
+end
+
+-- Wird Eintrag i gerade mit A gedrückt?
+function Menu:pressed(i)
+  return self.down == i and i == self.sel and btn(BTN_A)
 end
 
 -- Zeichnet ein Sprite eingepasst in ein Feld box × box mit Mitte (cx, cy): kleine ganzzahlig vergrößert,
@@ -118,12 +134,14 @@ local function draw_grid(self, x, y)
     local c, r = (i - 1) % self.cols, (i - 1) // self.cols
     local tx, ty2 = x + 6 + c * (TW + G), ty + r * (TH + G)
     local sel = i == self.sel
-    rectfill(tx, ty2, tx + TW - 1, ty2 + TH - 1, sel and C.gold or C.panel_light)
-    rectfill(tx + 2, ty2 + 2, tx + TW - 3, ty2 + TH - 3, sel and rgb(0x6b, 0x4a, 0x2e) or rgb(0x3a, 0x2a, 0x24))
+    local down = self:pressed(i)
+    local hi = down and C.text or C.gold          -- gedrückt: hell statt gold
+    rectfill(tx, ty2, tx + TW - 1, ty2 + TH - 1, sel and hi or C.panel_light)
+    rectfill(tx + 2, ty2 + 2, tx + TW - 3, ty2 + TH - 3, down and rgb(0x8a, 0x62, 0x3c) or sel and rgb(0x6b, 0x4a, 0x2e) or rgb(0x3a, 0x2a, 0x24))
     if self.names then
       Menu.icon(it.icon, tx + TW // 2, ty2 + 18, Menu.ICON)
       local short = it.short or it.label
-      print(short, tx + (TW - textw(short)) // 2, ty2 + TH - 12, sel and C.gold or C.text)
+      print(short, tx + (TW - textw(short)) // 2, ty2 + TH - 12, sel and hi or C.text)
     else
       Menu.icon(it.icon, tx + TW // 2, ty2 + TH // 2, Menu.ICON + 8)
     end
@@ -137,7 +155,7 @@ local function draw_grid(self, x, y)
   local cur = self.items[self.sel]
   if cur then
     local label = cur.label
-    print(label, x + (w - textw(label)) // 2, y + h - 12, cur.dim and C.dim or C.gold)
+    print(label, x + (w - textw(label)) // 2, y + h - 12, cur.dim and C.dim or self:pressed(self.sel) and C.text or C.gold)
   end
 end
 
@@ -163,8 +181,8 @@ function Menu:draw(x, y)
   for i, it in ipairs(self.items) do
     local col = it.dim and C.dim or C.text
     if i == self.sel then
-      print(">", x + 5, ty, C.gold)
-      col = C.gold
+      col = self:pressed(i) and C.text or C.gold
+      print(">", x + 5, ty, col)
     end
     print(it.label, x + 14, ty, col)
     ty = ty + 11

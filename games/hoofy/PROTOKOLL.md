@@ -131,3 +131,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 21:17 | Rückmeldung Neues Spiel/Fahrzeugwahl/Blumen | fertig | Nachfrage im Titel, Fahrzeugwahl je Gebäude, Reisemenü im Info-Stil (A erst nach Loslassen), Blütenfarben je Gebiet (E74); Shots Titel/Reisemenü/Gebiete, SELFTEST OK 236, make test grün | Hoofy 0.5.9 (nicht gepusht)
 2026-10-01 21:26 | Rückmeldung Heimfahrt/Schuppen/Garagenmenü | fertig | Heimfahrt höchstens Restgeld (Selbsttest), Holzdach am Schuppen, Reisemenü blau, make run SCENARIO= (E75); SELFTEST OK 237, make test grün | Hoofy 0.5.9 (nicht gepusht)
 2026-10-01 21:28 | Release 1.0.0 | fertig | Version 1.0.0 auf Wunsch, README-Tabelle, SELFTEST OK 237, make test grün | Hoofy 1.0.0
+2026-10-01 21:37 | Rückmeldung Vorspann/Klick-Effekt | fertig | Vorspann 4 Bilder (Shot-Sheets), Menüs beim Loslassen mit Hervorhebung, Tastenleiste leuchtet (E76); SELFTEST OK 237, make test grün | Hoofy 1.1.0

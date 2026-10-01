@@ -443,3 +443,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Reisemenü (Garage) in gedämpften Blautönen, wie der Laden mit eigener Palette (GARAGE in game/screens.lua); das Bild
   des Gespanns steht auf grauem Grund mit angedeuteter Straße statt auf Gras.
 - `make run GAME=hoofy SCENARIO=reise` startet ein Szenario im Fenster.
+
+## E76 Vorspann, Klick-Effekt (Rückmeldung nach 1.0.0)
+- Vor jedem neuen Spiel ein kurzer Vorspann mit der Story (README §1) in vier Bildern über dem abgedunkelten Hof:
+  Krise und „PLEITE“-Autos, teures Benzin und galoppierende Pferde, Zeitung „REFORM!“, Wohnwagen und Stall. Der Text
+  baut sich auf; A zeigt ihn ganz bzw. blättert, START überspringt. Texte in game/intro.lua (eigene Formulierung).
+- Kachel- und Listenmenüs lösen jetzt beim Loslassen von A aus (vorher beim Drücken). Solange A gedrückt ist, ist die
+  Kachel hell umrandet und der Name unten weiß statt gold; wer mit gedrückter Taste weiterwählt, bricht ab.
+- Vollbild-Menüs: In der Tastenleiste leuchtet der Teil der gedrückten Taste gold („A: kaufen“, „B: zurück“, „</>“).

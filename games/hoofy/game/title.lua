@@ -31,7 +31,7 @@ function Title.update()
     if btnp(BTN_UP) or btnp(BTN_DOWN) then confirm = 3 - confirm ctx.sfx.select() end
     if btnp(BTN_B) then confirm = nil ctx.sfx.back() return end
     if btnp(BTN_START) or btnp(BTN_A) then
-      if confirm == 2 then ctx.sfx.start() return "world", {neu = true} end
+      if confirm == 2 then ctx.sfx.start() return "intro" end
       confirm = nil
       ctx.sfx.back()
     end
@@ -44,7 +44,8 @@ function Title.update()
   if btnp(BTN_START) or btnp(BTN_A) then
     if choice == 2 and has_save then confirm = 1 ctx.sfx.select() return end
     ctx.sfx.start()
-    return "world", choice == 1 and {laden = true} or {neu = true}
+    if choice == 1 then return "world", {laden = true} end
+    return "intro"
   end
 end
 
