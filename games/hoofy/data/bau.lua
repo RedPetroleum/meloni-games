@@ -253,5 +253,5 @@ return {
   },
   schoenheit_stufen = {50, 150, 400},
   schoenheit_bindung = {1, 2, 3},
-  abriss_prozent = 50,
+  abriss_prozent = 100,
 }

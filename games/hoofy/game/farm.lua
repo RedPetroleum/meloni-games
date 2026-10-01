@@ -528,7 +528,7 @@ local function start_building_at(farm, cx, cy)
   end
 end
 
--- Erstattung beim Abreißen: ein Teil des Kaufpreises (KATALOG §9, 50 %).
+-- Erstattung beim Abreißen: der Kaufpreis (KATALOG §9, 100 %).
 function Farm.erstattung(id)
   return flr(K.bauteil(id).preis * K.bau.abriss_prozent / 100)
 end
@@ -565,7 +565,7 @@ function Farm.demolish_target(ctx, cx, cy)
   return it, refund, true
 end
 
--- Reißt ab, was an (cx, cy) steht, und erstattet die Hälfte des Kaufpreises. Gibt Erstattung oder nil, Grund zurück.
+-- Reißt ab, was an (cx, cy) steht, und erstattet den Kaufpreis. Gibt Erstattung oder nil, Grund zurück.
 function Farm.remove(ctx, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
   local plant = Farm.plant_at(farm, cx, cy)

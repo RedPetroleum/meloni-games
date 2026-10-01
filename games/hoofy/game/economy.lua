@@ -1,4 +1,4 @@
--- Geld und Laden (KATALOG §7, §8, §9): Warenliste, Kaufen, Bauelemente zur Hälfte zurück,
+-- Geld und Laden (KATALOG §7, §8, §9): Warenliste, Kaufen, Bauelemente zum Kaufpreis zurück,
 -- Ausrüstung am Pferd. Alles auf ctx.money und ctx.inv (Vorrat, id → Anzahl).
 local K = require("game.katalog")
 local Farm = require("game.farm")
@@ -152,7 +152,7 @@ function E.has_seed(ctx, pflanze)
   return E.owned(ctx, "samen_" .. pflanze) > 0
 end
 
--- Bauelement verkaufen: die Erstattung beim Abreißen (KATALOG §9, 50 %). id aus K.bau.liste, count Stück.
+-- Bauelement verkaufen: die Erstattung beim Abreißen (KATALOG §9, 100 %). id aus K.bau.liste, count Stück.
 function E.refund_building(ctx, id, count)
   local sum = Farm.erstattung(id) * (count or 1)
   ctx.money = ctx.money + sum

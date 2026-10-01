@@ -123,7 +123,7 @@ return {
     g = Farm.garaged(ctx.area.farm)
     C.ok(not g.fahrrad, "Schuppen abgerissen")
   end},
-  {"Schönheit: Häuschen +20, Villa +100, Hof-Summe; Abreißen erstattet den halben Preis", function()
+  {"Schönheit: Häuschen +20, Villa +100, Hof-Summe; Abreißen erstattet den vollen Preis", function()
     local ctx, p = setup()
     local start = ctx.money
     Farm.place(ctx, "haeuschen", p.x + 17, p.y + 14)
@@ -132,10 +132,10 @@ return {
     C.eq(Farm.schoenheit(ctx.area.farm), 120)
     Farm.place(ctx, "bank", p.x + 10, p.y + 7)
     C.eq(Farm.schoenheit(ctx.area.farm), 123)
-    C.eq(Farm.remove(ctx, p.x + 15, p.y + 11), 4000, "Villa halb zurück")
-    C.eq(Farm.remove(ctx, p.x + 18, p.y + 15), 500, "Häuschen halb zurück")
+    C.eq(Farm.remove(ctx, p.x + 15, p.y + 11), 8000, "Villa zurück")
+    C.eq(Farm.remove(ctx, p.x + 18, p.y + 15), 1000, "Häuschen zurück")
     Farm.remove(ctx, p.x + 10, p.y + 7)
-    C.eq(ctx.money, start - 4500 - 20)
+    C.eq(ctx.money, start)
     C.eq(Farm.schoenheit(ctx.area.farm), 0)
   end},
   {"Abreißen: Haus und Stall nur mit einem zweiten, Startbauten bringen nichts zurück (E69)", function()
@@ -172,7 +172,7 @@ return {
     ctx.inv.mofa = 1
     sum, why = Farm.remove(ctx, p.x + 13, p.y + 14)
     C.ok(not sum and why == "Mofa braucht sie", "Mofa: " .. tostring(why))
-    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 4000, "Garage halb zurück")
+    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 8000, "Garage zurück")
     Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     Farm.place(ctx, "schuppen", p.x + 0, p.y + 5)
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), 200, "zweiter Schuppen nimmt das Mofa")

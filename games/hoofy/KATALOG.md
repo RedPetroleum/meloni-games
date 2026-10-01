@@ -186,7 +186,7 @@ Reiten geht auch ohne Sattel, dann ohne Tempo-Bonus und ohne Satteltaschen. Der 
 
 ## 9. Bauelemente
 Hof-Schönheit = Summe der Deko-Punkte. Ab 50 / 150 / 400 bekommen alle Pferde +1 / +2 / +3 Bindung pro Tag.
-Abreißen bringt 50 % des Preises zurück.
+Abreißen bringt 100 % des Preises zurück.
 
 | Element | Preis | Wirkung |
 |---|---|---|
