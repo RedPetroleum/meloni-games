@@ -120,10 +120,10 @@ local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Bl
 local GEN_COL = rgb(0x9a, 0xdc, 0xb4)   -- Fähigkeit aus den Genen (Mint wie die Überschrift)
 local TRAIN_COL = rgb(0x3a, 0xb0, 0x8e) -- dazutrainiert (kräftiges, gedecktes Türkisgrün)
 -- Info-Bildschirm: Kopfband und je Bereich ein dezent getönter Kasten
-local HEAD_COL = rgb(0x5a, 0x40, 0x2e)
-local BOX_ABOUT = rgb(0x3b, 0x2b, 0x24)   -- Steckbrief: warm
-local BOX_SKILL = rgb(0x24, 0x32, 0x2d)   -- Fähigkeiten: zum Mint
-local BOX_STATE = rgb(0x23, 0x2c, 0x36)   -- Zustand: zum Blau
+local BOX_ABOUT = rgb(0x48, 0x34, 0x29)   -- Steckbrief: hervorgehoben, warm, mit Rand
+local BOX_ABOUT_EDGE = rgb(0x6b, 0x4e, 0x3a)
+local BOX_SKILL = rgb(0x29, 0x29, 0x23)   -- Fähigkeiten: leicht zum Mint
+local BOX_STATE = rgb(0x27, 0x25, 0x2b)   -- Zustand: leicht zum Blau
 
 -- Kasten mit abgeschnittenen Ecken
 local function box(x0, y0, x1, y1, col)
@@ -135,8 +135,8 @@ local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
 -- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent
 local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), talent = C.panel_light}
-local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x16, 0x21, 0x1d), talent = rgb(0x3b, 0x55, 0x4b)}
-local BAR_STATE = {bg = BOX_STATE, track = rgb(0x16, 0x1d, 0x25)}
+local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x1a, 0x1a, 0x16), talent = rgb(0x45, 0x4a, 0x3f)}
+local BAR_STATE = {bg = BOX_STATE, track = rgb(0x19, 0x17, 0x1c)}
 
 -- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine Linie in der Spurfarbe
 local function notches(y, h, th)
@@ -186,15 +186,15 @@ function Screens.info(ctx, data)
   end
   function s.draw()
     cls(C.panel)
-    -- Kopf: helles Band mit Goldlinie, Name groß, Wert rechts
-    rectfill(0, 0, SCREEN_W - 1, 21, HEAD_COL)
-    line(0, 22, SCREEN_W - 1, 22, C.gold)
+    -- Kopf: Name groß, Wert rechts
+    rectfill(0, 0, SCREEN_W - 1, 21, C.panel)
     font(1)                                          -- feinere große Schrift (API 3)
     print(data.name, 6, 3, C.gold)
     font(0)
     local wert = "Wert " .. Value.wert(data) .. " G"
     print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
-    box(3, 25, SCREEN_W - 4, 80, BOX_ABOUT)
+    box(3, 23, SCREEN_W - 4, 80, BOX_ABOUT)
+    rect(4, 24, SCREEN_W - 5, 79, BOX_ABOUT_EDGE)
     box(3, 83, SCREEN_W - 4, 146, BOX_SKILL)
     box(3, 149, SCREEN_W - 4, 224, BOX_STATE)
     -- Bild oben rechts unter dem Wert
