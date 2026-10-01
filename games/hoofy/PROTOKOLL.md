@@ -115,3 +115,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:50 | Rückmeldungen 0.5.1 | fertig | Kachelmenüs mit Icons, Dither-Dämmerung; Screenshots Abend→Nacht und Menüs, SELFTEST OK 216 | Hoofy 0.5.1
 2026-10-01 09:52 | Push e940fb5 | Release | CI success, Manifest Commit e940fb5, Hoofy 0.5.1 | –
 2026-10-01 10:29 | Rückmeldungen 0.5.2 | fertig | Engine shade (API 2), Emoji-Reaktionen, Meldungen umbrechen, Dein Hof, Laden der Unterbringung; SELFTEST OK 218 | Hoofy 0.5.2
+2026-10-01 10:32 | Push eb02591 | Release | CI success (inkl. Web-Player), Manifest Commit eb02591, Hoofy 0.5.2 api 2 | Firmware nötig
