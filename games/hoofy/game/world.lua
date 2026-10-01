@@ -156,6 +156,7 @@ function WorldScene.enter(arg)
     wild:house(b, "stall")
     wild:attach(c)
     if arg.staerke then a.data.gen.staerke, a.data.pot.staerke = arg.staerke, 100 end
+    a.data.train.staerke, a.data.train.tempo = 12, 8           -- etwas Training (Info-Balken zeigt den Anteil)
   elseif arg and arg.ritt then
     -- Ein zahmes Pferd (Bindung 80, Sattel) steht neben dem Spieler; eine Reihe Büsche 6 Kacheln rechts.
     wild.count = 0
