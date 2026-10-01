@@ -175,7 +175,7 @@ return {
     C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 8000, "Garage zurück")
     Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     Farm.place(ctx, "schuppen", p.x + 0, p.y + 5)
-    C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), 200, "zweiter Schuppen nimmt das Mofa")
+    C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), 600, "zweiter Schuppen nimmt das Mofa")
   end},
   {"Spielstand ohne Wohnwagen: Hof lädt, Schlafen am Häuschen (E69)", function()
     local Save = require("game.save")

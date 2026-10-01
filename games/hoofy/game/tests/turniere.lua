@@ -66,7 +66,7 @@ return {
     local d = horse(95)
     local r = Turniere.teilnehmen(ctx, 1, d, 1, "springreiten")
     C.eq(r.rank, 1)
-    C.eq(ctx.money, 10000 - 20 + 100, "Gebühr 20, 1. Preis 100")
+    C.eq(ctx.money, 10000 - 10 + 50, "Gebühr 10, 1. Preis 50")
     local ok, why = Turniere.teilnehmen(ctx, 2, d, 1, "springreiten")
     C.ok(not ok and why == "weg", "Tag 2 gleiche Runde")
     C.ok(Turniere.teilnehmen(ctx, 2, d, 1, "pferderennen"), "andere Wettbewerbe bleiben offen")
@@ -96,7 +96,7 @@ return {
     local function key(k) btnp = function(b) return b == k end; s.update(nav) s.draw() end
     s.draw()
     key(BTN_A) key(BTN_A) key(BTN_A)          -- Dorf, Schönheit, Pferd
-    C.ok(ctx.money ~= 10000, "angetreten")
+    C.ok(Turniere.state(ctx, 1).weg["1:schoenheitswettbewerb"], "angetreten")
     key(BTN_A)                                -- Ergebnis schließen
     key(BTN_A) key(BTN_A)                     -- Dorf, Schönheit ist weg
     C.eq(#nav.stack, 1)
