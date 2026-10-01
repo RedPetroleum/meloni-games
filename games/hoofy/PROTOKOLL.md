@@ -122,3 +122,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 19:28 | Rückmeldungen Karte | fertig | Karte ohne Hof/Dorf/Legende, SELECT frei; make test grün | Hoofy 0.5.4 (nicht gepusht)
 2026-10-01 19:38 | Rückmeldungen 0.5.5 | fertig | Töne höher, lose Pferde behalten Platz (neuer Selbsttest), Sprechblasen 21×18 (Szenario blasen); SELFTEST OK 227, make test grün | Hoofy 0.5.5 (nicht gepusht)
 2026-10-01 19:42 | Rückmeldungen 0.5.5 (Nachtrag) | fertig | Tiere mit Kollision (Selbsttest 1200 Frames), Laterne an der Hand (Shots 4 Richtungen); SELFTEST OK 228 | Hoofy 0.5.5 (nicht gepusht)
+2026-10-01 19:49 | Push 1f8cabf | Release | CI success, Manifest Commit 1f8cabf, Hoofy 0.5.5 api 3 | gleiche Firmware wie 0.5.3
