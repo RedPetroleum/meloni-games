@@ -160,8 +160,11 @@ function R.ausladen(ctx)
 end
 
 -- Fahrtkosten nach nr: Kosten je Gebiet Entfernung × Abstand der Gebietsnummern.
+-- Heim geht es immer: reicht das Geld nicht, kostet die Heimfahrt alles, was noch da ist.
 function R.kosten(ctx, nr)
-  return Economy.aktiv(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)
+  local k = Economy.aktiv(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)
+  if nr == 1 then k = math.min(k, math.max(0, ctx.money)) end
+  return k
 end
 
 -- Ziele der Reise: {nr, name, kosten, ok, grund}

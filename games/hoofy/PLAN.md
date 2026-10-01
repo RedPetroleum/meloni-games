@@ -53,6 +53,9 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Neues Spiel trotz Spielstand: ein zweites Mal nachfragen und die Folgen erklären. (0.5.9, E74)
 - [x] Mehrere Fahrzeuge in einer Garage/einem Schuppen: dazwischen wählen; Fahrzeugmenü überarbeiten wie die Pferde-Info. (0.5.9, E74)
 - [x] Kleine Blumen in anderen Gebieten umfärben. (0.5.9, E74)
+- [x] Heimfahrt, wenn das Geld nicht reicht: kostet höchstens so viel, wie man noch hat. (0.5.9, E75)
+- [x] Dach des Schuppens sieht seltsam aus: weglassen, nur was Kleines aus Holz. (0.5.9, E75)
+- [x] Garagenmenü in nicht zu kräftigen Blautönen. (0.5.9, E75)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

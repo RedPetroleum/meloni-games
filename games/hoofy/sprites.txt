@@ -1934,18 +1934,18 @@ krrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrk
 ..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..
 
 sprite schuppen
-kOOOkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkOOOk
-kooooooooooooooooooooooooooooooooooooooooooooook
-kooooooooooooooooooooooooooooooooooooooooooooook
-.kooooooooooooooooooooooooooooooooooooooooooook.
-.kOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOk.
-.kooooooooooooooooooooooooooooooooooooooooooook.
-..kooooooooooooooooooooooooooooooooooooooooook..
-..kooooooooooooooooooooooooooooooooooooooooook..
-..kOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOk..
-...kooooooooooooooooooooooooooooooooooooooook...
-...kooooooooooooooooooooooooooooooooooooooook...
-...kooooooooooooooooooooooooooooooooooooooook...
+................................................
+................................................
+................................................
+................................................
+................................................
+................................................
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWk
+kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwk
+kvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvk
+kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwk
+kkvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvkk
 .kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.
 .kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWk.
 .kWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWk.

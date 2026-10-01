@@ -435,3 +435,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Öffnen fuhr nach einer Viertelsekunde gleich los (A zählt jetzt erst nach dem Loslassen).
 - Blüten der kleinen Blumen je Gebiet (eigene Wahl): Birkenwald hellblau/weiß, Flussauen blau/gelb (Vergissmeinnicht,
   Sumpfdotter), Steppe rot/lila (Mohn), Canyon gelb/weiß mit roter Mitte, Nebelinsel türkis/hellviolett.
+
+## E75 Heimfahrt ohne Geld, Schuppendach, Reisemenü blau (Rückmeldung nach 0.5.9)
+- Die Heimfahrt kostet höchstens das Geld, das noch da ist (auch 0 G), damit man unterwegs nie festsitzt. Fahrten in
+  andere Gebiete brauchen weiter den vollen Preis.
+- Schuppen ohne das graue Blechdach: flaches Holzdach mit kleinem Überstand.
+- Reisemenü (Garage) in gedämpften Blautönen, wie der Laden mit eigener Palette (GARAGE in game/screens.lua).
+- `make run GAME=hoofy SCENARIO=reise` startet ein Szenario im Fenster.

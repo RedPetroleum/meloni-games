@@ -7,6 +7,7 @@
 #   make shot GAME=snake INPUT=... SHOTS=60,120,180                 one screenshot after each of these frames
 #   make cover GAME=snake INPUT=... FRAMES=120                      games/snake/cover.png for the launcher
 #   make sprites             games/*/sprites.txt -> sprites.png + sprites.lua (test, run, shot, dist do it too)
+#   make run GAME=hoofy SCENARIO=reise   Hoofy direkt in einem Szenario aus game/scenarios.lua starten
 #   make katalog             games/hoofy/KATALOG.md -> games/hoofy/data/*.lua (test, run, shot, dist do it too)
 #   make pferde              Hoofy: Pferdekörper und Fellmuster in games/hoofy/sprites.txt (vor sprites)
 #   make new GAME=name       new game from template/
@@ -39,7 +40,10 @@ katalog:
 
 run: runner sprites katalog
 	@test -n "$(GAME)" || { echo "usage: make run GAME=<name> (games: $(GAMES))"; exit 1; }
-	$(RUNNER) --save build/$(GAME).sav games/$(GAME)
+	@if [ -n "$(SCENARIO)" ]; then \
+	  echo 'return {scenario = "$(SCENARIO)"}' > build/$(GAME)-$(SCENARIO).sav; \
+	  $(RUNNER) --save build/$(GAME)-$(SCENARIO).sav games/$(GAME); \
+	else $(RUNNER) --save build/$(GAME).sav games/$(GAME); fi
 
 test: runner sprites katalog
 	@mkdir -p build/screens

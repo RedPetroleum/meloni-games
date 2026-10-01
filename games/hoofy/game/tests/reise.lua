@@ -175,4 +175,19 @@ return {
     C.eq(z[1].kosten, 0)
     C.eq(Economy.fahrzeug(ctx).id, "kleinwagen", "Besitz zählt weiter für Markt und Turniere")
   end},
+  {"Heimfahrt geht immer: kostet höchstens das Geld, das noch da ist", function()
+    Area.clear()
+    local ctx = Stage.build(4, 12)
+    ctx.wild = Wild.new(ctx, 3)
+    ctx.wild.count = 0
+    ctx.clock = Clock.new()
+    ctx.inv.kleinwagen = 1
+    ctx.money = 7
+    local z = Reise.ziele(ctx)
+    C.ok(z[1].nr == 1 and z[1].ok and z[1].kosten == 7, "heim für 7 statt 30")
+    C.ok(not z[2].ok, "Flussauen (20 G) nicht")
+    ctx.money = 0
+    C.ok(Reise.ziele(ctx)[1].ok and Reise.ziele(ctx)[1].kosten == 0, "ohne Geld gratis")
+    Area.clear()
+  end},
 }

@@ -427,6 +427,23 @@ end
 -- ---- Reisemenü am Fahrzeug (D1): Aufbau wie die Pferde-Info. Oben das Fahrzeug (← → wechselt zwischen den
 -- Fahrzeugen im selben Gebäude), darunter die Ziele; A fährt, B zurück ----
 
+-- Eigene Farben des Reisemenüs: gedämpfte Blautöne (Rückmeldung 0.5.9)
+local GARAGE = {
+  bg = rgb(0x1c, 0x24, 0x33),      -- Grund
+  dark = rgb(0x14, 0x1a, 0x26),    -- Fuß, Bildrahmen
+  about = rgb(0x28, 0x34, 0x49),   -- Kasten Fahrzeug
+  edge = rgb(0x34, 0x43, 0x5c),
+  list = rgb(0x21, 0x2b, 0x3c),    -- Kasten Ziele
+  sel = rgb(0x3a, 0x4c, 0x6c),     -- gewählte Zeile
+  head = rgb(0xa8, 0xc8, 0xe8),    -- „Wohin?“
+  dim = rgb(0x93, 0xa2, 0xb8),     -- nicht wählbar, Nebentext
+  pale = rgb(0x56, 0x66, 0x80),    -- „< >“
+}
+local function gbox(x0, y0, x1, y1, c)
+  rectfill(x0, y0, x1, y1, c)
+  pset(x0, y0, GARAGE.bg) pset(x1, y0, GARAGE.bg) pset(x0, y1, GARAGE.bg) pset(x1, y1, GARAGE.bg)
+end
+
 function Screens.reise(ctx, go)
   local Reise = require("game.reise")
   local sel, msg, msg_t = 1, nil, 0
@@ -468,52 +485,53 @@ function Screens.reise(ctx, go)
     if msg_t > 0 then msg_t = msg_t - 1 end
   end
   function s.draw()
-    cls(C.panel)
+    cls(GARAGE.bg)
     local f, plaetze = Economy.aktiv(ctx), Economy.plaetze(ctx)
     local wahl = Reise.wahl(ctx)
     -- Kopf: Fahrzeug groß, „< >“ blass, wenn es im Gebäude noch andere gibt; Geld rechts
     font(1)
     local nx = print(f.name, 6, 3, C.gold)
-    if #wahl > 1 then print("< >", nx + 8, 3, rgb(0x6e, 0x5c, 0x4c)) end
+    if #wahl > 1 then print("< >", nx + 8, 3, GARAGE.pale) end
     font(0)
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, 7, C.gold)
     -- Steckbrief: Anhänger, Reichweite, Sprit; rechts das Gespann auf Gras
-    box(3, 23, SCREEN_W - 4, 80, BOX_ABOUT)
-    rect(4, 24, SCREEN_W - 5, 79, BOX_ABOUT_EDGE)
+    gbox(3, 23, SCREEN_W - 4, 80, GARAGE.about)
+    rect(4, 24, SCREEN_W - 5, 79, GARAGE.edge)
     local rw = Reise.rig_width(ctx.S, f.id, plaetze)
     local pw = max(70, rw + 16)
     local px = SCREEN_W - 7 - pw
-    Stage.panel(px, 26, SCREEN_W - 7, 77)
+    rectfill(px, 26, SCREEN_W - 7, 77, GARAGE.dark)
+    rect(px + 1, 27, SCREEN_W - 8, 76, GARAGE.edge)
     rectfill(px + 2, 28, SCREEN_W - 9, 75, rgb(0x7f, 0xb0, 0x4f))
     Reise.draw_rig(ctx.S, f.id, plaetze, px + (pw - rw) // 2, 70)
     local n = Reise.geladen(ctx)
     print(plaetze > 0 and ("Anhänger: " .. n .. "/" .. plaetze) or "Kein Anhänger", 8, 27, C.text)
-    if #ctx.lead > 0 then print("An der Leine: " .. #ctx.lead, 8, 38, C.dim) end
-    print("Bis " .. K.welt.gebiete[f.gebiete].name, 8, 49, C.dim)
-    print(f.fahrtkosten > 0 and ("Sprit " .. f.fahrtkosten .. " G/Gebiet") or "Sprit: gratis", 8, 60, C.dim)
+    if #ctx.lead > 0 then print("An der Leine: " .. #ctx.lead, 8, 38, GARAGE.dim) end
+    print("Bis " .. K.welt.gebiete[f.gebiete].name, 8, 49, GARAGE.dim)
+    print(f.fahrtkosten > 0 and ("Sprit " .. f.fahrtkosten .. " G/Gebiet") or "Sprit: gratis", 8, 60, GARAGE.dim)
     -- Ziele
-    box(3, 83, SCREEN_W - 4, 224, BOX_SKILL)
-    print("Wohin?", 8, 87, SKILL_COL)
+    gbox(3, 83, SCREEN_W - 4, 224, GARAGE.list)
+    print("Wohin?", 8, 87, GARAGE.head)
     local list = entries()
     local y = 101
     for i, z in ipairs(list) do
-      if i == sel then rectfill(6, y - 2, SCREEN_W - 7, y + 9, C.panel_light) end
+      if i == sel then rectfill(6, y - 2, SCREEN_W - 7, y + 9, GARAGE.sel) end
       if z.ausladen then
         print("Pferde ausladen (" .. z.ausladen .. ")", 12, y, i == sel and C.gold or C.text)
       else
-        print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 12, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
+        print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 12, y, z.ok and (i == sel and C.gold or C.text) or GARAGE.dim)
         local k = z.kosten > 0 and (z.kosten .. " G") or "gratis"
-        print(k, SCREEN_W - 12 - textw(k), y, z.ok and C.gold or C.dim)
+        print(k, SCREEN_W - 12 - textw(k), y, z.ok and C.gold or GARAGE.dim)
       end
       y = y + 13
     end
-    if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 12, y, C.dim) end
+    if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 12, y, GARAGE.dim) end
     local cur = list[sel]
     if msg and msg_t > 0 then print(msg, 12, 210, C.red)
-    elseif cur and not cur.ok then print(cur.grund .. ".", 12, 210, C.dim) end
+    elseif cur and not cur.ok then print(cur.grund .. ".", 12, 210, GARAGE.dim) end
     local a = cur and cur.ausladen and "A ausladen" or "A losfahren"
-    footer(a .. (#wahl > 1 and "   < > Fahrzeug" or "") .. "   B zurück")
+    footer(a .. (#wahl > 1 and "   < > Fahrzeug" or "") .. "   B zurück", GARAGE.dark, GARAGE.edge)
   end
   return s
 end
