@@ -149,7 +149,41 @@ function Farm.capacity(farm)
     stall = stall,
     weide = weide,
     frei = flr(#Farm.parcels(farm) * Farm.LAND * Farm.LAND / Farm.FREE_PER_TILES),
+    goepel = #Farm.goepels(farm),          -- ein Pferd je Göpel-Generator (Rückmeldung 1.2.1)
   }
+end
+
+-- Darf das Pferd an den Göpel? (ausgewachsen, Stärke wie im Katalog)
+function Farm.may_pull(data, H)
+  return data.alter >= 1 and H.stat(data, "staerke") >= K.bauteil("goepel_generator").min_staerke
+end
+
+-- Göpel-Generatoren des Hofs: Liste {cx, cy, key = "cx,cy"}.
+function Farm.goepels(farm)
+  local out = {}
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    if b.id == "goepel_generator" then out[#out + 1] = {b.cx, b.cy, key = b.cx .. "," .. b.cy} end
+  end
+  return out
+end
+
+-- Pferde (Daten) in den Ställen, nach Gebäude verteilt: Liste je Stall (Reihenfolge wie Farm.all_buildings),
+-- {b = Gebäude, plaetze, pferde = {…}}. Die Pferde sind keinem Stall fest zugeordnet; sie füllen die Ställe der
+-- Reihe nach, was übrig bleibt, steht im letzten.
+function Farm.stall_boxes(farm, herd)
+  local out = {}
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    if b.id:find("^stall_") then out[#out + 1] = {b = b, plaetze = K.bauteil(b.id).plaetze, pferde = {}} end
+  end
+  local i = 1
+  for _, d in ipairs(herd) do
+    if d.ort == "stall" and #out > 0 then
+      while i < #out and #out[i].pferde >= out[i].plaetze do i = i + 1 end
+      local list = out[i].pferde
+      list[#list + 1] = d
+    end
+  end
+  return out
 end
 
 -- Pferde einer bestimmten Weide (data.weide_id).
@@ -323,7 +357,7 @@ local function doors(farm, pred)
   for _, b in ipairs(Farm.all_buildings(farm)) do
     if pred(b.id) then
       local it = Farm.ITEMS[b.id]
-      out[#out + 1] = {b.cx + (it.w - 1) // 2, b.cy + it.h, id = b.id}
+      out[#out + 1] = {b.cx + (it.w - 1) // 2, b.cy + it.h, id = b.id, b = b}
     end
   end
   return out
@@ -366,12 +400,12 @@ end
 
 -- Göpel-Generatoren (C6): je Generator ein Pferd, das Stärke und Energie mitbringt, bringt Geld pro Tag.
 -- Gibt die Pferde zurück, die heute laufen (stärkste zuerst), und das Geld je Pferd.
+-- Nur Pferde, die am Göpel untergebracht sind (Ort „Göpel“, Rückmeldung 1.2.1), ziehen ihn.
 function Farm.goepel_pferde(farm, herd, H)
-  local n, def = 0, K.bauteil("goepel_generator")
-  for _, b in ipairs(Farm.all_buildings(farm)) do if b.id == "goepel_generator" then n = n + 1 end end
+  local n, def = #Farm.goepels(farm), K.bauteil("goepel_generator")
   local ok = {}
   for _, d in ipairs(herd) do
-    if d.ort and d.ort ~= "anhaenger" and d.alter >= 1 and H.stat(d, "staerke") >= def.min_staerke and d.energie >= def.energie then ok[#ok + 1] = d end
+    if d.ort == "goepel" and d.alter >= 1 and H.stat(d, "staerke") >= def.min_staerke and d.energie >= def.energie then ok[#ok + 1] = d end
   end
   table.sort(ok, function(a, b) return H.stat(a, "staerke") > H.stat(b, "staerke") end)
   while #ok > n do ok[#ok] = nil end
@@ -499,11 +533,21 @@ local function put(map, farm, it)
   end
 end
 
+-- Beete und Felder kosten nichts, anlegen braucht aber die Hacke (Rückmeldung 1.2.1). Gibt den Grund
+-- zurück, wenn sie fehlt, sonst nil.
+function Farm.tool_missing(ctx, id)
+  if Farm.ITEMS[id] and Farm.ITEMS[id].ground == "b" and (ctx.inv and ctx.inv.hacke or 0) < 1 then
+    return "erst eine Hacke kaufen"
+  end
+end
+
 -- Baut und zieht den Preis ab (ctx.money). Gibt true oder false und den Grund zurück.
 function Farm.place(ctx, id, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
   local ok, why = Farm.can_place(map, farm, id, cx, cy, ctx.player)
   if not ok then return false, why end
+  why = Farm.tool_missing(ctx, id)
+  if why then return false, why end
   local price = K.bauteil(id).preis
   if ctx.money < price then return false, "Geld" end
   ctx.money = ctx.money - price
@@ -542,6 +586,11 @@ function Farm.demolish_target(ctx, cx, cy)
   local refund = it and Farm.erstattung(it.id)
   if not it then it, refund = start_building_at(farm, cx, cy), 0 end
   if not it then return nil, 0, false, "hier steht nichts Abreißbares" end
+  if it.id == "goepel_generator" then
+    for _, d in ipairs(ctx.herd or {}) do
+      if d.ort == "goepel" and d.goepel_id == it.cx .. "," .. it.cy then return it, refund, false, "erst " .. d.name .. " vom Göpel holen" end
+    end
+  end
   local kind = KIND[it.id]
   if not kind then return it, refund, true end
   local rest = {}
@@ -689,15 +738,28 @@ function Farm.plant_at(farm, cx, cy)
   end
 end
 
--- Darf id an (cx, cy) gepflanzt werden? Braucht den Samen im Vorrat (einmal gekauft), Beet auf allen Kacheln, nichts darauf.
+-- Pflanzen, die ohne Beet direkt auf dem Gras wachsen (Rückmeldung 1.2.1).
+Farm.OHNE_BEET = {apfelbaum = true}
+
+-- Darf id an (cx, cy) gepflanzt werden? Braucht den Samen im Vorrat (einmal gekauft), Beet auf allen Kacheln
+-- (Apfelbaum: freies Gras auf dem Grundstück), nichts darauf.
 function Farm.can_plant(ctx, id, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
   if (ctx.inv["samen_" .. id] or 0) < 1 then return false, "kein Samen" end
   local crop = Farm.crop(id)
+  local gras = Farm.OHNE_BEET[id]
   for dy = 0, crop.h - 1 do
     for dx = 0, crop.w - 1 do
-      if map:code(cx + dx, cy + dy) ~= "b" then return false, "braucht Beet" end
-      if Farm.plant_at(farm, cx + dx, cy + dy) then return false, "schon bepflanzt" end
+      local x, y = cx + dx, cy + dy
+      if gras then
+        if not Farm.owns(farm, x, y) then return false, "nur auf dem Grundstück" end
+        if map:code(x, y) ~= "." and map:code(x, y) ~= "b" then return false, "nur auf Gras" end
+        if Farm.item_at(farm, x, y) and map:code(x, y) ~= "b" then return false, "schon belegt" end
+        if byte(map.coll[y + 1], x + 1) ~= 46 then return false, "im Weg" end
+      elseif map:code(x, y) ~= "b" then
+        return false, "braucht Beet"
+      end
+      if Farm.plant_at(farm, x, y) then return false, "schon bepflanzt" end
     end
   end
   return true

@@ -77,12 +77,20 @@ function Days.new_day(ctx, day)
   local reif = Farm.grow(ctx, day)
   ctx.reife = reif
   ctx.wild:new_day(day)
-  -- Fohlen kommen zur Welt und folgen dem Spieler (oder stehen lose, wenn die Leine voll ist)
+  -- Fohlen kommen im Stall zur Welt (Rückmeldung 1.2.1); ist er voll, ziehen andere Pferde um (Wild:make_room).
+  -- Unterwegs steht das Fohlen zu Hause im Stall, Platz gemacht wird bei der Heimkehr.
   local born = Breeding.tick(ctx, day)
   ctx.geburten = {}
   for _, b in ipairs(born) do
-    ctx.wild:adopt(b.foal)
-    ctx.geburten[#ctx.geburten + 1] = b.foal.name .. " (Fohlen von " .. b.mutter.name .. ")"
+    local text = b.foal.name .. " (Fohlen von " .. b.mutter.name .. ") steht im Stall."
+    if ctx.area.farm then
+      local _, moves = ctx.wild:place_foal(b.foal, b.mutter)
+      if #moves > 0 then text = text .. " " .. table.concat(moves, " ") end
+    else
+      b.foal.ort = "stall"
+      ctx.herd[#ctx.herd + 1] = b.foal
+    end
+    ctx.geburten[#ctx.geburten + 1] = text
   end
   return report
 end

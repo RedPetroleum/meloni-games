@@ -78,7 +78,7 @@ return {
     {
       id = "maehnenschleife",
       name = "Mähnenschleife",
-      preis = 30,
+      preis = 150,
       text = "Schönheit +5",
       wirkung = {
         schoenheit = 5,
@@ -87,7 +87,7 @@ return {
     {
       id = "blumenkranz",
       name = "Blumenkranz",
-      preis = 60,
+      preis = 300,
       text = "Schönheit +10",
       wirkung = {
         schoenheit = 10,
@@ -96,7 +96,7 @@ return {
     {
       id = "glitzerdecke",
       name = "Glitzerdecke",
-      preis = 250,
+      preis = 1200,
       text = "Schönheit +15",
       wirkung = {
         schoenheit = 15,
@@ -105,7 +105,7 @@ return {
     {
       id = "goldhufeisen",
       name = "Goldhufeisen",
-      preis = 1000,
+      preis = 4000,
       text = "Schönheit +30",
       wirkung = {
         schoenheit = 30,

@@ -127,18 +127,18 @@ return {
     {
       id = "beet",
       name = "Beet",
-      text = "Pflanzen anbauen (siehe Anbau)",
+      text = "Pflanzen anbauen (siehe Anbau), braucht eine Hacke",
       wirkung = {},
       je_kachel = true,
-      preis = 20,
+      preis = 0,
     },
     {
       id = "feld",
       name = "Feld",
-      text = "Pflanzen anbauen (siehe Anbau)",
+      text = "Pflanzen anbauen (siehe Anbau), braucht eine Hacke",
       wirkung = {},
       je_kachel = true,
-      preis = 20,
+      preis = 0,
     },
     {
       id = "bank",

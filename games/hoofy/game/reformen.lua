@@ -79,7 +79,7 @@ function R.angriffe(ctx, day)
   local n = R.ANGRIFFE * (akt.tagsueber and 2 or 1)
   local draussen, wehr = {}, {}
   for _, d in ipairs(ctx.herd) do
-    if d.ort == "weide" or d.ort == "frei" then
+    if d.ort == "weide" or d.ort == "frei" or d.ort == "goepel" then
       draussen[#draussen + 1] = d
       if Care.effective(d, "staerke") >= akt.abwehr_staerke then wehr[#wehr + 1] = d end
     end

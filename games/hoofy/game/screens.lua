@@ -50,7 +50,7 @@ local function footer(text, bg, edge)
   end
 end
 
-local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof", anhaenger = "im Anhänger"}
+local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof", anhaenger = "im Anhänger", goepel = "am Göpel"}
 
 local function place_of(data)
   return data.ort and ORT[data.ort] or "an der Leine"
@@ -261,7 +261,7 @@ function Screens.info(ctx, data)
     local rasse = K.rasse(data.rasse)
     Stage.panel(SCREEN_W - 77, 26, SCREEN_W - 7, 77)                -- oben und unten 3 px Abstand zum Kasten (23–80)
     rectfill(SCREEN_W - 75, 28, SCREEN_W - 9, 75, rgb(0x7f, 0xb0, 0x4f))
-    G.draw(data.farbe, rasse.koerper, "side", SCREEN_W - 42, 68, false)
+    G.draw(data.farbe, rasse.koerper, "side", SCREEN_W - 42, 68, false, data.schmuck)
     if data.alter < 1 then                          -- Fohlen: wie weit ausgewachsen
       rectfill(SCREEN_W - 73, 72, SCREEN_W - 11, 73, rgb(0x1e, 0x16, 0x14))   -- unten im Bild
       rectfill(SCREEN_W - 73, 72, SCREEN_W - 73 + flr(62 * data.alter), 73, C.gold)
@@ -327,7 +327,7 @@ function Screens.horses(ctx)
       local d = ctx.herd[i]
       local y = 18 + (i - first) * 20
       if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 17, C.panel_light) end
-      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 17, false)
+      G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 17, false, d.schmuck)
       print(d.name, 50, y, i == sel and C.gold or C.text)
       print(K.rasse(d.rasse).name, 50, y + 9, C.dim)
     end
@@ -762,7 +762,7 @@ function Screens.springreiten(ctx, d, done, klasse)
       end
     end
     local pose = (st.stumble > 0 or st.jump > 0) and "side" or ((st.frame // 6) % 2 == 0 and "gallop1" or "gallop2")
-    G.draw(d.farbe, rasse.koerper, pose, Sp.HORSE_X, ground - st.air, false)
+    G.draw(d.farbe, rasse.koerper, pose, Sp.HORSE_X, ground - st.air, false, d.schmuck)
     -- Fortschritt
     rectfill(10, 24, 309, 28, C.panel)
     rectfill(10, 24, 10 + flr(299 * min(1, st.x / Sp.END_X)), 28, C.gold)
@@ -1026,12 +1026,15 @@ local function job_horses(ctx, job, done)
     if btnp(BTN_B) then SFX.back() nav.pop() end
     if btnp(BTN_A) and l[sel] then
       local d = l[sel]
-      local name = d.name
-      local sum = Jobs.run(ctx, job, d, day())
-      if sum then
-        SFX.tame()
+      if Jobs.eligible(d, job, day(), ctx) then
+        -- Minispiel (Rückmeldung 1.2.1), danach Lohn nach Ergebnis
+        SFX.ok()
         nav.pop()
-        if done then done(name .. " hat gearbeitet: " .. sum .. " G.") end
+        nav.push(require("game.jobspiel").screen(ctx, job, d, function(anteil)
+          local sum = Jobs.run(ctx, job, d, day(), anteil)
+          SFX.tame()
+          if done then done(d.name .. " hat gearbeitet: " .. (sum or 0) .. " G.") end
+        end))
       else
         SFX.snort()
       end
@@ -1053,7 +1056,7 @@ local function job_horses(ctx, job, done)
       G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
       print(d.name, 50, y, ok and (i == sel and C.gold or C.text) or C.dim)
       print(ok and ("Energie " .. flr(d.energie)) or why, 50, y + 10, ok and C.dim or C.red)
-      local t = ok and (Jobs.lohn(d, job) .. " G") or ""
+      local t = ok and ("bis " .. Jobs.lohn(d, job) .. " G") or ""
       print(t, SCREEN_W - textw(t) - 10, y + 4, C.gold)
     end
     footer("A: arbeiten   B: zurück")
@@ -1095,7 +1098,7 @@ function Screens.jobs(ctx)
       for key, amount in pairs(job.training) do train[#train + 1] = Jobs.STAT_NAMES[key] .. " +" .. amount end
       table.sort(train)
       print("Training: " .. table.concat(train, ", "), 10, y + 24, C.dim)
-      print("Energie " .. job.energie, 10, y + 35, C.dim)
+      print("Minispiel, Energie -" .. job.energie, 10, y + 35, C.dim)
     end
     print("Jeder Job einmal am Tag, ein Job pro Pferd.", 10, 176, C.dim)
     if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
@@ -1321,7 +1324,8 @@ function Screens.build(ctx)
       return Farm.can_plant(ctx, id, cx, cy), crop.w, crop.h
     end
     local it = Farm.ITEMS[id]
-    return Farm.can_place(ctx.map, farm, id, cx, cy, ctx.player) and ctx.money >= K.bauteil(id).preis, it.w or 1, it.h or 1
+    return Farm.can_place(ctx.map, farm, id, cx, cy, ctx.player) and ctx.money >= K.bauteil(id).preis
+      and not Farm.tool_missing(ctx, id), it.w or 1, it.h or 1
   end
 
   function s.draw()
@@ -1396,7 +1400,9 @@ function Screens.build(ctx)
       end
     else
       local b = K.bauteil(id)
-      line = b.name .. "  " .. b.preis .. " G" .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
+      local tool = Farm.tool_missing(ctx, id)
+      line = b.name .. "  " .. (tool and "braucht eine Hacke (Laden)" or (b.preis .. " G"))
+        .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
     end
     Menu.icon(c.id == "abriss" and "cursor_bad" or c.id == "land" and "ico_karte" or (id and build_icon(c.id, id))
       or "ico_bauen", 16, y + 13, 20)

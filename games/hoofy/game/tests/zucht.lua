@@ -148,7 +148,7 @@ return {
     local s, h = Breeding.foal_colors("gold", "gold", "gold", "gold", rng)
     C.eq(s, "gold", "höchste Stufe mutiert nicht")
   end},
-  {"Zucht im Spiel: Fohlen an der Leine, Stammbaum, Spielstand mit Trächtigkeit", function()
+  {"Zucht im Spiel: Fohlen im Stall, Stammbaum, Spielstand mit Trächtigkeit", function()
     local ctx, w, m, f = farm()
     Breeding.start(ctx, f.data, m.data, 1)
     local Save = require("game.save")
@@ -163,7 +163,7 @@ return {
     C.eq(foal.ahnen.v.name, "Vater")
     C.ok(foal.id and foal.id ~= m.data.id and foal.id ~= f.data.id, "eigene Kennung")
     local h = ctx.herd_horses[3]
-    C.ok(h.state == "led" or h.state == "follow", "Fohlen folgt")
+    C.ok(h.state == "stall" and foal.ort == "stall", "Fohlen steht im Stall (Rückmeldung 1.2.1)")
     -- 24 Pferde: unbegrenzte Fohlen gibt es nicht
     C.ok(#ctx.herd <= 24)
     local Screens = require("game.screens")

@@ -166,6 +166,11 @@ function Scenarios.jobbrett()
   return "world", {ort = "start", hof = true, screen = "jobs"}
 end
 
+-- Job-Minispiel (Rückmeldung 1.2.1): save.job = postritt, kutschtaxi oder pfluegen, mit dem ersten Hofpferd.
+function Scenarios.jobspiel(save)
+  return "world", {ort = "start", hof = true, screen = "jobspiel", job = save.job or "postritt"}
+end
+
 -- Bestellungen: drei Pferde (Hof), eine Bestellung passt auf das erste, Liste offen.
 function Scenarios.bestellung()
   return "world", {ort = "start", hof = true, bestellung = true, screen = "bestellung"}
@@ -186,6 +191,22 @@ function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}
 end
 
+-- Stall von innen: save.stall = stall_s, stall_m, stall_l oder stall_xl, fast voll belegt.
+function Scenarios.stall(save)
+  return "world", {stall = save.stall or "stall_l"}
+end
+
+-- Göpel: ein Pferd zieht den Generator am Hof (läuft im Kreis).
+function Scenarios.goepel()
+  return "world", {goepel = true}
+end
+
+-- Zucht: Hengst und Stute im Stall, Spieler vor der Stalltür. Drehbuch: A öffnet das Stallmenü.
+-- save.geburt = true: die Stute ist trächtig, kurz vor dem nächsten Morgen (zeit 22400).
+function Scenarios.zucht(save)
+  return "world", {zucht = true, tag = save.tag, geburt = save.geburt, zeit = save.geburt and 22400 or save.zeit}
+end
+
 -- Reiten: zahmes Pferd mit Sattel neben dem Spieler, Büsche (save.hindernis = "o": Steine) 6 Kacheln
 -- rechts. save.staerke setzt die Stärke, save.bindung die Bindung.
 function Scenarios.ritt(save)
@@ -200,6 +221,11 @@ end
 -- Je ein Pferd pro Blasen-Zustand (E10). Charakter-Blasen erscheinen nur zeitweise: mehrere Shots.
 function Scenarios.blasen()
   return "bubbles"
+end
+
+-- Schmuck (Rückmeldung 1.2.1): alle Körper in fünf Posen mit allem Schmuck.
+function Scenarios.schmuck()
+  return "gallery", {schmuck = true}
 end
 
 -- Alle Rassen mit je drei Farben, Posen laufen durch (Seite wechselt alle 4 s).

@@ -8,6 +8,7 @@ local Days = require("game.days")
 local H = require("game.horse_model")
 local K = require("game.katalog")
 local Rng = require("lib.rng")
+local Economy = require("game.economy")
 local C = require("game.tests.check")
 
 local function setup()
@@ -20,6 +21,7 @@ local function setup()
   ctx.wild.count = 0
   ctx.clock = {day = 1}
   for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 1 end
+  ctx.inv.hacke = 1
   return ctx, p
 end
 
@@ -38,20 +40,26 @@ local function day(ctx, d)
 end
 
 return {
-  {"Beet/Feld kostet 20 je Kachel, ändert den Boden, Abreißen erstattet und stellt das Gras her", function()
+  {"Beet/Feld kostet nichts, braucht aber die Hacke, ändert den Boden, Abreißen stellt das Gras her", function()
     local ctx, p = setup()
+    ctx.inv.hacke = 0
+    local ok, why = Farm.place(ctx, "beet", p.x + 13, p.y + 5)
+    C.ok(not ok and why == "erst eine Hacke kaufen", tostring(why))
+    C.eq(ctx.map:code(p.x + 13, p.y + 5), ".")
+    ctx.inv.hacke = 1
     local m = ctx.money
     C.ok(Farm.place(ctx, "beet", p.x + 13, p.y + 5))
-    C.eq(ctx.money, m - 20)
+    C.eq(ctx.money, m)
     C.eq(ctx.map:code(p.x + 13, p.y + 5), "b")
     C.ok(Farm.place(ctx, "feld", p.x + 14, p.y + 5))
     C.eq(ctx.map:code(p.x + 14, p.y + 5), "b")
     C.ok(ctx.map:walkable(p.x + 13, p.y + 5), "Beete sind begehbar")
-    C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 20)
+    C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 0)
     C.eq(ctx.map:code(p.x + 13, p.y + 5), ".")
-    C.eq(K.futter.beet_preis, 20)
+    C.eq(K.futter.beet_preis, 0)
+    C.eq(Economy.find("hacke").kat, "zubehoer")
   end},
-  {"Pflanzen: nur mit Samen, nur auf Beeten, nichts doppelt, Apfelbaum braucht 2×2 Beete", function()
+  {"Pflanzen: nur mit Samen, nur auf Beeten, nichts doppelt, Apfelbaum 2×2 auch auf Gras", function()
     local ctx, p = setup()
     ctx.inv.samen_karotte = 0
     beds(ctx, p.x + 13, p.y + 5, 3, 3)
@@ -65,8 +73,13 @@ return {
     C.ok(not ok and why == "schon bepflanzt")
     ok, why = Farm.plant(ctx, "apfelbaum", p.x + 14, p.y + 5)
     C.ok(ok, "2×2 auf freien Beeten: " .. tostring(why))
-    ok, why = Farm.plant(ctx, "apfelbaum", p.x + 14, p.y + 7)
-    C.ok(not ok, "unten fehlt das Beet")
+    ok, why = Farm.plant(ctx, "apfelbaum", p.x + 15, p.y + 7)
+    C.ok(ok, "Apfelbaum halb auf Beet, halb auf Gras: " .. tostring(why))
+    ok, why = Farm.plant(ctx, "apfelbaum", p.x + 16, p.y + 14)
+    C.ok(ok, "Apfelbaum auf Gras ohne Beet: " .. tostring(why))
+    ok, why = Farm.plant(ctx, "apfelbaum", p.x + 8, p.y + 3)
+    C.ok(not ok, "nicht im Stall")
+    C.ok(not Farm.plant(ctx, "apfelbaum", p.x + p.w - 1, p.y + 5), "nicht über das Grundstück hinaus")
     -- unbegrenzt viele pro Samen
     beds(ctx, p.x + 13, p.y + 8, 3, 1)
     C.ok(Farm.plant(ctx, "karotte", p.x + 13, p.y + 8))
@@ -187,8 +200,8 @@ return {
     C.eq(ctx.map:code(p.x + 13, p.y + 5), "b", "Beet bleibt")
     C.eq(Farm.schoenheit(ctx.area.farm), 2)
     C.eq(ctx.inv.samen_sonnenblume, 1, "Samen bleibt")
-    C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 20, "zweiter Abriss: das Beet")
-    C.eq(ctx.money, m + 20)
+    C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 0, "zweiter Abriss: das Beet (kostenlos)")
+    C.eq(ctx.money, m)
   end},
   {"Spielstand: Pflanzen mit Wachstumsstand bleiben, Bilder kommen beim Laden wieder", function()
     local Save = require("game.save")

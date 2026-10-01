@@ -3328,6 +3328,70 @@ kWk...kk....
 gggggggggggg
 ............
 
+# Jobs als Minispiele (Rückmeldung 1.2.1): Postritt, Kutschtaxi, Pflügen
+sprite job_briefkasten
+.kkkkkkkk.
+kYYYYYYYYk
+kYkkkkkkYk
+kYYYYYYYYk
+kYYYYYYYYk
+kYYYYYYYYk
+kkkkkkkkkk
+....kwk...
+....kwk...
+....kwk...
+....kwk...
+....kwk...
+...kkwkk..
+..kwwwwwk.
+..kkkkkkk.
+
+sprite job_brief
+kkkkkkk
+kkVVVkk
+kVkVkVk
+kVVkVVk
+kkkkkkk
+
+sprite job_kutsche
+....kkkkkkkkkkkkkk......
+...krrrrrrrrrrrrrrk.....
+...kRRRRRRRRRRRRRRk.....
+...kwkkkkwkkkkkkwwk.....
+...kwkQQkwkQQQQkwwk.....
+...kwkQQkwkQQQQkwwk.....
+...kwkkkkwkkkkkkwwk.....
+kkkkwwwwwwwwwwwwwwkkkkkk
+kWWWWWWWWWWWWWWWWWWWWWWk
+kkkkwwwwwwwwwwwwwwkkkkkk
+...kkkkk.....kkkkk......
+..kkooookk..kkoooookk...
+.kkoOOOok....koOOOok....
+.koOkkkOok..koOkkkOok...
+.kkoOOOok....koOOOok....
+..kkooookk..kkoooookk...
+...kkkkk.....kkkkk......
+
+sprite job_pflug
+kk............
+kWk...........
+.kWk..........
+..kWkkkkkkkk..
+...kWWWWWWWWk.
+...kkkkkkkWkk.
+.........kWk..
+........kppk..
+.......kpOpk..
+.......kkkkk..
+
+sprite job_pfuetze
+...kkkkkkkk.....
+.kkqqqQQqqqkkk..
+kqqQQqqqqqqqqqk.
+kqqqqqqqQQqqqqk.
+.kkqqqqqqqqqkk..
+...kkkkkkkkk....
+
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 
 sprite horse_pony_side
@@ -4022,6 +4086,688 @@ sprite horse_einhorn_up_walk
 ..kkkk.....kbbk.
 ...........kuuk.
 ...........kkkk.
+
+sprite schmuck_maehnenschleife_warmblut_side
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_side_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_gallop1
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_gallop2
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_graze
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_down
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_down_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_up
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_warmblut_up_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_side
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_side_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_gallop1
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_gallop2
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_graze
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_down
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_down_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_up
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_pony_up_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_side
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_side_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_gallop1
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_gallop2
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_graze
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_down
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_down_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_up
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_kaltblut_up_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_side
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_side_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_gallop1
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_gallop2
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_graze
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_down
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_down_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_up
+P...P
+PPDPP
+P...P
+
+sprite schmuck_maehnenschleife_einhorn_up_walk
+P...P
+PPDPP
+P...P
+
+sprite schmuck_blumenkranz_warmblut_side
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_warmblut_side_walk
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_warmblut_gallop1
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_warmblut_gallop2
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_warmblut_graze
+lPlYl.
+...lPl
+
+sprite schmuck_blumenkranz_warmblut_down
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_warmblut_down_walk
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_warmblut_up
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_blumenkranz_warmblut_up_walk
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_blumenkranz_pony_side
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_pony_side_walk
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_pony_gallop1
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_pony_gallop2
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_pony_graze
+lPl
+
+sprite schmuck_blumenkranz_pony_down
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_pony_down_walk
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_pony_up
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_blumenkranz_pony_up_walk
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_blumenkranz_kaltblut_side
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_kaltblut_side_walk
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_kaltblut_gallop1
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_kaltblut_gallop2
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_kaltblut_graze
+lPlYl.
+lPlYl.
+...lPl
+
+sprite schmuck_blumenkranz_kaltblut_down
+YlVVl....VlPPl
+..llYlVlPlY...
+
+sprite schmuck_blumenkranz_kaltblut_down_walk
+YllVl....VlPPl
+...lYlVlPlY...
+
+sprite schmuck_blumenkranz_kaltblut_up
+.VVlPlYlVl.
+PllYlVlPlYl
+
+sprite schmuck_blumenkranz_kaltblut_up_walk
+.VVlPlYlVl.
+PllYlVlPlYl
+
+sprite schmuck_blumenkranz_einhorn_side
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_einhorn_side_walk
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_einhorn_gallop1
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_einhorn_gallop2
+lVlPlYl
+PlYlVlP
+
+sprite schmuck_blumenkranz_einhorn_graze
+lPlYl.
+...lPl
+
+sprite schmuck_blumenkranz_einhorn_down
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_einhorn_down_walk
+YlVl....VlPl
+..lYlVlPlY..
+
+sprite schmuck_blumenkranz_einhorn_up
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_blumenkranz_einhorn_up_walk
+.VlPlYlVl.
+PlYlVlPlYl
+
+sprite schmuck_glitzerdecke_warmblut_side
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_warmblut_side_walk
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_warmblut_gallop1
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_warmblut_gallop2
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_warmblut_graze
+7V444V44447
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_warmblut_down
+V4........44
+4V........44
+V4........44
+4V........V4
+77........77
+
+sprite schmuck_glitzerdecke_warmblut_down_walk
+V4........44
+4V........44
+V4........44
+4V........V4
+77........77
+
+sprite schmuck_glitzerdecke_warmblut_up
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_glitzerdecke_warmblut_up_walk
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_glitzerdecke_pony_side
+7V44444.7
+744444V47
+744444447
+7VV444447
+
+sprite schmuck_glitzerdecke_pony_side_walk
+7V44V44.7
+7444V4V47
+74444V447
+7VV444447
+
+sprite schmuck_glitzerdecke_pony_gallop1
+7V44444.7
+744444V47
+744444447
+7VV444447
+
+sprite schmuck_glitzerdecke_pony_gallop2
+7V44V44.7
+7444V4V47
+74444V447
+7VV444447
+
+sprite schmuck_glitzerdecke_pony_graze
+7V4444447
+744444V47
+744444447
+7VV444447
+
+sprite schmuck_glitzerdecke_pony_down
+V4........44
+4V........44
+V4........44
+77........77
+
+sprite schmuck_glitzerdecke_pony_down_walk
+V4........44
+4V........44
+V4........44
+77........77
+
+sprite schmuck_glitzerdecke_pony_up
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_glitzerdecke_pony_up_walk
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_glitzerdecke_kaltblut_side
+7V444VVV444.7
+74444VVV44V47
+74444444V4447
+7VV4444444447
+7777777777777
+7777777777777
+
+sprite schmuck_glitzerdecke_kaltblut_side_walk
+7V444V44444.7
+74444V4444V47
+744444V444447
+7VV4444444447
+7777777777777
+7777777777777
+
+sprite schmuck_glitzerdecke_kaltblut_gallop1
+7V444VVV444.7
+74444VVV44V47
+74444444V4447
+7VV4444444447
+7777777777777
+7777777777777
+
+sprite schmuck_glitzerdecke_kaltblut_gallop2
+7V444V44444.7
+74444V4444V47
+744444V444447
+7VV4444444447
+7777777777777
+7777777777777
+
+sprite schmuck_glitzerdecke_kaltblut_graze
+7V444VVV44447
+74444VVV44V47
+74444444V4447
+7VV4444444447
+7777777777777
+7777777777777
+
+sprite schmuck_glitzerdecke_kaltblut_down
+V4.........444
+4V.........444
+V4.........444
+4V.........VV4
+4V.........VV4
+77.........777
+
+sprite schmuck_glitzerdecke_kaltblut_down_walk
+V44........444
+4VV........444
+V44........444
+4VV........VV4
+4VV........VV4
+777........777
+
+sprite schmuck_glitzerdecke_kaltblut_up
+4444444V4444VV
+44VV44V444V444
+4444444444V444
+777777..777777
+
+sprite schmuck_glitzerdecke_kaltblut_up_walk
+4444444V4444VV
+44VV44V444V444
+4444444444V444
+777777..777777
+
+sprite schmuck_glitzerdecke_einhorn_side
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_einhorn_side_walk
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_einhorn_gallop1
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_einhorn_gallop2
+7V444V444.7
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_einhorn_graze
+7V444V44447
+74444V44V47
+744444V4447
+7VV44444447
+77777777777
+
+sprite schmuck_glitzerdecke_einhorn_down
+V4........44
+4V........44
+V4........44
+4V........V4
+77........77
+
+sprite schmuck_glitzerdecke_einhorn_down_walk
+V4........44
+4V........44
+V4........44
+4V........V4
+77........77
+
+sprite schmuck_glitzerdecke_einhorn_up
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_glitzerdecke_einhorn_up_walk
+444444V4444V
+44V44V444V44
+444444444V44
+77777..77777
+
+sprite schmuck_goldhufeisen_warmblut_side
+66.66.......66.66
+
+sprite schmuck_goldhufeisen_warmblut_side_walk
+66.....66....66......66
+
+sprite schmuck_goldhufeisen_warmblut_gallop1
+66..................66...66
+
+sprite schmuck_goldhufeisen_warmblut_gallop2
+66.66....66.66
+
+sprite schmuck_goldhufeisen_warmblut_graze
+66.66.......66.66
+
+sprite schmuck_goldhufeisen_warmblut_down
+66......66
+
+sprite schmuck_goldhufeisen_warmblut_down_walk
+66........
+..........
+........66
+
+sprite schmuck_goldhufeisen_warmblut_up
+66.......66
+
+sprite schmuck_goldhufeisen_warmblut_up_walk
+66.........
+...........
+.........66
+
+sprite schmuck_goldhufeisen_pony_side
+66.66.....66.66
+
+sprite schmuck_goldhufeisen_pony_side_walk
+66.....6...66......66
+
+sprite schmuck_goldhufeisen_pony_graze
+66.66.....66.66
+
+sprite schmuck_goldhufeisen_pony_down
+66......66
+
+sprite schmuck_goldhufeisen_pony_down_walk
+66
+
+sprite schmuck_goldhufeisen_pony_up
+66.......66
+
+sprite schmuck_goldhufeisen_pony_up_walk
+66
+
+sprite schmuck_goldhufeisen_kaltblut_side
+66.66.........66.66
+
+sprite schmuck_goldhufeisen_kaltblut_side_walk
+66.....66......66......66
+
+sprite schmuck_goldhufeisen_kaltblut_gallop1
+66....................66...66
+
+sprite schmuck_goldhufeisen_kaltblut_gallop2
+66.66......66.66
+
+sprite schmuck_goldhufeisen_kaltblut_graze
+66.66.........66.66
+
+sprite schmuck_goldhufeisen_kaltblut_down
+666......666
+
+sprite schmuck_goldhufeisen_kaltblut_down_walk
+666.........
+............
+.........666
+
+sprite schmuck_goldhufeisen_kaltblut_up
+666.......666
+
+sprite schmuck_goldhufeisen_kaltblut_up_walk
+666..........
+.............
+..........666
+
+sprite schmuck_goldhufeisen_einhorn_side
+66.66.......66.66
+
+sprite schmuck_goldhufeisen_einhorn_side_walk
+66.....66....66......66
+
+sprite schmuck_goldhufeisen_einhorn_gallop1
+66..................66...66
+
+sprite schmuck_goldhufeisen_einhorn_gallop2
+66.66....66.66
+
+sprite schmuck_goldhufeisen_einhorn_graze
+66.66.......66.66
+
+sprite schmuck_goldhufeisen_einhorn_down
+66......66
+
+sprite schmuck_goldhufeisen_einhorn_down_walk
+66........
+..........
+........66
+
+sprite schmuck_goldhufeisen_einhorn_up
+66.......66
+
+sprite schmuck_goldhufeisen_einhorn_up_walk
+66.........
+...........
+.........66
 
 sprite muster_schecke_warmblut_side
 ..............................

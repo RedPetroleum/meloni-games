@@ -46,4 +46,6 @@ return {
   "album",
   "tausch",
   "fortschritt",
+  "fohlen",
+  "jobspiel",
 }

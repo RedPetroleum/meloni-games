@@ -21,12 +21,12 @@ local function horse(staerke, ort)
   local d = H.wild({rng = Rng.new(2), zug = "faul", rasse = "haflinger"})
   for _, k in ipairs(H.STATS) do d.gen[k], d.train[k], d.pot[k] = 50, 0, 80 end
   d.gen.staerke = staerke
-  d.alter, d.ort, d.energie = 1, ort or "stall", 50
+  d.alter, d.ort, d.energie = 1, ort or "goepel", 50
   return d
 end
 
 return {
-  {"Göpel kostet 1 500; 40 Geld je Pferd und Tag, ein Pferd je Generator", function()
+  {"Göpel kostet 1 500; 40 Geld je Pferd und Tag, ein Pferd je Generator (Ort Göpel)", function()
     local ctx, p = setup()
     C.ok(Farm.place(ctx, "goepel_generator", p.x + 13, p.y + 5))
     C.eq(ctx.money, 8500)

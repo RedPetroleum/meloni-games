@@ -11,6 +11,8 @@ Output (between the marker lines at the end of sprites.txt):
       sprites.txt wins (the generated one is left out), so any pose can be redrawn by hand.
   muster_<pattern>_<body>_<pose>
       coat pattern overlays (drawn over the coat color): only pixels of the coat (h, H, b).
+  schmuck_<id>_<body>_<pose>
+      jewelry overlays, cropped; their position in the horse image goes to game/schmuck_pos.lua.
 
 make test/run/shot/dist call it before tools/sprites.py; it only writes when something changed.
 """
@@ -20,6 +22,7 @@ import sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 PATH = os.path.join(ROOT, "games/hoofy/sprites.txt")
+POS_PATH = os.path.join(ROOT, "games/hoofy/game/schmuck_pos.lua")
 BEGIN = "# >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)"
 END = "# <<< Pferde"
 
@@ -69,11 +72,23 @@ def best_row(rows, lo, hi):
     return min(span, key=lambda r: (diff(rows[r], rows[r - 1]), -r))
 
 
+# Die Körper entstehen aus dem Warmblut durch Weglassen/Verdoppeln von Zeilen und Spalten. Jede Operation
+# wird in LOG mitgeschrieben, damit sich dieselbe Umformung auf die Schmuck-Overlays anwenden lässt.
+LOG = None
+
+
+def log(op, *args):
+    if LOG is not None:
+        LOG.append((op,) + args)
+
+
 def drop_row(rows, r):
+    log("drop_row", r)
     return rows if r is None else rows[:r] + rows[r + 1:]
 
 
 def dup_row(rows, r):
+    log("dup_row", r)
     return rows if r is None else rows[:r + 1] + rows[r:]
 
 
@@ -86,11 +101,26 @@ def best_col(rows, lo, hi):
 
 
 def drop_col(rows, c):
+    log("drop_col", c)
     return [r[:c] + r[c + 1:] for r in rows]
 
 
 def dup_col(rows, c):
+    log("dup_col", c)
     return [r[:c + 1] + r[c:] for r in rows]
+
+
+def replay(rows, ops):
+    """Wendet mitgeschriebene Operationen (LOG) auf ein gleich großes Bild an."""
+    global LOG
+    saved, LOG = LOG, None
+    for op in ops:
+        if op[0] == "top":
+            rows = ["." * len(rows[0])] * op[1] + rows
+        else:
+            rows = {"drop_row": drop_row, "dup_row": dup_row, "drop_col": drop_col, "dup_col": dup_col}[op[0]](rows, op[1])
+    LOG = saved
+    return rows
 
 
 def leg_start(rows, pose):
@@ -145,6 +175,7 @@ def einhorn(rows, pose):
     rows = pad(rows)
     horn = HORN[pose]
     top = -min(0, min(y for _, y, _ in horn))
+    log("top", top)
     rows = ["." * len(rows[0])] * top + rows
     rows = [list(r) for r in rows]
     for x, y, ch in horn:
@@ -201,6 +232,80 @@ def overlay(rows, name):
     return out
 
 
+# ---- Schmuck (Rückmeldung 1.2.1: ausgerüsteter Schmuck ist zu sehen) ----
+# Lage am Warmblut (x, y wie im Bild); die anderen Körper bekommen dieselbe Umformung wie das Pferd.
+# Schleife: Mitte der Schleife in der Mähne. Kranz: Kacheln (x0, x1, y) einer Blumenreihe um den Hals.
+# Decke: Rechteck (x0, y0, x1, y1) auf dem Rücken, nur über Fell. Goldhufeisen: die Hufe unten.
+SCHLEIFE = ["P...P", "PPDPP", "P...P"]
+SCHLEIFE_AT = {"side": (18, 5), "graze": (21, 11), "down": (8, 3), "up": (8, 4)}
+KRANZ_AT = {
+    "side": [(15, 21, 8), (15, 21, 9)],
+    "graze": [(20, 24, 13), (23, 25, 14)],
+    "down": [(2, 5, 12), (10, 13, 12), (4, 11, 13)],
+    "up": [(4, 11, 6), (3, 12, 7)],
+}
+DECKE_AT = {"side": [(6, 9, 16, 13)], "graze": [(6, 9, 16, 13)],
+            "down": [(1, 12, 3, 16), (12, 12, 14, 16)], "up": [(1, 8, 14, 11)]}
+KRANZ_FARBEN = "PlYlVl"
+SCHMUCK = ["maehnenschleife", "blumenkranz", "glitzerdecke", "goldhufeisen"]
+
+
+def base_pose(pose):
+    if pose in ("side", "side_walk", "gallop1", "gallop2"):
+        return "side"
+    return pose.replace("_walk", "")
+
+
+def schmuck_warmblut(kind, rows, pose):
+    """Overlay in der Größe des Warmblut-Bilds (nur Schleife, Kranz, Decke)."""
+    h, w = len(rows), len(rows[0])
+    out = [["."] * w for _ in range(h)]
+    bp = base_pose(pose)
+    if kind == "maehnenschleife":
+        cx, cy = SCHLEIFE_AT[bp]
+        for dy, line in enumerate(SCHLEIFE):
+            for dx, ch in enumerate(line):
+                x, y = cx - 2 + dx, cy - 1 + dy
+                if ch != "." and 0 <= x < w and 0 <= y < h:
+                    out[y][x] = ch
+    elif kind == "blumenkranz":
+        for x0, x1, y in KRANZ_AT[bp]:
+            for x in range(x0, x1 + 1):
+                if rows[y][x] != ".":
+                    out[y][x] = KRANZ_FARBEN[(x + 3 * y) % len(KRANZ_FARBEN)]
+    elif kind == "glitzerdecke":
+        for x0, y0, x1, y1 in DECKE_AT[bp]:
+            for y in range(y0, y1 + 1):
+                for x in range(x0, x1 + 1):
+                    if rows[y][x] in COAT:
+                        trim = y == y1 or (bp in ("side", "graze") and x in (x0, x1))
+                        out[y][x] = "7" if trim else ("V" if h32(x, y, 57) < 0.18 else "4")
+    return ["".join(r) for r in out]
+
+
+def hufe(rows):
+    """Goldhufeisen: Huf-Pixel (u) in den untersten Reihen, unter denen der Umriss liegt."""
+    h = len(rows)
+    out = []
+    for y, r in enumerate(rows):
+        line = []
+        for x, ch in enumerate(r):
+            below = rows[y + 1][x] if y + 1 < h else "."
+            line.append("6" if ch == "u" and y >= h - 4 and below == "k" else ".")
+        out.append("".join(line))
+    return out
+
+
+def crop(rows):
+    """Schneidet ein Overlay auf seinen Inhalt zu: (Zeilen, x0, y0) oder None, wenn es leer ist."""
+    ys = [y for y, r in enumerate(rows) if r.strip(".")]
+    if not ys:
+        return None
+    xs = [x for r in rows for x, ch in enumerate(r) if ch != "."]
+    x0, x1, y0, y1 = min(xs), max(xs), ys[0], ys[-1]
+    return [r[x0:x1 + 1] for r in rows[y0:y1 + 1]], x0, y0
+
+
 def block(name, rows):
     return "sprite %s\n%s\n" % (name, "\n".join(rows))
 
@@ -213,32 +318,60 @@ def generate(text):
         if name not in hand:
             sys.exit("hoofy_pferde: %s fehlt in sprites.txt" % name)
         bodies["warmblut"][pose] = pad(hand[name])
+    global LOG
     out = [BEGIN, ""]
+    ops = {"warmblut": {pose: [] for pose in POSES}}
     for body, fn in (("pony", pony), ("kaltblut", kaltblut), ("einhorn", einhorn)):
-        bodies[body] = {}
+        bodies[body], ops[body] = {}, {}
         for pose in POSES:
             name = "horse_%s_%s" % (body, pose)
+            LOG = []
+            rows = fn(bodies["warmblut"][pose], pose)
+            ops[body][pose], LOG = LOG, None
             if name in hand:
                 bodies[body][pose] = pad(hand[name])
             else:
-                rows = fn(bodies["warmblut"][pose], pose)
                 bodies[body][pose] = rows
                 out.append(block(name, rows))
+    pos = []
+    for kind in SCHMUCK:
+        for body in ("warmblut", "pony", "kaltblut", "einhorn"):
+            for pose in POSES:
+                rows = bodies[body][pose]
+                if kind == "goldhufeisen":
+                    ov = hufe(rows)
+                else:
+                    ov = replay(schmuck_warmblut(kind, bodies["warmblut"][pose], pose), ops[body][pose])
+                    if len(ov) != len(rows) or len(ov[0]) != len(rows[0]):
+                        ov = None          # von Hand gezeichneter Körper anderer Größe: ohne diesen Schmuck
+                c = ov and crop(ov)
+                if c:
+                    name = "schmuck_%s_%s_%s" % (kind, body, pose)
+                    out.append(block(name, c[0]))
+                    pos.append("  %s = {%d, %d}," % (name, c[1], c[2]))
     for pat in PATTERNS:
         for body in ("warmblut", "pony", "kaltblut", "einhorn"):
             for pose in POSES:
                 out.append(block("muster_%s_%s_%s" % (pat, body, pose), overlay(bodies[body][pose], pat)))
     out.append(END)
-    return rest.rstrip("\n") + "\n\n" + "\n".join(out) + "\n"
+    lua = ("-- Erzeugt von tools/hoofy_pferde.py, nicht von Hand ändern.\n"
+           "-- Lage der Schmuck-Overlays im Pferdebild: Name → {x, y} der linken oberen Ecke.\n"
+           "return {\n" + "\n".join(pos) + "\n}\n")
+    return rest.rstrip("\n") + "\n\n" + "\n".join(out) + "\n", lua
 
 
 def main():
     text = open(PATH, encoding="utf-8").read()
-    new = generate(text)
+    new, lua = generate(text)
     if new != text:
         with open(PATH, "w", encoding="utf-8") as f:
             f.write(new)
         print("hoofy_pferde: Körper und Muster in sprites.txt erneuert")
+    old = open(POS_PATH, encoding="utf-8").read() if os.path.exists(POS_PATH) else None
+    if lua != old:
+        with open(POS_PATH, "w", encoding="utf-8") as f:
+            f.write(lua)
+        print("hoofy_pferde: game/schmuck_pos.lua erneuert")
 
 
 if __name__ == "__main__":

@@ -51,6 +51,14 @@ return {
       },
       einmalig = true,
     },
+    {
+      id = "hacke",
+      name = "Hacke",
+      preis = 100,
+      text = "Beete und Felder anlegen",
+      wirkung = {},
+      einmalig = true,
+    },
   },
   anbau = {
     {
@@ -223,5 +231,5 @@ return {
       fohlen_potenzial = 2,
     },
   },
-  beet_preis = 20,
+  beet_preis = 0,
 }

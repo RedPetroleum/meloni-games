@@ -20,8 +20,26 @@ local function colors_for(rasse)
   return out
 end
 
-function Gallery.enter()
+local schmuck_mode
+local ALL = {glitzerdecke = true, blumenkranz = true, maehnenschleife = true, goldhufeisen = true}
+
+-- arg.schmuck = true (Szenario schmuck): alle Körper in fünf Posen mit allem Schmuck, die erste Spalte gespiegelt.
+function Gallery.enter(arg)
   t, page = 0, 1
+  schmuck_mode = arg and arg.schmuck
+end
+
+local function draw_schmuck()
+  local C = Stage.COLORS
+  cls(rgb(0x7f, 0xb0, 0x4f))
+  print("Schmuck an allen Körpern", 4, 2, C.panel)
+  local poses = {"side", "side", "side_walk", "gallop1", "graze", "down", "up"}
+  for i, body in ipairs(G.BODIES) do
+    local y = 50 + (i - 1) * 52
+    for j, pose in ipairs(poses) do
+      G.draw(i % 2 == 0 and "schimmel" or "rappe", body, pose, 24 + (j - 1) * 45, y, j == 1, ALL)
+    end
+  end
 end
 
 function Gallery.update()
@@ -31,6 +49,7 @@ function Gallery.update()
 end
 
 function Gallery.draw()
+  if schmuck_mode then return draw_schmuck() end
   local C = Stage.COLORS
   cls(rgb(0x7f, 0xb0, 0x4f))
   rectfill(0, 0, SCREEN_W - 1, 11, C.panel)

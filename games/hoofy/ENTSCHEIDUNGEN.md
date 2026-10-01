@@ -459,3 +459,39 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - tools/sprites.py verteilt Sätze über 512 Zeilen auf mehrere Bilder (Hoofy: sechs, je höchstens 256×510); der 5.
   Eintrag eines Rechtecks ist sein Bild. Dauerhaft bleibt es bei 2,1 MB, beim Laden kommt nur noch ~1,5 MB dazu.
   Tilemap, Welt und Menü-Icons zeichnen mit `r[5]`. Selbsttest prüft die Größe des größten Bilds.
+
+## E78 Schmuck, Stall von innen, Zähmen, Anbau, Jobs, Göpel, Zucht (Rückmeldung nach 1.2.1)
+- Schmuck sichtbar: tools/hoofy_pferde.py erzeugt Overlays für alle Körper und Posen (Schleife pink in der Mähne,
+  Blumenkranz um den Hals, Glitzerdecke lila mit Goldrand, Goldhufeisen), Lage in game/schmuck_pos.lua. Zu sehen in
+  der Welt, in Info, Pferdeliste, Springreiten, Stall und Jobs. Szenario `schmuck` zeigt alles.
+- Schmuck teurer (eigene Wahl, KATALOG §8 angepasst): Mähnenschleife 30 → 150, Blumenkranz 60 → 300,
+  Glitzerdecke 250 → 1 200, Goldhufeisen 1 000 → 4 000.
+- Stall von innen: A an der Stalltür öffnet die Ansicht (hat jetzt Vorrang vor dem Pferd an der Leine). S 2 Boxen,
+  M 4 mit Fenstern, L 8 in zwei Reihen mit Steingasse, rot; XL 12 dunkles Holz mit Goldleiste und Lampen. Pferde
+  verteilen sich der Reihe nach auf die Ställe. Pferd + A: Pferdemenü mit „Holen“ statt Leine, ohne Reiten, mit
+  „Zucht“ (Partner wählen, Verwandtschaft steht dabei). Leere Box + A: das Pferd an der Leine einstellen. Das
+  alte Stallmenü ist weg. Das Pferdemenü steckt jetzt in game/horse_menu.lua (Welt und Stall).
+- Zucht-Absturz: am Rechner nicht nachzustellen (Szenario `zucht` mit Hengst und Stute lief durch). Der Ablauf ist
+  neu gebaut und mit Tests abgesichert; bitte auf der Konsole prüfen und melden, falls es wieder abstürzt.
+- Fohlen kommt in den Stall. Kein Platz: das billigste Stallpferd (nie Mutter oder Fohlen) zieht auf die Weide; ist
+  die voll, zieht dort das billigste aufs Grundstück (frei, auch wenn es sonst zu schwach dafür wäre); ist auch das
+  voll, läuft das Pferd mit dem geringsten Wert fort (Meldung). Eigene Ergänzung: Wird unterwegs ein Fohlen geboren,
+  steht es im Stall zu Hause, Platz gemacht wird bei der Heimkehr.
+- Zähmen schwerer: Sprinten (oder Galopp) in der 110-px-Zone verscheucht das Pferd sofort. A muss man drücken, während
+  es wegschaut (schaut es her, flieht es), dann stillstehend halten: 1,5 s + 1 Frame je fehlendem Bindungspunkt
+  (Bindung 35 → 2,6 s), Balken über dem Pferd. Loslassen oder Gehen bricht ab.
+- Losgerissen: Ein gezähmtes Pferd ist „neu“, bis es einmal auf deinem Grundstück stand (oder untergebracht wurde).
+  Reißt es sich vorher los, ist es wieder wild (Bindung wie vor dem Zähmen, zählt wieder als Wildpferd). Danach reißt
+  es wie bisher nur aus und bleibt deins.
+- Apfelbaum wächst ohne Beet auf freiem Gras des Grundstücks (auch auf Beeten). Beete und Felder kosten nichts, man
+  braucht aber einmal eine Hacke (100 G, Laden → Zubehör, eigene Wahl des Preises). KATALOG §7/§9 angepasst.
+- Jobs als Minispiele (je etwa 20 s): Postritt (A wirft den Brief, wenn der Briefkasten im Rahmen ist; daneben zählt
+  halb dagegen), Kutschtaxi (↑/↓ Spur wechseln, Fahrgäste einsammeln, Pfützen/Steinen ausweichen), Pflügen (A, wenn
+  der pendelnde Zeiger im Grünen ist; Stärke macht das Grüne breiter, 18 Furchenstücke in 20 s). Lohn = 40 % sicher
+  + 60 % nach Ergebnis. Energie geht wie im Katalog ab (30/30/40) und läuft oben im Bild sichtbar herunter.
+- Göpel als Unterbringung: unter „Ort“ gibt es „Göpel“, ein Pferd je Generator (ausgewachsen, Stärke ≥ 40). Es läuft im
+  Kreis um den Generator, mit Zugbalken. Geld bringen nur noch Pferde am Göpel (vorher zog automatisch das stärkste
+  untergebrachte Pferd) – nach dem Update also ein Pferd an den Göpel stellen. Göpel mit Pferd lässt sich nicht
+  abreißen. Regen trifft Göpel-Pferde wie Weidepferde.
+- README_HOOFY.md beschreibt Jobs und Göpel noch wie vorher (nicht geändert, gehört dem Menschen).
+- Neue Szenarien: `zucht` (geburt = true), `stall` (stall = "stall_xl" …), `goepel`, `jobspiel` (job = …), `schmuck`.

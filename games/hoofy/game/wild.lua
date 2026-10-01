@@ -18,7 +18,8 @@ Wild.Horse = nil
 
 -- Zähmen (E16): In der Zone (ZONE Pixel um das Pferd) schaut es 2–4 s weg (kürzer bei niedriger
 -- Bindung), warnt 0,3 s (❗), schaut 1–2 s her. Bewegt sich der Spieler, während es hinschaut,
--- flieht es. Nah genug (TAME_DIST) und A drücken: gezähmt.
+-- flieht es. Schwerer gemacht (Rückmeldung 1.2.1): Wer in der Zone sprintet, verscheucht es; A muss man
+-- nah genug (TAME_DIST) drücken, während es wegschaut, und dann stillstehend halten (Wild.tame_frames).
 local ZONE = 110
 local TAME_DIST = 26
 local WARN = 18          -- 0,3 s
@@ -86,6 +87,11 @@ end
 function Horse:update_tamed()
   if self.hidden then return end          -- im Stall oder im Anhänger
   local ctx, p = self.ctx, self.ctx.player
+  -- einmal auf dem eigenen Grundstück: nicht mehr neu, reißt es sich los, bleibt es deins
+  if self.data.neu and ctx.area.farm then
+    self.neu_t = (self.neu_t or 0) + 1
+    if self.neu_t % 30 == 0 and Farm.owns(ctx.area.farm, flr(self.x / 16), flr((self.y - 1) / 16)) then self.data.neu = nil end
+  end
   local st = self.state
   self.moving = false
   if st == "ridden" then
@@ -125,6 +131,15 @@ function Horse:update_tamed()
         if Leash.escape_roll(self.data.bindung, mode, self.data.zug, nil, Ride.fresh(self.data)) then ctx.wild:escape(self) end
       end
     end
+  elseif st == "goepel" then
+    -- zieht den Göpel: Kreis um den Generator, gegen den Uhrzeigersinn
+    local g = self.goepel
+    self.angle = (self.angle + Wild.GOEPEL_SPEED) % (2 * math.pi)
+    local nx, ny = g.x + math.cos(self.angle) * Wild.GOEPEL_RX, g.y + math.sin(self.angle) * Wild.GOEPEL_RY
+    if nx ~= self.x then self.dir = nx > self.x and "right" or "left" end
+    self.x, self.y = nx, ny
+    self.moving, self.speed = true, 0.4
+    self.anim = self.anim + 0.05
   elseif st == "free" then
     self.timer = self.timer - 1
     if self.timer <= 0 then
@@ -165,6 +180,11 @@ function Horse:update()
   end
   self.timer = self.timer - 1
   self.cool = max(0, (self.cool or 0) - 1)
+  -- Sprinten (oder Galopp) in der Zone ist zu laut: es flieht sofort
+  if d < ZONE and p.running and p.moving and self.state ~= "flee" then
+    self:flee(p)
+    return
+  end
   local watching = self.state == "away" or self.state == "warn" or self.state == "look"
   if not watching and self.state ~= "flee" and d < ZONE and self.cool == 0 then
     local bond = self.data.bindung
@@ -291,11 +311,19 @@ function Horse:draw_shadow()
   rectfill(x - 8, y - 2, x + 8, y + 1, c)
 end
 
+local BEAM, BEAM_DARK = rgb(0xb0, 0x7a, 0x44), rgb(0x55, 0x33, 0x20)
+local TAME_BG, TAME_FG = rgb(0x2b, 0x1f, 0x1d), rgb(0xe0, 0x47, 0x5a)
+
 function Horse:draw()
   if self.hidden then return end
+  if self.state == "goepel" then          -- Zugbalken von der Nabe zum Rücken
+    local g = self.goepel
+    line(g.x, g.hub, self.x, self.y - 13, BEAM)
+    line(g.x, g.hub + 1, self.x, self.y - 12, BEAM_DARK)
+  end
   local r = self.rider
   local lift = r and r.air or 0
-  G.draw(self.coat, self.body, self:pose(), self.x, self.y - lift, self.dir == "left")
+  G.draw(self.coat, self.body, self:pose(), self.x, self.y - lift, self.dir == "left", self.data.schmuck)
   if r then
     -- Reiter auf dem Rücken: Figur der Blickrichtung
     local _, bh = G.size(self.coat, self.body, "side")
@@ -310,6 +338,13 @@ end
 function Horse:draw_over()
   if self.hidden then return end
   if self.state == "flee" or self.state == "escape" then self.scared = true elseif not self.demo then self.scared = false end
+  if self.taming then                 -- Zähmen: Balken über dem Pferd füllt sich
+    local w = 24
+    local x0, y0 = flr(self.x) - w // 2, flr(self.y) - 34
+    rectfill(x0 - 1, y0 - 1, x0 + w, y0 + 3, TAME_BG)
+    rectfill(x0, y0, x0 + flr(w * self.taming / self.tame_need), y0 + 2, TAME_FG)
+    return
+  end
   local b = self.state == "warn" and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
@@ -331,21 +366,74 @@ function Wild.merke_zaehmung(ctx, gebiet)
   ctx.gezaehmt[gebiet] = {runde = wechsel_runde(ctx), n = Wild.gezaehmt(ctx, gebiet) + 1}
 end
 
--- Ein Wildpferd in Reichweite wird gezähmt (A gedrückt, nicht auf der Flucht). Gibt es zurück.
-function Wild:try_tame()
+-- So lange muss A gehalten werden: 1,5 s plus 1 Frame je fehlendem Bindungspunkt (Bindung 35 → 2,6 s).
+function Wild.tame_frames(bindung)
+  return 90 + (100 - bindung)
+end
+
+-- Wildpferd in Reichweite (nicht auf der Flucht), nil wenn keins.
+function Wild:tame_target()
   local p = self.ctx.player
-  for i, h in ipairs(self.list) do
-    if h.state ~= "flee" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST then
-      table.remove(self.list, i)
-      Wild.merke_zaehmung(self.ctx, self.gebiet)
-      h.wild, h.data.wild, h.tamed = false, nil, true
-      h.data.reit_ab = h.data.bindung + Ride.FRESH_BOND          -- frisch gezähmt: noch nicht reitbar (E71)
-      self.ctx.herd[#self.ctx.herd + 1] = h.data
-      self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
-      self:attach(h)
-      return h
-    end
+  for _, h in ipairs(self.list) do
+    if h.state ~= "flee" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST then return h end
   end
+end
+
+-- A gedrückt bei h: Schaut es gerade her (❗ oder hinschauen), sieht es die Hand und flieht (false).
+-- Sonst beginnt das Zähmen (true); weiter mit tame_step, solange A gehalten wird.
+function Wild:tame_begin(h)
+  if h.state == "warn" or h.state == "look" then
+    h:flee(self.ctx.player)
+    return false
+  end
+  h.taming, h.tame_need = 0, Wild.tame_frames(h.data.bindung)
+  return true
+end
+
+-- Ein Frame Zähmen. holding: A gehalten. Gibt "ok" (gezähmt), "weg" (abgebrochen) oder nil (läuft) zurück.
+function Wild:tame_step(h, holding)
+  local p = self.ctx.player
+  if not holding or p.moving or h.state == "flee" or h.dead or U.dist(h.x, h.y, p.x, p.y) > TAME_DIST + 8 then
+    h.taming = nil
+    return "weg"
+  end
+  h.taming = h.taming + 1
+  if h.taming >= h.tame_need then
+    h.taming = nil
+    self:tame(h)
+    return "ok"
+  end
+end
+
+-- Zähmt h sofort (Ende von tame_step; Tests). Bis es einmal auf dem Grundstück war, ist es neu (data.neu):
+-- Reißt es sich vorher los, wird es wieder wild (Rückmeldung 1.2.1).
+function Wild:tame(h)
+  for i, e in ipairs(self.list) do if e == h then table.remove(self.list, i) break end end
+  Wild.merke_zaehmung(self.ctx, self.gebiet)
+  h.wild, h.data.wild, h.tamed = false, nil, true
+  h.data.reit_ab = h.data.bindung + Ride.FRESH_BOND          -- frisch gezähmt: noch nicht reitbar (E71)
+  h.data.neu = true
+  self.ctx.herd[#self.ctx.herd + 1] = h.data
+  self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
+  self:attach(h)
+  return h
+end
+
+-- Ein neues Pferd reißt sich los, bevor es auf dem Hof war: wieder wild, mit der Bindung von vor dem Zähmen.
+function Wild:rewild(h)
+  local ctx = self.ctx
+  for i, e in ipairs(ctx.lead) do if e == h then table.remove(ctx.lead, i) break end end
+  for i, d in ipairs(ctx.herd) do if d == h.data then table.remove(ctx.herd, i) break end end
+  for i, e in ipairs(ctx.herd_horses) do if e == h then table.remove(ctx.herd_horses, i) break end end
+  local d = h.data
+  if d.reit_ab then d.bindung = mid(0, d.reit_ab - Ride.FRESH_BOND, 100) end
+  d.reit_ab, d.neu, d.ort, d.lose, d.wild = nil, nil, nil, nil, true
+  h.tamed, h.wild, h.hidden, h.bounds, h.allow, h.alone_allow = false, true, false, nil, nil, nil
+  local z = ctx.gezaehmt and ctx.gezaehmt[self.gebiet]
+  if z and z.n > 0 then z.n = z.n - 1 end
+  self.list[#self.list + 1] = h
+  h:flee(ctx.player)
+  h.timer = 150
 end
 
 -- Stellt die Wildpferde ein. Gibt den Verwalter {ctx, list, rng, slot} zurück.
@@ -414,8 +502,15 @@ function Wild:led_count()
   return n
 end
 
--- Die Leine reißt: Pferd läuft weg und bleibt dort lose stehen.
+-- Die Leine reißt: Pferd läuft weg und bleibt dort lose stehen. War es noch nie auf dem Hof (data.neu),
+-- ist es wieder wild (ctx.escaped_wild).
 function Wild:escape(h)
+  if h.data.neu then
+    self:rewild(h)
+    SFX.snap()
+    self.ctx.escaped, self.ctx.escaped_wild = h, true
+    return h
+  end
   for i, e in ipairs(self.ctx.lead) do
     if e == h then table.remove(self.ctx.lead, i) break end
   end
@@ -518,6 +613,56 @@ function Wild:adopt(data)
   return h
 end
 
+-- Fohlen (Rückmeldung 1.2.1): kommt in den Stall. Ist dort kein Platz, macht make_room Platz. Gibt das
+-- Pferd und die Meldungen über Umzüge zurück.
+function Wild:place_foal(data, mother)
+  data.ort = "stall"
+  local h = self:adopt(data)
+  return h, self:make_room({[data] = true, [mother] = true})
+end
+
+-- Stall überbelegt: das billigste Pferd (nie eins aus protect, Menge Daten → true) zieht auf die Weide; ist die
+-- voll, zieht dort das billigste auf das Grundstück (frei, auch wenn es dafür sonst zu schwach wäre); ist auch das
+-- voll, läuft das Pferd mit dem geringsten Wert fort. Gibt die Meldungen zurück.
+function Wild:make_room(protect)
+  local ctx, farm = self.ctx, self.ctx.area.farm
+  local out = {}
+  if not farm then return out end
+  local V = require("game.value")
+  local function cheapest(orte, skip)
+    local best
+    for _, h in ipairs(ctx.herd_horses) do
+      local d = h.data
+      if orte[d.ort] and not protect[d] and h ~= skip and (not best or V.wert_roh(d) < V.wert_roh(best.data)) then best = h end
+    end
+    return best
+  end
+  for _ = 1, 30 do
+    local cap = Farm.capacity(farm)
+    if Farm.count(ctx.herd, "stall") <= cap.stall then break end
+    local x = cheapest({stall = true})
+    if not x then break end
+    if self:house(x, "weide") then
+      out[#out + 1] = x.data.name .. " zieht auf die Weide."
+    else
+      local y = cheapest({weide = true}, x)
+      self.force_roam = true
+      local ok = y and self:house(y, "frei")
+      self.force_roam = nil
+      if ok and self:house(x, "weide") then
+        out[#out + 1] = y.data.name .. " läuft jetzt frei auf dem Hof, " .. x.data.name .. " zieht auf die Weide."
+      else
+        if ok then self:house(y, "weide", true) end              -- zurück, es hat nichts genützt
+        local z = cheapest({stall = true, weide = true, frei = true})
+        if not z then break end
+        out[#out + 1] = z.data.name .. " ist fortgelaufen: Auf dem Hof war kein Platz mehr."
+        self:free(z)
+      end
+    end
+  end
+  return out
+end
+
 -- Vor dem Speichern (und vor einer Reise vom Hof): lose eigene Pferde merken sich ihren Platz (data.lose),
 -- damit sie nach dem Laden dort stehen statt an der Leine. Unterwegs gilt das nicht (anderes Gebiet).
 function Wild:mark_loose()
@@ -544,8 +689,10 @@ function Wild:house(h, ort, restore)
     local cap = Farm.capacity(farm)
     local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
     if n >= cap[ort] then return false, "voll" end
-    if ort == "frei" and not Farm.may_roam(h.data, H) then return false, "zu schwach oder zu scheu" end
+    if ort == "frei" and not Farm.may_roam(h.data, H) and not self.force_roam then return false, "zu schwach oder zu scheu" end
+    if ort == "goepel" and not Farm.may_pull(h.data, H) then return false, "zu schwach für den Göpel" end
   end
+  if ort == "goepel" then return self:to_goepel(h, restore) end
   local pasture
   if ort == "weide" then
     local list = Farm.pastures(self.ctx.map, farm)
@@ -564,7 +711,7 @@ function Wild:house(h, ort, restore)
   for i, e in ipairs(self.ctx.lead) do
     if e == h then table.remove(self.ctx.lead, i) break end
   end
-  h.data.ort = ort
+  h.data.ort, h.data.neu = ort, nil
   h.scared = false
   if ort == "stall" then
     h.data.weide_id = nil
@@ -592,6 +739,33 @@ function Wild:house(h, ort, restore)
     end
   end
   h.state, h.timer, h.vx, h.vy, h.hidden = "free", 60, 0, 0, false
+  return true
+end
+
+-- Göpel (Rückmeldung 1.2.1): ein Pferd je Generator, es läuft im Kreis um ihn herum (state "goepel").
+-- restore: beim Laden der gemerkte Göpel (data.goepel_id) zuerst, notfalls irgendeiner.
+Wild.GOEPEL_RX, Wild.GOEPEL_RY, Wild.GOEPEL_SPEED = 30, 13, 0.012
+
+function Wild:to_goepel(h, restore)
+  local list = Farm.goepels(self.ctx.area.farm)
+  local used = {}
+  for _, d in ipairs(self.ctx.herd) do
+    if d ~= h.data and d.ort == "goepel" and d.goepel_id then used[d.goepel_id] = true end
+  end
+  local g
+  for _, e in ipairs(list) do if restore and e.key == h.data.goepel_id then g = e end end
+  for _, e in ipairs(list) do if not g and not used[e.key] then g = e end end
+  if not g and restore then g = list[1] end
+  if not g then return false, "kein Göpel frei" end
+  for i, e in ipairs(self.ctx.lead) do
+    if e == h then table.remove(self.ctx.lead, i) break end
+  end
+  h.data.ort, h.data.goepel_id, h.data.weide_id, h.data.lose, h.data.neu = "goepel", g.key, nil, nil, nil
+  h.bounds, h.allow, h.hidden, h.scared = nil, nil, false, false
+  h.state = "goepel"
+  h.goepel = {x = g[1] * 16 + 16, y = g[2] * 16 + 27, hub = g[2] * 16 + 19}
+  h.angle = h.angle or 0
+  h.x, h.y = h.goepel.x + Wild.GOEPEL_RX, h.goepel.y
   return true
 end
 
@@ -674,13 +848,13 @@ function Wild:in_stall()
   return out
 end
 
--- Steht der Spieler vor der Stalltür?
+-- Steht der Spieler vor einer Stalltür? Gibt die Tür ({cx, cy, id, b = Gebäude}) zurück, sonst nil.
 function Wild:at_stall_door()
   local p = self.ctx.player
   for _, d in ipairs(self.ctx.area.farm and Farm.stall_doors(self.ctx.area.farm) or {}) do
-    if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return true end
+    if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= 26 then return d end
   end
-  return false
+  return nil
 end
 
 -- Steht der Spieler vor einer Schlaftür (Wohnwagen, Häuschen, Villa)?

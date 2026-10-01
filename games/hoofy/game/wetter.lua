@@ -17,7 +17,7 @@ end
 
 -- Sauberkeitsverlust für ein Pferd, das den Regentag draußen stand.
 function W.nass(d)
-  if d.ort ~= "weide" and d.ort ~= "frei" then return 0 end
+  if d.ort ~= "weide" and d.ort ~= "frei" and d.ort ~= "goepel" then return 0 end
   local before = d.sauberkeit
   d.sauberkeit = math.max(0, d.sauberkeit + K.stats.sauberkeit.regen)
   return d.sauberkeit - before

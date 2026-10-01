@@ -22,7 +22,8 @@ local Buyers = require("game.buyers")
 local Orders = require("game.orders")
 local Breeding = require("game.breeding")
 local Rng = require("lib.rng")
-local Menu = require("game.menu")
+local HorseMenu = require("game.horse_menu")
+local StallView = require("game.stall_view")
 local Fortschritt = require("game.fortschritt")
 local K = require("game.katalog")
 local H = require("game.horse_model")
@@ -30,7 +31,7 @@ local U = require("lib.util")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, a_release, menu, clock
+local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, a_release, menu, clock, taming
 local stack, nav = {}, {}
 local idle_t = 0
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
@@ -60,7 +61,7 @@ function WorldScene.enter(arg)
   paused, anim_frame, t = false, 1, 0
   stack = {}
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
-  toast, a_hold, a_free, a_release, menu = nil, 0, false, false, nil
+  toast, a_hold, a_free, a_release, menu, taming = nil, 0, false, false, nil, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
   if arg and arg.regen ~= nil then ctx.regen_erzwungen = arg.regen end
@@ -70,6 +71,7 @@ function WorldScene.enter(arg)
     ctx.money = 1000
     ctx.player.x, ctx.player.y = (pl.x + 10) * 16, (pl.y + 8) * 16 + 12
     for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 1 end
+    ctx.inv.hacke = 1
     for x = 13, 19 do for y = 5, 6 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
     for x = 13, 14 do for y = 7, 8 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
     local row = {"gras", "karotte", "hafer", "sonnenblume", "zuckerruebe", "drachenfrucht", "goldene_karotte"}
@@ -156,6 +158,58 @@ function WorldScene.enter(arg)
     wild:attach(c)
     if arg.staerke then a.data.gen.staerke, a.data.pot.staerke = arg.staerke, 100 end
     a.data.train.staerke, a.data.train.tempo = 12, 8           -- etwas Training (Info-Balken zeigt den Anteil)
+  elseif arg and arg.stall then
+    -- Stall arg.stall (stall_s … stall_xl) mit so vielen Pferden, wie hineinpassen, minus eins; Ansicht offen
+    local pl = ctx.area.plot
+    ctx.money = 100000
+    wild.count = 0
+    local door
+    if arg.stall == "stall_s" then
+      door = Farm.stall_door(ctx.area.farm)
+    else
+      ctx.player.x, ctx.player.y = (pl.x + 16) * 16, (pl.y + 18) * 16
+      assert(Farm.place(ctx, arg.stall, pl.x + 6, pl.y + 5))
+      assert(Farm.remove(ctx, pl.x + 8, pl.y + 2))         -- der Startstall zählt dann nicht mit
+      door = Farm.stall_doors(ctx.area.farm)[1]
+    end
+    local rassen = {"haflinger", "noriker", "shetlandpony", "friese", "araber", "mustang"}
+    for i = 1, K.bauteil(arg.stall).plaetze - 1 do
+      local h = wild:add_own({rasse = rassen[(i - 1) % #rassen + 1], name = "Pferd " .. i})
+      h.data.sex = i % 2 == 0 and "m" or "w"
+      assert(wild:house(h, "stall", true))
+      if i == 2 then h.data.schmuck = {blumenkranz = true, maehnenschleife = true} end
+    end
+    ctx.player.x, ctx.player.y = door[1] * 16 + 8, door[2] * 16 + 14
+    ctx.stall_door = door
+  elseif arg and arg.goepel then
+    -- Göpel rechts vom Startpunkt, ein Noriker zieht ihn (Szenario goepel)
+    local pl = ctx.area.plot
+    ctx.money = 2000
+    assert(Farm.place(ctx, "goepel_generator", pl.x + 13, pl.y + 6))
+    ctx.player.x, ctx.player.y = (pl.x + 11) * 16 + 8, (pl.y + 8) * 16 + 14
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+    wild.count = 0
+    local h = wild:add_own({rasse = "noriker", bindung = 50, name = "Bruno"})
+    h.data.gen.staerke = 60
+    assert(wild:house(h, "goepel"))
+  elseif arg and arg.zucht then
+    -- Hengst und Stute im Stall, der Spieler steht vor der Stalltür (Szenario zucht)
+    wild.count = 0
+    local door = Farm.stall_door(ctx.area.farm)
+    ctx.player.x, ctx.player.y = door[1] * 16 + 8, door[2] * 16 + 14
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+    local hengst = wild:add_own({rasse = "noriker", bindung = 50, name = "Max"})
+    local stute = wild:add_own({rasse = "haflinger", bindung = 50, name = "Lotte"})
+    hengst.data.sex, hengst.data.alter = "m", 3
+    stute.data.sex, stute.data.alter = "w", 3
+    wild:house(hengst, "stall")
+    wild:house(stute, "stall")
+    if arg.geburt then                  -- Stute trägt schon, das Fohlen kommt am nächsten Morgen
+      assert(Breeding.start(ctx, hengst.data, stute.data, clock.day))
+      stute.data.traechtig.tag = clock.day + 1
+    end
   elseif arg and arg.ritt then
     -- Ein zahmes Pferd (Bindung 80, Sattel) steht neben dem Spieler; eine Reihe Büsche 6 Kacheln rechts.
     wild.count = 0
@@ -257,6 +311,15 @@ function WorldScene.enter(arg)
   if arg and arg.fahrzeug then ctx.inv[arg.fahrzeug] = 1 Economy.refresh_gebiet(ctx) end
   if arg and arg.anhaenger then ctx.inv["anhaenger_" .. arg.anhaenger] = 1 end
   if reise then Reise.ausladen(ctx) end     -- angekommen: Pferde aus dem Anhänger stehen daneben
+  if reise and ctx.area.farm then
+    -- unterwegs geborene Fohlen stehen im Stall: Platz machen, Fohlen und Mütter bleiben
+    local protect = {}
+    for _, d in ipairs(ctx.herd) do
+      if d.alter < 1 or (d.zucht_pause or 0) > clock.day then protect[d] = true end
+    end
+    local moves = wild:make_room(protect)
+    if #moves > 0 then toast = {text = table.concat(moves, " "), t = 240} end
+  end
   ctx.world:add(Reise.entity(ctx))
   if arg and arg.screen then
     local name = arg.screen
@@ -274,6 +337,11 @@ function WorldScene.enter(arg)
     if name == "zeitung" then nav.push(Screens.zeitung(ctx)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
+    if name == "jobspiel" then
+      local job
+      for _, j in ipairs(K.jobs.liste) do if j.id == arg.job then job = j end end
+      nav.push(require("game.jobspiel").screen(ctx, job or K.jobs.liste[1], ctx.herd[1], function() end))
+    end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
     if name == "markt" then Market.refresh(ctx, clock.day) nav.push(Screens.market(ctx)) end
@@ -282,8 +350,6 @@ function WorldScene.enter(arg)
   end
 end
 
-
-local FOODS = {"heu", "hafer", "karotte", "premiumfutter"}
 
 local function say(text, frames)
   toast = {text = text, t = frames or 120}
@@ -302,250 +368,14 @@ local function chaos_text()
   if ctx.reform_neu then return "Zeitung: Neue Reform " .. ctx.reform_neu .. "!" end
 end
 
+-- Umgebung für das Pferdemenü (game/horse_menu.lua) und die Stallansicht.
+local function menu_env()
+  return {ctx = ctx, wild = wild, nav = nav, say = say, on_mount = function() a_release = true end}
+end
+
 -- Hauptmenü eines eigenen Pferds (E2).
 local function open_menu(h)
-  local led = h.state == "led" or h.state == "follow"
-  menu = {
-    horse = h, stage = "main",
-    m = Menu.new({
-      {label = "Streicheln", id = "stroke", icon = "ico_herz", short = "Kraulen"},
-      {label = "Füttern", id = "feed", icon = "ico_karotte", short = "Futter"},
-      {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1, icon = "ico_buerste", short = "Bürste"},
-      {label = led and "Leine lösen" or "Anleinen", id = "leash", icon = "ico_leine", short = led and "Lösen" or "Leine"},
-      {label = "Aufsitzen", id = "mount", icon = "ico_reiten", short = "Reiten"},
-      {label = "Ausrüsten", id = "gear", icon = "ico_hufeisen", short = "Zubehör"},
-      {label = "Unterbringen", id = "house", icon = "ico_stall", short = "Ort"},
-      {label = "Info", id = "info", icon = "ico_info", short = "Info"},
-    }, h.data.name),
-  }
-end
-
--- Bilder und Kurznamen im Futter-Raster (Ernte: Bild der reifen Pflanze)
-local FOOD_ICON = {
-  heu = "hay", hafer = "ico_hafer", karotte = "ico_karotte", premiumfutter = "ico_premium", apfel = "emo_apple",
-  sonnenblumenkerne = "pflanze_sonnenblume_3", minze = "pflanze_minze_3", zuckerruebe = "pflanze_zuckerruebe_3",
-  luzerne = "pflanze_luzerne_3", drachenfrucht = "pflanze_drachenfrucht_3", goldene_karotte = "pflanze_goldene_karotte_3",
-}
-local FOOD_SHORT = {
-  heu = "Heu", hafer = "Hafer", karotte = "Karotte", premiumfutter = "Premium", apfel = "Apfel", sonnenblumenkerne = "Kerne",
-  minze = "Minze", zuckerruebe = "Rübe", luzerne = "Luzerne", drachenfrucht = "Drachen", goldene_karotte = "Gold",
-}
-
-local CROP_FOODS = {"apfel", "sonnenblumenkerne", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}
-
-local function open_food(h)
-  local items = {}
-  for _, id in ipairs(FOODS) do
-    local n = ctx.inv[id] or 0
-    local name = id
-    for _, f in ipairs(K.futter.kaufen) do if f.id == id then name = f.name end end
-    items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1, icon = FOOD_ICON[id], short = FOOD_SHORT[id] or name, badge = tostring(n)}
-  end
-  for _, id in ipairs(CROP_FOODS) do          -- Ernte nur, wenn welche da ist
-    local n = ctx.inv[id] or 0
-    if n > 0 then
-      items[#items + 1] = {label = Farm.CROP_NAME[id] .. " x" .. n, id = id, icon = FOOD_ICON[id], short = FOOD_SHORT[id], badge = tostring(n)}
-    end
-  end
-  menu.stage, menu.m = "food", Menu.new(items, "Füttern")
-end
-
--- Ausrüstung: anlegen aus dem Vorrat, ablegen was getragen wird.
-local function gear_items(d)
-  local items = {}
-  local worn = {}
-  if d.sattel then worn[#worn + 1] = d.sattel end
-  if d.taschen then worn[#worn + 1] = d.taschen end
-  if d.lampe then worn[#worn + 1] = "sattellampe" end
-  for _, j in ipairs(Economy.JEWELRY) do if d.schmuck and d.schmuck[j] then worn[#worn + 1] = j end end
-  for _, id in ipairs(worn) do
-    items[#items + 1] = {label = "ab: " .. Economy.find(id).name, id = "ab:" .. id}
-  end
-  local all = {}
-  for _, id in ipairs(Economy.SLOTS.sattel) do all[#all + 1] = id end
-  for _, id in ipairs(Economy.SLOTS.taschen) do all[#all + 1] = id end
-  all[#all + 1] = "sattellampe"
-  for _, id in ipairs(Economy.JEWELRY) do all[#all + 1] = id end
-  for _, id in ipairs(all) do
-    local n = ctx.inv[id] or 0
-    if n > 0 then items[#items + 1] = {label = "an: " .. Economy.find(id).name .. " x" .. n, id = "an:" .. id} end
-  end
-  if #items == 0 then items[1] = {label = "Nichts im Vorrat", id = "none", dim = true} end
-  return items
-end
-
-local function open_gear(h)
-  menu.stage, menu.m = "gear", Menu.new(gear_items(h.data), "Ausrüstung " .. h.data.name)
-end
-
-local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei", anhaenger = "Anhänger"}
-local HOUSE_ICONS = {stall = "ico_stall", weide = "ico_weide", frei = "ico_frei"}
-
--- Ort: zu Hause Stall, Weide, Frei; Anhänger, wenn es einen gibt; unterwegs Anhänger und Freilassen (E73).
-local function open_house(h)
-  local items = {}
-  if ctx.area.farm then
-    local cap = Farm.capacity(ctx.area.farm)
-    for _, ort in ipairs({"stall", "weide", "frei"}) do
-      local n = Farm.count(ctx.herd, ort)
-      local full = n >= cap[ort] and h.data.ort ~= ort
-      local weak = ort == "frei" and not Farm.may_roam(h.data, H)
-      items[#items + 1] = {label = string.format("%s %d/%d", HOUSE_NAMES[ort], n, cap[ort]), id = ort,
-        dim = full or weak or h.data.ort == ort, icon = HOUSE_ICONS[ort], short = HOUSE_NAMES[ort], badge = n .. "/" .. cap[ort]}
-    end
-  end
-  if Reise.trailer_box(ctx) then
-    local n, cap = Reise.geladen(ctx)
-    items[#items + 1] = {label = string.format("Anhänger %d/%d", n, cap), id = "anhaenger", dim = n >= cap,
-      icon = "ico_anhaenger", short = "Anhänger", badge = n .. "/" .. cap}
-  end
-  if not ctx.area.farm then
-    items[#items + 1] = {label = "Freilassen", id = "freilassen", icon = "ico_freilassen", short = "Wildnis"}
-  end
-  menu.stage, menu.m = "house", Menu.new(items, "Wohin mit " .. h.data.name .. "?")
-end
-
--- Menü an der Stalltür: Pferde im Stall herausholen, Zucht starten.
-local function open_stall()
-  local items = {}
-  for i, h in ipairs(wild:in_stall()) do
-    local d = h.data
-    local tag = d.traechtig and " (trächtig)" or (d.zucht_pause and d.zucht_pause > clock.day and " (Pause)") or ""
-    items[#items + 1] = {label = d.name .. tag, id = i, icon = "icon_horse", short = d.name:sub(1, 7)}
-  end
-  local can = #Breeding.stallions(ctx.herd) > 0 and #Breeding.mares(ctx.herd, clock.day) > 0
-  items[#items + 1] = {label = "Zucht starten", id = "breed", dim = not can, icon = "ico_zucht", short = "Zucht"}
-  menu = {horse = ctx.player, stage = "stall", m = Menu.new(items, "Im Stall")}
-end
-
-local function open_pick(stage, list, title)
-  local items = {}
-  for i, d in ipairs(list) do items[#items + 1] = {label = d.name, id = i} end
-  menu.stage, menu.list, menu.m = stage, list, Menu.new(items, title)
-end
-
-local function do_action(id)
-  local h = menu.horse
-  local d = h.data
-  if menu.stage == "hengst" then
-    if id == "close" then return open_stall() end
-    menu.hengst = menu.list[id]
-    open_pick("stute", Breeding.mares(ctx.herd, clock.day), "Stute für " .. menu.hengst.name)
-    -- Verwandtschaft sofort anzeigen (Inzucht-Malus)
-    for i, d in ipairs(menu.list) do
-      local pct, what = Breeding.verwandtschaft(menu.hengst, d)
-      if pct > 0 then menu.m.items[i].label = d.name .. " (" .. what .. ": -" .. pct .. " %)" end
-    end
-    return
-  end
-  if menu.stage == "stute" then
-    if id == "close" then return open_stall() end
-    local mare, stallion = menu.list[id], menu.hengst
-    local ok, why = Breeding.start(ctx, stallion, mare, clock.day)
-    local pct = Breeding.verwandtschaft(stallion, mare)
-    say(ok and (stallion.name .. " und " .. mare.name .. ": Fohlen in " .. K.zeit.traechtig_tage .. " Tagen." .. (pct > 0 and (" Inzucht: Gen-Werte -" .. pct .. " %.") or "")) or ("Geht nicht: " .. tostring(why)), 180)
-    if ok then ctx.sfx.pet() end
-    menu = nil
-    return
-  end
-  if menu.stage == "stall" then
-    if id == "close" then menu = nil return end
-    if id == "breed" then
-      return open_pick("hengst", Breeding.stallions(ctx.herd), "Hengst wählen")
-    end
-    local inside = wild:in_stall()
-    local sel = inside[id]
-    menu = nil
-    if sel and not wild:can_lead(sel) then
-      say("Du führst schon ein Pferd. " .. sel.data.name .. " bleibt im Stall.")
-    elseif sel then
-      wild:take_out(sel)
-      say(sel.data.name .. (sel.state == "follow" and " folgt dir." or " ist an der Leine."))
-    end
-    return
-  end
-  if menu.stage == "gear" then
-    if id == "close" then return open_menu(h) end
-    local kind, what = id:match("^(%a+):(.+)$")
-    if kind == "an" then
-      local ok, why = Economy.equip(ctx, d, what)
-      say(ok and d.name .. " trägt: " .. Economy.find(what).name .. "." or "Geht nicht: " .. tostring(why) .. ".")
-    elseif kind == "ab" then
-      Economy.unequip(ctx, d, what)
-      say(d.name .. " trägt " .. Economy.find(what).name .. " nicht mehr.")
-    end
-    menu = nil
-    return
-  end
-  if menu.stage == "house" then
-    if id == "close" then return open_menu(h) end
-    if id == "freilassen" then
-      wild:free(h)
-      say(d.name .. " läuft davon, zurück in die Wildnis.", 150)
-      menu = nil
-      return
-    end
-    local ok, why = wild:house(h, id)
-    local text = id == "anhaenger" and d.name .. " steigt in den Anhänger." or d.name .. " kommt in: " .. HOUSE_NAMES[id] .. "."
-    say(ok and text or "Geht nicht: " .. tostring(why) .. ".")
-    menu = nil
-    return
-  end
-  if menu.stage == "food" then
-    if id == "close" then return open_menu(h) end
-    ctx.inv[id] = ctx.inv[id] - 1
-    local _, bond = Care.feed(d, id)
-    ctx.sfx.eat()
-    h:react(bond > 0 and "emo_heart" or "emo_apple", 120)
-    menu = nil
-    return
-  end
-  if id == "close" then menu = nil return end
-  if id == "stroke" then
-    local add = Care.stroke(d)
-    if add > 0 then ctx.sfx.pet() h:react("emo_heart", 120)
-    else ctx.sfx.snort() h:react("emo_zzz", 90) end          -- heute schon genug gestreichelt
-    menu = nil
-  elseif id == "feed" then
-    open_food(h)
-  elseif id == "house" then
-    open_house(h)
-  elseif id == "gear" then
-    open_gear(h)
-  elseif id == "brush" then
-    Care.brush(d)
-    ctx.sfx.brush()
-    h:react("emo_sparkle", 120)
-    menu = nil
-  elseif id == "leash" then
-    if h.state == "led" or h.state == "follow" then
-      wild:release(h)
-      say(d.name .. " ist frei.")
-    else
-      if wild:attach(h) then
-        say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
-      else
-        say("Du führst schon ein Pferd. Mehr als eins passt nicht an die Leine.")
-      end
-    end
-    menu = nil
-  elseif id == "mount" then
-    local r = wild:mount(h)
-    if r == "ok" then
-      a_release = true
-    elseif r == "frisch" then
-      ctx.sfx.snort()
-      h:react("emo_storm", 120)
-      say(d.name .. " ist frisch gezähmt und lässt dich noch nicht aufsitzen. Füttern, striegeln und streicheln.", 180)
-    else
-      ctx.sfx.snort()
-      h:react("emo_storm", 120)                                  -- verweigert das Reiten
-    end
-    menu = nil
-  elseif id == "info" then
-    nav.push(Screens.info(ctx, d))
-    menu = nil
-  end
+  menu = HorseMenu.open(menu_env(), h)
 end
 
 -- Speichert (Schlafen, Gebietswechsel, Pause-Menü, Beenden). Nur im echten Spiel.
@@ -596,6 +426,7 @@ function nav.push(screen) stack[#stack + 1] = screen end
 function nav.pop() stack[#stack] = nil end
 
 function WorldScene.update()
+  if ctx.stall_door then nav.push(StallView.new(menu_env(), ctx.stall_door)) ctx.stall_door = nil end   -- Szenario stall
   -- Bildschirm-Stapel (E5): Pausenmenü und alles, was davon aufgeht; die Welt steht still
   if #stack > 0 then
     stack[#stack].update(nav)
@@ -607,8 +438,7 @@ function WorldScene.update()
     return
   end
   if menu then
-    local r = menu.m:update()
-    if r then do_action(r) end
+    if menu:update() then menu = nil end
     if toast then toast.t = toast.t - 1; if toast.t <= 0 then toast = nil end end
     return
   end
@@ -629,7 +459,7 @@ function WorldScene.update()
     ctx.sfx.dawn()
     ctx.sfx.music("day")
     Days.new_day(ctx, clock.day)
-    if #ctx.geburten > 0 then say("Fohlen geboren: " .. ctx.geburten[1], 200) end
+    if #ctx.geburten > 0 then say("Fohlen geboren: " .. ctx.geburten[1], 300) end
     Market.refresh(ctx, clock.day)
     ctx.buyer = Buyers.visit(ctx.seed, clock.day)
     Buyers.sync(ctx, false)
@@ -672,15 +502,29 @@ function WorldScene.update()
       if a_hold > 0 and a_hold < 20 and p.riding then Ride.jump(p) end
       a_hold = 0
     end
-  elseif btnp(BTN_A) then
-    a_hold, a_free = 0, false
-    local h = wild:try_tame()
-    if h then
+  elseif taming then
+    -- Zähmen (Rückmeldung 1.2.1): A halten und stillstehen, bis der Balken voll ist
+    local h = taming
+    local r = wild:tame_step(h, btn(BTN_A))
+    if r == "ok" then
+      taming, a_release = nil, true
       local how = h.state == "follow" and "gezähmt, folgt dir." or h.state == "led" and "gezähmt, an der Leine."
         or "gezähmt. Deine Leine ist belegt, es wartet hier."
-      toast = {text = h.data.name .. " ist " .. how, t = 150}
+      toast = {text = h.data.name .. " ist " .. how .. " Bring es auf deinen Hof, sonst ist es wieder wild, wenn es sich losreißt.", t = 240}
       ctx.sfx.tame()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
+    elseif r == "weg" then
+      taming = nil
+      if h.state == "flee" then say("Es ist davongelaufen.", 90)
+      elseif not btn(BTN_A) then say("Zu früh losgelassen. Halte A und bleib still stehen.", 120)
+      else say("Abgebrochen: still stehen bleiben.", 90) end
+    end
+  elseif btnp(BTN_A) then
+    a_hold, a_free = 0, false
+    local h = wild:tame_target()
+    if h then
+      if wild:tame_begin(h) then taming = h
+      else say("Es hat dich gesehen! Erst A drücken, wenn es wegschaut.", 150) end
     else
       local own = wild:nearest_own()
       local ripe = Farm.ripe_near(ctx)
@@ -695,6 +539,11 @@ function WorldScene.update()
       elseif at_rig then          -- Fahrzeug hat Vorrang vor dem Pferdemenü (die Pferde stehen immer daneben)
         nav.push(Screens.reise(ctx, function(nr) WorldScene.reise(nr) end))
         ctx.sfx.ok()
+      elseif wild:at_stall_door() then
+        -- Stall von innen (Rückmeldung 1.2.1): Boxen je nach Größe, Pferde pflegen, holen, einstellen, züchten.
+        -- Vor dem Pferdemenü, sonst käme man mit einem Pferd an der Leine nicht hinein.
+        nav.push(StallView.new(menu_env(), wild:at_stall_door()))
+        ctx.sfx.select()
       elseif own then
         open_menu(own)
         ctx.sfx.select()
@@ -742,9 +591,6 @@ function WorldScene.update()
         Market.refresh(ctx, clock.day)
         nav.push(Screens.market(ctx))
         ctx.sfx.ok()
-      elseif wild:at_stall_door() and #wild:in_stall() > 0 then
-        open_stall()
-        ctx.sfx.select()
       else
         a_free = true
       end
@@ -758,8 +604,10 @@ function WorldScene.update()
     end
   end
   if ctx.escaped then
-    toast = {text = ctx.escaped.data.name .. " ist ausgerissen!", t = 150}
-    ctx.escaped = nil
+    local text = ctx.escaped_wild and (ctx.escaped.data.name .. " hat sich losgerissen und ist wieder wild!")
+      or (ctx.escaped.data.name .. " ist ausgerissen!")
+    toast = {text = text, t = 150}
+    ctx.escaped, ctx.escaped_wild = nil, nil
   end
   if toast then
     toast.t = toast.t - 1
@@ -827,10 +675,7 @@ function WorldScene.draw()
   Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.light())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()
-  if menu then
-    local h = menu.horse
-    if menu.m.grid then menu.m:draw() else menu.m:draw(h.x - ctx.camera.x + 24, h.y - ctx.camera.y - 50) end
-  end
+  if menu then menu:draw(menu.horse.x - ctx.camera.x, menu.horse.y - ctx.camera.y) end
   if toast then
     -- Meldung: umgebrochen, der Kasten wächst mit; bei offenem Menü oben, damit es das Raster nicht verdeckt
     local C = ctx.colors

@@ -58,9 +58,25 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Garagenmenü in nicht zu kräftigen Blautönen. (0.5.9, E75)
 - [x] Kurze Intro-Sequenz mit der Story als Hintergrund. (1.1.0, E76)
 - [x] Beim Drücken die Option, die unten angezeigt wird, farblich hervorheben (Klick-Effekt). (1.1.0, E76)
+- [x] ausgerüsteten Schmuck muss man sehen (1.3.0, E78: Overlays für alle Körper und Posen)
+- [x] Schmuck sollte teurer sein (1.3.0, E78: 150 / 300 / 1 200 / 4 000)
+- [x] STall soll man von innen sehen können. sieht unterschiedlich aus, je nach größe. hier kann man auch mit pferden interagieren (füttern, streicheln, bürsten... das normale pferde menu halt) (1.3.0, E78: A an der Stalltür, Boxen S/M/L/XL, Pferdemenü mit Holen und Zucht, leere Box stellt ein)
+- [x] Wildpferde zämen soll schwieriger sein, aktuell kann man direkt hinsprinten und sofort a drücken. wenn diese sich losgerissen haben, sollen sie auch wieder wild sein, bis sie auf dem grundstück sind. (1.3.0, E78: Sprinten verscheucht, A beim Wegschauen drücken und ~2,5 s halten)
+- [x] Apfelbaum sollte kein Feld benötigen (1.3.0, E78)
+- [x] Feld zum anbauen sollte nichts kosten, aber dafür das Werkzeug um dieses Feld zu erzeugen (1.3.0, E78: Hacke 100 G im Laden)
+- [x] Jobs sind minispiele und verbrauchen energie (1.3.0, E78: Postritt, Kutschtaxi, Pflügen; Lohn nach Ergebnis)
+- [x] Göpel kann auch pferde unterbringen, man sieht sie auch bewegen. (1.3.0, E78: Ort „Göpel“, nur diese Pferde bringen Geld)
+- [x] zucht funktioniert noch nicht. wenn man darauf klickt, stürzt die app ab. wenn man ein Fohlen kriegt, spawnt es im stall. wenn kein stall platz frei ist, wird das billigste pferd, aber keinenfalls  mutter, von stall nach weide verschoben. wennn die weide bereits voll ist, wird von dort ein anderes pferd auf das grundstück verschoben. wenn das bereits voll ist, dann verschwindet das pferd mit dem geringsten wert. (1.3.0, E78: Absturz am Rechner nicht nachstellbar, Zucht neu im Stall-Menü; Fohlen im Stall mit Umzugsregeln)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 1.3.0** – Rückmeldungen, siehe E78 (gleiche Firmware)
+- [ ] Zucht im Stall (Pferd → Zucht → Partner): stürzt es noch ab? Fohlen am nächsten Morgen im Stall?
+- [ ] Stall von innen: Boxen, Pferdemenü, leere Box stellt das Pferd an der Leine ein. Läuft es flüssig?
+- [ ] Zähmen: zu schwer, zu leicht? Wird ein losgerissenes neues Pferd wieder wild?
+- [ ] Jobs: drei Minispiele spielbar und verständlich? Schmuck am Pferd gut zu sehen?
+- [ ] Göpel: Pferd unter „Ort“ an den Göpel stellen, läuft es im Kreis, kommt morgens Geld?
 
 **Version 0.5.5** – Rückmeldungen, siehe E67 (gleiche Firmware wie 0.5.3)
 - [ ] Pferde in die Weide führen, Leine lösen (ohne „Ort“), speichern, beenden, Weiter: stehen sie noch drin?

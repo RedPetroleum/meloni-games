@@ -49,7 +49,7 @@ end
 -- (bestimmt, welche Samen es gibt).
 function E.catalog(maxgebiet)
   local list = {}
-  for _, f in ipairs(K.futter.kaufen) do list[#list + 1] = item(f.id == "buerste" and "zubehoer" or "futter", f) end
+  for _, f in ipairs(K.futter.kaufen) do list[#list + 1] = item((f.id == "buerste" or f.id == "hacke") and "zubehoer" or "futter", f) end
   for _, a in ipairs(K.ausruestung.liste) do
     local cat
     if a.sattel and a.id ~= "sattellampe" then cat = "saettel"

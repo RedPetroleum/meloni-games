@@ -133,3 +133,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 21:28 | Release 1.0.0 | fertig | Version 1.0.0 auf Wunsch, README-Tabelle, SELFTEST OK 237, make test grün | Hoofy 1.0.0
 2026-10-01 21:37 | Rückmeldung Vorspann/Klick-Effekt | fertig | Vorspann 4 Bilder (Shot-Sheets), Menüs beim Loslassen mit Hervorhebung, Tastenleiste leuchtet (E76); SELFTEST OK 237, make test grün | Hoofy 1.1.0
 2026-10-01 21:50 | Rückmeldung startet nicht auf der Konsole | fertig | sprites.png 256×2926 zu groß zum Laden, auf sechs Bilder verteilt (E77); alle 1340 Sprites pixelgleich, SELFTEST OK 237, make test grün | Hoofy 1.1.1
+2026-10-01 23:14 | Rückmeldungen 1.3.0 | fertig | 9 Rückmeldungen (E78): Schmuck sichtbar/teurer, Stall von innen, Zähmen schwerer, Apfelbaum/Hacke, Job-Minispiele, Göpel-Pferde, Fohlen im Stall; SELFTEST OK 248, make test grün | Hoofy 1.3.0
