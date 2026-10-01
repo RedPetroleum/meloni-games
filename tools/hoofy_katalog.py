@@ -346,18 +346,19 @@ def wert(s):
         "fohlen_faktor": s.find(r"Fohlen ×(\d+(?:,\d+)?)"),
         "kauf_faktor": s.find(r"Kaufen beim Händler: Wert × (\d+(?:,\d+)?)"),
         "kaeufer": {
-            "sammlerin": {"faktor": s.find(r"Farbfaktor × (\d+(?:,\d+)?)", sam["Zahlt"]),
+            "sammlerin": {"basis": s.find(r"Wert × \((\d+(?:,\d+)?) \+ Farbfaktor", sam["Zahlt"]),
+                          "farbe": s.find(r"Farbfaktor × (\d+(?:,\d+)?)\)", sam["Zahlt"]),
                           "min_sauberkeit": s.find(r"ab Sauberkeit (\d+)", sam["Bedingung / Folge"])},
             "reithof": {"faktor": s.find(r"Wert × (\d+(?:,\d+)?)", rei["Zahlt"]),
                         "basis": s.find(r"\((\d+(?:,\d+)?) \+ Bindung", rei["Zahlt"]),
                         "teiler": s.find(r"Bindung/(\d+)", rei["Zahlt"]),
                         "bindung_andere": s.find(r"(\+\d+) Bindung", rei["Bedingung / Folge"])},
-            "zuechter": {"teiler": s.find(r"\)/(\d+)\)", zue["Zahlt"]),
+            "zuechter": {"basis": s.find(r"Wert × \((\d+(?:,\d+)?) \+", zue["Zahlt"]),
+                         "teiler": s.find(r"\)/(\d+)\)", zue["Zahlt"]),
                          "hengst": s.find(r"Hengst ×(\d+(?:,\d+)?)", zue["Zahlt"]),
                          "bindung_andere": s.find(r"(−\d+) Bindung", zue["Bedingung / Folge"])},
-            "schlachter": {"faktor": s.find(r"^(\d+) × Gewicht²", sch["Zahlt"]),
-                           "teiler": s.find(r"Gewicht² / (\d+)", sch["Zahlt"]),
-                           "grundwert": s.find(r"Grundwert × (\d+(?:,\d+)?)", sch["Zahlt"]),
+            "schlachter": {"faktor": s.find(r"Wert × (\d+(?:,\d+)?) × Gewicht", sch["Zahlt"]),
+                           "teiler": s.find(r"Gewicht / (\d+)", sch["Zahlt"]),
                            "bindung_andere": s.find(r"(−\d+) Bindung", sch["Bedingung / Folge"])},
             "bestellung": {"faktor": s.find(r"Wert × (\d+(?:,\d+)?)", bes["Zahlt"]),
                            "alle_tage": s.find(r"alle (\d+) Tage", bes["Bedingung / Folge"]),
@@ -459,7 +460,8 @@ def bau(s):
             out.append(e)
     stufen = s.find(r"Ab ([\d /]+) bekommen", cast=lambda v: [num(x) for x in v.split("/")])
     bonus = s.find(r"alle Pferde ([+\d /]+) Bindung", cast=lambda v: [num(x) for x in v.split("/")])
-    return {"liste": out, "schoenheit_stufen": stufen, "schoenheit_bindung": bonus}
+    return {"liste": out, "schoenheit_stufen": stufen, "schoenheit_bindung": bonus,
+            "abriss_prozent": s.find(r"Abreißen bringt (\d+) % des Preises zurück")}
 
 
 def welt(s):
@@ -517,7 +519,8 @@ def jobs(s):
                     "lohn_basis": int(lohn.group(1)), "lohn_stat": slug(lohn.group(2)),
                     "lohn_teiler": int(lohn.group(3)), "training": effects(r["Training"]),
                     "energie": num(r["Energie"])})
-    return {"liste": out, "pro_tag": s.find(r"Je Pferd (ein) Job pro Tag", cast=lambda v: 1)}
+    return {"liste": out, "pro_tag": s.find(r"Je Pferd (ein) Job pro Tag", cast=lambda v: 1),
+            "job_pro_tag": s.find(r"jeden Job gibt es (einmal) pro Tag", cast=lambda v: 1)}
 
 
 def turniere(s):
@@ -532,7 +535,12 @@ def turniere(s):
     return {"klassen": klassen, "wettbewerbe": wett,
             "rotation_tage": s.find(r"Nach (\d+) Tagen gibt es neue"),
             "wertung_basis": s.find(r"× \((\d+(?:,\d+)?) \+ Bindung / \d+\)"),
-            "wertung_teiler": s.find(r"Bindung / (\d+)\)")}
+            "wertung_teiler": s.find(r"Bindung / (\d+)\)"),
+            "gegner_basis": s.find(r"Gegner: Wertung (\d+) \+"),
+            "gegner_klasse": s.find(r"Gegner: Wertung \d+ \+ (\d+) × Klasse"),
+            "gegner_streuung": s.find(r"× Klasse ± (\d+)"),
+            "stange_basis": s.find(r"höchste Stange ist (\d+) \+"),
+            "stange_klasse": s.find(r"höchste Stange ist \d+ \+ (\d+) × Klasse")}
 
 
 def reformen(s):

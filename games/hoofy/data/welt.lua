@@ -11,35 +11,35 @@ return {
     {
       id = "fahrrad",
       name = "Fahrrad",
-      preis = 400,
+      preis = 1800,
       gebiete = 2,
       fahrtkosten = 0,
     },
     {
       id = "mofa",
       name = "Mofa",
-      preis = 2000,
+      preis = 10000,
       gebiete = 3,
       fahrtkosten = 5,
     },
     {
       id = "kleinwagen",
       name = "Kleinwagen",
-      preis = 8000,
+      preis = 25000,
       gebiete = 4,
       fahrtkosten = 10,
     },
     {
       id = "suv",
       name = "SUV",
-      preis = 25000,
+      preis = 80000,
       gebiete = 5,
       fahrtkosten = 20,
     },
     {
       id = "flugzeug",
       name = "Flugzeug",
-      preis = 100000,
+      preis = 150000,
       gebiete = 6,
       fahrtkosten = 50,
     },
@@ -47,19 +47,19 @@ return {
   anhaenger = {
     {
       plaetze = 1,
-      preis = 300,
+      preis = 1200,
     },
     {
       plaetze = 2,
-      preis = 800,
+      preis = 3500,
     },
     {
       plaetze = 3,
-      preis = 1800,
+      preis = 8000,
     },
     {
       plaetze = 4,
-      preis = 3500,
+      preis = 12000,
     },
   },
   gebiete = {

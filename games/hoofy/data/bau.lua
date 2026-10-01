@@ -95,7 +95,7 @@ return {
       name = "Schuppen",
       text = "Fahrrad + Mofa",
       wirkung = {},
-      preis = 200,
+      preis = 600,
       fahrzeuge = {"fahrrad", "mofa"},
     },
     {
@@ -103,7 +103,7 @@ return {
       name = "Garage",
       text = "Kleinwagen + SUV",
       wirkung = {},
-      preis = 3000,
+      preis = 8000,
       fahrzeuge = {"kleinwagen", "suv"},
     },
     {
@@ -111,7 +111,7 @@ return {
       name = "Hangar",
       text = "Flugzeug",
       wirkung = {},
-      preis = 20000,
+      preis = 40000,
       fahrzeuge = {"flugzeug"},
     },
     {
@@ -253,4 +253,5 @@ return {
   },
   schoenheit_stufen = {50, 150, 400},
   schoenheit_bindung = {1, 2, 3},
+  abriss_prozent = 50,
 }

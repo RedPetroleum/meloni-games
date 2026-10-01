@@ -31,7 +31,7 @@ return {
       total = total + K.bauteil(b[1]).preis
     end
     C.eq(ctx.money, 100000 - total)
-    C.eq(total, 41600, "Hangar 20 000 + Stall XL 6 000 + Garage 3 000 + Stall L 2 500 + Villa 8 000 + Schuppen 200 + Häuschen 1 000 + Stall M 900")
+    C.eq(total, 67000, "Hangar 40 000 + Stall XL 6 000 + Garage 8 000 + Stall L 2 500 + Villa 8 000 + Schuppen 600 + Häuschen 1 000 + Stall M 900")
     local second, why = Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     C.ok(not second and why == "schon belegt")
     local ok, why2 = Farm.place(ctx, "hangar", p.x + 17, p.y + 17)
@@ -123,7 +123,7 @@ return {
     g = Farm.garaged(ctx.area.farm)
     C.ok(not g.fahrrad, "Schuppen abgerissen")
   end},
-  {"Schönheit: Häuschen +20, Villa +100, Hof-Summe; Abreißen erstattet den vollen Preis", function()
+  {"Schönheit: Häuschen +20, Villa +100, Hof-Summe; Abreißen erstattet den halben Preis", function()
     local ctx, p = setup()
     local start = ctx.money
     Farm.place(ctx, "haeuschen", p.x + 17, p.y + 14)
@@ -132,10 +132,10 @@ return {
     C.eq(Farm.schoenheit(ctx.area.farm), 120)
     Farm.place(ctx, "bank", p.x + 10, p.y + 7)
     C.eq(Farm.schoenheit(ctx.area.farm), 123)
-    C.eq(Farm.remove(ctx, p.x + 15, p.y + 11), 8000, "Villa zurück")
-    C.eq(Farm.remove(ctx, p.x + 18, p.y + 15), 1000, "Häuschen zurück")
+    C.eq(Farm.remove(ctx, p.x + 15, p.y + 11), 4000, "Villa halb zurück")
+    C.eq(Farm.remove(ctx, p.x + 18, p.y + 15), 500, "Häuschen halb zurück")
     Farm.remove(ctx, p.x + 10, p.y + 7)
-    C.eq(ctx.money, start)
+    C.eq(ctx.money, start - 4500 - 20)
     C.eq(Farm.schoenheit(ctx.area.farm), 0)
   end},
   {"Abreißen: Haus und Stall nur mit einem zweiten, Startbauten bringen nichts zurück (E69)", function()
@@ -172,7 +172,7 @@ return {
     ctx.inv.mofa = 1
     sum, why = Farm.remove(ctx, p.x + 13, p.y + 14)
     C.ok(not sum and why == "Mofa braucht sie", "Mofa: " .. tostring(why))
-    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 3000, "Garage zurück")
+    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 4000, "Garage halb zurück")
     Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     Farm.place(ctx, "schuppen", p.x + 0, p.y + 5)
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), 200, "zweiter Schuppen nimmt das Mofa")

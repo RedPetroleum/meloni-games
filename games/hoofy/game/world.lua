@@ -37,7 +37,7 @@ local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speic
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
 function WorldScene.enter(arg)
-  local snap, farm, seed
+  local snap, farm, seed, fill_later
   saving = false
   if arg and arg.laden then
     snap = Save.read()
@@ -184,7 +184,7 @@ function WorldScene.enter(arg)
     wild.count = 0
     for i = 1, arg.pferde do wild:attach(wild:add_own({rasse = "haflinger", bindung = i == 1 and 40 or 80, name = "Pferd " .. i})) end
   else
-    wild:fill()
+    fill_later = true            -- erst nach dem Spielstand: Tag und gezähmte Pferde zählen (KATALOG §10)
   end
   ctx.wild = wild
   ctx.sfx.music(clock:is_night() and "night" or "day")
@@ -217,6 +217,7 @@ function WorldScene.enter(arg)
     ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
     ctx.turnier, ctx.reform, ctx.album = snap.turnier, snap.reform, snap.album
     ctx.getauscht = snap.getauscht
+    ctx.gezaehmt, ctx.jobs = snap.gezaehmt, snap.jobs
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -225,6 +226,7 @@ function WorldScene.enter(arg)
       end
     end
   end
+  if fill_later then wild:fill() end
   Reformen.erreicht(ctx, ctx.area.nr, clock.day)
   Reformen.anwenden(ctx)
   ctx.lager = ctx.lager or {}

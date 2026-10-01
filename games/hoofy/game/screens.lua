@@ -657,7 +657,7 @@ function Screens.turnier(ctx)
         end
         if sel_w == "springreiten" then
           if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
-          else nav.push(Screens.springreiten(ctx, d, antreten)) end
+          else nav.push(Screens.springreiten(ctx, d, antreten, sel_k)) end
         elseif sel_w == "pferderennen" then
           if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
           else
@@ -723,9 +723,9 @@ end
 
 -- ---- Minispiel Springreiten (E2): A springt; am Ende A, dann done(punkte) ----
 
-function Screens.springreiten(ctx, d, done)
+function Screens.springreiten(ctx, d, done, klasse)
   local Sp = require("game.springen")
-  local st = Sp.new(d)
+  local st = Sp.new(d, klasse)
   local s = {full = true}
   local finished = false
   local rasse = K.rasse(d.rasse)
@@ -1014,7 +1014,7 @@ local function job_horses(ctx, job, done)
   local function list()
     local ok, rest = {}, {}
     for _, d in ipairs(ctx.herd) do
-      if Jobs.eligible(d, job, day()) then ok[#ok + 1] = d else rest[#rest + 1] = d end
+      if Jobs.eligible(d, job, day(), ctx) then ok[#ok + 1] = d else rest[#rest + 1] = d end
     end
     for _, d in ipairs(rest) do ok[#ok + 1] = d end
     return ok
@@ -1048,7 +1048,7 @@ local function job_horses(ctx, job, done)
     for i = first, min(#l, first + 6) do
       local d = l[i]
       local y = 20 + (i - first) * 24
-      local ok, why = Jobs.eligible(d, job, day())
+      local ok, why = Jobs.eligible(d, job, day(), ctx)
       if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 21, C.panel_light) end
       G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
       print(d.name, 50, y, ok and (i == sel and C.gold or C.text) or C.dim)
@@ -1070,8 +1070,12 @@ function Screens.jobs(ctx)
     if btnp(BTN_DOWN) then sel = sel % #list + 1; SFX.select() end
     if btnp(BTN_B) then SFX.back() nav.pop() end
     if btnp(BTN_A) then
-      SFX.ok()
-      nav.push(job_horses(ctx, list[sel], function(text) msg, msg_t = text, 240 end))
+      if Jobs.done(ctx, list[sel], ctx.clock and ctx.clock.day or 1) then
+        SFX.snort() msg, msg_t = "Diesen Job gibt es morgen wieder.", 150
+      else
+        SFX.ok()
+        nav.push(job_horses(ctx, list[sel], function(text) msg, msg_t = text, 240 end))
+      end
     end
     if msg_t > 0 then msg_t = msg_t - 1 end
   end
@@ -1083,8 +1087,9 @@ function Screens.jobs(ctx)
     for i, job in ipairs(Jobs.list()) do
       local y = 22 + (i - 1) * 50
       if i == sel then rectfill(4, y - 3, SCREEN_W - 5, y + 44, C.panel_light) end
-      print(job.name, 10, y, i == sel and C.gold or C.text)
-      print("ab " .. Jobs.STAT_NAMES[job.braucht] .. " " .. job.braucht_wert, 160, y, C.dim)
+      local done = Jobs.done(ctx, job, ctx.clock and ctx.clock.day or 1)
+      print(job.name, 10, y, done and C.dim or (i == sel and C.gold or C.text))
+      print(done and "heute erledigt" or ("ab " .. Jobs.STAT_NAMES[job.braucht] .. " " .. job.braucht_wert), 160, y, C.dim)
       print("Lohn " .. job.lohn_basis .. " + " .. Jobs.STAT_NAMES[job.lohn_stat] .. "/" .. job.lohn_teiler, 10, y + 12, C.gold)
       local train = {}
       for key, amount in pairs(job.training) do train[#train + 1] = Jobs.STAT_NAMES[key] .. " +" .. amount end
@@ -1092,7 +1097,7 @@ function Screens.jobs(ctx)
       print("Training: " .. table.concat(train, ", "), 10, y + 24, C.dim)
       print("Energie " .. job.energie, 10, y + 35, C.dim)
     end
-    print("Ein Job pro Pferd und Tag.", 10, 176, C.dim)
+    print("Jeder Job einmal am Tag, ein Job pro Pferd.", 10, 176, C.dim)
     if msg and msg_t > 0 then print(msg, 8, 214, C.gold) end
     footer("A: Job wählen   B: zurück")
   end

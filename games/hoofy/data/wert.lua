@@ -5,10 +5,11 @@ return {
   ausdauer_faktor = 2,
   leistung_basis = 0.5,
   fohlen_faktor = 0.6,
-  kauf_faktor = 1.3,
+  kauf_faktor = 1.5,
   kaeufer = {
     sammlerin = {
-      faktor = 1.5,
+      basis = 1,
+      farbe = 0.1,
       min_sauberkeit = 70,
     },
     reithof = {
@@ -18,14 +19,14 @@ return {
       bindung_andere = 5,
     },
     zuechter = {
-      teiler = 300,
-      hengst = 1.5,
+      basis = 0.8,
+      teiler = 600,
+      hengst = 1.25,
       bindung_andere = -5,
     },
     schlachter = {
-      faktor = 5,
+      faktor = 0.9,
       teiler = 50,
-      grundwert = 0.3,
       bindung_andere = -10,
     },
     bestellung = {

@@ -314,12 +314,30 @@ function Horse:draw_over()
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
 
+-- Gezähmte Wildpferde wachsen erst beim nächsten Wechsel nach (KATALOG §10), auch nach Reisen und Laden:
+-- ctx.gezaehmt[gebiet] = {runde = Wechselrunde, n = in dieser Runde gezähmt}.
+local function wechsel_runde(ctx)
+  return ((ctx.clock and ctx.clock.day or 1) - 1) // K.zeit.wild_wechsel_tage
+end
+
+function Wild.gezaehmt(ctx, gebiet)
+  local z = ctx.gezaehmt and ctx.gezaehmt[gebiet]
+  if z and z.runde == wechsel_runde(ctx) then return z.n end
+  return 0
+end
+
+function Wild.merke_zaehmung(ctx, gebiet)
+  ctx.gezaehmt = ctx.gezaehmt or {}
+  ctx.gezaehmt[gebiet] = {runde = wechsel_runde(ctx), n = Wild.gezaehmt(ctx, gebiet) + 1}
+end
+
 -- Ein Wildpferd in Reichweite wird gezähmt (A gedrückt, nicht auf der Flucht). Gibt es zurück.
 function Wild:try_tame()
   local p = self.ctx.player
   for i, h in ipairs(self.list) do
     if h.state ~= "flee" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST then
       table.remove(self.list, i)
+      Wild.merke_zaehmung(self.ctx, self.gebiet)
       h.wild, h.data.wild, h.tamed = false, nil, true
       h.data.reit_ab = h.data.bindung + Ride.FRESH_BOND          -- frisch gezähmt: noch nicht reitbar (E71)
       self.ctx.herd[#self.ctx.herd + 1] = h.data
@@ -707,7 +725,8 @@ function Wild:spawn_at(x, y, opts)
 end
 
 function Wild:fill()
-  while #self.list < self.count do
+  local want = self.count - Wild.gezaehmt(self.ctx, self.gebiet)
+  while #self.list < want do
     if not self:spawn() then break end
   end
 end

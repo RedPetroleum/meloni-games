@@ -1,4 +1,5 @@
--- Wirtschaftssimulation (Aufgabe B8): vergleicht eine einfache Spielweise mit KATALOG §15.
+-- Wirtschaftssimulation (Aufgabe B8, E77): spielt eine normale Spielweise durch und vergleicht mit KATALOG §15.
+-- Ziel des Menschen: pro Gebiet etwa 1–3 Stunden Spielzeit.
 local Sim = require("game.sim")
 local K = require("game.katalog")
 local C = require("game.tests.check")
@@ -8,18 +9,20 @@ return {
     local a, b = Sim.run(3, 25), Sim.run(3, 25)
     for d = 1, 25 do C.eq(a.geld[d], b.geld[d], "Tag " .. d) end
     for d = 1, 25 do C.ok(a.geld[d] >= 0, "Geld nie negativ") end
-    C.ok(Sim.run(4, 25).geld[25] ~= a.geld[25] or true)
   end},
-  {"Tage bis Fahrrad, Phase 1, Mofa und Phase 2 (12 Seeds, 60 Tage)", function()
-    local s = Sim.summary(12, 60)
-    for _, g in ipairs(Sim.GOALS) do
-      local z = s.ziele[g.id]
-      log(string.format("WIRTSCHAFT %-55s Mittel %s (min %s, max %s, %d von 12 verfehlt)", z.text,
-        z.mittel and string.format("%.1f", z.mittel) or "-", tostring(z.min), tostring(z.max), z.verfehlt))
+  {"Tage je Phase (12 Seeds, 250 Tage): jede Phase etwa 0,75–3,5 Stunden", function()
+    local s = Sim.summary(12, 250)
+    local total = 0
+    for i, p in ipairs(s.phasen) do
+      local q = p.quellen
+      total = total + (p.mittel or 0)
+      log(string.format("WIRTSCHAFT %-52s %5.1f Tage (min %s, max %s, %d verfehlt) ≈ %s min | netto %5.0f G/Tag: Verkauf %5.0f, Jobs %4.0f, Bestellungen %4.0f, Turniere %5.0f, Futter %4.0f",
+        p.text, p.mittel or 0, tostring(p.min), tostring(p.max), p.verfehlt, p.minuten and string.format("%.0f", p.minuten) or "-",
+        q.netto, q.verkauf, q.jobs, q.bestellung, q.turnier, q.futter))
+      C.ok(p.mittel, "Phase " .. i .. " wird erreicht")
+      C.ok(p.minuten >= 45 and p.minuten <= 210, "Phase " .. i .. ": " .. string.format("%.0f", p.minuten) .. " min")
     end
-    log(string.format("WIRTSCHAFT Einnahmen je Tag netto %.0f G (Jobs %.0f, Verkäufe %.0f, Bestellungen %.0f, Futter −%.0f)",
-      s.einnahmen_tag, s.job_tag, s.verkauf_tag, s.bestell_tag, s.futter_tag))
-    C.ok(s.ziele.fahrrad.mittel, "Fahrrad wird erreicht")
-    C.ok(s.ziele.fahrrad.mittel < s.ziele.phase1.mittel, "Ziele der Reihe nach")
+    log(string.format("WIRTSCHAFT bis zum Flugzeug %.0f Tage ≈ %.1f h", total, total * Sim.MIN_PER_DAY / 60))
+    C.eq(#s.phasen, #K.wirtschaft.phasen)
   end},
 }

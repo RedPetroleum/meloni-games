@@ -26,7 +26,7 @@ return {
     C.near(Value.leistung(d), 0.3375, 1e-6)
     C.near(Value.wert_roh(d), 125.625, 1e-3)
     C.eq(Value.wert(d), 126)
-    C.eq(Value.kaufpreis(d), 163, "125,625 × 1,3 = 163,3")
+    C.eq(Value.kaufpreis(d), 188, "125,625 × 1,5 = 188,4")
   end},
   {"Farbfaktor, Fohlen ×0,6, Training zählt, Einhorn Gold", function()
     local a = horse("haflinger", "fuchs", 30, 40, 35, 75)           -- häufig ×1
@@ -58,7 +58,7 @@ return {
     C.eq(Market.refresh(ctx, 3), m1, "Tag 3")
     C.ok(Market.refresh(ctx, 4) ~= m1, "Tag 4 neue Auswahl")
   end},
-  {"Preise auf dem Markt: Wert × 1,3; Gebiet 1 nur Rassen aus Gebiet 1, weiter weg auch spätere", function()
+  {"Preise auf dem Markt: Wert × 1,5; Gebiet 1 nur Rassen aus Gebiet 1, weiter weg auch spätere", function()
     local m = Market.stock(9, 0, 1)
     for _, d in ipairs(m.horses) do
       C.eq(d.preis, Value.kaufpreis(d))

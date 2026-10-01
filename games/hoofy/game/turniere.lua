@@ -62,11 +62,11 @@ local function wb_index(wb)
   error("unbekannter Wettbewerb " .. tostring(wb))
 end
 
--- Stärke der Gegner einer Klasse in dieser Runde: Mittel 10 + 10 × Klasse, je Gegner ± 12.
+-- Stärke der Gegner einer Klasse in dieser Runde (KATALOG §13): Mittel 15 + 12 × Klasse, je Gegner ± 12.
 function T.gegner(ctx, klasse, wb, runde)
   local R = Rng.new((ctx.seed or 1) * 31 + runde * 1009 + klasse * 37 + wb_index(wb))
-  local out = {}
-  for i = 1, T.GEGNER do out[i] = 10 + 10 * klasse + R:int(-12, 12) end
+  local KT, out = K.turniere, {}
+  for i = 1, T.GEGNER do out[i] = KT.gegner_basis + KT.gegner_klasse * klasse + R:int(-KT.gegner_streuung, KT.gegner_streuung) end
   return out
 end
 

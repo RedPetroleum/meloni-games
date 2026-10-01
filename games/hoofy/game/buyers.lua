@@ -28,19 +28,19 @@ function B.offer(typ, d)
   if typ == "sammlerin" then
     local c = W.sammlerin
     if d.sauberkeit < c.min_sauberkeit then return nil, "zu schmutzig (ab " .. c.min_sauberkeit .. ")" end
-    return flr(wert * V.farbfaktor(d) * c.faktor + 0.5)
+    return flr(wert * (c.basis + V.farbfaktor(d) * c.farbe) + 0.5)
   elseif typ == "reithof" then
     local c = W.reithof
     return flr(wert * c.faktor * (c.basis + d.bindung / c.teiler) + 0.5)
   elseif typ == "zuechter" then
     local c = W.zuechter
     local t, s, a = H.stat(d, "tempo"), H.stat(d, "staerke"), H.stat(d, "ausdauer")
-    local p = wert * (1 + (t + s + (a - K.wert.ausdauer_basis) * K.wert.ausdauer_faktor) / c.teiler)
+    local p = wert * (c.basis + (t + s + (a - K.wert.ausdauer_basis) * K.wert.ausdauer_faktor) / c.teiler)
     if d.sex == "m" then p = p * c.hengst end
     return flr(p + 0.5)
   elseif typ == "schlachter" then
     local c = W.schlachter
-    return flr(c.faktor * d.gewicht * d.gewicht / c.teiler + K.rasse(d.rasse).grundwert * c.grundwert + 0.5)
+    return flr(wert * c.faktor * d.gewicht / c.teiler + 0.5)
   end
   error("unbekannter Käufer " .. tostring(typ))
 end

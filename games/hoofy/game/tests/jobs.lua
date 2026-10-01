@@ -86,6 +86,10 @@ return {
     d.gen.tempo, d.pot.tempo = 80, 80
     Jobs.run(ctx, job("postritt"), d, 1)
     C.eq(d.train.tempo, 0, "am Potenzial nichts mehr")
+    C.ok(Jobs.done(ctx, job("postritt"), 1), "Postritt heute erledigt")
+    local again, why = Jobs.run(ctx, job("postritt"), horse(), 1)
+    C.ok(again == nil and why:find("erledigt"), "jeden Job einmal am Tag")
+    ctx.jobs = nil
     local Screens = require("game.screens")
     ctx.wild = Wild.new(ctx, 1)
     ctx.wild:add_own({name = "Hilde"})

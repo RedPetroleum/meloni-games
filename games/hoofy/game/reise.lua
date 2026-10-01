@@ -215,6 +215,7 @@ function R.fahren(ctx, clock, seed, nr)
     seed = seed, gebiet = nr, hof = ctx.hof, tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv,
     herd = ctx.herd, markt = ctx.market, kaeufer = ctx.buyer, bestellungen = ctx.orders,
     mit = mit, heim = heim, gefunden = ctx.gefunden, lager = ctx.lager, turnier = ctx.turnier, reform = ctx.reform, album = ctx.album, getauscht = ctx.getauscht,
+    gezaehmt = ctx.gezaehmt, jobs = ctx.jobs,
   }
   if nr == 1 then       -- Heimfahrt: Zustand des Hofs zurück
     snap.pos, snap.aenderungen, snap.erkundet, snap.heim = heim.pos, heim.aenderungen, heim.erkundet, nil

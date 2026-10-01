@@ -1,11 +1,12 @@
--- Wirtschaftssimulation (Aufgabe B8): spielt eine einfache Strategie über viele Tage durch und misst,
--- wie lange es bis zu den Zielen aus KATALOG §15 dauert. Reine Datenrechnung ohne Welt und Grafik.
+-- Wirtschaftssimulation (Aufgabe B8, Rebalancing E77): spielt eine Spielweise über viele Tage durch und misst,
+-- wie lange jede Phase aus KATALOG §15 dauert. Reine Datenrechnung ohne Welt und Grafik.
 --
--- Strategie: alle 2 Tage kommt ein Wildpferd dazu (Zähmen gelingt immer, kostet keine Zeit), die zwei
--- besten Pferde behalten wir zum Arbeiten, überzählige gehen an den Käufer des Tages (bestes Angebot).
--- Jedes Pferd macht täglich den bestbezahlten möglichen Job, wird bei Hunger mit Heu gefüttert und
--- gestriegelt. Bestellungen werden geliefert, wenn ein Pferd passt. Nicht modelliert (zu Gunsten der
--- Schätzung niedrig): Turniere (E1), Anbau (C5), Fundstücke (D3), Steuer-Reformen (E4).
+-- Spielweise „normal“: jeden Tag ein Wildpferd aus dem weitesten erreichbaren Gebiet (Zähmen gelingt immer),
+-- die drei besten Pferde bleiben, das beste wird täglich geritten (Galopp, Sprünge). Jeder Job einmal am Tag mit
+-- dem bestbezahlten Pferd, ein Verkauf am Tag an den Käufer (bestes Angebot für ein überzähliges Pferd),
+-- Bestellungen werden geliefert, Turniere in jeder Runde mit dem besten Pferd, wenn sich die Startgebühr lohnt
+-- (Wertung aus den Werten, ohne Minispiel). Heu bei Hunger, Striegeln, Streicheln. Sobald das Geld reicht, wird
+-- die nächste Phase gekauft. Nicht modelliert: Zucht, Anbau, Schätze, Göpel, Reformen, Deko.
 local K = require("game.katalog")
 local H = require("game.horse_model")
 local V = require("game.value")
@@ -14,112 +15,146 @@ local Days = require("game.days")
 local Jobs = require("game.jobs")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
+local Turniere = require("game.turniere")
 local Rng = require("lib.rng")
 
 local Sim = {}
 
-Sim.KEEP = 2                    -- so viele Pferde bleiben zum Arbeiten
-Sim.CATCH_EVERY = 2             -- alle 2 Tage ein neues Wildpferd
-Sim.GOALS = {
-  {id = "fahrrad", cost = 400, text = "Fahrrad (400)"},
-  {id = "phase1", cost = 900, text = "Phase 1: Fahrrad + Schuppen + Anhänger 1 (900)"},
-  {id = "mofa", cost = 2000, text = "Mofa (2000)"},
-  {id = "phase2", cost = 3700, text = "Phase 2: Mofa + Anhänger 2 + Stall M (3700)"},
-}
+Sim.KEEP = 3                    -- so viele Pferde bleiben
+Sim.CATCH = 1                   -- Wildpferde pro Tag
+Sim.MIN_PER_DAY = 4.5           -- echte Minuten je Spieltag (Tag ausgespielt, Nacht verschlafen, Menüs halten die Uhr an)
 
-local function best_job(d, day)
-  local best, pay
-  for _, j in ipairs(Jobs.list()) do
-    if Jobs.eligible(d, j, day) then
-      local p = Jobs.lohn(d, j)
-      if not pay or p > pay then best, pay = j, p end
-    end
-  end
-  return best
+-- Ziele: die Phasen aus KATALOG §15. Nach Phase n ist Gebiet n + 1 erreichbar (das Zugfahrzeug dafür).
+Sim.GOALS = {}
+for i, p in ipairs(K.wirtschaft.phasen) do
+  local f
+  for _, v in ipairs(K.welt.fahrzeuge) do if v.gebiete == i + 1 then f = v end end
+  Sim.GOALS[i] = {id = "phase" .. i, cost = p.kosten, fahrzeug = f.id, text = "Phase " .. i .. ": " .. p.ziel .. " (" .. p.kosten .. ")"}
 end
 
--- Läuft `days` Tage mit Seed `seed`. Gibt {geld = {Tag → Geld}, erreicht = {Ziel-id → Tag}, verkauft, stats} zurück.
+local WB = {"schoenheitswettbewerb", "springreiten", "pferderennen"}
+
+-- Erwarteter Gewinn einer Teilnahme aus den angezeigten Chancen (2. und 3. Platz gemittelt).
+local function lohnt(ctx, d, ki, wb, runde)
+  local k = K.turniere.klassen[ki]
+  local win, top = Turniere.chancen(ctx, d, ki, wb, runde)
+  local ev = win / 100 * k.preise[1] + (top - win) / 100 * (k.preise[2] + k.preise[3]) / 2 - k.gebuehr
+  return ev > 0
+end
+
+-- Läuft `days` Tage mit Seed `seed`. Gibt {geld = {Tag → Geld inkl. ausgegeben}, erreicht = {Ziel-id → Tag},
+-- quellen = {Phase → {verkauf, jobs, bestellung, turnier, futter}}} zurück.
 function Sim.run(seed, days)
   local rng = Rng.new(seed * 7 + 3)
   local ctx = {money = K.wirtschaft.startgeld, herd = {}, herd_horses = {}, lead = {}, orders = {}, seed = seed, max_gebiet = 1,
-    clock = {day = 1}}
-  local out = {geld = {}, erreicht = {}, verkauft = 0, job_einnahmen = 0, verkauf_einnahmen = 0, bestell_einnahmen = 0,
-    futter_ausgaben = 0, tage = days}
-  local spent = 0                   -- für Ziele ausgegebenes Geld
-  local goal_i = 1
-  local stall, weide = 0, 0
+    clock = {day = 1}, inv = {}}
+  local out = {geld = {}, erreicht = {}, quellen = {}, tage = days}
+  for i = 1, #Sim.GOALS do out.quellen[i] = {verkauf = 0, jobs = 0, bestellung = 0, turnier = 0, futter = 0} end
+  local spent, gi = 0, 1
+  local function book(key, before)
+    local q = out.quellen[gi]
+    if q then q[key] = q[key] + ctx.money - before end
+  end
 
   for day = 1, days do
     ctx.clock.day = day
-    -- Tageswechsel für alle Pferde
-    if day > 1 then
-      for _, d in ipairs(ctx.herd) do Days.horse_day(d) end
-    end
+    if day > 1 then for _, d in ipairs(ctx.herd) do Days.horse_day(d) end end
     local kaeufer = Buyers.visit(seed, day)
     Orders.tick(ctx, day)
-    -- neues Wildpferd
-    if day % Sim.CATCH_EVERY == 0 then
-      local d = H.wild({gebiet = 1, rng = rng})
-      d.wild = nil
+    for _ = 1, Sim.CATCH do
+      local d = H.wild({gebiet = ctx.max_gebiet, rng = rng})
+      d.wild, d.ort = nil, "stall"
       ctx.herd[#ctx.herd + 1] = d
-      -- Unterbringung: Stall (2), Weide (4), sonst nichts (Sauberkeit sinkt nicht, kein Training-Verlust)
-      if stall < 2 then d.ort, stall = "stall", stall + 1 elseif weide < 4 then d.ort, weide = "weide", weide + 1 end
     end
-    -- füttern und striegeln
+    -- Pflege
     for _, d in ipairs(ctx.herd) do
-      if d.hunger > 60 and ctx.money >= 5 then
+      if d.hunger > 50 then
+        local before = ctx.money
         ctx.money = ctx.money - 5
-        out.futter_ausgaben = out.futter_ausgaben + 5
+        book("futter", before)
         Care.feed(d, "heu")
       end
-      if d.sauberkeit < 40 then Care.brush(d) end
+      if d.sauberkeit < 70 then Care.brush(d) end
       Care.stroke(d)
     end
-    -- Bestellungen liefern
+    table.sort(ctx.herd, function(a, b) return V.leistung(a) > V.leistung(b) end)
+    local star = ctx.herd[1]
+    if star then
+      Care.train(star, "tempo", 4)
+      Care.train(star, "ausdauer", 2)
+      Care.train(star, "staerke", 2)
+    end
+    -- Bestellungen
     for oi = #ctx.orders, 1, -1 do
       local o = ctx.orders[oi]
       for i, d in ipairs(ctx.herd) do
         if Orders.matches(o, d) then
-          local sum = Orders.reward(d)
-          ctx.money = ctx.money + sum
-          out.bestell_einnahmen = out.bestell_einnahmen + sum
+          local before = ctx.money
+          ctx.money = ctx.money + Orders.reward(d)
+          book("bestellung", before)
           table.remove(ctx.herd, i)
           table.remove(ctx.orders, oi)
           break
         end
       end
     end
-    -- Jobs
-    for _, d in ipairs(ctx.herd) do
-      local j = best_job(d, day)
-      if j then
-        local sum = Jobs.run(ctx, j, d, day)
-        if sum then out.job_einnahmen = out.job_einnahmen + sum end
+    -- Jobs: jeder einmal, mit dem bestbezahlten Pferd
+    for _, j in ipairs(Jobs.list()) do
+      local best, pay
+      for _, d in ipairs(ctx.herd) do
+        if Jobs.eligible(d, j, day, ctx) and (not pay or Jobs.lohn(d, j) > pay) then best, pay = d, Jobs.lohn(d, j) end
+      end
+      if best then
+        local before = ctx.money
+        Jobs.run(ctx, j, best, day)
+        book("jobs", before)
       end
     end
-    -- Verkauf an den Käufer des Tages: überzählige Pferde, bestes Angebot
-    table.sort(ctx.herd, function(a, b) return V.leistung(a) > V.leistung(b) end)
-    local best_i, best_p
-    for i = Sim.KEEP + 1, #ctx.herd do
-      local p = Buyers.offer(kaeufer.typ, ctx.herd[i])
-      if p and (not best_p or p > best_p) then best_i, best_p = i, p end
+    -- Turniere: am ersten Tag jeder Runde alles, was sich lohnt
+    local F = require("game.fortschritt")
+    if F.offen("turnier", day) and (day - 1) % K.turniere.rotation_tage == 0 then
+      local runde = Turniere.runde(day)
+      for _, c in ipairs(Turniere.klassen(ctx)) do
+        for _, wb in ipairs(WB) do
+          local bd, bw
+          for _, d in ipairs(ctx.herd) do
+            local w = Turniere.wertung(d, wb)
+            if d.alter >= 1 and (not bw or w > bw) then bd, bw = d, w end
+          end
+          if bd and ctx.money >= c.def.gebuehr and lohnt(ctx, bd, c.index, wb, runde) then
+            local before = ctx.money
+            Turniere.teilnehmen(ctx, day, bd, c.index, wb)
+            book("turnier", before)
+          end
+        end
+      end
     end
-    if best_i then
-      local d = ctx.herd[best_i]
-      table.remove(ctx.herd, best_i)
-      if d.ort == "stall" then stall = stall - 1 elseif d.ort == "weide" then weide = weide - 1 end
-      ctx.money = ctx.money + best_p
-      out.verkauft = out.verkauft + 1
-      out.verkauf_einnahmen = out.verkauf_einnahmen + best_p
-      local delta = Buyers.folge(kaeufer.typ)
-      for _, e in ipairs(ctx.herd) do e.bindung = mid(0, e.bindung + delta, 100) end
+    -- Verkauf: ein überzähliges Pferd an den Käufer des Tages, bestes Angebot
+    if kaeufer then
+      local best_i, best_p
+      for i = Sim.KEEP + 1, #ctx.herd do
+        local p = Buyers.offer(kaeufer.typ, ctx.herd[i])
+        if p and (not best_p or p > best_p) then best_i, best_p = i, p end
+      end
+      if best_i then
+        local before = ctx.money
+        table.remove(ctx.herd, best_i)
+        ctx.money = ctx.money + best_p
+        book("verkauf", before)
+        local delta = Buyers.folge(kaeufer.typ)
+        for _, e in ipairs(ctx.herd) do e.bindung = mid(0, e.bindung + delta, 100) end
+      end
     end
-    -- Ziele: sobald das Geld reicht, wird ausgegeben (Geld sinkt)
-    local goal = Sim.GOALS[goal_i]
-    while goal and ctx.money + spent >= goal.cost do
+    -- Ziele: sobald das Geld reicht, wird gekauft
+    local goal = Sim.GOALS[gi]
+    while goal and ctx.money >= goal.cost do
+      ctx.money = ctx.money - goal.cost
+      spent = spent + goal.cost
+      ctx.inv[goal.fahrzeug] = 1
+      ctx.max_gebiet = gi + 1
       out.erreicht[goal.id] = day
-      goal_i = goal_i + 1
-      goal = Sim.GOALS[goal_i]
+      gi = gi + 1
+      goal = Sim.GOALS[gi]
     end
     out.geld[day] = ctx.money + spent
   end
@@ -139,32 +174,32 @@ local function stats(list)
 end
 Sim.stats = stats
 
--- Läuft `seeds` Seeds mit je `days` Tagen und fasst zusammen: Tage bis zu jedem Ziel und Einnahmen je Tag.
+-- Läuft `seeds` Seeds mit je `days` Tagen und fasst zusammen: Tage je Phase (Dauer der Phase, nicht ab Spielbeginn),
+-- Einnahmen je Tag und Quelle in der Phase.
 function Sim.summary(seeds, days)
-  local res = {ziele = {}}
+  local res = {phasen = {}}
   local runs = {}
-  local income = {}
-  for s = 1, seeds do
-    local r = Sim.run(s, days)
-    runs[s] = r
-    income[#income + 1] = (r.job_einnahmen + r.verkauf_einnahmen + r.bestell_einnahmen - r.futter_ausgaben) / days
-  end
-  for _, g in ipairs(Sim.GOALS) do
-    local list, missed = {}, 0
+  for s = 1, seeds do runs[s] = Sim.run(s, days) end
+  for i, g in ipairs(Sim.GOALS) do
+    local dauer, missed = {}, 0
+    local q = {verkauf = 0, jobs = 0, bestellung = 0, turnier = 0, futter = 0}
     for _, r in ipairs(runs) do
-      if r.erreicht[g.id] then list[#list + 1] = r.erreicht[g.id] else missed = missed + 1 end
+      local t = r.erreicht[g.id]
+      local prev = i == 1 and 0 or r.erreicht[Sim.GOALS[i - 1].id]
+      if t and prev then
+        local len = max(1, t - prev)
+        dauer[#dauer + 1] = len
+        for k, v in pairs(r.quellen[i]) do q[k] = q[k] + v / len end
+      else
+        missed = missed + 1
+      end
     end
-    local mean, lo, hi = stats(list)
-    res.ziele[g.id] = {mittel = mean, min = lo, max = hi, verfehlt = missed, text = g.text}
+    local mean, lo, hi, n = stats(dauer)
+    for k, v in pairs(q) do q[k] = n > 0 and v / n or 0 end
+    q.netto = q.verkauf + q.jobs + q.bestellung + q.turnier + q.futter
+    res.phasen[i] = {mittel = mean, min = lo, max = hi, verfehlt = missed, text = g.text, quellen = q,
+      minuten = mean and mean * Sim.MIN_PER_DAY}
   end
-  res.einnahmen_tag = (stats(income))
-  local function avg(key)
-    local t = {}
-    for _, r in ipairs(runs) do t[#t + 1] = r[key] / days end
-    return (stats(t))
-  end
-  res.job_tag, res.verkauf_tag, res.bestell_tag, res.futter_tag = avg("job_einnahmen"), avg("verkauf_einnahmen"),
-    avg("bestell_einnahmen"), avg("futter_ausgaben")
   res.runs = runs
   return res
 end

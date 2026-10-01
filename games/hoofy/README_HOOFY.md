@@ -99,7 +99,7 @@ Geld ist entscheidend für den Fortschritt, weil man damit Fahrzeuge kauft. Gute
 - Turniere
 - Jobs mit Pferden (siehe Pflegen und trainieren)
 - Maschinen (siehe Hof)
-- Bauelemente lassen sich zum Kaufpreis wieder verkaufen
+- Bauelemente lassen sich zum halben Kaufpreis wieder verkaufen
 
 ### Ausgaben
 - [ ] (Premium-)Futter

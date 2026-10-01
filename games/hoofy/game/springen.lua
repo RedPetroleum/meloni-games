@@ -1,6 +1,7 @@
 -- Minispiel Springreiten (Aufgabe E2): Parcours von der Seite, das Pferd galoppiert von selbst, A springt.
 -- Stärke → Sprunghöhe (wie beim Reiten, E30), Ausdauer → Leistungsabfall: je weiter, desto mehr schwindet
 -- die Höhe (bei Ausdauer 0 bis zur Hälfte am Ende). Punkte = saubere Sprünge in % × Bindungsfaktor.
+local K = require("game.katalog")
 local Care = require("game.care")
 local Ride = require("game.ride")
 
@@ -14,8 +15,17 @@ S.FIRST, S.GAP = 200, 105  -- Abstand des ersten Hindernisses und zwischen Hinde
 S.PAUSE = 24               -- Frames Stolpern nach einem Fehler
 S.END_X = S.FIRST + S.GAP * (S.HURDLES - 1) + 120
 
--- Höhe der Stange i (1–10): 8 bis 30 Pixel.
-function S.hurdle_height(i) return 8 + (i - 1) * 22 / (S.HURDLES - 1) end
+-- Höhe der Stange i (1–10): von 8 Pixeln bis zur höchsten Stange der Turnierklasse (KATALOG §13:
+-- 18 + 3 × Klasse, Dorf 21, International 36). Ohne Klasse wie Land (30).
+S.KLASSE = 4
+S.LOW = 8
+
+function S.top(klasse)
+  local T = K.turniere
+  return T.stange_basis + T.stange_klasse * (klasse or S.KLASSE)
+end
+
+function S.hurdle_height(i, klasse) return S.LOW + (i - 1) * (S.top(klasse) - S.LOW) / (S.HURDLES - 1) end
 
 -- Sprunghöhe des Pferds d nach Ermüdung beim Fortschritt p (0–1).
 function S.reach(d, p)
@@ -23,10 +33,10 @@ function S.reach(d, p)
   return Ride.jump_height(d) * (1 - tired)
 end
 
-function S.new(d)
+function S.new(d, klasse)
   local s = {d = d, x = 0, t = 0, jump = 0, air = 0, faults = 0, clean = 0, stumble = 0, frame = 0, done = false, hurdles = {}}
   for i = 1, S.HURDLES do
-    s.hurdles[i] = {x = S.FIRST + (i - 1) * S.GAP, h = S.hurdle_height(i), state = "open"}
+    s.hurdles[i] = {x = S.FIRST + (i - 1) * S.GAP, h = S.hurdle_height(i, klasse), state = "open"}
   end
   return s
 end

@@ -1,5 +1,6 @@
 -- Jobs (KATALOG §12): Postritt, Kutschtaxi, Pflügen. Wenig, aber sicheres Geld; trainiert nebenbei.
--- Ein Job pro Pferd und Tag (data.job_tag = Tag der letzten Arbeit).
+-- Ein Job pro Pferd und Tag (data.job_tag = Tag der letzten Arbeit), jeden Job gibt es einmal am Tag
+-- (ctx.jobs[id] = Tag, an dem er erledigt wurde).
 local K = require("game.katalog")
 local H = require("game.horse_model")
 local Care = require("game.care")
@@ -18,8 +19,15 @@ local function have(d, key)
   return H.stat(d, key)
 end
 
--- Darf Pferd d heute diesen Job machen? Gibt true oder false und den Grund (Text).
-function J.eligible(d, job, day)
+-- Ist der Job heute schon erledigt (von irgendeinem Pferd)?
+function J.done(ctx, job, day)
+  return ctx and ctx.jobs and ctx.jobs[job.id] == day or false
+end
+
+-- Darf Pferd d heute diesen Job machen? Gibt true oder false und den Grund (Text). Mit ctx zählt auch,
+-- ob der Job heute schon vergeben ist.
+function J.eligible(d, job, day, ctx)
+  if J.done(ctx, job, day) then return false, "Job heute schon erledigt" end
   if d.job_tag == day then return false, "hat heute schon gearbeitet" end
   if have(d, job.braucht) < job.braucht_wert then
     return false, J.STAT_NAMES[job.braucht] .. " " .. job.braucht_wert .. " nötig"
@@ -35,10 +43,12 @@ end
 
 -- Arbeitet: Geld, Energie ab, Training. Gibt Lohn oder nil, Grund zurück.
 function J.run(ctx, job, d, day)
-  local ok, why = J.eligible(d, job, day)
+  local ok, why = J.eligible(d, job, day, ctx)
   if not ok then return nil, why end
   local sum = J.lohn(d, job)
   ctx.money = ctx.money + sum
+  ctx.jobs = ctx.jobs or {}
+  ctx.jobs[job.id] = day
   d.energie = d.energie - job.energie
   d.job_tag = day
   for key, amount in pairs(job.training) do Care.train(d, key, amount) end

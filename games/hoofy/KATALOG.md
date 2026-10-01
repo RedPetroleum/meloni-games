@@ -128,14 +128,14 @@ Hauptsächlich Emojis, dazu je ein kleiner Effekt.
 ## 6. Pferdewert
 **Leistung** = (Tempo + Stärke + Spür + (Ausdauer − 50) × 2) / 400
 **Wert** = Grundwert × Farbfaktor × (0,5 + Leistung) × Alter (Fohlen ×0,6)
-Kaufen beim Händler: Wert × 1,3.
+Kaufen beim Händler: Wert × 1,5.
 
 | Käufer | Zahlt | Bedingung / Folge |
 |---|---|---|
-| Reiche Sammlerin | Wert × Farbfaktor × 1,5 | nur ab Sauberkeit 70 |
+| Reiche Sammlerin | Wert × (1 + Farbfaktor × 0,1) | nur ab Sauberkeit 70 |
 | Netter Reithof | Wert × 0,7 × (0,5 + Bindung/100) | übrige Pferde +5 Bindung |
-| Züchter | Wert × (1 + (Tempo + Stärke + (Ausdauer − 50) × 2)/300), Hengst ×1,5 | übrige Pferde −5 Bindung |
-| Schlachter | 5 × Gewicht² / 50 + Grundwert × 0,3 | übrige Pferde −10 Bindung |
+| Züchter | Wert × (0,8 + (Tempo + Stärke + (Ausdauer − 50) × 2)/600), Hengst ×1,25 | übrige Pferde −5 Bindung |
+| Schlachter | Wert × 0,9 × Gewicht / 50 | übrige Pferde −10 Bindung |
 | Bestellung | Wert × 1,5 | alle 3 Tage eine, Frist 5–10 Tage |
 
 Pro Tag kommt ein zufälliger Käufer vorbei, der Pferdemarkt im Ort ist immer offen.
@@ -186,6 +186,7 @@ Reiten geht auch ohne Sattel, dann ohne Tempo-Bonus und ohne Satteltaschen. Der 
 
 ## 9. Bauelemente
 Hof-Schönheit = Summe der Deko-Punkte. Ab 50 / 150 / 400 bekommen alle Pferde +1 / +2 / +3 Bindung pro Tag.
+Abreißen bringt 50 % des Preises zurück.
 
 | Element | Preis | Wirkung |
 |---|---|---|
@@ -194,7 +195,7 @@ Hof-Schönheit = Summe der Deko-Punkte. Ab 50 / 150 / 400 bekommen alle Pferde +
 | Häuschen / Villa | 1 000 / 8 000 | schlafen, Schönheit +20 / +100 |
 | Stall S / M / L / XL | 300 / 900 / 2 500 / 6 000 | 2 / 4 / 8 / 12 Plätze, 1 / 2 / 3 / 4 Bindung pro Tag |
 | Zaun (je Kachel) / Tor | 5 / 30 | Weide |
-| Schuppen / Garage / Hangar | 200 / 3 000 / 20 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
+| Schuppen / Garage / Hangar | 600 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
 | Göpel-Generator | 1 500 | 40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie) |
 | Beet / Feld (je Kachel) | 20 | Pflanzen anbauen (siehe Anbau) |
 | Bank / Lampe / Blumenkübel | 40 / 60 / 20 | Schönheit +3 / +4 / +2 |
@@ -207,15 +208,15 @@ Hof-Schönheit = Summe der Deko-Punkte. Ab 50 / 150 / 400 bekommen alle Pferde +
 | Zugfahrzeug | Preis | Gebiete bis | Fahrtkosten je Gebiet Entfernung |
 |---|---|---|---|
 | zu Fuß | – | 1 | – |
-| Fahrrad | 400 | 2 | 0 |
-| Mofa | 2 000 | 3 | 5 |
-| Kleinwagen | 8 000 | 4 | 10 |
-| SUV | 25 000 | 5 | 20 |
-| Flugzeug | 100 000 | 6 | 50 |
+| Fahrrad | 1 800 | 2 | 0 |
+| Mofa | 10 000 | 3 | 5 |
+| Kleinwagen | 25 000 | 4 | 10 |
+| SUV | 80 000 | 5 | 20 |
+| Flugzeug | 150 000 | 6 | 50 |
 
 | Anhänger | 1 Platz | 2 Plätze | 3 Plätze | 4 Plätze |
 |---|---|---|---|---|
-| Preis | 300 | 800 | 1 800 | 3 500 |
+| Preis | 1 200 | 3 500 | 8 000 | 12 000 |
 
 Das Fahrzeug fasst unbegrenzt viele Fundstücke.
 
@@ -228,7 +229,7 @@ Das Fahrzeug fasst unbegrenzt viele Fundstücke.
 | 5 Canyon | rot-orange | 128 × 112 | 7 | Araber |
 | 6 Nebelinsel | violett | 112 × 96 | 5 | Einhorn |
 
-Rassen früherer Gebiete kommen weiter vor, nur seltener.
+Rassen früherer Gebiete kommen weiter vor, nur seltener. Gezähmte Wildpferde wachsen erst beim nächsten Wechsel nach (§1), auch nach Reisen und Laden.
 
 Größe: Kachel 16 px, Gebiete aus Blöcken zu 16 × 16 Kacheln (Heimattal ≈ 25 Bildschirme, Ausgebüxt Level 2 ≈ 5). Einmal quer durchreiten ≈ 10–15 s. Etwa alle 1–2 Bildschirme etwas zu entdecken (Pferd, Schatz, Brücke, Haus …), also 15–30 Schätze und Orte je Gebiet. Flüsse, Wälder und Zäune lenken die Wege, damit es nicht geradeaus durchgeht. Die Technik-Probe prüft die Obergrenze (256 × 256).
 
@@ -260,19 +261,19 @@ Aufspürung +1 je Fund (mit Trainingsformel).
 | Kutschtaxi | Stärke 30 | 15 + Stärke / 2 | Stärke +2, Ausdauer +1 | 30 |
 | Pflügen | Stärke 50 | 25 + Stärke / 3 | Stärke +3, Ausdauer +1 | 40 |
 
-Je Pferd ein Job pro Tag.
+Je Pferd ein Job pro Tag, jeden Job gibt es einmal pro Tag.
 
 ## 13. Turniere
-Teilnahme jederzeit. Jede Klasse hat die drei Wettbewerbe. Ein Wettbewerb, an dem man teilgenommen hat, ist weg (für alle Pferde), die anderen bleiben offen. Nach 3 Tagen gibt es neue, mit neuen Teilnehmern und Chancen. Wertung = Stat-Anteil × (0,5 + Bindung / 200).
+Teilnahme jederzeit. Jede Klasse hat die drei Wettbewerbe. Ein Wettbewerb, an dem man teilgenommen hat, ist weg (für alle Pferde), die anderen bleiben offen. Nach 3 Tagen gibt es neue, mit neuen Teilnehmern und Chancen. Wertung = Stat-Anteil × (0,5 + Bindung / 200). Gegner: Wertung 15 + 12 × Klasse ± 12 (Dorf = Klasse 1). Springreiten: Die höchste Stange ist 18 + 3 × Klasse hoch (Sprunghöhe 6 + 0,3 × Stärke), fürs Dorf reicht Stärke 50, International braucht 100.
 
 | Klasse | braucht | Startgebühr | 1. / 2. / 3. Preis |
 |---|---|---|---|
-| Dorf | – | 20 | 100 / 50 / 25 |
-| Kreis | Fahrrad | 80 | 400 / 200 / 100 |
-| Bezirk | Mofa | 250 | 1 500 / 700 / 350 |
-| Land | Kleinwagen | 800 | 5 000 / 2 500 / 1 200 |
-| National | SUV | 2 500 | 15 000 / 7 000 / 3 500 |
-| International | Flugzeug | 8 000 | 50 000 / 25 000 / 12 000 |
+| Dorf | – | 10 | 50 / 25 / 10 |
+| Kreis | Fahrrad | 40 | 200 / 100 / 50 |
+| Bezirk | Mofa | 120 | 750 / 350 / 180 |
+| Land | Kleinwagen | 400 | 2 500 / 1 200 / 600 |
+| National | SUV | 1 200 | 7 500 / 3 500 / 1 800 |
+| International | Flugzeug | 4 000 | 25 000 / 12 000 / 6 000 |
 
 | Wettbewerb | zählt |
 |---|---|
@@ -293,18 +294,19 @@ Alle 4 Tage eine neue Reform aus der Zeitung, Dauer 3–5 Tage.
 | Stromsubvention | Generator ×2 |
 
 ## 15. Wirtschaft: Beispielrechnung
-1 Spieltag = 5 min. Laufende Kosten pro Pferd und Tag: etwa 8 Futter + 3 Steuer = **11**, mit eigenem Anbau etwa **5**.
+1 Spieltag ≈ 4,5 min Spielzeit (6:15 min, die Nacht meist verschlafen, Menüs halten die Uhr an). Laufende Kosten pro Pferd und Tag: etwa 8 Futter + 3 Steuer = **11**, mit eigenem Anbau etwa **5**.
 Startgeld **300**, Start mit Wohnwagen, Stall S und Weide, ohne Pferd, ohne Sattel und ohne Bürste (Laden).
 
 | Phase | Ziel | Kosten | Einnahmen/Tag (netto) | Tage | Spielzeit |
 |---|---|---|---|---|---|
-| 1 | Fahrrad + Schuppen + Anhänger 1 | 900 (600 nach Startgeld) | ~80: alle 2 Tage ein Wildpferd verkaufen, Postritt, Dorf-Turnier | 8 | 40 min |
-| 2 | Mofa + Anhänger 2 + Stall M | 3 700 | ~200: 2–3 Pferde, Jobs, Kreis-Turniere, erste Zucht | 19 | 1:35 h |
-| 3 | Kleinwagen + Garage + Anhänger 3 | 12 800 | ~500: Zuchtverkäufe, Bezirk-Turniere, Generator | 26 | 2:10 h |
-| 4 | SUV + Anhänger 4 | 28 500 | ~1 200: seltene Farben, Land-Turniere | 24 | 2:00 h |
-| 5 | Flugzeug + Hangar | 120 000 | ~3 000: Araber-Zucht, National-Turniere | 40 | 3:20 h |
-| | **Summe** | | | **117** | **~10 h** |
+| 1 | Fahrrad + Schuppen + Anhänger 1 | 3 600 (3 300 nach Startgeld) | ~310: Jobs, ab Tag 5 ein Wildpferd am Tag an den Käufer | 12 | 0:55 h |
+| 2 | Mofa + Anhänger 2 + Stall M | 14 400 | ~880: Wildpferde aus dem Birkenwald, Kreis-Turniere | 18 | 1:20 h |
+| 3 | Kleinwagen + Garage + Anhänger 3 | 41 000 | ~2 400: Pferde aus den Flussauen, Bezirk-Turniere | 20 | 1:30 h |
+| 4 | SUV + Anhänger 4 | 92 000 | ~3 600: Steppenpferde, Land-Turniere | 27 | 2:00 h |
+| 5 | Flugzeug + Hangar | 190 000 | ~5 500: Araber, National-Turniere | 36 | 2:40 h |
+| | **Summe** | | | **112** | **~8,5 h** |
 
+Gerechnet mit `game/sim.lua` (Zeilen „WIRTSCHAFT“ im Selbsttest): jeden Tag ein Wildpferd aus dem neuesten Gebiet, drei Pferde behalten, Turniere ohne Minispiel. Ziel: pro Gebiet 1–3 h.
 Ausgaben für Sättel, Deko, Land und Anbau kommen dazu und verlängern das Spiel.
 
 ## Offene Fragen

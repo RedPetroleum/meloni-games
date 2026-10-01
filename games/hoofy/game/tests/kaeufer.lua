@@ -27,17 +27,17 @@ return {
     local d = horse()
     -- Leistung (30 + 40 + 35 + 25 × 2) / 400 = 0,3875; Wert 250 × 1 × 0,8875... (0,5 + 0,3875) = 221,875
     C.near(Value.wert_roh(d), 221.875, 0.05)
-    -- Sammlerin: Wert × Farbfaktor × 1,5 (nur ab Sauberkeit 70)
-    C.eq(Buyers.offer("sammlerin", d), flr(221.875 * 1 * 1.5 + 0.5))
+    -- Sammlerin: Wert × (1 + Farbfaktor × 0,1) (nur ab Sauberkeit 70)
+    C.eq(Buyers.offer("sammlerin", d), flr(221.875 * 1.1 + 0.5))
     -- Reithof: Wert × 0,7 × (0,5 + Bindung/100) = 221,875 × 0,7 × 1,0
     C.eq(Buyers.offer("reithof", d), flr(221.875 * 0.7 + 0.5))
-    -- Züchter: Wert × (1 + (30 + 40 + 25 × 2)/300) = 221,875 × 1,4
-    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (1 + 120 / 300) + 0.5))
-    -- Hengst ×1,5
+    -- Züchter: Wert × (0,8 + (30 + 40 + 25 × 2)/600) = 221,875 × 1,0
+    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (0.8 + 120 / 600) + 0.5))
+    -- Hengst ×1,25
     d.sex = "m"
-    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (1 + 120 / 300) * 1.5 + 0.5))
-    -- Schlachter: 5 × 50² / 50 + 250 × 0,3 = 250 + 75
-    C.eq(Buyers.offer("schlachter", d), 325)
+    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (0.8 + 120 / 600) * 1.25 + 0.5))
+    -- Schlachter: Wert × 0,9 × 50 / 50
+    C.eq(Buyers.offer("schlachter", d), flr(221.875 * 0.9 + 0.5))
   end},
   {"Bedingungen und Gewichtung: Sammlerin nur ab Sauberkeit 70, Reithof mag Bindung, Schlachter Gewicht", function()
     local d = horse({sauberkeit = 69})
@@ -48,9 +48,9 @@ return {
     local lo, hi = horse({bindung = 0}), horse({bindung = 100})
     C.ok(Buyers.offer("reithof", hi) > Buyers.offer("reithof", lo) * 2, "hohe Bindung zahlt viel mehr")
     local duenn, dick = horse({gewicht = 30}), horse({gewicht = 80})
-    C.ok(Buyers.offer("schlachter", dick) > Buyers.offer("schlachter", duenn) * 3, "Gewicht zählt quadratisch")
+    C.ok(Buyers.offer("schlachter", dick) > Buyers.offer("schlachter", duenn) * 2, "Gewicht zählt")
     local rare = horse({farbe = "palomino", farbe2 = "palomino"})       -- selten ×2
-    C.ok(Buyers.offer("sammlerin", rare) > Buyers.offer("sammlerin", horse()) * 3, "Seltenheit zählt doppelt")
+    C.ok(Buyers.offer("sammlerin", rare) > Buyers.offer("sammlerin", horse()) * 2, "Seltenheit zählt mehr")
   end},
   {"Verkauf: Geld, Pferd weg, Folgen für die übrigen (+5 Reithof, −5 Züchter, −10 Schlachter, 0 Sammlerin)", function()
     for _, case in ipairs({{"reithof", 5}, {"zuechter", -5}, {"schlachter", -10}, {"sammlerin", 0}}) do

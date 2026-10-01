@@ -528,13 +528,18 @@ local function start_building_at(farm, cx, cy)
   end
 end
 
+-- Erstattung beim Abreißen: ein Teil des Kaufpreises (KATALOG §9, 50 %).
+function Farm.erstattung(id)
+  return flr(K.bauteil(id).preis * K.bau.abriss_prozent / 100)
+end
+
 -- Was würde Abreißen an (cx, cy) treffen? Gibt Bau (Item oder Startbau), Erstattung, ok, Grund zurück.
 -- Startbauten waren geschenkt und bringen nichts zurück. Ein Stall nur, wenn die übrigen alle Stallpferde
 -- fassen; eine Garage nur, wenn das Fahrzeug woanders unterkommt.
 function Farm.demolish_target(ctx, cx, cy)
   local farm = ctx.area.farm
   local it = Farm.item_at(farm, cx, cy)
-  local refund = it and K.bauteil(it.id).preis
+  local refund = it and Farm.erstattung(it.id)
   if not it then it, refund = start_building_at(farm, cx, cy), 0 end
   if not it then return nil, 0, false, "hier steht nichts Abreißbares" end
   local kind = KIND[it.id]
@@ -560,7 +565,7 @@ function Farm.demolish_target(ctx, cx, cy)
   return it, refund, true
 end
 
--- Reißt ab, was an (cx, cy) steht, und erstattet den Kaufpreis. Gibt Erstattung oder nil, Grund zurück.
+-- Reißt ab, was an (cx, cy) steht, und erstattet die Hälfte des Kaufpreises. Gibt Erstattung oder nil, Grund zurück.
 function Farm.remove(ctx, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
   local plant = Farm.plant_at(farm, cx, cy)

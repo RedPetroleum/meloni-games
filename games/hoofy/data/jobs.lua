@@ -45,4 +45,5 @@ return {
     },
   },
   pro_tag = 1,
+  job_pro_tag = 1,
 }

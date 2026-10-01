@@ -48,7 +48,7 @@ return {
     C.eq(K.stats.gen_sigma, 8)
     C.eq(K.stats.bindung.folgt, 70)
     C.eq(K.bauteil("stall_s").plaetze, 2)
-    C.eq(K.fahrzeug("mofa").preis, 2000)
+    C.eq(K.fahrzeug("mofa").preis, 10000)
     C.eq(K.wirtschaft.startgeld, 300)
     C.eq(#K.charakter.nachteule.name > 0, true)
     for _, t in ipairs(K.turniere.klassen) do

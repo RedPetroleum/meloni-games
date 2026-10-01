@@ -68,7 +68,7 @@ return {
     C.ok(not ok and why == "du stehst im Weg")
     C.ok(Farm.place(ctx, "weg", p.x + 12, p.y + 7), "Weg darf unter dem Spieler liegen")
   end},
-  {"Abreißen erstattet den vollen Kaufpreis, Geld wie vorher, Boden wie vorher", function()
+  {"Abreißen erstattet den halben Kaufpreis, Boden wie vorher", function()
     local ctx, p = setup()
     local g0 = ctx.map:code(p.x + 12, p.y + 7)
     local start = ctx.money
@@ -78,9 +78,9 @@ return {
     C.eq(ctx.map:code(p.x + 15, p.y + 7), ":", "Weg-Boden")
     C.ok(not ctx.map:walkable(p.x + 13, p.y + 7), "Brunnen 2×2 blockiert auch die Nachbarkachel")
     local sum = Farm.remove(ctx, p.x + 13, p.y + 7)      -- Kachel unten rechts im Brunnen
-    C.eq(sum, 400)
+    C.eq(sum, 200)
     Farm.remove(ctx, p.x + 15, p.y + 7)
-    C.eq(ctx.money, start, "alles zurück")
+    C.eq(ctx.money, start - 200 - 3, "die Hälfte zurück (Weg 5 → 2)")
     C.eq(ctx.map:code(p.x + 15, p.y + 7), ".", "Gras")
     C.ok(ctx.map:walkable(p.x + 12, p.y + 6), "Brunnen weg, begehbar")
     C.eq(#ctx.area.farm.items, 0)
@@ -103,7 +103,7 @@ return {
     Farm.remove(ctx, p.x + 13, y)
     C.eq(coll(ctx, p.x + 12, y), string.char(base), "einzeln")
     C.eq(coll(ctx, p.x + 14, y), string.char(base + 2), "nur noch das Tor rechts")
-    C.eq(ctx.money, 1000 - 5 * 2 - 30 , "Zaun 5, Tor 30, ein Zaun zurück: " .. ctx.money)
+    C.eq(ctx.money, 1000 - 5 * 3 - 30 + 2, "Zaun 5, Tor 30, ein Zaun halb zurück: " .. ctx.money)
   end},
   {"Kollision: der Spieler läuft an der Bank nicht durch, über einen Weg schon", function()
     local ctx, p = setup()
