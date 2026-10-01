@@ -103,7 +103,7 @@ return {
     C.ok(#text < 2500, "Fohlen mit Stammbaum unter 2,5 KB: " .. #text)
     log("STAMMBAUM Pferd mit 3 Generationen Ahnen: " .. #text .. " Bytes")
   end},
-  {"Wildfang ohne Ahnen, Stammbaum-Bildschirm zeichnet, Info öffnet ihn mit Rechts", function()
+  {"Wildfang ohne Ahnen, Stammbaum-Bildschirm zeichnet, Info öffnet ihn mit Runter, ↑ schließt, ← → blättert", function()
     local Screens = require("game.screens")
     local ctx = Stage.build(1)
     ctx.clock = Clock.new(1, 0)
@@ -117,13 +117,32 @@ return {
     local info = Screens.info(ctx, z)
     nav.push(info)
     local old = btnp
-    btnp = function(b) return b == BTN_RIGHT end
+    btnp = function(b) return b == BTN_DOWN end
     info.update(nav)
     btnp = old
     C.eq(#nav.stack, 2, "Stammbaum offen")
-    btnp = function(b) return b == BTN_B end
+    btnp = function(b) return b == BTN_UP end
     nav.stack[2].update(nav)
     btnp = old
     C.eq(#nav.stack, 1)
+    -- Blättern durch die eigenen Pferde (umlaufend)
+    local a, b = wildhorse("Anna"), wildhorse("Berta")
+    ctx.herd = {a, b}
+    local inf = Screens.info(ctx, a)
+    local function names_after(key)
+      btnp = function(k) return k == key end
+      inf.update(nav)
+      btnp = old
+      local seen
+      local op = print
+      print = function(t, ...) if t == "Anna" or t == "Berta" then seen = t end return op(t, ...) end
+      inf.draw()
+      print = op
+      return seen
+    end
+    C.eq(names_after(BTN_RIGHT), "Berta")
+    C.eq(names_after(BTN_RIGHT), "Anna", "umlaufend")
+    C.eq(names_after(BTN_LEFT), "Berta")
+    cls()
   end},
 }

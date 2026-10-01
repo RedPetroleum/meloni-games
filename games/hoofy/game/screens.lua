@@ -130,7 +130,7 @@ local function box(x0, y0, x1, y1, col)
   rectfill(x0, y0, x1, y1, col)
   pset(x0, y0, C.panel) pset(x1, y0, C.panel) pset(x0, y1, C.panel) pset(x1, y1, C.panel)
 end
-local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
+local STATE_COL = rgb(0x98, 0xc8, 0xde) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
 -- Farben als {r, g, b}, damit sich Zwischentöne berechnen lassen
@@ -144,7 +144,7 @@ local BAR_SKILL = {bg = BOX_SKILL, bg_rgb = {0x29, 0x29, 0x23}, track = {0x1a, 0
 local BAR_STATE = {bg = BOX_STATE, bg_rgb = {0x27, 0x25, 0x2b}, track = {0x19, 0x17, 0x1c}}
 
 -- Füllfarben des inneren Balkens
-local FILL = {gen = {0x9a, 0xdc, 0xb4}, train = {0x3a, 0xb0, 0x8e}, state = {0x8f, 0xc8, 0xe6}, red = {0xe0, 0x47, 0x5a}}
+local FILL = {gen = {0x9a, 0xdc, 0xb4}, train = {0x3a, 0xb0, 0x8e}, state = {0x98, 0xc8, 0xde}, red = {0xe0, 0x47, 0x5a}}
 
 -- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze oben und unten drei Pixel breit und eins tief in
 -- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; dazwischen die Farbe des Balkens (Talent oder Spur) halb durchsichtig. Der gefüllte
@@ -207,21 +207,33 @@ local function state_bar(x, y, label, value, max, warn, th)
   print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col(fc))
 end
 
+-- Pferde-Info: ← → blättert durch die eigenen Pferde (ctx.herd), ↓ Stammbaum, A umbenennen, B zurück.
 function Screens.info(ctx, data)
   local s = {}
+  local herd = ctx.herd or {}
+  local function index()
+    for i, d in ipairs(herd) do if d == data then return i end end
+  end
   function s.update(nav)
     if btnp(BTN_B) then nav.pop() end
     if btnp(BTN_A) then
-      nav.push(Screens.keyboard("Neuer Name", data.name, 12, function(text) data.name = text end))
+      local d = data
+      nav.push(Screens.keyboard("Neuer Name", d.name, 12, function(text) d.name = text end))
     end
-    if btnp(BTN_RIGHT) then SFX.ok() nav.push(Screens.stammbaum(ctx, data)) end
+    if btnp(BTN_DOWN) then SFX.ok() nav.push(Screens.stammbaum(ctx, data)) end
+    local i = index()
+    if i and #herd > 1 then
+      if btnp(BTN_LEFT) then data = herd[(i - 2) % #herd + 1] SFX.select() end
+      if btnp(BTN_RIGHT) then data = herd[i % #herd + 1] SFX.select() end
+    end
   end
   function s.draw()
     cls(C.panel)
     -- Kopf: Name groß, Wert rechts
     rectfill(0, 0, SCREEN_W - 1, 21, C.panel)
     font(1)                                          -- feinere große Schrift (API 3)
-    print(data.name, 6, 3, C.gold)
+    local nx = print(data.name, 6, 3, C.gold)
+    if index() and #herd > 1 then print("< >", nx + 8, 3, rgb(0x6e, 0x5c, 0x4c)) end   -- blass: ← → blättert
     font(0)
     local wert = "Wert " .. Value.wert(data) .. " G"
     print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
@@ -268,7 +280,7 @@ function Screens.info(ctx, data)
     line(bx_of(50), y - 1, bx_of(50), y + 9, C.text)                -- Idealgewicht
     y = y + 11
     state_bar(8, y, "Energie", data.energie, H.stat(data, "ausdauer"))
-    footer("A umbenennen   > Stammbaum   B zurück")
+    footer("A umbenennen   v Stammbaum   B zurück")
   end
   s.full = true
   return s
@@ -969,7 +981,7 @@ function Screens.stammbaum(ctx, data)
   local s = {full = true, static = true}
   local drawn = false
   function s.update(nav)
-    if btnp(BTN_B) or btnp(BTN_A) or btnp(BTN_LEFT) then SFX.back() nav.pop() end
+    if btnp(BTN_B) or btnp(BTN_A) or btnp(BTN_UP) then SFX.back() nav.pop() end
   end
   local COLW, BOXW = 80, 76
   local function box(x, y, h, node, label)
