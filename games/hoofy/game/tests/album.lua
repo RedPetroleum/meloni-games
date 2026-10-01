@@ -45,15 +45,16 @@ return {
       end
     end
   end},
-  {"Sichten: eigene Pferde immer, Wildpferde nur im Bild", function()
+  {"Sichten: nur eigene Pferde, Wildpferde auch im Bild nicht", function()
     local ctx = setup()
     local own = ctx.wild:add_own({rasse = "noriker", name = "Eigen"})
     local nah = ctx.wild:spawn_at(ctx.player.x + 40, ctx.player.y, {rasse = "friese", rng = ctx.wild.rng})
     local fern = ctx.wild:spawn_at(ctx.player.x + 2000, ctx.player.y, {rasse = "araber", rng = ctx.wild.rng})
     ctx.camera:snap(ctx.player.x, ctx.player.y)
     local neu = Album.sichten(ctx)
-    C.eq(neu, 2, "eigenes und nahes Wildpferd")
-    C.ok(Album.gefunden(ctx, "friese", nah.data.farbe))
+    C.eq(neu, 1, "nur das eigene")
+    C.ok(Album.gefunden(ctx, "noriker", own.data.farbe))
+    C.ok(not Album.gefunden(ctx, "friese", nah.data.farbe))
     C.ok(not Album.gefunden(ctx, "araber", fern.data.farbe))
     C.eq(Album.sichten(ctx), 0, "nichts Neues")
   end},

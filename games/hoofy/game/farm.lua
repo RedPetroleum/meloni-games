@@ -109,7 +109,7 @@ function Farm.pastures(map, farm)
   local seen, out = {}, {}
   for cy = p.y, p.y + p.h - 1 do
     for cx = p.x, p.x + p.w - 1 do
-      if not seen[key(cx, cy)] and open(cx, cy) then
+      if not seen[key(cx, cy)] and Farm.owns(farm, cx, cy) and open(cx, cy) then
         local tiles, list, escaped, at_gate = {}, {}, false, false
         local stack = {{cx, cy}}
         seen[key(cx, cy)] = true
@@ -119,7 +119,7 @@ function Farm.pastures(map, farm)
           list[#list + 1] = t
           for _, d in ipairs(DIRS4) do
             local nx, ny = t[1] + d[1], t[2] + d[2]
-            if nx < p.x or ny < p.y or nx >= p.x + p.w or ny >= p.y + p.h then
+            if not Farm.owns(farm, nx, ny) then
               escaped = true
             elseif gates[key(nx, ny)] then
               at_gate = true
@@ -156,7 +156,7 @@ function Farm.capacity(farm)
   return {
     stall = stall,
     weide = weide,
-    frei = flr(farm.plot.w * farm.plot.h / Farm.FREE_PER_TILES),
+    frei = flr(#Farm.parcels(farm) * Farm.LAND * Farm.LAND / Farm.FREE_PER_TILES),
   }
 end
 
@@ -205,42 +205,91 @@ Farm.CATEGORIES = {
   {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
   {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar", "goepel_generator"}},
-  {id = "land", name = "Land", items = {"land_n", "land_o", "land_s", "land_w"}},
+  {id = "land", name = "Land", items = {}},                    -- Feld mit dem Cursor wählen, siehe Farm.buy_land
   {id = "abriss", name = "Abreißen", items = {}},
 }
 
--- ---- Land kaufen (C7): das Grundstück wächst streifenweise um 10 Kacheln, je 10×10-Stück 500 G, jedes weitere +250 ----
-Farm.LAND_DIRS = {
-  land_n = {name = "Land Nord", dx = 0, dy = -1}, land_o = {name = "Land Ost", dx = 1, dy = 0},
-  land_s = {name = "Land Süd", dx = 0, dy = 1}, land_w = {name = "Land West", dx = -1, dy = 0},
-}
+-- ---- Land kaufen (C7, geändert nach Rückmeldung 0.5.3): das Grundstück besteht aus Feldern zu 10×10 Kacheln
+-- (Raster an Vielfachen von 10). Gekauft wird ein einzelnes Feld, das an ein eigenes grenzt: 500 G, jedes weitere
+-- +250. farm.parcels = Liste {i, j} (Feld = Kacheln i*10 … i*10+9), farm.plot ist das umschließende Rechteck. ----
+Farm.LAND = 10
+local SETS = setmetatable({}, {__mode = "k"})   -- farm → {[i*4096+j] = true, n = Zahl der Felder}
 
--- Zahl der Stücke und Preis des Streifens in Richtung id; nil + Grund am Kartenrand.
-function Farm.land_angebot(ctx, id)
-  local d = Farm.LAND_DIRS[id]
-  local p, map = ctx.area.farm.plot, ctx.map
-  local n = ((d.dx ~= 0) and p.h or p.w) // 10
-  local free
-  if id == "land_n" then free = p.y elseif id == "land_w" then free = p.x
-  elseif id == "land_s" then free = map.h - (p.y + p.h) else free = map.w - (p.x + p.w) end
-  if free < 10 then return nil, "Kartenrand" end
-  local k, sum = ctx.area.farm.land or 0, 0
-  for i = 0, n - 1 do sum = sum + 500 + 250 * (k + i) end
-  return sum, n
+-- Felder des Hofs; ältere Spielstände ohne parcels bekommen sie aus dem Rechteck.
+function Farm.parcels(farm)
+  if not farm.parcels then
+    local p, L = farm.plot, Farm.LAND
+    farm.parcels = {}
+    for j = p.y // L, (p.y + p.h - 1) // L do
+      for i = p.x // L, (p.x + p.w - 1) // L do farm.parcels[#farm.parcels + 1] = {i, j} end
+    end
+  end
+  return farm.parcels
 end
 
-function Farm.buy_land(ctx, id)
-  local farm = ctx.area.farm
-  local price, n = Farm.land_angebot(ctx, id)
-  if not price then return false, n end
+local function parcel_set(farm)
+  local list = Farm.parcels(farm)
+  local set = SETS[farm]
+  if set and set.n == #list then return set end
+  set = {n = #list}
+  for _, q in ipairs(list) do set[q[1] * 4096 + q[2]] = true end
+  SETS[farm] = set
+  return set
+end
+
+-- Gehört das Feld (i, j) bzw. die Kachel (cx, cy) zum Hof?
+function Farm.owns_parcel(farm, i, j)
+  return parcel_set(farm)[i * 4096 + j] == true
+end
+
+function Farm.owns(farm, cx, cy)
+  return parcel_set(farm)[(cx // Farm.LAND) * 4096 + cy // Farm.LAND] == true
+end
+
+-- Preis des Felds mit der Kachel (cx, cy); nil + Grund, wenn es nicht geht.
+function Farm.land_angebot(ctx, cx, cy)
+  local farm, map, L = ctx.area.farm, ctx.map, Farm.LAND
+  local i, j = cx // L, cy // L
+  if Farm.owns_parcel(farm, i, j) then return nil, "schon deins" end
+  if i < 0 or j < 0 or (i + 1) * L > map.w or (j + 1) * L > map.h then return nil, "Kartenrand" end
+  if not (Farm.owns_parcel(farm, i - 1, j) or Farm.owns_parcel(farm, i + 1, j) or Farm.owns_parcel(farm, i, j - 1)
+    or Farm.owns_parcel(farm, i, j + 1)) then return nil, "grenzt nicht an deinen Hof" end
+  local v = ctx.area.village
+  if v and i * L < v.x + v.w and (i + 1) * L > v.x and j * L < v.y + v.h and (j + 1) * L > v.y then
+    return nil, "gehört zum Dorf"
+  end
+  return 500 + 250 * (farm.land or 0)
+end
+
+function Farm.buy_land(ctx, cx, cy)
+  local farm, L = ctx.area.farm, Farm.LAND
+  local price, why = Farm.land_angebot(ctx, cx, cy)
+  if not price then return false, why end
   if ctx.money < price then return false, "Geld" end
   ctx.money = ctx.money - price
-  local d, p = Farm.LAND_DIRS[id], farm.plot
-  if id == "land_n" then p.y, p.h = p.y - 10, p.h + 10
-  elseif id == "land_w" then p.x, p.w = p.x - 10, p.w + 10
-  elseif id == "land_s" then p.h = p.h + 10 else p.w = p.w + 10 end
-  farm.land = (farm.land or 0) + n
+  local i, j = cx // L, cy // L
+  local list = Farm.parcels(farm)
+  list[#list + 1] = {i, j}
+  local p = farm.plot                -- umschließendes Rechteck mitziehen (dieselbe Tabelle wie area.plot)
+  local x1, y1 = max(p.x + p.w, (i + 1) * L), max(p.y + p.h, (j + 1) * L)
+  p.x, p.y = min(p.x, i * L), min(p.y, j * L)
+  p.w, p.h = x1 - p.x, y1 - p.y
+  farm.land = (farm.land or 0) + 1
   return true, price
+end
+
+-- Zeichnet den Umriss des Grundstücks; ox, oy: Lage der Kachel 0,0, s: Pixel je Kachel.
+function Farm.outline(farm, ox, oy, s, c)
+  local L = Farm.LAND
+  for _, q in ipairs(Farm.parcels(farm)) do
+    local i, j = q[1], q[2]
+    local x0, y0 = ox + i * L * s, oy + j * L * s
+    local x1, y1 = x0 + L * s, y0 + L * s
+    if not Farm.owns_parcel(farm, i, j - 1) then line(x0 - 1, y0 - 1, x1, y0 - 1, c) end
+    if not Farm.owns_parcel(farm, i, j + 1) then line(x0 - 1, y1, x1, y1, c) end
+    if not Farm.owns_parcel(farm, i - 1, j) then line(x0 - 1, y0 - 1, x0 - 1, y1, c) end
+    if not Farm.owns_parcel(farm, i + 1, j) then line(x1, y0 - 1, x1, y1, c) end
+  end
 end
 
 -- id → Bild (prop), Größe in Kacheln; Boden-Ersatz bei Wegen.
@@ -373,8 +422,12 @@ function Farm.is_gate(farm, cx, cy)
 end
 
 local function in_plot(farm, cx, cy, w, h)
-  local p = farm.plot
-  return cx >= p.x and cy >= p.y and cx + w <= p.x + p.w and cy + h <= p.y + p.h
+  for dy = 0, h - 1 do
+    for dx = 0, w - 1 do
+      if not Farm.owns(farm, cx + dx, cy + dy) then return false end
+    end
+  end
+  return true
 end
 
 -- Gehört die Kachel zu einem Zaunstück (Zaun-Kollision A..P, Tor, Weidentor)?

@@ -188,8 +188,8 @@ function WorldScene.enter(arg)
   ctx.day = clock.day
   ctx.on_plot = function()
     if not ctx.area.farm then return false end
-    local p, pl = ctx.player, ctx.area.plot
-    return p.x >= pl.x * 16 and p.x < (pl.x + pl.w) * 16 and p.y >= pl.y * 16 and p.y < (pl.y + pl.h) * 16
+    local p = ctx.player
+    return Farm.owns(ctx.area.farm, flr(p.x / 16), flr((p.y - 1) / 16))
   end
   ctx.save = function() end
   if arg and arg.geld then ctx.money = arg.geld end
@@ -306,7 +306,7 @@ local function open_menu(h)
       {label = led and "Leine lösen" or "Anleinen", id = "leash", icon = "ico_leine", short = led and "Lösen" or "Leine"},
       {label = "Aufsitzen", id = "mount", icon = "ico_reiten", short = "Reiten"},
       {label = "Ausrüsten", id = "gear", icon = "ico_hufeisen", short = "Zubehör"},
-      {label = "Unterbringen", id = "house", icon = "ico_stall", short = "Wohin"},
+      {label = "Unterbringen", id = "house", icon = "ico_stall", short = "Ort"},
       {label = "Info", id = "info", icon = "ico_info", short = "Info"},
     }, h.data.name),
   }

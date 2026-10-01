@@ -1260,17 +1260,17 @@ recolor player reithof B=4f9a4f X=37702f T=6b4a2a L=8a5a2b
 recolor player zuechter B=b8473a X=8a3129 T=3b2a24 L=2a1a14
 recolor player schlachter B=f0f0f0 X=c8c8c8 T=3a3a3a L=2a1a14
 
-# Laterne, die der Mensch nachts hochhält (Rückmeldung 0.5.2)
+# Laterne, die der Mensch nachts hochhält (Rückmeldung 0.5.2): Schirm wie ein Trichter, unten offen, Licht darin
 sprite laterne
-..k..
-..k..
-.kkk.
-kpppk
-kYAYk
-kAVAk
-kYAYk
-kpppk
-.kkk.
+...k...
+...k...
+..kpk..
+..kpk..
+.kpopk.
+.kpppk.
+kppoppk
+kAYVYAk
+.kYVYk.
 
 # Staub beim Rennen
 sprite dust
@@ -2906,16 +2906,16 @@ sprite ico_hufeisen
 
 sprite ico_stall
 .....kk.....
-....krrk....
-...krRRrk...
-..krRRRRrk..
-.krrrrrrrrk.
-..kccccccck.
-..kcwwwwcck.
-..kcwvvwcck.
-..kcwvvwcck.
-..kkkkkkkkk.
-............
+....kRrk....
+...kRrrrk...
+..kRrrrrrk..
+.kRrrrrrrrk.
+kxxxxxxxxxxk
+.kcccccccCk.
+.kccwvvwcCk.
+.kccwvvwcCk.
+.kccwvvwcCk.
+.kkkkkkkkkk.
 ............
 
 sprite ico_info

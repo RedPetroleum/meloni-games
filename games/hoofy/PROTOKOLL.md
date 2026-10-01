@@ -118,3 +118,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 10:32 | Push eb02591 | Release | CI success (inkl. Web-Player), Manifest Commit eb02591, Hoofy 0.5.2 api 2 | Firmware nötig
 2026-10-01 17:07 | Rückmeldungen 0.5.3 | fertig | 14 Rückmeldungen (E65), lokal ohne Push; SELFTEST OK 223, make test grün | Hoofy 0.5.3 (nicht gepusht)
 2026-10-01 18:54 | Push c13a48c | Release | CI success, Manifest Commit c13a48c, Hoofy 0.5.3 api 3 | Firmware mit API 3 nötig
+2026-10-01 19:25 | Rückmeldungen 0.5.4 | fertig | 9 Rückmeldungen (E66), Shot-Sheet Baumodus/Land, SELFTEST OK 226, make test grün | Hoofy 0.5.4 (nicht gepusht)

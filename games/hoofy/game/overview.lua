@@ -3,6 +3,7 @@
 local Area = require("game.area")
 local Tiles = require("game.tiles")
 local Stage = require("game.stage")
+local Farm = require("game.farm")
 
 local Overview = {}
 
@@ -51,7 +52,8 @@ function Overview.draw()
     end
   end
   local p = area.plot
-  rect(ox + p.x * 2 - 1, oy + p.y * 2 - 1, ox + (p.x + p.w) * 2, oy + (p.y + p.h) * 2, C.gold)
+  if area.farm then Farm.outline(area.farm, ox, oy, 2, C.gold)
+  else rect(ox + p.x * 2 - 1, oy + p.y * 2 - 1, ox + (p.x + p.w) * 2, oy + (p.y + p.h) * 2, C.gold) end
   local legend_y = oy + map.h * 2 + 6
   print("Hof", ox + p.x * 2 + 2, oy + p.y * 2 + 2, C.gold)
   for id in pairs(Area.LABELS) do

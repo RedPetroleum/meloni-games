@@ -336,3 +336,19 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   B schließt sofort (kein „B halten + Pfeile“ mehr). Leiste unten neu (Bauteil mit Bild, Meldung oder Schönheit, Tasten).
   Raster: 2 × 2 Pixel große helle Punkte an allen Kachelecken des Grundstücks. Behoben: Auswahl außerhalb der Liste, wenn
   die Samenliste beim Pflanzen kürzer wird; Meldung und Schönheit überlagerten sich.
+
+## E66 Dorf, Baumodus, Land, Album (Rückmeldung nach 0.5.3)
+- Ortsnamen im Dorf (Laden, Pferdemarkt, Jobbrett, Turnierplatz) ohne Kasten, helle Schrift mit dunklem Schatten, nur
+  wenn der Spieler höchstens 34 px vom Ort entfernt ist. Auf den Karten bleiben die Punkte.
+- Pferdemenü: Kachel „Unterbringen“ heißt „Ort“; Haus-Symbol symmetrisch mit Traufe neu gezeichnet. Pferdeliste nur
+  noch Name und Rasse (ohne Ort und „B“ = Bindung). Stammbaum: „?“ statt „unbekannt“, ohne Hinweise unten.
+- Baumodus: Bauteil-Menüs aller Arten nur mit Bild und Preis, Name unten (Art-Auswahl behält die Namen). Raster:
+  Punkte nur noch an jeder zweiten Kachelecke.
+- geändert (C7): Land kaufen feldweise statt streifenweise. Das Grundstück besteht aus 10×10-Feldern (Raster an
+  Vielfachen von 10, `farm.parcels`), `farm.plot` ist nur noch das umschließende Rechteck. Kaufbar ist ein Feld, das an
+  ein eigenes grenzt (nicht diagonal), ganz auf der Karte liegt und nicht ins Dorf ragt; Preis 500 G, jedes weitere
+  +250 (wie bisher je Stück). In der Art „Land“ springt der Cursor feldweise bis ein Feld über das Grundstück hinaus,
+  das Feld ist grün (kaufbar) oder rot getönt. Bauen, Weiden, freie Plätze (je 50 Kacheln der Felder), „Dein Hof“ und
+  lose Hofpferde richten sich nach den Feldern. Alte Spielstände bekommen die Felder aus dem Rechteck.
+- Laterne: Schirm wie ein Trichter, unten offen mit Licht, 7 × 9 Pixel.
+- Album: nur eigene Pferde (gezähmt, gekauft, gezüchtet) werden eingetragen, Wildpferde im Bild nicht mehr.

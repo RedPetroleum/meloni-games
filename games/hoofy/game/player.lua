@@ -90,7 +90,7 @@ function Player:draw()
   local x, y = flr(self.x), flr(self.y)
   -- Laterne (wenn gekauft) ab der Dämmerung hochgehalten; von hinten verdeckt sie die Figur nicht
   local lantern = (self.ctx.inv.laterne or 0) > 0 and self.ctx.clock and self.ctx.clock:darkness() > 0.2
-  local lx = self.dir == "left" and x - 10 or x + 5
+  local lx = self.dir == "left" and x - 12 or x + 5
   if lantern and self.dir == "up" then S.draw("laterne", lx, y - 24) end
   if self.dir == "left" or self.dir == "right" then
     S.draw(names.side[step], x - 6, y - 19, self.dir == "left")

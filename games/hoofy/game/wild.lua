@@ -547,10 +547,12 @@ function Wild:house(h, ort, restore)
     h.data.weide_id = nil
     local b = Farm.plot_bounds(farm)
     h.bounds = b
-    h.allow = function(x, y) return x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4] end
+    h.allow = function(x, y)
+      return x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4] and Farm.owns(farm, flr(x / 16), flr((y - 1) / 16))
+    end
     for _ = 1, 100 do
       local x, y = b[1] + rnd() * (b[3] - b[1]), b[2] + rnd() * (b[4] - b[2])
-      if not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
+      if h.allow(x, y) and not self.ctx.map:blocked(x - 8, y - 6, x + 8, y) then h.x, h.y = x, y break end
     end
   end
   h.state, h.timer, h.vx, h.vy, h.hidden = "free", 60, 0, 0, false

@@ -1,4 +1,5 @@
--- Sammelalbum (Aufgabe E5): jede gesehene oder eigene Kombination Rasse × sichtbare Farbe wird eingetragen.
+-- Sammelalbum (Aufgabe E5): jede Kombination Rasse × sichtbare Farbe, die man besitzt oder besessen hat, wird
+-- eingetragen (Rückmeldung 0.5.3: nicht schon beim Sehen, erst ab dem Zähmen).
 local K = require("game.katalog")
 
 local A = {}
@@ -45,17 +46,10 @@ function A.zaehler(ctx, rasse)
   return n, total
 end
 
--- Alles eintragen, was gerade im Bild ist (Wildpferde in der Kamera) und alle eigenen Pferde.
--- Gibt die Zahl der neuen Einträge zurück.
+-- Alle eigenen Pferde eintragen (gezähmt, gekauft, gezüchtet). Gibt die Zahl der neuen Einträge zurück.
 function A.sichten(ctx)
   local new = 0
   for _, d in ipairs(ctx.herd) do if A.eintragen(ctx, d) then new = new + 1 end end
-  local cam = ctx.camera
-  for _, h in ipairs(ctx.wild and ctx.wild.list or {}) do
-    if h.x > cam.x - 20 and h.x < cam.x + SCREEN_W + 20 and h.y > cam.y and h.y < cam.y + SCREEN_H + 20 then
-      if A.eintragen(ctx, h.data) then new = new + 1 end
-    end
-  end
   return new
 end
 

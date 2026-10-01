@@ -1,4 +1,5 @@
--- Selbsttests für Land kaufen (Aufgabe C7): Streifen, Preise, Kartenrand, Bauen auf neuem Land.
+-- Selbsttests für Land kaufen (Aufgabe C7, geändert nach Rückmeldung 0.5.3): einzelne 10×10-Felder neben dem Hof,
+-- Preise, Kartenrand, Bauen auf neuem Land, Weiden und Spielstände mit altem Rechteck.
 local Stage = require("game.stage")
 local Area = require("game.area")
 local Farm = require("game.farm")
@@ -12,49 +13,72 @@ local function setup(money)
 end
 
 return {
-  {"Start 20×20; ein Streifen = 2 Stücke, Preis 500 + 750, jedes weitere +250", function()
+  {"Start 20×20 = 4 Felder; Feld daneben 500, jedes weitere +250; Rechteck wächst mit", function()
     local ctx = setup()
-    local p = ctx.area.farm.plot
+    local farm = ctx.area.farm
+    local p = farm.plot
     local x0, y0 = p.x, p.y
     C.eq(p.w, 20)
-    local ok, price = Farm.buy_land(ctx, "land_o")
-    C.ok(ok)
-    C.eq(price, 500 + 750)
-    C.eq(ctx.money, 100000 - 1250)
+    C.eq(#Farm.parcels(farm), 4)
+    C.ok(Farm.owns(farm, x0, y0) and Farm.owns(farm, x0 + 19, y0 + 19) and not Farm.owns(farm, x0 + 20, y0))
+    local ok, price = Farm.buy_land(ctx, x0 + 25, y0 + 3)
+    C.ok(ok, tostring(price))
+    C.eq(price, 500)
+    C.eq(ctx.money, 100000 - 500)
     C.eq(p.w, 30)
+    C.eq(p.h, 20)
     C.eq(p.x, x0)
-    local _, price2 = Farm.buy_land(ctx, "land_n")
-    C.eq(price2, 3 * 0 + (500 + 250 * 2) + (500 + 250 * 3) + (500 + 250 * 4), "Nord: jetzt 3 Stücke breit")
+    C.ok(Farm.owns(farm, x0 + 29, y0 + 9) and not Farm.owns(farm, x0 + 29, y0 + 10), "nur das eine Feld")
+    local _, price2 = Farm.buy_land(ctx, x0 + 3, y0 - 1)
+    C.eq(price2, 750)
     C.eq(p.y, y0 - 10)
     C.eq(p.h, 30)
-    C.eq(ctx.area.farm.land, 5)
+    C.eq(farm.land, 2)
     C.ok(ctx.area.plot == p, "Karte und Hof teilen das Grundstück")
   end},
-  {"Zu wenig Geld ändert nichts; am Kartenrand geht es nicht weiter", function()
+  {"Nur angrenzende, freie Felder; zu wenig Geld ändert nichts; Kartenrand", function()
     local ctx = setup(100)
-    local p = ctx.area.farm.plot
-    local ok, why = Farm.buy_land(ctx, "land_w")
-    C.ok(not ok and why == "Geld")
+    local farm = ctx.area.farm
+    local p = farm.plot
+    local x0, y0 = p.x, p.y
+    local v, W = ctx.area.village, ctx.map.w
+    local east = v.x < x0                -- vom Dorf weg
+    local ok, why = Farm.buy_land(ctx, east and x0 + 25 or x0 - 5, y0)
+    C.ok(not ok and why == "Geld", tostring(why))
     C.eq(ctx.money, 100)
-    C.eq(p.w, 20)
     ctx.money = 1000000
-    local n = 0
-    while Farm.buy_land(ctx, "land_w") do n = n + 1 end
-    C.ok(n > 0 and p.x >= 0 and p.x < 10, "bis an den Rand: " .. p.x)
-    local ok2, why2 = Farm.buy_land(ctx, "land_w")
-    C.ok(not ok2 and why2 == "Kartenrand")
+    C.ok(not Farm.land_angebot(ctx, x0 + 3, y0 + 3), "schon deins")
+    local _, why2 = Farm.land_angebot(ctx, x0 - 5, y0 - 5)
+    C.eq(why2, "grenzt nicht an deinen Hof", "diagonal zählt nicht")
+    -- vom Dorf weg bis an den Kartenrand
+    local n, cx = 0, east and x0 + 25 or x0 - 5
+    while Farm.buy_land(ctx, cx, y0) do n, cx = n + 1, cx + (east and 10 or -10) end
+    if east then C.ok(n > 0 and p.x + p.w <= W and p.x + p.w > W - 10, "bis an den Rand: " .. p.x + p.w)
+    else C.ok(n > 0 and p.x >= 0 and p.x < 10, "bis an den Rand: " .. p.x) end
+    local ok3, why3 = Farm.buy_land(ctx, cx, y0)
+    C.ok(not ok3 and why3 == "Kartenrand", tostring(why3))
+    local _, why4 = Farm.land_angebot(ctx, east and x0 - 5 or x0 + 25, y0)
+    C.ok(why4 == nil or why4 == "gehört zum Dorf", "zum Dorf hin: " .. tostring(why4))
   end},
-  {"Auf neuem Land lässt sich bauen, außerhalb nicht; Start bleibt im Hof", function()
+  {"Auf neuem Land lässt sich bauen, außerhalb und über die Lücke nicht; Start bleibt im Hof", function()
     local ctx = setup()
-    local p = ctx.area.farm.plot
+    local farm = ctx.area.farm
+    local p = farm.plot
+    local x0, y0 = p.x, p.y
     local sx, sy = ctx.area.places.start[1], ctx.area.places.start[2]
-    local bx, by = p.x + p.w + 2, p.y + 3
-    local ok = Farm.can_place(ctx.map, ctx.area.farm, "bank", bx, by)
-    C.ok(not ok, "vor dem Kauf nicht")
-    Farm.buy_land(ctx, "land_o")
-    local ok2, why = Farm.place(ctx, "bank", p.x + p.w - 3, p.y + 3)
+    C.ok(not Farm.can_place(ctx.map, farm, "bank", x0 + 22, y0 + 3), "vor dem Kauf nicht")
+    Farm.buy_land(ctx, x0 + 22, y0 + 3)
+    local ok2, why = Farm.place(ctx, "bank", x0 + 27, y0 + 3)
     C.ok(ok2, tostring(why))
-    C.eq(ctx.area.farm.home[1], sx)
-    C.eq(ctx.area.farm.home[2], sy)
+    C.ok(not Farm.can_place(ctx.map, farm, "bank", x0 + 27, y0 + 13), "Ecke im Rechteck, aber nicht gekauft")
+    C.ok(not Farm.can_place(ctx.map, farm, "stall_s", x0 + 24, y0 + 8), "ragt ins fremde Feld")
+    C.eq(farm.home[1], sx)
+    C.eq(farm.home[2], sy)
+    C.eq(Farm.capacity(farm).frei, 10, "5 Felder = 500 Kacheln / 50")
+  end},
+  {"Alter Spielstand ohne Felder: Felder aus dem Rechteck", function()
+    local farm = Farm.default({x = 40, y = 30, w = 30, h = 20})
+    C.eq(#Farm.parcels(farm), 6)
+    C.ok(Farm.owns(farm, 69, 49) and not Farm.owns(farm, 70, 49) and not Farm.owns(farm, 39, 30))
   end},
 }

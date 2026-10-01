@@ -52,19 +52,20 @@ function Stage.build(nr, seed, farm)
   return ctx
 end
 
--- Namen der Orte im Dorf über Tür bzw. Stand (Weltkoordinaten, Kamera ist gesetzt).
+-- Namen der Orte im Dorf über Tür bzw. Stand (Weltkoordinaten, Kamera ist gesetzt). Nur wenn man davor
+-- steht (LABEL_NEAR px um den Ort), dezent als Schrift mit Schatten statt Kasten (Rückmeldung 0.5.3).
+Stage.LABEL_NEAR = 34
+Stage.LABEL_SHADOW = rgb(0x2b, 0x1f, 0x1d)
 local function draw_labels(ctx)
-  local cam = ctx.camera
+  local p = ctx.player
   for id, L in pairs(Area.LABELS) do
-    local p = ctx.area.places[id]
-    if p then
+    local pl = ctx.area.places[id]
+    if pl and abs(p.x - (pl[1] * 16 + 8)) <= Stage.LABEL_NEAR and abs(p.y - (pl[2] * 16 + 8)) <= Stage.LABEL_NEAR then
       local text = L[1]
-      local x = p[1] * 16 + 8 + L[2] - textw(text) // 2
-      local y = p[2] * 16 + L[3]
-      if x + 80 > cam.x and x < cam.x + SCREEN_W and y + 8 > cam.y and y < cam.y + SCREEN_H then
-        rectfill(x - 2, y - 1, x + textw(text) + 1, y + 8, Stage.COLORS.panel)
-        print(text, x, y, Stage.COLORS.gold)
-      end
+      local x = pl[1] * 16 + 8 + L[2] - textw(text) // 2
+      local y = pl[2] * 16 + L[3]
+      print(text, x + 1, y + 1, Stage.LABEL_SHADOW)
+      print(text, x, y, Stage.COLORS.text)
     end
   end
 end

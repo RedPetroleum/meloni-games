@@ -12,9 +12,10 @@ Menu.TILE_W, Menu.TILE_H, Menu.GAP = 58, 50, 3
 Menu.ICON = 24                  -- Bildfläche in der Kachel
 
 -- items: Liste {label, id, dim = true (ausgegraut, nicht wählbar), icon = Sprite, short = Kurzname, badge = Text}.
--- title optional. opts.cols: Spalten im Raster (Standard: bis 5).
+-- title optional. opts.cols: Spalten im Raster (Standard: bis 5). opts.names = false: im Raster nur Bilder,
+-- der Name steht dann nur unten für den gewählten Eintrag.
 function Menu.new(items, title, opts)
-  local self = setmetatable({items = items, title = title, sel = 1}, Menu)
+  local self = setmetatable({items = items, title = title, sel = 1, names = not (opts and opts.names == false)}, Menu)
   local grid = #items > 0
   for _, it in ipairs(items) do if not it.icon then grid = false end end
   self.grid = grid
@@ -119,9 +120,13 @@ local function draw_grid(self, x, y)
     local sel = i == self.sel
     rectfill(tx, ty2, tx + TW - 1, ty2 + TH - 1, sel and C.gold or C.panel_light)
     rectfill(tx + 2, ty2 + 2, tx + TW - 3, ty2 + TH - 3, sel and rgb(0x6b, 0x4a, 0x2e) or rgb(0x3a, 0x2a, 0x24))
-    Menu.icon(it.icon, tx + TW // 2, ty2 + 18, Menu.ICON)
-    local short = it.short or it.label
-    print(short, tx + (TW - textw(short)) // 2, ty2 + TH - 12, sel and C.gold or C.text)
+    if self.names then
+      Menu.icon(it.icon, tx + TW // 2, ty2 + 18, Menu.ICON)
+      local short = it.short or it.label
+      print(short, tx + (TW - textw(short)) // 2, ty2 + TH - 12, sel and C.gold or C.text)
+    else
+      Menu.icon(it.icon, tx + TW // 2, ty2 + TH // 2, Menu.ICON + 8)
+    end
     if it.badge then
       local bw = textw(it.badge)
       rectfill(tx + TW - bw - 5, ty2 + 3, tx + TW - 4, ty2 + 12, C.panel)

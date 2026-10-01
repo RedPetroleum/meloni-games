@@ -26,18 +26,23 @@ der nächsten Aufgabe und hakt es ab.
 - [x] man kann immer nur max. 1 Pferd an einer Leine haben. (0.5.3, E65: frei folgende zählen nicht)
 - [x] im Baumodus kleines dezentes raster über 2x2. (0.5.3, E65: Punkte an den Kachelecken)
 - [x] das Baumenü ist unübersichtlich und verbuggt. auch die steuerung davon vermutlich. (0.5.3, E65: START öffnet Kachel-Auswahl)
-
+- [x] Laden, Pferdemarkt usw. sollen nicht so fett da stehen sondern dezenter und nur wenn man davor steht. (0.5.4, E66: Schrift mit Schatten, nur in der Nähe)
+- [x] Pferde Menu: "Wohin" -> "Ort" und Haus Grafik überarbeiten, diese hat einen Knick. (0.5.4, E66)
+- [x] im Bauten Menu soll der Name nicht mehr in jeder Kachel stehen. Ganz unten steht der eh, wenn man das feld selektiert. (0.5.4, E66: in allen Bauteil-Menüs nur Bild und Preis)
+- [x] Das Raster im Baumodus soll doppelt so grob sein (0.5.4, E66: Punkte alle 2 Kacheln)
+- [x] bei der Grundstückerweiterung soll man nicht nach Himmelsrichtung pauschal entscheiden, sondern ein anliegendes Feld auswählen können. (0.5.4, E66: Felder 10×10, Cursor springt feldweise)
+- [x] Die Lampe soll eher wie eine Laterne aussehen, also ähnlich hoch, aber dann so trichterförmig nach unten geöffnet (0.5.4, E66)
+- [x] Bei der Pferde übersicht soll nicht mehr der Ort stehen und nicht "B" (wofür auch immer das steht?) und nicht der zahlenwert für die Stärke. (0.5.4, E66: „B 73“ war die Bindung, beides weg)
+- [x] wenn man ein neues Pferd sieht, soll es nicht so schnell ins album eingetragen werden. erst, wenn man es gezämt hat. (0.5.4, E66: nur eigene Pferde)
+- [x] beim Stammbaum: unbaknnt ersetzen durch ?. Infos unten weglassen (0.5.4, E66)
+- [ ] Karte: Schrift Hof und Dorf und Pfeil: du Gelb: Pferde weglassen. 
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
-**Version 0.5.3** – Rückmeldungen, siehe E65. **Braucht neue Firmware (Meloni API 3: Schrift `font`).**
-- [ ] Erst Firmware mit der neuen Engine flashen, sonst überspringt „Update games“ Hoofy.
-- [ ] Neues Spiel: Kunden ab Tag 4, Käufer im Dorf ab Tag 5, Turnier ab Tag 7, Zeitung ab Tag 10. Fühlt sich der Anfang ruhiger an?
-- [ ] Nacht ohne Laterne gleichmäßig dunkel, mit Laterne (Laden, 80 G) heller Bereich. Schlafen ab 2 min vor der Nacht.
-- [ ] Nur 1 Pferd an der Leine; Weidepferde bleiben allein drin, an der Leine geht es durchs Tor.
-- [ ] Baumodus: START öffnet die Auswahl, A baut, B fertig. Verständlich?
-- [ ] Info-Bildschirm: Name in feiner Schrift, Balken mit Segmenten, Training farbig abgesetzt.
+**Version 0.5.4** – Rückmeldungen, siehe E66 (gleiche Firmware wie 0.5.3)
+- [ ] Baumodus → Land: Cursor springt feldweise, grün = kaufbar, A kauft. Verständlich?
+- [ ] Dorf: Namen nur, wenn man davor steht. Laterne nachts als Trichter. Album füllt sich erst beim Zähmen.
 
 **Version 0.5.2** – Rückmeldungen, siehe E64. **Braucht neue Firmware (Meloni API 2).**
 - [ ] Erst Firmware mit der neuen Engine flashen, sonst überspringt „Update games“ Hoofy.
