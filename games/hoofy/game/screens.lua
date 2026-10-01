@@ -394,6 +394,96 @@ function Screens.market(ctx)
   return s
 end
 
+-- ---- Turnierplatz (E1): Klasse → Wettbewerb → Pferd (mit Chancen) → Ergebnis ----
+
+function Screens.turnier(ctx)
+  local Turniere = require("game.turniere")
+  local stage, sel, sel_k, sel_w, result, msg, msg_t = "klasse", 1, nil, nil, nil, nil, 0
+  local day = ctx.clock.day
+  local s = {full = true}
+  local function lists()
+    if stage == "klasse" then return Turniere.klassen(ctx) end
+    if stage == "wb" then return K.turniere.wettbewerbe end
+    local out = {}
+    for _, d in ipairs(ctx.herd) do if d.alter >= 1 then out[#out + 1] = d end end
+    return out
+  end
+  function s.update(nav)
+    local list = lists()
+    if stage == "ergebnis" then
+      if btnp(BTN_A) or btnp(BTN_B) then stage, sel, result = "klasse", 1, nil end
+      return
+    end
+    if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
+    if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
+    if btnp(BTN_B) then
+      SFX.back()
+      if stage == "klasse" then nav.pop() elseif stage == "wb" then stage, sel = "klasse", 1 else stage, sel = "wb", 1 end
+    end
+    if btnp(BTN_A) and list[sel] then
+      if stage == "klasse" then sel_k, stage, sel = list[sel].index, "wb", 1 SFX.ok()
+      elseif stage == "wb" then
+        local st = Turniere.state(ctx, day)
+        if st.weg[sel_k .. ":" .. list[sel].id] then SFX.snort() msg, msg_t = "Dieser Wettbewerb ist bis zur nächsten Runde weg.", 150
+        else sel_w, stage, sel = list[sel].id, "pferd", 1 SFX.ok() end
+      else
+        local r, why = Turniere.teilnehmen(ctx, day, list[sel], sel_k, sel_w)
+        if r then result, stage = r, "ergebnis" if r.rank == 1 then SFX.tame() else SFX.ok() end
+        else SFX.snort() msg, msg_t = why == "Geld" and "Zu wenig Geld für die Startgebühr." or (why .. "."), 150 end
+      end
+    end
+    if msg_t > 0 then msg_t = msg_t - 1 end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Turnierplatz   Runde " .. (Turniere.runde(day) + 1) .. ", neue alle " .. K.turniere.rotation_tage .. " Tage")
+    local money = ctx.money .. " G"
+    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    if stage == "ergebnis" then
+      local r = result
+      Stage.center("Platz " .. r.rank .. " von " .. (Turniere.GEGNER + 1), 60, r.rank == 1 and C.gold or C.text, 2)
+      Stage.center(r.klasse .. ": " .. K.turniere.wettbewerbe[1].name and (function() for _, w in ipairs(K.turniere.wettbewerbe) do if w.id == r.wb then return w.name end end end)(), 90, C.dim)
+      Stage.center("Wertung " .. flr(r.wertung), 104, C.dim)
+      Stage.center(r.preis > 0 and ("Preisgeld " .. r.preis .. " G (Gebühr " .. r.gebuehr .. " G)") or ("Kein Preis, Gebühr " .. r.gebuehr .. " G"), 124, r.preis > 0 and C.gold or C.red)
+      footer("A: weiter")
+      return
+    end
+    local list = lists()
+    local y = 24
+    if stage == "klasse" then print("Klasse wählen", 8, 16, C.dim) y = 30 end
+    for i, e in ipairs(list) do
+      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
+      if stage == "klasse" then
+        local k = e.def
+        print(k.name, 10, y, i == sel and C.gold or C.text)
+        print("Gebühr " .. k.gebuehr .. " G", 100, y, ctx.money >= k.gebuehr and C.text or C.dim)
+        print(k.preise[1] .. "/" .. k.preise[2] .. "/" .. k.preise[3], 200, y, C.gold)
+      elseif stage == "wb" then
+        local weg = Turniere.state(ctx, day).weg[sel_k .. ":" .. e.id]
+        print(e.name, 10, y, weg and C.dim or (i == sel and C.gold or C.text))
+        print(weg and "weg" or "offen", 270, y, weg and C.dim or C.text)
+      else
+        local win, top = Turniere.chancen(ctx, e, sel_k, sel_w, Turniere.state(ctx, day).runde)
+        print(e.name, 10, y, i == sel and C.gold or C.text)
+        print("Sieg " .. win .. " %", 130, y, C.text)
+        print("Podest " .. top .. " %", 210, y, C.text)
+      end
+      y = y + 13
+      if y > 190 then break end
+    end
+    if stage == "wb" then
+      local w = K.turniere.wettbewerbe[sel]
+      if w then for i, l in ipairs(require("lib.util").wrap(w.text, SCREEN_W - 20)) do print(l, 10, 192 + (i - 1) * 10, C.dim) end end
+    elseif stage == "pferd" then
+      print("Wertung = Stat × (0,5 + Bindung/200)", 10, 192, C.dim)
+      print("Podest = Platz 1 bis 3", 10, 202, C.dim)
+    end
+    if msg and msg_t > 0 then print(msg, 10, 214, C.red) end
+    footer((stage == "pferd" and "A: antreten" or "A: wählen") .. "   B: zurück")
+  end
+  return s
+end
+
 -- ---- Käufer am Hof ----
 
 function Screens.buyer(ctx, nav_done)

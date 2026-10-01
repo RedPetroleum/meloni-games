@@ -273,7 +273,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 
 ### E Turniere und Chaos
 
-- [ ] **E1 Turniere**: Turnierplatz, 6 Klassen nach Fahrzeug, Startgebühr, Chancen vorab,
+- [x] **E1 Turniere** (E57; Shot-Sheet Turnierplatz, SELFTEST 191): Turnierplatz, 6 Klassen nach Fahrzeug, Startgebühr, Chancen vorab,
   Rotation alle 3 Tage, Wettbewerb nach Teilnahme weg; Schönheitswettbewerb berechnet.
   Prüfung: Selbsttest Wertung; Screenshot.
 - [ ] **E2 Minispiel Springreiten**: Parcours, Stärke → Sprunghöhe, Ausdauer → Leistungsabfall.

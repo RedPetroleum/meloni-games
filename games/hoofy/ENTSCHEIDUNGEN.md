@@ -260,3 +260,8 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 
 ## E56 Sattellampe (D5)
 - Die Lampe leuchtet nur, wenn man auf dem Pferd sitzt, das sie trägt; der Sichtkreis nachts wächst von 70 auf 126 Pixel (× 1,8, schon in `Clock:sight`), auch für die Erkundung der Karte. Zu Fuß oder am Seil bleibt es bei 70. Dunkle Pferde-Sprites gibt es weiter nicht (E14, geändert A3).
+
+## E57 Turniere (E1)
+- Turnierplatz = das Dorf-Feld „Turnierplatz“ (A in der Nähe). Klasse → Wettbewerb → Pferd; je Pferd werden Sieg- und Podest-Chance vorab gezeigt (200 Probeläufe). Klassen nach bestem Fahrzeug (Dorf immer). Runde = (Tag−1) ÷ 3; verbrauchte Wettbewerbe stehen in `ctx.turnier` (gespeichert).
+- Wertung wie Katalog: Fach × (0,5 + Bindung/200). Fach: Schönheit = 0,4 Seltenheit (Farbstufe 60 % + Rassen-Gebiet 40 %) + 0,3 Sauberkeit + 0,3 Schmuck-Schönheit (max 100); Springreiten (Stärke+Ausdauer)/2; Rennen (Tempo+Ausdauer)/2 (effektive Werte). Fünf Gegner, Stärke Mittel 10 + 10 × Klasse (±12, aus Seed und Runde). Tagesform ± 10 % für alle, Platz → Preis 1./2./3.; Fohlen dürfen nicht.
+- Balance-Hinweis: Dorf-Gegner (Mittel 20) sind für ein frisch gezähmtes Pferd schlagbar, International (Mittel 70) braucht trainierte Spitzenpferde. Springreiten/Rennen werden in E2/E3 durch Minispiele ersetzt (`punkte`), bis dahin gerechnet.

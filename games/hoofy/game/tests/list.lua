@@ -39,4 +39,5 @@ return {
   "schaetze",
   "wetter",
   "nachtsicht",
+  "turniere",
 }

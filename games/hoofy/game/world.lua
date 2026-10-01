@@ -206,6 +206,7 @@ function WorldScene.enter(arg)
     if snap.erkundet then ctx.explored = snap.erkundet end
     ctx.heim = reise and reise.heim or nil
     ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
+    ctx.turnier = snap.turnier
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -229,6 +230,7 @@ function WorldScene.enter(arg)
   end
   if arg and arg.kaeufer then ctx.buyer = {typ = arg.kaeufer, tag = clock.day, verkauft = false} end
   Buyers.sync(ctx, clock:is_night())
+  if arg and arg.fahrzeug then ctx.inv[arg.fahrzeug] = 1 Economy.refresh_gebiet(ctx) end
   if arg and arg.screen then
     local name = arg.screen
     if name ~= "none" and name ~= "bauen" and name ~= "weiden" then nav.push(Screens.pause(ctx, nav)) end
@@ -238,6 +240,7 @@ function WorldScene.enter(arg)
     if name == "map" then nav.push(Screens.map(ctx)) end
     if name == "bauen" or name == "weiden" then nav.push(Screens.build(ctx)) end
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
+    if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
@@ -630,6 +633,9 @@ function WorldScene.update()
         ctx.sfx.ok()
       elseif ctx.area.places.jobbrett and U.dist(p.x, p.y, ctx.area.places.jobbrett[1] * 16 + 8, ctx.area.places.jobbrett[2] * 16 + 8) <= 26 then
         nav.push(Screens.jobs(ctx))
+        ctx.sfx.ok()
+      elseif ctx.area.places.turnier and U.dist(p.x, p.y, ctx.area.places.turnier[1] * 16 + 8, ctx.area.places.turnier[2] * 16 + 8) <= 30 then
+        nav.push(Screens.turnier(ctx))
         ctx.sfx.ok()
       elseif ctx.area.places.laden and U.dist(p.x, p.y, ctx.area.places.laden[1] * 16 + 8, ctx.area.places.laden[2] * 16 + 8) <= 26 then
         nav.push(Screens.shop(ctx))

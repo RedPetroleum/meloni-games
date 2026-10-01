@@ -95,3 +95,6 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:07 | D5 Sattellampe und Nachtsicht | fertig | Szenario nachtritt mit/ohne Lampe, SELFTEST OK 186 | Hoofy D5
 2026-10-01 09:09 | D-Ende | begonnen | – | –
 2026-10-01 09:09 | D-Ende | fertig | Cover (Nachtritt mit Lampe), 0.4.0, Checkliste, README | Hoofy Phase D
+2026-10-01 09:12 | Push bee80e1 | Release | CI success, Manifest Commit bee80e1, Hoofy 0.4.0 | –
+2026-10-01 09:12 | E1 Turniere | begonnen | – | –
+2026-10-01 09:14 | E1 Turniere | fertig | Shot-Sheet Klasse/Wettbewerb/Pferd/Ergebnis, SELFTEST OK 191 | Hoofy E1

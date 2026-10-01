@@ -92,6 +92,11 @@ function Scenarios.nachtritt(save)
   return "world", {ort = "start", ritt = true, aufsitzen = true, lampe = save.lampe, zeit = 12500}
 end
 
+-- Turnierplatz (E1): am Turnierplatz mit Pferden und Fahrzeug nach save.fahrzeug (Standard: Fahrrad).
+function Scenarios.turnier(save)
+  return "world", {ort = "turnier", hof = true, geld = save.geld or 1000, screen = "turnier", fahrzeug = save.fahrzeug or "fahrrad"}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end
