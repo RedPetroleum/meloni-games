@@ -231,12 +231,12 @@ function Screens.info(ctx, data)
     box(3, 149, SCREEN_W - 4, 224, BOX_STATE)
     -- Bild oben rechts unter dem Wert
     local rasse = K.rasse(data.rasse)
-    Stage.panel(SCREEN_W - 78, 26, SCREEN_W - 8, 74)
-    rectfill(SCREEN_W - 76, 28, SCREEN_W - 10, 72, rgb(0x7f, 0xb0, 0x4f))
-    G.draw(data.farbe, rasse.koerper, "side", SCREEN_W - 43, 68, false)
+    Stage.panel(SCREEN_W - 78, 27, SCREEN_W - 8, 75)                -- mittig im Kasten (23–80)
+    rectfill(SCREEN_W - 76, 29, SCREEN_W - 10, 73, rgb(0x7f, 0xb0, 0x4f))
+    G.draw(data.farbe, rasse.koerper, "side", SCREEN_W - 43, 69, false)
     if data.alter < 1 then                          -- Fohlen: wie weit ausgewachsen
-      rectfill(SCREEN_W - 78, 76, SCREEN_W - 8, 78, rgb(0x1e, 0x16, 0x14))
-      rectfill(SCREEN_W - 78, 76, SCREEN_W - 78 + flr(70 * data.alter), 78, C.gold)
+      rectfill(SCREEN_W - 78, 77, SCREEN_W - 8, 78, rgb(0x1e, 0x16, 0x14))
+      rectfill(SCREEN_W - 78, 77, SCREEN_W - 78 + flr(70 * data.alter), 78, C.gold)
     end
     -- Steckbrief links
     local sexw = data.sex == "m" and (data.alter < 1 and "Hengstfohlen" or "Hengst") or (data.alter < 1 and "Stutfohlen" or "Stute")
