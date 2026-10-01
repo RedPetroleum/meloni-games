@@ -105,7 +105,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Kachelraster (Steuerkreuz), A baut bzw. reißt ab, **B gehalten + Links/Rechts** wählt die Art (Deko, Wege,
   Zaun, Abreißen), **B gehalten + Hoch/Runter** das Bauteil, B allein schließt. Cursor gelb = möglich, rot =
   nicht möglich (belegt, im Weg, zu wenig Geld, nicht auf Gras, du stehst drauf). Startbauten (Wohnwagen,
-  Stall S, Weide) lassen sich nicht abreißen. Abreißen erstattet den vollen Kaufpreis. Wege und Böden
+  Stall S, Weide) lassen sich nicht abreißen (geändert: Wohnwagen und Stall S jetzt doch, siehe E69). Abreißen erstattet den vollen Kaufpreis. Wege und Böden
   verändern nur den Boden (Abreißen stellt das Gras wieder her). Ställe, Gebäude und Beete kommen mit C3 und C5;
   Weide-Erkennung und Plätze aus Zäunen mit C2. Gebaut wird im Hof (`farm.items`), nicht als Kartenänderung.
 - **E44** (B7) Stammbaum und Inzucht: In der Pferde-Info zeigt Rechts den Stammbaum (Pferd, Eltern,
@@ -381,3 +381,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Gebiete nur per recolor: Wiese, Wald, Bäume, Büsche, Steine, Deko, Wege, Sand, Ufer- und Wegränder heißen `land_…`;
   jedes Gebiet hat eine recolor-Zeile in sprites.txt (birke, aue, steppe, canyon, nebel) und `Tiles.set_palette`
   schaltet die Namen um. Wasser, Brücken und Hofbauten bleiben gleich.
+
+## E69 Häuser, Ställe, Garagen abreißen (Rückmeldung nach 0.5.6)
+- Wohnwagen/Häuschen/Villa, Ställe und Schuppen/Garage/Hangar lassen sich abreißen, solange noch einer derselben
+  Art steht; auch Wohnwagen und Stall S vom Start. Sonst rot mit „erst ein zweites Haus bauen“ usw.
+- Eigene Ergänzungen: Startbauten bringen nichts zurück (waren geschenkt). Ein Stall nur, wenn die übrigen alle
+  Stallpferde fassen („erst Pferde aus dem Stall holen“); eine Garage nur, wenn das eigene Fahrzeug in einer
+  anderen unterkommt („Mofa braucht sie“).
+- Titelbildschirm ohne „Pferdezüchter im Jahr 2040“.

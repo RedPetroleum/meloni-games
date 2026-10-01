@@ -37,8 +37,7 @@ function Title.draw()
   local x = (SCREEN_W - textw(title, 4)) // 2
   for dy = 1, 3 do print(title, x + 2, 20 + dy, C.panel, 4) end
   print(title, x, 20, C.gold, 4)
-  Stage.panel(40, 170, 279, 225)
-  Stage.center("Pferdezüchter im Jahr 2040", 180, C.dim)
+  Stage.panel(40, 182, 279, 225)
   if has_save then
     Stage.center((choice == 1 and "> " or "  ") .. "Weiter", 192, choice == 1 and C.gold or C.dim)
     Stage.center((choice == 2 and "> " or "  ") .. "Neues Spiel", 206, choice == 2 and C.gold or C.dim)

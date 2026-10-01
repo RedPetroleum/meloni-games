@@ -42,6 +42,8 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Sprechblasen und emoji größer und deutlicher, sind aktuell zu schwer zu sehen/lesen/versehen. (0.5.5, E67: 21 × 18 statt 13 × 13, Symbole mit Umriss)
 - [x] Hunde (und vermutlich auch andere Gegner) haben keine kollisionen und ziehen einfach über alles drüber. fixen. (0.5.5, E67: echte Figuren mit Fußkasten, auch Wölfe/Krokodile)
 - [x] Die tragbare Laterne soll von der Position bei der rechten hand sein, so als würde man die tragen. am Tag ausblenden. (0.5.5, E67: hängt an der rechten Hand, erst ab dem Lichtkreis)
+- [x] Häuser soll man auch abreißen können, wenn man ein weiteres hat, das gleiche gilt für garagen, ställe (0.5.7, E69)
+- [x] Titelbildschirm: Pferdezüchter im Jahr 2040 kann weg. (0.5.7, E69)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

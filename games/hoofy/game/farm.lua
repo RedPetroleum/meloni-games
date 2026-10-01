@@ -74,19 +74,11 @@ function Farm.plot_bounds(farm)
   return {p.x * 16 + 8, p.y * 16 + 14, (p.x + p.w) * 16 - 8, (p.y + p.h) * 16 - 2}
 end
 
--- Kachel vor der Stalltür (Mitte der Unterkante des ersten Stalls).
-function Farm.stall_door(farm)
-  for _, b in ipairs(farm.buildings) do
-    if b.id:find("^stall_") then return {b.cx + 1, b.cy + 3} end
-  end
-end
+-- Kachel vor der Stalltür (Mitte der Unterkante des ersten Stalls; der Startstall kann abgerissen sein).
+function Farm.stall_door(farm) return Farm.stall_doors(farm)[1] end
 
--- Kachel vor der Wohnwagentür (Schlafen).
-function Farm.bed_door(farm)
-  for _, b in ipairs(farm.buildings) do
-    if b.id == "wohnwagen" or b.id == "haeuschen" or b.id == "villa" then return {b.cx + 1, b.cy + 2} end
-  end
-end
+-- Kachel vor der Tür des ersten Hauses (Schlafen).
+function Farm.bed_door(farm) return Farm.bed_doors(farm)[1] end
 
 -- Plätze: Stall (Summe der Ställe), Weide (Innenfläche / 10), frei (Grundstück / 50).
 -- ---- Weiden (C2): geschlossene Flächen aus Zäunen, Gebäuden und anderen Bauten mit einem Tor ----
@@ -522,6 +514,51 @@ function Farm.place(ctx, id, cx, cy)
   return true
 end
 
+-- Häuser, Ställe und Garagen: abreißen nur, solange noch eins derselben Art stehen bleibt (E69).
+local KIND = {wohnwagen = "haus", haeuschen = "haus", villa = "haus", stall_s = "stall", stall_m = "stall",
+  stall_l = "stall", stall_xl = "stall", schuppen = "garage", garage = "garage", hangar = "garage"}
+local SECOND = {haus = "ein zweites Haus", stall = "einen zweiten Stall", garage = "eine zweite Garage"}
+
+-- Startbau (Wohnwagen, Stall S) an der Kachel?
+local function start_building_at(farm, cx, cy)
+  for _, b in ipairs(farm.buildings) do
+    local w, h = size(b.id)
+    if cx >= b.cx and cx < b.cx + w and cy >= b.cy and cy < b.cy + h then return b end
+  end
+end
+
+-- Was würde Abreißen an (cx, cy) treffen? Gibt Bau (Item oder Startbau), Erstattung, ok, Grund zurück.
+-- Startbauten waren geschenkt und bringen nichts zurück. Ein Stall nur, wenn die übrigen alle Stallpferde
+-- fassen; eine Garage nur, wenn das Fahrzeug woanders unterkommt.
+function Farm.demolish_target(ctx, cx, cy)
+  local farm = ctx.area.farm
+  local it = Farm.item_at(farm, cx, cy)
+  local refund = it and K.bauteil(it.id).preis
+  if not it then it, refund = start_building_at(farm, cx, cy), 0 end
+  if not it then return nil, 0, false, "hier steht nichts Abreißbares" end
+  local kind = KIND[it.id]
+  if not kind then return it, refund, true end
+  local rest = {}
+  for _, o in ipairs(Farm.all_buildings(farm)) do if o ~= it and KIND[o.id] == kind then rest[#rest + 1] = o end end
+  if #rest == 0 then return it, refund, false, "erst " .. SECOND[kind] .. " bauen" end
+  if kind == "stall" then
+    local plaetze = 0
+    for _, o in ipairs(rest) do plaetze = plaetze + K.bauteil(o.id).plaetze end
+    if Farm.count(ctx.herd or {}, "stall") > plaetze then return it, refund, false, "erst Pferde aus dem Stall holen" end
+  elseif kind == "garage" and ctx.inv then
+    local f = require("game.economy").fahrzeug(ctx)
+    local function shelters(o)
+      for _, v in ipairs(K.bauteil(o.id).fahrzeuge or {}) do if v == f.id then return true end end
+    end
+    if f.preis > 0 and shelters(it) then
+      local other = false
+      for _, o in ipairs(rest) do other = other or shelters(o) == true end
+      if not other then return it, refund, false, f.name .. " braucht sie" end
+    end
+  end
+  return it, refund, true
+end
+
 -- Reißt ab, was an (cx, cy) steht, und erstattet den Kaufpreis. Gibt Erstattung oder nil, Grund zurück.
 function Farm.remove(ctx, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
@@ -530,10 +567,11 @@ function Farm.remove(ctx, cx, cy)
     Farm.remove_plant(ctx, plant)
     return 0
   end
-  local it = Farm.item_at(farm, cx, cy)
-  if not it then return nil, "hier steht nichts Abreißbares" end
+  local it, refund, ok, why = Farm.demolish_target(ctx, cx, cy)
+  if not ok then return nil, why end
   local d = Farm.ITEMS[it.id]
   for i, e in ipairs(farm.items) do if e == it then table.remove(farm.items, i) break end end
+  for i, e in ipairs(farm.buildings) do if e == it then table.remove(farm.buildings, i) break end end
   Farm.reindex(farm)
   if d.ground then
     map:set("ground", it.cx, it.cy, it.alt or ".", true)
@@ -547,9 +585,8 @@ function Farm.remove(ctx, cx, cy)
     end
   end
   if d.fence or d.gate then refit_around(map, farm, it.cx, it.cy) end
-  local price = K.bauteil(it.id).preis
-  ctx.money = ctx.money + price
-  return price
+  ctx.money = ctx.money + refund
+  return refund
 end
 
 -- Zaunring um x0..x1 × y0..y1 (Kacheln, äußerer Rand), Tor an gate = {cx, cy} (nil: geschlossen ohne Tor).

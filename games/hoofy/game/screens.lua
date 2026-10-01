@@ -1128,7 +1128,7 @@ function Screens.build(ctx)
     local id, c = cur_item()
     if c.id == "abriss" then
       local sum, why = Farm.remove(ctx, cx, cy)
-      if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
+      if sum then SFX.brush() say(changed() or (sum > 0 and ("Abgerissen: +" .. sum .. " G.") or "Abgerissen.")) else SFX.snort() say(why .. ".") end
     elseif c.id == "land" then
       local ok, why = Farm.buy_land(ctx, cx, cy)
       if ok then
@@ -1196,7 +1196,7 @@ function Screens.build(ctx)
 
   -- Passt das Bauteil an die Cursorstelle? Gibt ok, Breite, Höhe (Kacheln) zurück.
   local function check(id, c)
-    if c.id == "abriss" then return Farm.item_at(farm, cx, cy) ~= nil or Farm.plant_at(farm, cx, cy) ~= nil, 1, 1 end
+    if c.id == "abriss" then return select(3, Farm.demolish_target(ctx, cx, cy)) or Farm.plant_at(farm, cx, cy) ~= nil, 1, 1 end
     if c.id == "land" then local price = Farm.land_angebot(ctx, cx, cy) return price ~= nil and ctx.money >= price, 1, 1 end
     if c.id == "pflanzen" then
       if not id then return false, 1, 1 end
@@ -1262,10 +1262,11 @@ function Screens.build(ctx)
     Stage.panel(0, y, SCREEN_W - 1, SCREEN_H - 1)
     local line
     if c.id == "abriss" then
-      local it = Farm.item_at(farm, cx, cy)
+      local it, refund, ok, why = Farm.demolish_target(ctx, cx, cy)
       local pf = Farm.plant_at(farm, cx, cy)
       line = pf and ("Abreißen: " .. Farm.crop(pf.id).name .. " (Samen bleibt)")
-        or it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
+        or it and ("Abreißen: " .. K.bauteil(it.id).name .. (ok and ("  +" .. refund .. " G") or (": " .. why)))
+        or "Abreißen: hier steht nichts"
     elseif c.id == "land" then
       local price, why = Farm.land_angebot(ctx, cx, cy)
       line = "Land 10×10: " .. (price and (price .. " G") or why)

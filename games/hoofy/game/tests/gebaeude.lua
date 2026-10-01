@@ -50,13 +50,16 @@ return {
     C.eq(Farm.capacity(ctx.area.farm).stall, 28, "noch ein Stall S")
     -- Pferde in den Stall: bis zur Summe
     local w = ctx.wild
-    local n = 0
+    local inside = {}
     for i = 1, 30 do
       local h = w:add_own({name = "P" .. i})
-      if w:house(h, "stall") then n = n + 1 end
+      if w:house(h, "stall") then inside[#inside + 1] = h end
     end
-    C.eq(n, 28)
-    -- Stall S abreißen: Kapazität sinkt, Startstall bleibt
+    C.eq(#inside, 28)
+    -- Stall S abreißen: erst wenn die übrigen alle Stallpferde fassen (E69), dann sinkt die Kapazität
+    C.ok(not Farm.remove(ctx, p.x + 0, p.y + 5), "28 Pferde, 26 Plätze")
+    w:take_out(inside[1])
+    w:take_out(inside[2])
     Farm.remove(ctx, p.x + 0, p.y + 5)
     C.eq(Farm.capacity(ctx.area.farm).stall, 26)
   end},
@@ -134,6 +137,61 @@ return {
     Farm.remove(ctx, p.x + 10, p.y + 7)
     C.eq(ctx.money, start)
     C.eq(Farm.schoenheit(ctx.area.farm), 0)
+  end},
+  {"Abreißen: Haus und Stall nur mit einem zweiten, Startbauten bringen nichts zurück (E69)", function()
+    local ctx, p = setup()
+    local farm = ctx.area.farm
+    local sum, why = Farm.remove(ctx, p.x + 3, p.y + 3)
+    C.ok(not sum and why == "erst ein zweites Haus bauen", "Wohnwagen allein: " .. tostring(why))
+    sum, why = Farm.remove(ctx, p.x + 9, p.y + 3)
+    C.ok(not sum and why == "erst einen zweiten Stall bauen", "Stall S allein: " .. tostring(why))
+    Farm.place(ctx, "haeuschen", p.x + 17, p.y + 14)
+    local money = ctx.money
+    C.eq(Farm.remove(ctx, p.x + 3, p.y + 3), 0, "Wohnwagen weg, nichts zurück")
+    C.eq(ctx.money, money)
+    C.ok(ctx.map:walkable(p.x + 3, p.y + 3), "Platz frei")
+    C.eq(#Farm.bed_doors(farm), 1, "Häuschen bleibt")
+    sum, why = Farm.remove(ctx, p.x + 18, p.y + 15)
+    C.ok(not sum and why == "erst ein zweites Haus bauen", "Häuschen jetzt allein")
+    -- Ställe: die übrigen müssen alle Stallpferde fassen
+    Farm.place(ctx, "stall_m", p.x + 0, p.y + 17)
+    local w = ctx.wild
+    for i = 1, 3 do w:house(w:add_own({name = "S" .. i}), "stall") end
+    sum, why = Farm.remove(ctx, p.x + 1, p.y + 18)
+    C.ok(not sum and why == "erst Pferde aus dem Stall holen", "Stall M: " .. tostring(why))
+    C.eq(Farm.remove(ctx, p.x + 9, p.y + 3), 0, "Stall S weg")
+    C.eq(Farm.capacity(farm).stall, 4)
+    C.ok(Farm.stall_door(farm), "Stalltür am Stall M")
+  end},
+  {"Abreißen: Garage nur mit einer zweiten, und das Fahrzeug muss woanders unterkommen (E69)", function()
+    local ctx, p = setup()
+    Farm.place(ctx, "schuppen", p.x + 13, p.y + 14)
+    local sum, why = Farm.remove(ctx, p.x + 13, p.y + 14)
+    C.ok(not sum and why == "erst eine zweite Garage bauen", "Schuppen allein: " .. tostring(why))
+    Farm.place(ctx, "garage", p.x + 16, p.y + 5)
+    ctx.inv.mofa = 1
+    sum, why = Farm.remove(ctx, p.x + 13, p.y + 14)
+    C.ok(not sum and why == "Mofa braucht sie", "Mofa: " .. tostring(why))
+    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 3000, "Garage zurück")
+    Farm.place(ctx, "garage", p.x + 16, p.y + 5)
+    Farm.place(ctx, "schuppen", p.x + 0, p.y + 5)
+    C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), 200, "zweiter Schuppen nimmt das Mofa")
+  end},
+  {"Spielstand ohne Wohnwagen: Hof lädt, Schlafen am Häuschen (E69)", function()
+    local Save = require("game.save")
+    local Clock = require("game.clock")
+    local ctx, p = setup()
+    Farm.place(ctx, "haeuschen", p.x + 17, p.y + 14)
+    Farm.place(ctx, "stall_m", p.x + 0, p.y + 17)
+    Farm.remove(ctx, p.x + 3, p.y + 3)
+    Farm.remove(ctx, p.x + 9, p.y + 3)
+    local back = load("return " .. Save.encode(Save.snapshot(ctx, Clock.new(1, 0), 8)), "=x", "t", {})()
+    Area.clear()
+    local ctx2 = Stage.build(1, 8, back.hof)
+    C.eq(#ctx2.area.farm.buildings, 0, "keine Startbauten mehr")
+    C.ok(ctx2.map:walkable(p.x + 3, p.y + 3) and ctx2.map:walkable(p.x + 9, p.y + 3), "Plätze frei")
+    C.eq(ctx2.area.places.bett[1], p.x + 18, "Bett am Häuschen")
+    C.eq(Farm.capacity(ctx2.area.farm).stall, 4)
   end},
   {"Spielstand: Gebäude bleiben und werden neu aufgebaut", function()
     local Save = require("game.save")
