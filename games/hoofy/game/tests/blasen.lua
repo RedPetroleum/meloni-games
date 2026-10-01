@@ -62,4 +62,12 @@ return {
     h.data.bindung = 70
     C.eq(B.choose(h, 400), "emo_heart")
   end},
+  {"Reaktion zweimal hintereinander (Kraulen, dann Füttern): Blase zeigt die letzte", function()
+    local Wild = require("game.wild")
+    local d = H.wild({rng = Rng.new(2)})
+    local h = Wild.Horse.new({}, d, 0, 0)
+    h:react("emo_heart", 120)
+    h:react("emo_apple", 120)
+    C.eq(B.choose(h, frame()), "emo_apple")
+  end},
 }

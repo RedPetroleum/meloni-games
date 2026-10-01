@@ -41,7 +41,7 @@ end
 
 -- Reaktion als Sprechblase (Rückmeldung 0.5.1: das Pferd zeigt Emojis statt Werte im Text).
 function Horse:react(sprite, frames)
-  self.react, self.react_until = sprite, frame() + (frames or 120)
+  self.react_emo, self.react_until = sprite, frame() + (frames or 120)
 end
 
 -- Kopf des Pferds (Weltkoordinaten), dort hängt das Seil.
