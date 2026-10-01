@@ -43,4 +43,5 @@ return {
   "springen",
   "rennen",
   "reformen",
+  "album",
 }

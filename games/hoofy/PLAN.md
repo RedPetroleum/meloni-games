@@ -283,7 +283,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **E4 Reformen** (E60; Screenshots Hundenacht, Krokodile am Tag, Zeitung; SELFTEST 206): Zeitung alle 4 Tage, alle Reformen aus KATALOG §14, Hunde/Wölfe/Krokodile
   nachts (Krokodile auch tags), zerstören Deko, starke Pferde wehren ab.
   Prüfung: Selbsttest Reform-Wirkungen; Screenshot Zeitung und Hundenacht.
-- [ ] **E5 Sammelalbum**: jede entdeckte Kombination Rasse × Farbe.
+- [x] **E5 Sammelalbum** (E61; Screenshot Albumseite, SELFTEST 210): jede entdeckte Kombination Rasse × Farbe.
   Prüfung: Screenshot.
 - [ ] **E6 Tauschcode**: Pferd → Code (Vorschlag Katalog: 16 Zeichen A–Z, 2–9), Code → Pferd,
   Prüfsumme gegen Tippfehler, Pferd danach weg.

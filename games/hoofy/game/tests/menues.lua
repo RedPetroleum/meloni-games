@@ -92,7 +92,10 @@ return {
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- Bauen ist ausgegraut: weiter zur Zeitung
     C.eq(#nav.stack, 2)
     keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- ausgegraute Einträge werden übersprungen
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Album
+    C.eq(#nav.stack, 2)
+    keys(nav.stack[2], nav, {BTN_B})
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- ausgegraute Einträge (Speichern) werden übersprungen
     C.eq(#nav.stack, 0, "springt zu Weiter und schließt")
   end},
   {"Alle Bildschirme zeichnen ohne Fehler", function()

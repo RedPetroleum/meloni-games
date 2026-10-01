@@ -16,6 +16,7 @@ local Reise = require("game.reise")
 local Schaetze = require("game.schaetze")
 local Wetter = require("game.wetter")
 local Reformen = require("game.reformen")
+local Album = require("game.album")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
@@ -208,7 +209,7 @@ function WorldScene.enter(arg)
     if snap.erkundet then ctx.explored = snap.erkundet end
     ctx.heim = reise and reise.heim or nil
     ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
-    ctx.turnier, ctx.reform = snap.turnier, snap.reform
+    ctx.turnier, ctx.reform, ctx.album = snap.turnier, snap.reform, snap.album
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -234,6 +235,11 @@ function WorldScene.enter(arg)
   end
   if arg and arg.kaeufer then ctx.buyer = {typ = arg.kaeufer, tag = clock.day, verkauft = false} end
   Buyers.sync(ctx, clock:is_night())
+  if arg and arg.album_voll then
+    for _, r in ipairs(K.rassen.liste) do
+      for i, f in ipairs(Album.farben(r.id)) do if i % 2 == 1 then ctx.album = ctx.album or {} ctx.album[r.id .. ":" .. f] = true end end
+    end
+  end
   if arg and arg.reform then
     local st = Reformen.state(ctx)
     st.aktiv[#st.aktiv + 1] = {id = arg.reform, von = 1, bis = clock.day + 3}
@@ -251,6 +257,7 @@ function WorldScene.enter(arg)
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "springen" then nav.push(Screens.springreiten(ctx, ctx.herd[1], function() end)) end
     if name == "rennen" then nav.push(Screens.rennen(ctx, ctx.herd[1], {35, 30, 25, 20, 15}, function() end)) end
+    if name == "album" then nav.push(Screens.album(ctx)) end
     if name == "zeitung" then nav.push(Screens.zeitung(ctx)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
@@ -568,6 +575,10 @@ function WorldScene.update()
   end
   t = t + 1
   if t % 20 == 1 then WorldScene.explore() end
+  if t % 30 == 5 then
+    local neu = Album.sichten(ctx)
+    if neu > 0 and not toast then say("Album: " .. neu .. " neu eingetragen.", 90) end
+  end
   local ev = clock:update()
   if ev == "dusk" then
     ctx.sfx.dusk()

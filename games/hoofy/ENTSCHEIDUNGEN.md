@@ -279,3 +279,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Wirkung: Hafersteuer +50 % auf Futter (Laden); Stromsubvention Göpel ×2 (`Reformen.faktor_strom`); Pferdesteuer = (Tag−1)÷6 pro Pferd und Tag, höchstens 10, nie mehr als das Geld.
 - Tiere (Hunde nachts, Wölfe nachts, Krokodile auch tags): Angriff wird abstrakt beim Tageswechsel gewürfelt, nicht gespielt. Gibt es ein Pferd auf Weide oder frei mit Stärke ≥ 40/60/80, wird abgewehrt (und trainiert Stärke +0,2). Sonst: 2 Tiere (Krokodile 4) zerstören je 2 Deko-Stücke (Bank, Lampe, Büsche, Brunnen …, ohne Geld zurück), Pferde draußen verlieren 5 Bindung. Pferde im Stall sind sicher, auch starke wehren von dort nicht ab. Auf dem Bildschirm laufen die Tiere nur als Bild um den Hof (vier Sprites, keine Kollision, keine Eingriffsmöglichkeit).
 - Balance-Hinweis (E4): Deko-Verlust ist spürbar, aber ein starkes Pferd auf der Weide löst es komplett; ob das zu einfach ist, zeigt der Konsolentest.
+
+## E61 Sammelalbum (E5)
+- Eingetragen wird die Kombination Rasse × sichtbare Farbe, sobald ein Pferd davon im Bild ist (Wildpferde in der Kamera, alle 30 Frames geprüft) oder dir gehört (Zähmen, Kauf, Zucht). Die verborgene Zweitfarbe zählt nicht. Mögliche Kombinationen = Farben-Matrix je Rasse (120 insgesamt); neue Einträge melden „Album: n neu eingetragen“.
+- Pause-Menü „Album“: eine Seite je Rasse (Links/Rechts), 5 Felder je Reihe in Seltenheitsreihenfolge, Unentdecktes als „?“, Cursor mit Hoch/Runter zeigt den Farbnamen. Gespeichert in `ctx.album`. Kein Gebietsbezug und keine Belohnung für Vollständigkeit (noch).

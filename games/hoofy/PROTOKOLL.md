@@ -104,3 +104,6 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:20 | E3 Minispiel Pferderennen | fertig | Drehbuch-Shot-Sheet, SELFTEST OK 201, make test grün | Hoofy E3
 2026-10-01 09:22 | E4 Reformen | begonnen | – | –
 2026-10-01 09:24 | E4 Reformen | fertig | Screenshots Hundenacht/Krokodile/Zeitung, SELFTEST OK 206, make test grün | Hoofy E4
+2026-10-01 09:27 | Push 5b612d5 | Release | CI success, Manifest Commit 5b612d5, Hoofy 0.4.0 (Phase E noch offen) | –
+2026-10-01 09:27 | E5 Sammelalbum | begonnen | – | –
+2026-10-01 09:28 | E5 Sammelalbum | fertig | Screenshot Albumseite, SELFTEST OK 210, make test grün | Hoofy E5

@@ -113,6 +113,11 @@ function Scenarios.reform(save)
   return "world", {ort = "start", hof = true, reform = save.reform or "hunde_frei", zeit = save.zeit, screen = save.screen or "none"}
 end
 
+-- Album (E5): öffnet das Album; save.viele = true trägt vorher viele Kombinationen ein (Tests der Optik).
+function Scenarios.album(save)
+  return "world", {ort = "start", hof = true, screen = "album", album_voll = save.viele}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

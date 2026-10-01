@@ -1227,6 +1227,50 @@ function Screens.map(ctx)
   return s
 end
 
+-- ---- Sammelalbum (E5): eine Seite je Rasse, links/rechts blättern ----
+
+function Screens.album(ctx)
+  local Album = require("game.album")
+  local page, sel = 1, 1
+  local s = {full = true}
+  local function rasse() return K.rassen.liste[page] end
+  function s.update(nav)
+    local n = #Album.farben(rasse().id)
+    if btnp(BTN_LEFT) then page = (page - 2) % #K.rassen.liste + 1; sel = 1; SFX.select() end
+    if btnp(BTN_RIGHT) then page = page % #K.rassen.liste + 1; sel = 1; SFX.select() end
+    if btnp(BTN_UP) then sel = max(1, sel - 5); SFX.select() end
+    if btnp(BTN_DOWN) then sel = min(n, sel + 5); SFX.select() end
+    if btnp(BTN_B) or btnp(BTN_A) then SFX.back() nav.pop() end
+  end
+  function s.draw()
+    cls(C.panel)
+    local r = rasse()
+    local all, total = Album.zaehler(ctx)
+    header("Album  " .. all .. "/" .. total)
+    local n1, t1 = Album.zaehler(ctx, r.id)
+    print("< " .. r.name .. " >  " .. n1 .. "/" .. t1, 10, 20, C.gold)
+    local colors = Album.farben(r.id)
+    for i, f in ipairs(colors) do
+      local col, row = (i - 1) % 5, (i - 1) // 5
+      local x, y = 6 + col * 62, 36 + row * 38
+      if i == sel then rectfill(x - 2, y - 2, x + 59, y + 35, C.panel_light) end
+      rect(x, y, x + 57, y + 33, C.dim)
+      if Album.gefunden(ctx, r.id, f) then
+        G.draw(f, r.koerper, "side", x + 29, y + 31, false)
+      else
+        print("?", x + 26, y + 12, C.dim)
+      end
+    end
+    local f = colors[sel]
+    if f then
+      local found = Album.gefunden(ctx, r.id, f)
+      print(found and K.farbe(f).name or "Noch nicht entdeckt", 10, 200, found and C.text or C.dim)
+    end
+    footer("</>: Rasse   A/B: zurück")
+  end
+  return s
+end
+
 -- ---- Zeitung (E4): aktive Reformen, nächste Ausgabe ----
 
 function Screens.zeitung(ctx)
@@ -1270,7 +1314,7 @@ function Screens.pause(ctx, nav)
     {label = "Karte", id = "map"},
     {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot()},
     {label = "Zeitung", id = "news"},
-    {label = "Album (bald)", id = "album", dim = true},
+    {label = "Album", id = "album"},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok},
   }
   local m = Menu.new(items, "Pause")
@@ -1285,6 +1329,7 @@ function Screens.pause(ctx, nav)
       n.pop()
       n.push(Screens.build(ctx))
     elseif r == "news" then n.push(Screens.zeitung(ctx))
+    elseif r == "album" then n.push(Screens.album(ctx))
     elseif r == "orders" then n.push(Screens.orders(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then
