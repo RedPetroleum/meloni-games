@@ -146,7 +146,7 @@ local BAR_STATE = {bg = BOX_STATE, track = {0x19, 0x17, 0x1c}}
 local FILL = {gen = {0x9a, 0xdc, 0xb4}, train = {0x3a, 0xb0, 0x8e}, state = {0x8f, 0xc8, 0xe6}, red = {0xe0, 0x47, 0x5a}}
 
 -- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze oben und unten drei Pixel breit und eins tief in
--- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; ohne Füllung ist die Grenze eine Lücke. Der gefüllte
+-- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; dazwischen die Farbe des Balkens (Talent oder Spur). Der gefüllte
 -- innere Balken bekommt an der Grenze nur eine Andeutung: oberstes und unterstes Pixel halb durchsichtig.
 -- frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe {r, g, b}}} der gefüllten Abschnitte.
 local function notches(y, th, frame_x, fills)
@@ -156,7 +156,7 @@ local function notches(y, th, frame_x, fills)
     pset(x - 1, y, th.bg) pset(x, y, th.bg) pset(x + 1, y, th.bg) pset(x, y + 1, th.bg)
     pset(x - 1, y + 8, th.bg) pset(x, y + 8, th.bg) pset(x + 1, y + 8, th.bg) pset(x, y + 7, th.bg)
     local under = x < frame_x and th.talent or th.track
-    line(x, y + 2, x, y + 6, th.bg)                     -- ohne Füllung: Lücke in Hintergrundfarbe
+    line(x, y + 2, x, y + 6, col(under))                -- ohne Füllung: Farbe des Balkens darunter
     for _, f in ipairs(fills) do
       if x >= f[1] and x <= f[2] then
         line(x, y + 3, x, y + 5, col(f[3]))
