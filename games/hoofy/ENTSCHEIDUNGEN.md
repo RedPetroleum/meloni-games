@@ -389,3 +389,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Stallpferde fassen („erst Pferde aus dem Stall holen“); eine Garage nur, wenn das eigene Fahrzeug in einer
   anderen unterkommt („Mofa braucht sie“).
 - Titelbildschirm ohne „Pferdezüchter im Jahr 2040“.
+
+## E70 Laden in Rot/Rosa, Bürste kaufen (Rückmeldung nach 0.5.7)
+- Laden-Reiter als Icons (die Namen passten nicht mehr in eine Zeile), Name im Kopf: „Laden:“ rosa, Rubrik weiß.
+  Ladenmenü in Rot, Dunkelrot, Rosa; Linie unter den Reitern in der Farbe des aktiven Reiters, der in sie übergeht.
+  Fahrzeuge und Anhänger durch eine Linie getrennt. Das Ladengebäude im Dorf in denselben Farben.
+- Bürste unter Zubehör statt Futter. Start ohne Bürste: „Striegeln“ im Pferdemenü ist ausgegraut, bis sie gekauft ist
+  (alte Spielstände behalten ihre).
+- Nach dem Absteigen (A halten) öffnet die Tastenwiederholung nicht mehr das Pferdemenü.

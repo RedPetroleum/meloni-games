@@ -682,7 +682,7 @@ function WorldScene.update()
           if neu then say(neu, 240) end
           ctx.sfx.start()
         else
-          say("Noch nicht müde. Ab dem späten Nachmittag kannst du hier schlafen.", 150)
+          say("Noch nicht müde. Ab dem Abend kannst du hier schlafen.", 150)
         end
       elseif ctx.buyer_ent and U.dist(p.x, p.y, ctx.buyer_ent.x, ctx.buyer_ent.y) <= 30 then
         nav.push(Screens.buyer(ctx, function(text) say(text, 150) end))

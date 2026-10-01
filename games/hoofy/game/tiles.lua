@@ -106,7 +106,7 @@ T.PROPS = {
   tree = {sprite = "land_tree", coll = "T", map = rgb(0x2a, 0x55, 0x22)},
   bush = {sprite = "land_bush", coll = "u", map = rgb(0x4f, 0x8b, 0x3a)},
   rock = {sprite = "land_rock", coll = "o", map = rgb(0x9a, 0xa0, 0xa6)},
-  shop = {sprite = "house_a", w = 3, h = 2, coll = "X", map = rgb(0xb8, 0x47, 0x3a)},
+  shop = {sprite = "laden_a", w = 3, h = 2, coll = "X", map = rgb(0xb8, 0x39, 0x4c)},
   cottage = {sprite = "cottage_a", w = 3, h = 2, coll = "X", map = rgb(0x5d, 0x7f, 0xb0)},
   stand = {sprite = "stand", w = 2, coll = "X", map = rgb(0xe0, 0x47, 0x5a)},
   board = {sprite = "board", coll = "u", map = rgb(0x7b, 0x4c, 0x2b)},

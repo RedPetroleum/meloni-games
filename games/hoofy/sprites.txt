@@ -1074,6 +1074,8 @@ DDDDDDD
 
 # Hoofy: Wald (Blätterdach, fest), Brücke längs, Dorf (Laden, Wohnhaus per recolor, Marktstand, Jobbrett, Hindernis)
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
+# Laden in den Farben des Ladenmenüs (Rot, Dunkelrot, Rosa)
+recolor house laden r=8e2234 R=b8394c x=5c1422 c=f8d0dc C=e8a4b8
 
 sprite land_forest1
 fffffffFFfffffFF

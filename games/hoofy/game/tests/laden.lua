@@ -19,10 +19,10 @@ local function horse()
 end
 
 return {
-  {"Startgeld 300, Start-Bürste; Warenliste nach Katalog", function()
+  {"Startgeld 300, ohne Bürste; Warenliste nach Katalog", function()
     local ctx = ctx_new()
     C.eq(ctx.money, 300)
-    C.eq(ctx.inv.buerste, 1)
+    C.eq(ctx.inv.buerste, 0)
     local cats = {}
     for _, it in ipairs(Economy.catalog(1)) do cats[it.kat] = (cats[it.kat] or 0) + 1 end
     C.eq(cats.futter, 4, "Heu, Hafer, Karotte, Premium")
@@ -50,10 +50,11 @@ return {
   end},
   {"Einmalige Waren: Bürste und Samen nur einmal", function()
     local ctx = ctx_new(1000)
+    C.ok(Economy.buy(ctx, "buerste"), "Bürste gibt es nicht zum Start")
     local ok, why = Economy.buy(ctx, "buerste")
-    C.ok(not ok and why == "schon da", "Bürste schon im Start")
+    C.ok(not ok and why == "schon da", "Bürste nur einmal")
     C.ok(Economy.buy(ctx, "samen_karotte"))
-    C.eq(ctx.money, 1000 - 15)
+    C.eq(ctx.money, 1000 - 20 - 15)
     C.ok(Economy.has_seed(ctx, "karotte"))
     local ok2, why2 = Economy.buy(ctx, "samen_karotte")
     C.ok(not ok2 and why2 == "schon da")

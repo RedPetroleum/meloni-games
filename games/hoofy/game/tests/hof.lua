@@ -18,14 +18,14 @@ local function strong(h)
 end
 
 return {
-  {"Startausstattung: Wohnwagen, Stall S, Weide mit Tor, Bürste", function()
+  {"Startausstattung: Wohnwagen, Stall S, Weide mit Tor, keine Bürste", function()
     local ctx = Stage.build(1)
     local farm = ctx.area.farm
     local kinds = {}
     for _, b in ipairs(farm.buildings) do kinds[b.id] = true end
     C.ok(kinds.wohnwagen and kinds.stall_s, "Gebäude")
     C.ok(farm.weide.gate, "Tor")
-    C.eq(ctx.inv.buerste, 1)
+    C.eq(ctx.inv.buerste, 0)
     local cap = Farm.capacity(farm)
     C.eq(cap.stall, 2, "Stall S: 2 Plätze")
     C.eq(cap.weide, 4, "Weide: Innenfläche 8 × 5 / 10")

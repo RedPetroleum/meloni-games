@@ -43,7 +43,7 @@ function Stage.build(nr, seed, farm)
   ctx.seed = seed or area.seed
   ctx.max_gebiet = 1              -- weitestes erreichbares Gebiet (Fahrzeuge kommen mit D1)
   ctx.money = 300                 -- Startgeld (KATALOG §15)
-  ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 1}
+  ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 0}   -- Bürste erst kaufen (E70)
   ctx.player = ctx.world:add(Player.new(ctx, px, py))
   ctx.trail = Trail.new(px, py)
   ctx.camera = Camera.new(ctx.map.pw, ctx.map.ph, {top = Stage.HUD_H, dz_w = 72, dz_h = 48})

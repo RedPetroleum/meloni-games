@@ -294,7 +294,7 @@ Alle 4 Tage eine neue Reform aus der Zeitung, Dauer 3–5 Tage.
 
 ## 15. Wirtschaft: Beispielrechnung
 1 Spieltag = 5 min. Laufende Kosten pro Pferd und Tag: etwa 8 Futter + 3 Steuer = **11**, mit eigenem Anbau etwa **5**.
-Startgeld **300**, Start mit Wohnwagen, Stall S, Weide und Bürste, ohne Pferd und ohne Sattel.
+Startgeld **300**, Start mit Wohnwagen, Stall S und Weide, ohne Pferd, ohne Sattel und ohne Bürste (Laden).
 
 | Phase | Ziel | Kosten | Einnahmen/Tag (netto) | Tage | Spielzeit |
 |---|---|---|---|---|---|
