@@ -79,12 +79,12 @@ function WorldScene.enter(arg)
     for d = 2, 1 + (arg.tage or 0) do Farm.grow(ctx, d) end
     wild.count = 0
   elseif arg and arg.fahrt then
-    -- Reise: Schuppen mit Mofa, Anhänger für 2, ein Pferd an der Leine und eins, das folgt, vor dem Schuppen
+    -- Reise: Schuppen mit Fahrrad und Mofa, Anhänger für 2, ein Pferd an der Leine und eins, das folgt, vor dem Schuppen
     local pl = ctx.area.plot
     ctx.money = 1000
     assert(Farm.place(ctx, "schuppen", pl.x + 13, pl.y + 14))
     ctx.money = 500
-    ctx.inv.mofa, ctx.inv.anhaenger_2 = 1, 1
+    ctx.inv.fahrrad, ctx.inv.mofa, ctx.inv.anhaenger_2 = 1, 1, 1
     Economy.refresh_gebiet(ctx)
     ctx.player.x, ctx.player.y = (pl.x + 14) * 16 + 8, (pl.y + 16) * 16 + 14
     ctx.trail:reset(ctx.player.x, ctx.player.y)

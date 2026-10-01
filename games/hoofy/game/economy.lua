@@ -90,6 +90,17 @@ function E.fahrzeug(ctx)
   return best
 end
 
+-- Zugfahrzeug für die Reise: das im Reisemenü gewählte (im Hof gemerkt, hof.fahrzeug), sonst das beste.
+function E.aktiv(ctx)
+  local id = ctx.hof and ctx.hof.fahrzeug or ctx.fahrzeug_wahl
+  if id and (ctx.inv[id] or 0) > 0 then return K.fahrzeug(id) end
+  return E.fahrzeug(ctx)
+end
+
+function E.waehlen(ctx, id)
+  if ctx.hof then ctx.hof.fahrzeug = id else ctx.fahrzeug_wahl = id end
+end
+
 function E.plaetze(ctx)
   local n = 0
   for _, a in ipairs(K.welt.anhaenger) do

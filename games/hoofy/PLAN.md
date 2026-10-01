@@ -50,6 +50,9 @@ der nächsten Aufgabe und hakt es ab.
 - [x] In anderen Gebieten: Pferd zum Anhänger führen und A drücken lädt es ein; zurück zu Hause steht es neben dem Anhänger. So viele Pferde, wie der Anhänger Plätze hat. Im Pferdemenü bei Ort ein eigenes Pferd vom Hof in den Anhänger laden, um es mitzunehmen. (0.5.9, E73)
 - [x] Absturz farm.lua:312 am Fahrzeug beheben. (0.5.9, E73: Ort im Pferdemenü unterwegs)
 - [x] In anderen Gebieten gibt es kein Dorf. (0.5.9, E73)
+- [x] Neues Spiel trotz Spielstand: ein zweites Mal nachfragen und die Folgen erklären. (0.5.9, E74)
+- [x] Mehrere Fahrzeuge in einer Garage/einem Schuppen: dazwischen wählen; Fahrzeugmenü überarbeiten wie die Pferde-Info. (0.5.9, E74)
+- [x] Kleine Blumen in anderen Gebieten umfärben. (0.5.9, E74)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

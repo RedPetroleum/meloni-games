@@ -11,7 +11,7 @@ R.REACH = 26
 
 -- Kachel, an der das Fahrzeug steht: unterwegs der Ankunftspunkt, zu Hause die Tür der Garage, die es unterstellt.
 function R.station(ctx)
-  local f = Economy.fahrzeug(ctx)
+  local f = Economy.aktiv(ctx)
   if f.preis == 0 then return nil end
   local farm = ctx.area.farm
   if not farm then return ctx.area.places.start end
@@ -20,11 +20,41 @@ function R.station(ctx)
   end
 end
 
+-- Zu Hause: Tür eines Schuppens/einer Garage/eines Hangars mit eigenem Fahrzeug, vor der der Spieler steht.
+function R.door_near(ctx)
+  local farm = ctx.area.farm
+  if not farm then return nil end
+  local p = ctx.player
+  for _, d in ipairs(Farm.vehicle_doors(farm)) do
+    if U.dist(p.x, p.y, d[1] * 16 + 8, d[2] * 16 + 8) <= R.REACH then
+      for id in pairs(d.fahrzeuge) do if (ctx.inv[id] or 0) > 0 then return d end end
+    end
+  end
+end
+
 function R.at_station(ctx)
+  if R.door_near(ctx) then return true end
   local s = R.station(ctx)
   if not s then return false end
   local p = ctx.player
   return U.dist(p.x, p.y, s[1] * 16 + 8, s[2] * 16 + 8) <= R.REACH
+end
+
+-- Fahrzeuge zur Wahl im Reisemenü: zu Hause die eigenen im selben Gebäude (an dessen Tür der Spieler steht),
+-- unterwegs nur das, mit dem man gekommen ist. Steht das gewählte woanders, wird das beste von hier gewählt.
+function R.wahl(ctx)
+  local a = Economy.aktiv(ctx)
+  if not ctx.area.farm then return {a} end
+  local d = R.door_near(ctx) or R.station(ctx)
+  local out = {}
+  for _, f in ipairs(K.welt.fahrzeuge) do
+    if f.preis > 0 and (ctx.inv[f.id] or 0) > 0 and d and d.fahrzeuge[f.id] then out[#out + 1] = f end
+  end
+  if #out == 0 then return {a} end
+  local here = false
+  for _, f in ipairs(out) do if f == a then here = true end end
+  if not here then Economy.waehlen(ctx, out[#out].id) end
+  return out
 end
 
 -- Wie weit der Anhänger unter das Heck des Zugfahrzeugs rückt (Pixel; Flugzeug: Abstand).
@@ -56,7 +86,7 @@ end
 function R.entity(ctx)
   local e = {x = 0, y = 0, reach = 100, t = 0}
   local function place()
-    local f = Economy.fahrzeug(ctx)
+    local f = Economy.aktiv(ctx)
     local st = f.preis > 0 and R.station(ctx)
     e.f, e.plaetze, e.daheim = st and f.id, Economy.plaetze(ctx), ctx.area.farm ~= nil
     if st then e.x0, e.y = st[1] * 16 + 18, st[2] * 16 + 15 e.x = e.x0 + 40 end
@@ -83,7 +113,7 @@ end
 -- Linke Kante, Unterkante (Pixel) und Breite des Anhängers in der Welt, nil ohne Anhänger oder Fahrzeug.
 -- Zu Hause parkt er neben der Garagentür, unterwegs hängt er hinter dem Zugfahrzeug (wie R.entity).
 function R.trailer_box(ctx)
-  local f, n = Economy.fahrzeug(ctx), Economy.plaetze(ctx)
+  local f, n = Economy.aktiv(ctx), Economy.plaetze(ctx)
   if f.preis == 0 or n == 0 then return nil end
   local st = R.station(ctx)
   if not st then return nil end
@@ -131,7 +161,7 @@ end
 
 -- Fahrtkosten nach nr: Kosten je Gebiet Entfernung × Abstand der Gebietsnummern.
 function R.kosten(ctx, nr)
-  return Economy.fahrzeug(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)
+  return Economy.aktiv(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)
 end
 
 -- Ziele der Reise: {nr, name, kosten, ok, grund}
@@ -146,7 +176,7 @@ function R.ziele(ctx)
       if not h.hidden and h.state ~= "ridden" and h.state ~= "led" and h.state ~= "follow" then draussen = draussen or h.data.name end
     end
   end
-  for nr = 1, ctx.max_gebiet or 1 do
+  for nr = 1, Economy.aktiv(ctx).gebiete do
     if nr ~= ctx.area.nr then
       local kosten = R.kosten(ctx, nr)
       local ok, why = true, nil

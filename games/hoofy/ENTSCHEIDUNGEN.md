@@ -422,3 +422,16 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Plätze da sind. Im Reisemenü „Pferde ausladen“, solange welche drin sind (sonst kämen sie zu Hause nicht mehr heraus).
 - Absturz behoben: Ort im Pferdemenü fragte unterwegs den Hof ab (farm.lua:312).
 - Dorf (Laden, Markt, Jobbrett, Turnierplatz, Käufer) gibt es nur im Heimattal; fremde Gebiete sind Wildnis.
+
+## E74 Neues Spiel, Fahrzeugwahl, Reisemenü, Blumen (Rückmeldung nach 0.5.9)
+- Neues Spiel bei vorhandenem Spielstand fragt nach: nennt Tag, Pferde und Geld des alten Stands, „Nein, zurück“ ist
+  vorgewählt, „Ja, alles löschen“ in Rot; B geht zurück.
+- Fahrzeugwahl: im Reisemenü ← → zwischen den eigenen Fahrzeugen im selben Gebäude (Schuppen: Fahrrad/Mofa, Garage:
+  Kleinwagen/SUV). Die Wahl merkt sich der Hof (hof.fahrzeug) und gilt für Reichweite, Spritkosten und den Platz des
+  Anhängers. Eigene Ergänzung: A geht an jeder Fahrzeug-Tür, nicht nur an der des gewählten; dort ist dann das beste
+  Fahrzeug dieses Gebäudes gewählt. Markt, Samen und Turnierklassen richten sich weiter nach dem besten im Besitz.
+- Reisemenü wie die Pferde-Info: Fahrzeugname groß mit „< >“, Kasten mit Anhänger, Reichweite, Sprit und Bild des
+  Gespanns, darunter „Wohin?“. Fehler behoben: Kopfzeile lief bei langen Namen in das Geld, und gehaltenes A vom
+  Öffnen fuhr nach einer Viertelsekunde gleich los (A zählt jetzt erst nach dem Loslassen).
+- Blüten der kleinen Blumen je Gebiet (eigene Wahl): Birkenwald hellblau/weiß, Flussauen blau/gelb (Vergissmeinnicht,
+  Sumpfdotter), Steppe rot/lila (Mohn), Canyon gelb/weiß mit roter Mitte, Nebelinsel türkis/hellviolett.

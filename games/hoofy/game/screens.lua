@@ -424,11 +424,13 @@ function Screens.shop(ctx)
   return s
 end
 
--- ---- Reisemenü am Fahrzeug (D1): Ziel wählen, A fährt, B zurück ----
+-- ---- Reisemenü am Fahrzeug (D1): Aufbau wie die Pferde-Info. Oben das Fahrzeug (← → wechselt zwischen den
+-- Fahrzeugen im selben Gebäude), darunter die Ziele; A fährt, B zurück ----
 
 function Screens.reise(ctx, go)
   local Reise = require("game.reise")
   local sel, msg, msg_t = 1, nil, 0
+  local armed = false            -- A erst nach dem Loslassen: gehaltenes A vom Öffnen fährt sonst gleich los
   local s = {full = true}
   -- Ziele, darunter „Pferde ausladen“, solange welche im Anhänger sind
   local function entries()
@@ -437,12 +439,23 @@ function Screens.reise(ctx, go)
     if n > 0 then list[#list + 1] = {ausladen = n, ok = true} end
     return list
   end
+  Reise.wahl(ctx)                -- an einer anderen Garage: deren Fahrzeug vorwählen
   function s.update(nav)
     local list = entries()
+    local wahl = Reise.wahl(ctx)
+    if #wahl > 1 and (btnp(BTN_LEFT) or btnp(BTN_RIGHT)) then
+      local i = 1
+      for k, f in ipairs(wahl) do if f == Economy.aktiv(ctx) then i = k end end
+      i = btnp(BTN_LEFT) and (i - 2) % #wahl + 1 or i % #wahl + 1
+      Economy.waehlen(ctx, wahl[i].id)
+      SFX.select()
+      list = entries()
+    end
     if sel > #list then sel = max(1, #list) end
     if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
     if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
     if btnp(BTN_B) then SFX.back() nav.pop() end
+    if not armed then armed = not btn(BTN_A) return end
     if btnp(BTN_A) and list[sel] then
       if list[sel].ausladen then
         local n = Reise.ausladen(ctx)
@@ -456,31 +469,51 @@ function Screens.reise(ctx, go)
   end
   function s.draw()
     cls(C.panel)
-    header("Reise  (" .. Economy.fahrzeug(ctx).name .. ", Anhänger " .. Economy.plaetze(ctx) .. " Plätze)")
+    local f, plaetze = Economy.aktiv(ctx), Economy.plaetze(ctx)
+    local wahl = Reise.wahl(ctx)
+    -- Kopf: Fahrzeug groß, „< >“ blass, wenn es im Gebäude noch andere gibt; Geld rechts
+    font(1)
+    local nx = print(f.name, 6, 3, C.gold)
+    if #wahl > 1 then print("< >", nx + 8, 3, rgb(0x6e, 0x5c, 0x4c)) end
+    font(0)
     local money = ctx.money .. " G"
-    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    print(money, SCREEN_W - textw(money) - 6, 7, C.gold)
+    -- Steckbrief: Anhänger, Reichweite, Sprit; rechts das Gespann auf Gras
+    box(3, 23, SCREEN_W - 4, 80, BOX_ABOUT)
+    rect(4, 24, SCREEN_W - 5, 79, BOX_ABOUT_EDGE)
+    local rw = Reise.rig_width(ctx.S, f.id, plaetze)
+    local pw = max(70, rw + 16)
+    local px = SCREEN_W - 7 - pw
+    Stage.panel(px, 26, SCREEN_W - 7, 77)
+    rectfill(px + 2, 28, SCREEN_W - 9, 75, rgb(0x7f, 0xb0, 0x4f))
+    Reise.draw_rig(ctx.S, f.id, plaetze, px + (pw - rw) // 2, 70)
+    local n = Reise.geladen(ctx)
+    print(plaetze > 0 and ("Anhänger: " .. n .. "/" .. plaetze) or "Kein Anhänger", 8, 27, C.text)
+    if #ctx.lead > 0 then print("An der Leine: " .. #ctx.lead, 8, 38, C.dim) end
+    print("Bis " .. K.welt.gebiete[f.gebiete].name, 8, 49, C.dim)
+    print(f.fahrtkosten > 0 and ("Sprit " .. f.fahrtkosten .. " G/Gebiet") or "Sprit: gratis", 8, 60, C.dim)
+    -- Ziele
+    box(3, 83, SCREEN_W - 4, 224, BOX_SKILL)
+    print("Wohin?", 8, 87, SKILL_COL)
     local list = entries()
-    local y = 28
+    local y = 101
     for i, z in ipairs(list) do
-      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
+      if i == sel then rectfill(6, y - 2, SCREEN_W - 7, y + 9, C.panel_light) end
       if z.ausladen then
-        print("Pferde ausladen (" .. z.ausladen .. ")", 10, y, i == sel and C.gold or C.text)
+        print("Pferde ausladen (" .. z.ausladen .. ")", 12, y, i == sel and C.gold or C.text)
       else
-        print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 10, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
-        print(z.kosten .. " G", 250, y, z.ok and C.gold or C.dim)
+        print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 12, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
+        local k = z.kosten > 0 and (z.kosten .. " G") or "gratis"
+        print(k, SCREEN_W - 12 - textw(k), y, z.ok and C.gold or C.dim)
       end
-      y = y + 14
+      y = y + 13
     end
-    if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 10, y, C.dim) end
-    local f = Economy.fahrzeug(ctx)
-    if f.preis > 0 then
-      local w = Reise.rig_width(ctx.S, f.id, Economy.plaetze(ctx))
-      Reise.draw_rig(ctx.S, f.id, Economy.plaetze(ctx), (SCREEN_W - w) // 2, 182)
-    end
-    local n, cap = Reise.geladen(ctx)
-    print("Im Anhänger: " .. n .. "/" .. cap .. (#ctx.lead > 0 and ("   an der Leine: " .. #ctx.lead) or ""), 10, 190, C.dim)
-    if msg and msg_t > 0 then print(msg, 10, 204, C.red) end
-    footer("A: losfahren   B: zurück")
+    if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 12, y, C.dim) end
+    local cur = list[sel]
+    if msg and msg_t > 0 then print(msg, 12, 210, C.red)
+    elseif cur and not cur.ok then print(cur.grund .. ".", 12, 210, C.dim) end
+    local a = cur and cur.ausladen and "A ausladen" or "A losfahren"
+    footer(a .. (#wahl > 1 and "   < > Fahrzeug" or "") .. "   B zurück")
   end
   return s
 end

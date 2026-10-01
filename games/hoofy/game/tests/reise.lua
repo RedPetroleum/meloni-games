@@ -150,4 +150,29 @@ return {
     C.ok(a.x >= x0 and a.x <= x0 + 80 and a.y > y, "steht unter/neben dem Anhänger")
     Area.clear()
   end},
+  {"Fahrzeugwahl: im selben Schuppen wählbar, im Hof gemerkt, bestimmt Reichweite und Kosten", function()
+    local ctx, p = setup()
+    Farm.place(ctx, "schuppen", p.x + 13, p.y + 14)
+    Farm.place(ctx, "garage", p.x + 16, p.y + 5)
+    Economy.buy(ctx, "fahrrad")
+    Economy.buy(ctx, "mofa")
+    Economy.buy(ctx, "kleinwagen")
+    C.eq(Economy.aktiv(ctx).id, "kleinwagen", "ohne Wahl das beste")
+    local d = Reise.station(ctx)
+    ctx.player.x, ctx.player.y = d[1] * 16 + 8, d[2] * 16 + 8
+    C.eq(#Reise.wahl(ctx), 1, "Garage: nur der Kleinwagen")
+    local sd
+    for _, v in ipairs(Farm.vehicle_doors(ctx.area.farm)) do if v.fahrzeuge.mofa then sd = v end end
+    ctx.player.x, ctx.player.y = sd[1] * 16 + 8, sd[2] * 16 + 8
+    C.ok(Reise.at_station(ctx), "auch am Schuppen")
+    local w = Reise.wahl(ctx)
+    C.eq(#w, 2, "Schuppen: Fahrrad und Mofa")
+    C.eq(Economy.aktiv(ctx).id, "mofa", "am Schuppen das beste von dort")
+    Economy.waehlen(ctx, "fahrrad")
+    C.eq(ctx.area.farm.fahrzeug, "fahrrad")
+    local z = Reise.ziele(ctx)
+    C.eq(#z, 1, "Fahrrad: nur Gebiet 2")
+    C.eq(z[1].kosten, 0)
+    C.eq(Economy.fahrzeug(ctx).id, "kleinwagen", "Besitz zählt weiter für Markt und Turniere")
+  end},
 }
