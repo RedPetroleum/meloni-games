@@ -72,18 +72,19 @@ function Scenarios.anbau(save)
 end
 
 -- Gebäude: alle Gebäude auf dem Grundstück. save.cx, save.cy: Startkachel der Kamera.
--- Reise (D1): am Schuppen mit Mofa und zwei Pferden; Drehbuch: A öffnet das Reisemenü, A fährt.
+-- Reise (D1): am Schuppen mit Mofa und zwei Pferden; Drehbuch: A, A lädt beide ein, A öffnet das Reisemenü, A fährt.
 function Scenarios.reise(save)
   return "world", {fahrt = true}
 end
 
 -- Gebiet: am Ankunftspunkt von Gebiet save.gebiet (Standard 2) mit Gespann aus save.fahrzeug und
 -- Anhänger für save.anhaenger Pferde, z. B. SCENARIO_OPTS='gebiet = 5, fahrzeug = "suv", anhaenger = 4'.
+-- save.pferde = n: so viele eigene Pferde dabei (eins an der Leine, die anderen folgen).
 -- save.blick = true: statt am Ankunftspunkt an der Stelle mit dem meisten Wald, Wasser und Weg
 -- (zum Ansehen der Gebietsfarben).
 function Scenarios.gebiet(save)
   local nr = save.gebiet or 2
-  local arg = {gebiet = nr, fahrzeug = save.fahrzeug or "suv", anhaenger = save.anhaenger or 2}
+  local arg = {gebiet = nr, fahrzeug = save.fahrzeug or "suv", anhaenger = save.anhaenger or 2, pferde = save.pferde}
   if save.blick then
     local map = require("game.area").get(nr).map
     local best = -1

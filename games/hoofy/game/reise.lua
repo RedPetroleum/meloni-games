@@ -78,21 +78,81 @@ function R.entity(ctx)
   return e
 end
 
+-- ---- Anhänger (Rückmeldung 0.5.8): Pferde mit data.ort = "anhaenger" fahren mit ----
+
+-- Linke Kante, Unterkante (Pixel) und Breite des Anhängers in der Welt, nil ohne Anhänger oder Fahrzeug.
+-- Zu Hause parkt er neben der Garagentür, unterwegs hängt er hinter dem Zugfahrzeug (wie R.entity).
+function R.trailer_box(ctx)
+  local f, n = Economy.fahrzeug(ctx), Economy.plaetze(ctx)
+  if f.preis == 0 or n == 0 then return nil end
+  local st = R.station(ctx)
+  if not st then return nil end
+  local x0 = st[1] * 16 + 18
+  if not ctx.area.farm then x0 = x0 + ctx.S.size("fahrzeug_" .. f.id) - R.HITCH[f.id] end
+  return x0, st[2] * 16 + 15, (ctx.S.size("anhaenger_" .. n))
+end
+
+-- Steht der Spieler am Anhänger (davor, daneben oder dahinter)?
+function R.at_trailer(ctx)
+  local x0, y, w = R.trailer_box(ctx)
+  if not x0 then return false end
+  local p = ctx.player
+  return p.x >= x0 - 10 and p.x <= x0 + w + 10 and p.y >= y - 26 and p.y <= y + 22
+end
+
+-- Pferde im Anhänger (Daten) und Plätze.
+function R.geladen(ctx)
+  return Farm.count(ctx.herd, "anhaenger"), Economy.plaetze(ctx)
+end
+
+-- Lädt alle Pferde aus dem Anhänger und stellt sie lose daneben (unter den Anhänger, nach rechts weiter).
+-- Gibt die Anzahl zurück.
+function R.ausladen(ctx)
+  local x0, y, w = R.trailer_box(ctx)
+  local p = ctx.player
+  local n = 0
+  for _, h in ipairs(ctx.herd_horses) do
+    if h.data.ort == "anhaenger" then
+      local hx, hy = p.x + n * 20, p.y + 12
+      if x0 then
+        for k = 0, 30 do
+          local cx, cy = x0 + 8 + (n + k) % 4 * 20, y + 18 + (n + k) // 4 * 16
+          if not ctx.map:blocked(cx - 8, cy - 6, cx + 8, cy) then hx, hy = cx, cy break end
+        end
+      end
+      h.data.ort, h.hidden, h.bounds, h.allow = nil, false, nil, nil
+      h.x, h.y, h.dir = hx, hy, "right"
+      h.state, h.timer, h.vx, h.vy = "free", 120, 0, 0
+      n = n + 1
+    end
+  end
+  return n
+end
+
 -- Fahrtkosten nach nr: Kosten je Gebiet Entfernung × Abstand der Gebietsnummern.
 function R.kosten(ctx, nr)
   return Economy.fahrzeug(ctx).fahrtkosten * math.abs(nr - ctx.area.nr)
 end
 
 -- Ziele der Reise: {nr, name, kosten, ok, grund}
+-- Mitfahren: Pferde im Anhänger und die an der Leine (werden bei der Abfahrt eingeladen). Unterwegs müssen
+-- alle eigenen Pferde mit, die da sind: ein loses Pferd hält die Abfahrt auf.
 function R.ziele(ctx)
   local out = {}
-  local mit = #ctx.lead
+  local mit = #ctx.lead + R.geladen(ctx)
+  local draussen
+  if not ctx.area.farm then
+    for _, h in ipairs(ctx.herd_horses) do
+      if not h.hidden and h.state ~= "ridden" and h.state ~= "led" and h.state ~= "follow" then draussen = draussen or h.data.name end
+    end
+  end
   for nr = 1, ctx.max_gebiet or 1 do
     if nr ~= ctx.area.nr then
       local kosten = R.kosten(ctx, nr)
       local ok, why = true, nil
       if ctx.player.riding then ok, why = false, "erst absteigen"
       elseif mit > Economy.plaetze(ctx) then ok, why = false, "Anhänger zu klein (" .. mit .. " Pferde)"
+      elseif draussen then ok, why = false, draussen .. " ist nicht im Anhänger"
       elseif ctx.money < kosten then ok, why = false, "zu wenig Geld" end
       out[#out + 1] = {nr = nr, name = K.welt.gebiete[nr].name, kosten = kosten, ok = ok, grund = why}
     end
@@ -108,8 +168,11 @@ function R.fahren(ctx, clock, seed, nr)
   if not ziel then return nil, "nicht erreichbar" end
   if not ziel.ok then return nil, ziel.grund end
   ctx.money = ctx.money - ziel.kosten
+  local lead = {}
+  for i, h in ipairs(ctx.lead) do lead[i] = h end
+  for _, h in ipairs(lead) do ctx.wild:house(h, "anhaenger", true) end
   local mit = {}
-  for _, h in ipairs(ctx.lead) do mit[h.data] = true end
+  for _, d in ipairs(ctx.herd) do if d.ort == "anhaenger" then mit[d] = true end end
   local heim = ctx.heim
   if not heim then      -- Abfahrt vom Hof: den Hof so merken, wie er ist
     if ctx.wild then ctx.wild:mark_loose() end

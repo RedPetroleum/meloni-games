@@ -115,8 +115,9 @@ local function astar(w, h, start, goal, cost, tx, ty)
   return nil
 end
 
--- area: Eintrag aus K.welt.gebiete (w, h), seed: Zahl.
+-- area: Eintrag aus K.welt.gebiete (nr, w, h), seed: Zahl. Ein Dorf gibt es nur im Heimattal (nr 1).
 function Gen.generate(area, seed)
+  local dorf = area.nr == 1
   local W, H = area.w, area.h
   local R = Rng.new(seed)
   local N = W * H
@@ -152,7 +153,7 @@ function Gen.generate(area, seed)
     end
   end
   clear(plot.x - 3, plot.y - 3, plot.x + plot.w + 2, plot.y + plot.h + 2, 3)
-  clear(vx - 2, vy - 2, vx + vw + 1, vy + vh + 1, 1)
+  if dorf then clear(vx - 2, vy - 2, vx + vw + 1, vy + vh + 1, 1) end
 
   -- 3. Fluss von oben nach unten auf der anderen Seite des Hofs
   local rx
@@ -169,7 +170,7 @@ function Gen.generate(area, seed)
 
   -- 4. Dorf nach Vorlage
   local places = {}
-  for ty = 0, vh - 1 do
+  for ty = 0, dorf and vh - 1 or -1 do
     local row = VILLAGE[ty + 1]
     for tx = 0, vw - 1 do
       local ch = row:sub(tx + 1, tx + 1)
@@ -182,7 +183,7 @@ function Gen.generate(area, seed)
       if ch ~= "." then reserved[i] = true end
     end
   end
-  for name, p in pairs(VILLAGE_PLACES) do places[name] = {vx + p[1], vy + p[2]} end
+  if dorf then for name, p in pairs(VILLAGE_PLACES) do places[name] = {vx + p[1], vy + p[2]} end end
   local street_y = vy + 5
 
   -- Kollision der Objekte eintragen (Grundfläche)
@@ -236,7 +237,7 @@ function Gen.generate(area, seed)
     return p
   end
   local function at(tx, ty) local t = idx(tx, ty) return function(i) return i == t end, tx, ty end
-  route(gate[1], gate[2], at(street_end, street_y))
+  if dorf then route(gate[1], gate[2], at(street_end, street_y)) end
   local nx = plot.x + plot.w // 2 + R:int(-4, 4)
   route(nx, plot.y - 1, function(i) return i // W == 0 end, nx, 0)
   local sx = plot.x + plot.w // 2 + R:int(-4, 4)
@@ -372,7 +373,7 @@ function Gen.generate(area, seed)
   return {
     w = W, h = H, seed = seed, ground = ground, deco = drows, coll = crows, objects = objects,
     grounds = Tiles.GROUNDS, decos = Tiles.DECOS, shapes = Tiles.SHAPES, heights = Tiles.HEIGHTS, props = Tiles.PROPS,
-    plot = plot, places = places, village = {x = vx, y = vy, w = vw, h = vh},
+    plot = plot, places = places, village = dorf and {x = vx, y = vy, w = vw, h = vh} or nil,
   }
 end
 

@@ -9,7 +9,7 @@ local Tiles = require("game.tiles")
 local C = require("game.tests.check")
 
 return {
-  {"Jedes Gebiet: Größe, Wildpferde und Palette nach Katalog; Hof nur im Heimattal", function()
+  {"Jedes Gebiet: Größe, Wildpferde und Palette nach Katalog; Hof und Dorf nur im Heimattal", function()
     for nr, info in ipairs(K.welt.gebiete) do
       Area.clear()
       collectgarbage()
@@ -25,7 +25,8 @@ return {
       C.eq(Tiles.PROPS.tree.sprite, pal.set .. "_tree", "Bäume umgefärbt")
       C.ok(ctx.S.rects[pal.set .. "_forest1"] and ctx.S.rects[pal.set .. "_fringe_n"], "Sprites des Gebiets")
       C.eq(ctx.area.farm ~= nil, nr == 1)
-      C.ok(ctx.area.places.start and ctx.area.places.laden, "Start und Laden")
+      C.ok(ctx.area.places.start, "Start")
+      C.eq(ctx.area.places.laden ~= nil and ctx.area.village ~= nil, nr == 1, "Dorf nur im Heimattal")
     end
     Area.clear()
     Stage.build(1, 1)

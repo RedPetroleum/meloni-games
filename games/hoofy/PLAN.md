@@ -47,6 +47,9 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Pferde sollen nicht sofort nach dem Zähmen reitbar sein. Dafür braucht es höhere Bindung, ein paar Mal füttern, sauber machen und streicheln sollte aber reichen. Ein frisch gezähmtes Pferd an der Leine zu rennen ist auch riskant und kann häufiger dazu führen, dass es sich losreißt. (0.5.8, E71: +6 Bindung seit dem Zähmen, Ausreißen beim Rennen ×3)
 - [x] Beim Laden, wenn man ein Fahrzeug kaufen will, was nicht geht, weil man die Unterbringung nicht hat, soll nicht generisch „dafür fehlt dir die Garage (Schuppen/Garage)“ stehen, sondern konkret, was dafür fehlt. (0.5.8, E72: „Für das Mofa fehlt dir ein Schuppen.“)
 - [x] Bei den Fahrzeugen soll in der Beschreibung nicht „erreicht Gebiet 2, kostet so und so viel Sprit“ stehen, sondern eher eine witzige Kurzbeschreibung, aus der das in etwa hervorgeht. (0.5.8, E72)
+- [x] In anderen Gebieten: Pferd zum Anhänger führen und A drücken lädt es ein; zurück zu Hause steht es neben dem Anhänger. So viele Pferde, wie der Anhänger Plätze hat. Im Pferdemenü bei Ort ein eigenes Pferd vom Hof in den Anhänger laden, um es mitzunehmen. (0.5.9, E73)
+- [x] Absturz farm.lua:312 am Fahrzeug beheben. (0.5.9, E73: Ort im Pferdemenü unterwegs)
+- [x] In anderen Gebieten gibt es kein Dorf. (0.5.9, E73)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

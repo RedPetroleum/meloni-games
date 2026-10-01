@@ -34,7 +34,7 @@ local function footer(text, bg, edge)
   print(text, 6, SCREEN_H - 10, C.text)
 end
 
-local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof"}
+local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof", anhaenger = "im Anhänger"}
 
 local function place_of(data)
   return data.ort and ORT[data.ort] or "an der Leine"
@@ -430,13 +430,26 @@ function Screens.reise(ctx, go)
   local Reise = require("game.reise")
   local sel, msg, msg_t = 1, nil, 0
   local s = {full = true}
-  function s.update(nav)
+  -- Ziele, darunter „Pferde ausladen“, solange welche im Anhänger sind
+  local function entries()
     local list = Reise.ziele(ctx)
+    local n = Reise.geladen(ctx)
+    if n > 0 then list[#list + 1] = {ausladen = n, ok = true} end
+    return list
+  end
+  function s.update(nav)
+    local list = entries()
+    if sel > #list then sel = max(1, #list) end
     if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
     if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
     if btnp(BTN_B) then SFX.back() nav.pop() end
     if btnp(BTN_A) and list[sel] then
-      if list[sel].ok then SFX.start() go(list[sel].nr)
+      if list[sel].ausladen then
+        local n = Reise.ausladen(ctx)
+        SFX.ok()
+        nav.pop()
+        if ctx.toast then ctx.toast(n == 1 and "Ein Pferd steht jetzt neben dem Anhänger." or n .. " Pferde stehen jetzt neben dem Anhänger.") end
+      elseif list[sel].ok then SFX.start() go(list[sel].nr)
       else SFX.snort() msg, msg_t = (list[sel].grund or "geht nicht") .. ".", 150 end
     end
     if msg_t > 0 then msg_t = msg_t - 1 end
@@ -446,12 +459,16 @@ function Screens.reise(ctx, go)
     header("Reise  (" .. Economy.fahrzeug(ctx).name .. ", Anhänger " .. Economy.plaetze(ctx) .. " Plätze)")
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
-    local list = Reise.ziele(ctx)
+    local list = entries()
     local y = 28
     for i, z in ipairs(list) do
       if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
-      print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 10, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
-      print(z.kosten .. " G", 250, y, z.ok and C.gold or C.dim)
+      if z.ausladen then
+        print("Pferde ausladen (" .. z.ausladen .. ")", 10, y, i == sel and C.gold or C.text)
+      else
+        print(z.nr .. "  " .. z.name .. (z.nr == 1 and " (heim)" or ""), 10, y, z.ok and (i == sel and C.gold or C.text) or C.dim)
+        print(z.kosten .. " G", 250, y, z.ok and C.gold or C.dim)
+      end
       y = y + 14
     end
     if #list == 0 then print("Mit diesem Fahrzeug geht es nirgends hin.", 10, y, C.dim) end
@@ -460,7 +477,8 @@ function Screens.reise(ctx, go)
       local w = Reise.rig_width(ctx.S, f.id, Economy.plaetze(ctx))
       Reise.draw_rig(ctx.S, f.id, Economy.plaetze(ctx), (SCREEN_W - w) // 2, 182)
     end
-    print("Mitgenommen: " .. #ctx.lead .. " Pferd(e) an der Leine", 10, 190, C.dim)
+    local n, cap = Reise.geladen(ctx)
+    print("Im Anhänger: " .. n .. "/" .. cap .. (#ctx.lead > 0 and ("   an der Leine: " .. #ctx.lead) or ""), 10, 190, C.dim)
     if msg and msg_t > 0 then print(msg, 10, 204, C.red) end
     footer("A: losfahren   B: zurück")
   end

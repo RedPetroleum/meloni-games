@@ -411,3 +411,14 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   kostet nur Muskelkater“, Mofa „knattert bis in die Flussauen“, Kleinwagen „mit Heizung … bis in die Steppe“, SUV
   „groß, schwarz, durstig … Canyon“, Flugzeug „bis zur Nebelinsel … Tank teuer, Aussicht unbezahlbar“. Texte stehen in
   game/economy.lua (FAHRZEUG_TEXT), nicht im KATALOG.
+
+## E73 Pferde im Anhänger, kein Dorf unterwegs (Rückmeldung nach 0.5.8)
+- Pferde fahren nur im Anhänger mit (ein Platz je Pferd). Einladen: mit dem Pferd an der Leine zum Anhänger (oder
+  Fahrzeug) und A, oder Pferdemenü → Ort → Anhänger (zu Hause von überall auf dem Hof, unterwegs auch). Bei der
+  Ankunft stehen sie lose neben dem Anhänger.
+- Eigene Ergänzungen: Pferde an der Leine steigen bei der Abfahrt von selbst ein, wenn Platz ist (wie bisher). Unterwegs
+  hält ein eigenes Pferd, das nicht im Anhänger ist, die Abfahrt auf („Hilde ist nicht im Anhänger“), damit keins
+  verloren geht; dafür gibt es unterwegs unter Ort „Freilassen“ (Kachel „Wildnis“), falls mehr gezähmt sind, als
+  Plätze da sind. Im Reisemenü „Pferde ausladen“, solange welche drin sind (sonst kämen sie zu Hause nicht mehr heraus).
+- Absturz behoben: Ort im Pferdemenü fragte unterwegs den Hof ab (farm.lua:312).
+- Dorf (Laden, Markt, Jobbrett, Turnierplatz, Käufer) gibt es nur im Heimattal; fremde Gebiete sind Wildnis.

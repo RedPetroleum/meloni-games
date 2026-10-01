@@ -84,7 +84,7 @@ end
 -- Gezähmtes Pferd: "led" an der Leine, "follow" frei hinterher (Bindung ≥ 70), "free" lose,
 -- "stand" bleibt stehen.
 function Horse:update_tamed()
-  if self.state == "stall" then return end
+  if self.hidden then return end          -- im Stall oder im Anhänger
   local ctx, p = self.ctx, self.ctx.player
   local st = self.state
   self.moving = false
@@ -520,6 +520,7 @@ end
 -- restore: Spielstand laden: keine Platz- und Stärkeprüfung, die gespeicherte Weide (weide_id) zuerst.
 function Wild:house(h, ort, restore)
   local farm = self.ctx.area.farm
+  if ort == "anhaenger" then return self:load(h, restore) end
   if not farm then return false, "nur auf dem Hof" end
   if not restore then
     local cap = Farm.capacity(farm)
@@ -574,6 +575,32 @@ function Wild:house(h, ort, restore)
   end
   h.state, h.timer, h.vx, h.vy, h.hidden = "free", 60, 0, 0, false
   return true
+end
+
+-- In den Anhänger (Rückmeldung 0.5.8): ein Platz je Pferd, geht zu Hause und unterwegs.
+function Wild:load(h, restore)
+  local Reise = require("game.reise")
+  if not restore then
+    if not Reise.trailer_box(self.ctx) then return false, "kein Anhänger" end
+    local n, cap = Reise.geladen(self.ctx)
+    if h.data.ort ~= "anhaenger" and n >= cap then return false, "der Anhänger ist voll" end
+  end
+  for i, e in ipairs(self.ctx.lead) do
+    if e == h then table.remove(self.ctx.lead, i) break end
+  end
+  h.data.ort, h.data.weide_id, h.data.lose, h.bounds, h.allow = "anhaenger", nil, nil, nil, nil
+  h.state, h.hidden, h.scared = "anhaenger", true, false
+  return true
+end
+
+-- Freilassen (unterwegs, E73): das Pferd gehört nicht mehr dir und läuft davon.
+function Wild:free(h)
+  local ctx = self.ctx
+  for i, e in ipairs(ctx.lead) do if e == h then table.remove(ctx.lead, i) break end end
+  for i, d in ipairs(ctx.herd) do if d == h.data then table.remove(ctx.herd, i) break end end
+  for i, e in ipairs(ctx.herd_horses) do if e == h then table.remove(ctx.herd_horses, i) break end end
+  if ctx.escaped == h then ctx.escaped = nil end
+  h.dead = true
 end
 
 -- Nach einem Umbau: Weiden neu berechnen. Weidenpferde bleiben auf ihrer Weide, wenn es sie noch gibt

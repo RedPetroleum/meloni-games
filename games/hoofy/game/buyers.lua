@@ -209,7 +209,7 @@ B.SPOT = {-3, 3}          -- Kachel relativ zum Wohnhaus, von dort wird gesucht
 -- Stellt die Figur des Tages hin (oder nimmt sie weg): sie steht im Dorf, solange der Käufer da
 -- ist, also tagsüber und bis er etwas gekauft hat.
 function B.sync(ctx, night)
-  local want = ctx.buyer and not ctx.buyer.verkauft and not night
+  local want = ctx.buyer and not ctx.buyer.verkauft and not night and ctx.area.village   -- nur im Dorf daheim
   local ent = ctx.buyer_ent
   if ent and (not want or ent.typ ~= ctx.buyer.typ) then
     ent.dead = true

@@ -57,10 +57,10 @@ function Overview.draw()
   print("Hof", ox + p.x * 2 + 2, oy + p.y * 2 + 2, C.gold)
   for id in pairs(Area.LABELS) do
     local pl = area.places[id]
-    pset(ox + pl[1] * 2, oy + pl[2] * 2, C.red)
+    if pl then pset(ox + pl[1] * 2, oy + pl[2] * 2, C.red) end
   end
   local v = area.village
-  print("Dorf", ox + v.x * 2 + 2, oy + (v.y + v.h) * 2 + 2, C.text)
+  if v then print("Dorf", ox + v.x * 2 + 2, oy + (v.y + v.h) * 2 + 2, C.text) end
   print("B: zurück", ox, legend_y, C.dim)
 end
 

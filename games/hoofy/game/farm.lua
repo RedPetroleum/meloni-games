@@ -306,9 +306,10 @@ Farm.ITEMS = {
   goepel_generator = {prop = "goepel", w = 2, h = 2, building = true},
 }
 
--- Alle Bauten des Hofs: Startbauten und gebaute Gebäude, {id, cx, cy}.
+-- Alle Bauten des Hofs: Startbauten und gebaute Gebäude, {id, cx, cy}. Ohne Hof (unterwegs) keine.
 function Farm.all_buildings(farm)
   local out = {}
+  if not farm then return out end
   for _, b in ipairs(farm.buildings) do out[#out + 1] = b end
   for _, it in ipairs(farm.items or {}) do
     if Farm.ITEMS[it.id].building then out[#out + 1] = it end
@@ -370,7 +371,7 @@ function Farm.goepel_pferde(farm, herd, H)
   for _, b in ipairs(Farm.all_buildings(farm)) do if b.id == "goepel_generator" then n = n + 1 end end
   local ok = {}
   for _, d in ipairs(herd) do
-    if d.ort and d.alter >= 1 and H.stat(d, "staerke") >= def.min_staerke and d.energie >= def.energie then ok[#ok + 1] = d end
+    if d.ort and d.ort ~= "anhaenger" and d.alter >= 1 and H.stat(d, "staerke") >= def.min_staerke and d.energie >= def.energie then ok[#ok + 1] = d end
   end
   table.sort(ok, function(a, b) return H.stat(a, "staerke") > H.stat(b, "staerke") end)
   while #ok > n do ok[#ok] = nil end

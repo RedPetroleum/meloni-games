@@ -179,6 +179,10 @@ function WorldScene.enter(arg)
     local h = wild:spawn_at(ctx.player.x + 140, ctx.player.y, {rasse = "haflinger", rng = wild.rng})
     h.data.bindung = arg.bindung or 35
     h.debug_log = true
+  elseif arg and arg.pferde then
+    -- Eigene Pferde beim Spieler (Szenario gebiet, pferde = n): das erste an der Leine, die anderen folgen
+    wild.count = 0
+    for i = 1, arg.pferde do wild:attach(wild:add_own({rasse = "haflinger", bindung = i == 1 and 40 or 80, name = "Pferd " .. i})) end
   else
     wild:fill()
   end
@@ -250,6 +254,7 @@ function WorldScene.enter(arg)
   end
   if arg and arg.fahrzeug then ctx.inv[arg.fahrzeug] = 1 Economy.refresh_gebiet(ctx) end
   if arg and arg.anhaenger then ctx.inv["anhaenger_" .. arg.anhaenger] = 1 end
+  if reise then Reise.ausladen(ctx) end     -- angekommen: Pferde aus dem Anhänger stehen daneben
   ctx.world:add(Reise.entity(ctx))
   if arg and arg.screen then
     local name = arg.screen
@@ -371,18 +376,29 @@ local function open_gear(h)
   menu.stage, menu.m = "gear", Menu.new(gear_items(h.data), "Ausrüstung " .. h.data.name)
 end
 
-local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei"}
+local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei", anhaenger = "Anhänger"}
 local HOUSE_ICONS = {stall = "ico_stall", weide = "ico_weide", frei = "ico_frei"}
 
+-- Ort: zu Hause Stall, Weide, Frei; Anhänger, wenn es einen gibt; unterwegs Anhänger und Freilassen (E73).
 local function open_house(h)
-  local cap = Farm.capacity(ctx.area.farm)
   local items = {}
-  for _, ort in ipairs({"stall", "weide", "frei"}) do
-    local n = Farm.count(ctx.herd, ort)
-    local full = n >= cap[ort] and h.data.ort ~= ort
-    local weak = ort == "frei" and not Farm.may_roam(h.data, H)
-    items[#items + 1] = {label = string.format("%s %d/%d", HOUSE_NAMES[ort], n, cap[ort]), id = ort,
-      dim = full or weak or h.data.ort == ort, icon = HOUSE_ICONS[ort], short = HOUSE_NAMES[ort], badge = n .. "/" .. cap[ort]}
+  if ctx.area.farm then
+    local cap = Farm.capacity(ctx.area.farm)
+    for _, ort in ipairs({"stall", "weide", "frei"}) do
+      local n = Farm.count(ctx.herd, ort)
+      local full = n >= cap[ort] and h.data.ort ~= ort
+      local weak = ort == "frei" and not Farm.may_roam(h.data, H)
+      items[#items + 1] = {label = string.format("%s %d/%d", HOUSE_NAMES[ort], n, cap[ort]), id = ort,
+        dim = full or weak or h.data.ort == ort, icon = HOUSE_ICONS[ort], short = HOUSE_NAMES[ort], badge = n .. "/" .. cap[ort]}
+    end
+  end
+  if Reise.trailer_box(ctx) then
+    local n, cap = Reise.geladen(ctx)
+    items[#items + 1] = {label = string.format("Anhänger %d/%d", n, cap), id = "anhaenger", dim = n >= cap,
+      icon = "ico_anhaenger", short = "Anhänger", badge = n .. "/" .. cap}
+  end
+  if not ctx.area.farm then
+    items[#items + 1] = {label = "Freilassen", id = "freilassen", icon = "ico_freilassen", short = "Wildnis"}
   end
   menu.stage, menu.m = "house", Menu.new(items, "Wohin mit " .. h.data.name .. "?")
 end
@@ -461,8 +477,15 @@ local function do_action(id)
   end
   if menu.stage == "house" then
     if id == "close" then return open_menu(h) end
+    if id == "freilassen" then
+      wild:free(h)
+      say(d.name .. " läuft davon, zurück in die Wildnis.", 150)
+      menu = nil
+      return
+    end
     local ok, why = wild:house(h, id)
-    say(ok and d.name .. " kommt in: " .. HOUSE_NAMES[id] .. "." or "Geht nicht: " .. tostring(why) .. ".")
+    local text = id == "anhaenger" and d.name .. " steigt in den Anhänger." or d.name .. " kommt in: " .. HOUSE_NAMES[id] .. "."
+    say(ok and text or "Geht nicht: " .. tostring(why) .. ".")
     menu = nil
     return
   end
@@ -659,7 +682,15 @@ function WorldScene.update()
     else
       local own = wild:nearest_own()
       local ripe = Farm.ripe_near(ctx)
-      if Reise.at_station(ctx) then          -- Fahrzeug hat Vorrang vor dem Pferdemenü (die Pferde stehen immer daneben)
+      local at_rig = Reise.at_trailer(ctx) or Reise.at_station(ctx)
+      local geladen, plaetze = Reise.geladen(ctx)
+      if at_rig and #ctx.lead > 0 and Reise.trailer_box(ctx) and geladen < plaetze then
+        -- Pferd an der Leine zum Anhänger geführt: einladen (Rückmeldung 0.5.8)
+        local lh = ctx.lead[1]
+        wild:house(lh, "anhaenger")
+        ctx.sfx.ok()
+        say(lh.data.name .. " steigt in den Anhänger (" .. geladen + 1 .. "/" .. plaetze .. ").")
+      elseif at_rig then          -- Fahrzeug hat Vorrang vor dem Pferdemenü (die Pferde stehen immer daneben)
         nav.push(Screens.reise(ctx, function(nr) WorldScene.reise(nr) end))
         ctx.sfx.ok()
       elseif own then
