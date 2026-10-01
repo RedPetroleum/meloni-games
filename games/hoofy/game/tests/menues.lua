@@ -132,4 +132,20 @@ return {
     C.ok(not list.grid, "ohne Bilder bleibt es eine Liste")
     list:draw(10, 10)
   end},
+  {"Schriften (API 3): font wählt 8×8, 8×16, 12×24 für print und textw", function()
+    C.eq(font(), 0, "Standard")
+    C.eq(textw("Ab"), 16)
+    C.eq(font(1), 0, "gibt die vorherige zurück")
+    C.eq(textw("Ab"), 16)
+    font(2)
+    C.eq(textw("Ab"), 24)
+    rectfill(0, 0, 40, 30, 0)
+    print("H", 0, 0, rgb(255, 255, 255))
+    local lit = 0
+    for y = 0, 23 do for x = 0, 11 do if pget(x, y) ~= pget(39, 29) then lit = lit + 1 end end end
+    C.ok(lit > 20, "H in 12×24 gezeichnet: " .. lit)
+    C.eq(font(0), 2)
+    C.ok(not pcall(font, 3), "nur 0–2")
+    cls()
+  end},
 }

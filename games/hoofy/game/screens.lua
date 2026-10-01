@@ -166,7 +166,9 @@ function Screens.info(ctx, data)
     cls(C.panel)
     -- Kopf: Name groß, Wert rechts
     rectfill(0, 0, SCREEN_W - 1, 21, C.panel)
-    print(data.name, 6, 3, C.gold, 2)
+    font(1)                                          -- feinere große Schrift (API 3)
+    print(data.name, 6, 3, C.gold)
+    font(0)
     local wert = "Wert " .. Value.wert(data) .. " G"
     print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
     -- Bild oben rechts unter dem Wert
