@@ -37,4 +37,5 @@ return {
   "reise",
   "gebiete",
   "schaetze",
+  "wetter",
 }

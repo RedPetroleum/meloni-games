@@ -257,7 +257,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **D3 Schätze** (E54; Szenario `schatz`: Reiter findet „Samen: Minze“, SELFTEST 183): 15–30 je Gebiet, Aufspüren nach KATALOG §11 (E4), Satteltaschen →
   Fahrzeug → Hausinventar, Aufspürung +1 je Fund.
   Prüfung: Selbsttest Radius/Chance; `INPUT`-Drehbuch findet einen Schatz.
-- [ ] **D4 Wetter**: Regen (Sprites/Linien), Sauberkeit −15 draußen.
+- [x] **D4 Wetter** (E55; Shot-Sheet Regen, SELFTEST 185): Regen (Sprites/Linien), Sauberkeit −15 draußen.
   Prüfung: Shot-Sheet; Selbsttest.
 - [ ] **D5 Sattellampe und Nachtsicht** (E14).
   Prüfung: Screenshot nachts mit und ohne Lampe.

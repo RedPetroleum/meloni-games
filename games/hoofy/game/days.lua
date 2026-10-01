@@ -3,6 +3,7 @@ local K = require("game.katalog")
 local H = require("game.horse_model")
 local Care = require("game.care")
 local Farm = require("game.farm")
+local Wetter = require("game.wetter")
 local Breeding = require("game.breeding")
 
 local Days = {}
@@ -50,6 +51,15 @@ function Days.new_day(ctx, day)
   ctx.goepel_geld = #lauf * je * (ctx.goepel_mult or 1)
   ctx.money = ctx.money + ctx.goepel_geld
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
+  -- Regen am Vortag: Pferde draußen werden schmutzig (D4)
+  ctx.nasse = 0
+  if Wetter.regnet(ctx, day - 1) then
+    for i, d in ipairs(ctx.herd) do
+      local loss = Wetter.nass(d)
+      if loss < 0 then ctx.nasse = ctx.nasse + 1 end
+      report[i].regen = loss
+    end
+  end
   -- Stall: der beste Stall gibt allen Pferden im Stall Bindung (KATALOG §9)
   local bonus = Farm.stall_bonus(ctx.hof or ctx.area.farm)
   if bonus > 0 then

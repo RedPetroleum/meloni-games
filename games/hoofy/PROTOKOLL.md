@@ -89,3 +89,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 08:57 | D2 Gebiete 2–6 | fertig | Übersicht aller 6 Gebiete, Karte 122–232 KB, SELFTEST OK 178, make test grün | Hoofy D2
 2026-10-01 08:59 | D3 Schätze | begonnen | – | –
 2026-10-01 09:02 | D3 Schätze | fertig | Szenario schatz findet ohne Eingabe, Selbsttests Radius/Chance/Transport, SELFTEST OK 183 | Hoofy D3
+2026-10-01 09:04 | D4 Wetter | begonnen | – | –
+2026-10-01 09:05 | D4 Wetter | fertig | Shot-Sheet Regen, Selbsttest Sauberkeit −15 draußen, SELFTEST OK 185 | Hoofy D4

@@ -82,6 +82,11 @@ function Scenarios.schatz(save)
   return "world", {schatz = true}
 end
 
+-- Regen (D4): am Hof mit Pferden auf Weide und im Stall; save.regen = false schaltet ihn ab.
+function Scenarios.regen(save)
+  return "world", {ort = "start", hof = true, regen = save.regen ~= false}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

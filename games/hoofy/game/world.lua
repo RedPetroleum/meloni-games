@@ -14,6 +14,7 @@ local Explore = require("game.explore")
 local Economy = require("game.economy")
 local Reise = require("game.reise")
 local Schaetze = require("game.schaetze")
+local Wetter = require("game.wetter")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
@@ -60,6 +61,7 @@ function WorldScene.enter(arg)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
+  if arg and arg.regen ~= nil then ctx.regen_erzwungen = arg.regen end
   if arg and arg.anbau then
     -- Beete mit allen Pflanzen, danach arg.tage Tage vergehen (nur das Wachsen, keine Tagesregeln)
     local pl = ctx.area.plot
@@ -548,7 +550,8 @@ function WorldScene.update()
     local od = Orders.tick(ctx, clock.day)
     if od.neu then say("Neue Bestellung von " .. od.neu.kunde .. ".", 150) end
     if #od.verfallen > 0 then say("Eine Bestellung ist verfallen.", 150) end
-    if not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
+    if ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
+    elseif not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
   end
   local p = ctx.player
   -- Schätze (D3): Frames ohne Steuern zählen, Pferd spürt auf und läuft los
@@ -673,6 +676,7 @@ local function draw_hud()
   print(money, SCREEN_W - textw(money) - 4, 3, C.gold)
   local name = ctx.area.name
   print(name, (SCREEN_W - textw(name)) // 2, 3, C.dim)
+  if Wetter.regnet(ctx, clock.day) then print("Regen", 215, 3, rgb(0xa8, 0xc8, 0xe8)) end
   -- Energie des Pferds beim Reiten (E9)
   local r = ctx.player.riding
   if r then
@@ -717,6 +721,7 @@ function WorldScene.draw()
     local p = ctx.player
     Stage.draw_night(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), radius)
   end
+  if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()
   if menu then
     local h = menu.horse
