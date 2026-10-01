@@ -111,3 +111,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:31 | E6 Tauschcode | fertig | 1000 Zufallspferde Hin/Zurück, alle Verfälschungen abgelehnt, SELFTEST OK 214, Shot-Sheet | Hoofy E6
 2026-10-01 09:34 | E-Ende | begonnen | – | –
 2026-10-01 09:34 | E-Ende | fertig | Cover (Regen am Hof), 0.5.0, Checkliste, README, Stand geschrieben | Hoofy Phase E
+2026-10-01 09:38 | Push 242b6cb | Release | CI success, Manifest Commit 242b6cb, Hoofy 0.5.0 | Abschluss, Loop beendet
