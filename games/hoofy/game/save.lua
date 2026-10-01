@@ -35,7 +35,7 @@ function Save.snapshot(ctx, clock, seed)
       ver = Save.VERSION, seed = seed, gebiet = 1,
       tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv, pos = heim.pos,
       herd = herd, hof = ctx.hof, aenderungen = heim.aenderungen, erkundet = heim.erkundet, markt = ctx.market,
-      kaeufer = ctx.buyer, bestellungen = ctx.orders, gefunden = ctx.gefunden, turnier = ctx.turnier, reform = ctx.reform, album = ctx.album,
+      kaeufer = ctx.buyer, bestellungen = ctx.orders, gefunden = ctx.gefunden, turnier = ctx.turnier, reform = ctx.reform, album = ctx.album, getauscht = ctx.getauscht,
     }
   end
   return {
@@ -43,7 +43,7 @@ function Save.snapshot(ctx, clock, seed)
     tag = clock.day, zeit = clock.t, geld = ctx.money, inv = ctx.inv,
     pos = {flr(p.x), flr(p.y)},
     herd = herd, hof = ctx.area.farm, aenderungen = ctx.map.changes, erkundet = ctx.explored, markt = ctx.market, kaeufer = ctx.buyer, bestellungen = ctx.orders,
-    gefunden = ctx.gefunden, lager = ctx.lager, turnier = ctx.turnier, reform = ctx.reform, album = ctx.album,
+    gefunden = ctx.gefunden, lager = ctx.lager, turnier = ctx.turnier, reform = ctx.reform, album = ctx.album, getauscht = ctx.getauscht,
   }
 end
 

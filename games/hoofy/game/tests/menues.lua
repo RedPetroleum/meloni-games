@@ -95,6 +95,9 @@ return {
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- Album
     C.eq(#nav.stack, 2)
     keys(nav.stack[2], nav, {BTN_B})
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Tauschen
+    C.eq(#nav.stack, 2)
+    keys(nav.stack[2], nav, {BTN_B})
     keys(p, nav, {BTN_DOWN, BTN_A})                            -- ausgegraute Einträge (Speichern) werden übersprungen
     C.eq(#nav.stack, 0, "springt zu Weiter und schließt")
   end},

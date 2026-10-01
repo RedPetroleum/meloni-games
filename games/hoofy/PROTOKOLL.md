@@ -107,3 +107,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:27 | Push 5b612d5 | Release | CI success, Manifest Commit 5b612d5, Hoofy 0.4.0 (Phase E noch offen) | –
 2026-10-01 09:27 | E5 Sammelalbum | begonnen | – | –
 2026-10-01 09:28 | E5 Sammelalbum | fertig | Screenshot Albumseite, SELFTEST OK 210, make test grün | Hoofy E5
+2026-10-01 09:29 | E6 Tauschcode | begonnen | – | –
+2026-10-01 09:31 | E6 Tauschcode | fertig | 1000 Zufallspferde Hin/Zurück, alle Verfälschungen abgelehnt, SELFTEST OK 214, Shot-Sheet | Hoofy E6

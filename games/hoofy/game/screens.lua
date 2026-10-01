@@ -46,7 +46,8 @@ local ROWS = {
 }
 
 -- title, text (Startwert), max Zeichen, on_done(text) oder nil bei Abbruch
-function Screens.keyboard(title, text, max, on_done)
+function Screens.keyboard(title, text, max, on_done, rows)
+  local ROWS = rows or ROWS
   local chars = {}
   for _, row in ipairs(ROWS) do
     local r = {}
@@ -1271,6 +1272,91 @@ function Screens.album(ctx)
   return s
 end
 
+-- ---- Tauschen (E6): Pferd als Code abgeben oder einen Code einlösen ----
+
+local CODE_ROWS = {"ABCDEFGH", "JKLMNPQR", "STUVWXYZ", "23456789"}
+
+function Screens.tausch(ctx)
+  local Tausch = require("game.tausch")
+  local stage, sel, msg, msg_t, code, pick = "menu", 1, nil, 0, nil, nil
+  local s = {full = true}
+  local function say(t) msg, msg_t = t, 200 end
+  local function herd() return ctx.herd end
+  function s.update(nav)
+    if msg_t > 0 then msg_t = msg_t - 1 end
+    if stage == "code" then
+      if btnp(BTN_A) or btnp(BTN_B) then stage, sel, code = "menu", 1, nil SFX.back() end
+      return
+    end
+    local n = stage == "menu" and 2 or (stage == "pferd" and #herd() or 2)
+    if btnp(BTN_UP) and n > 0 then sel = (sel - 2) % n + 1; SFX.select() end
+    if btnp(BTN_DOWN) and n > 0 then sel = sel % n + 1; SFX.select() end
+    if btnp(BTN_B) then
+      SFX.back()
+      if stage == "menu" then nav.pop() else stage, sel = "menu", 1 end
+    elseif btnp(BTN_A) then
+      if stage == "menu" then
+        if sel == 1 then
+          if #herd() == 0 then SFX.snort() say("Du hast kein Pferd zum Abgeben.")
+          else stage, sel = "pferd", 1 SFX.ok() end
+        else
+          nav.push(Screens.keyboard("Code eingeben (28 Zeichen)", "", Tausch.LENGTH + 6, function(text)
+            local h, why = Tausch.annehmen(ctx, text)
+            if h then SFX.tame() say(h.data.name .. " ist angekommen und folgt dir.")
+            else SFX.snort() say(({["Länge"] = "Der Code hat nicht 28 Zeichen.", ["Zeichen"] = "Unerlaubtes Zeichen im Code.", ["Prüfsumme"] = "Tippfehler im Code (Prüfsumme).", ["schon benutzt"] = "Dieser Code wurde schon eingelöst.", voll = "Der Hof ist voll."})[why] or "Der Code ist ungültig.") end
+          end, CODE_ROWS))
+        end
+      elseif stage == "pferd" then
+        pick, stage, sel = herd()[sel], "sicher", 2 SFX.ok()
+      elseif stage == "sicher" then
+        if sel == 1 then
+          local c, why = Tausch.abgeben(ctx, pick)
+          if c then code, stage = Tausch.format(c), "code" SFX.tame() else say(why .. "."); stage, sel = "menu", 1 end
+        else stage, sel = "menu", 1 end
+      end
+    end
+  end
+  function s.draw()
+    cls(C.panel)
+    header("Pferde tauschen")
+    if stage == "menu" then
+      for i, l in ipairs({"Pferd abgeben (Code erhalten)", "Code eingeben (Pferd erhalten)"}) do
+        local y = 30 + (i - 1) * 16
+        if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 11, C.panel_light) end
+        print(l, 10, y, i == sel and C.gold or C.text)
+      end
+      print("Ohne Server: Abgeben gibt einen Code.", 10, 80, C.dim)
+      print("Der andere gibt ihn bei sich ein.", 10, 92, C.dim)
+      print("Danach ist das Pferd bei dir weg.", 10, 104, C.dim)
+      print("Name, Stammbaum, Ausrüstung bleiben.", 10, 116, C.dim)
+    elseif stage == "pferd" then
+      for i, d in ipairs(herd()) do
+        local y = 24 + (i - 1) * 12
+        if y > 200 then break end
+        if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 9, C.panel_light) end
+        print(d.name .. ", " .. K.rasse(d.rasse).name, 10, y, i == sel and C.gold or C.text)
+      end
+    elseif stage == "sicher" then
+      Stage.center("Wirklich " .. pick.name .. " abgeben?", 70, C.gold)
+      Stage.center("Danach ist das Pferd weg.", 86, C.dim)
+      for i, l in ipairs({"Ja, Code erzeugen", "Nein"}) do
+        local y = 110 + (i - 1) * 16
+        if i == sel then rectfill(80, y - 2, 239, y + 11, C.panel_light) end
+        print(l, 90, y, i == sel and C.gold or C.text)
+      end
+    else
+      Stage.center("Dein Code - gut aufschreiben!", 40, C.gold)
+      local a, b = code:sub(1, 19), code:sub(21)
+      Stage.center(a, 80, C.text, 2)
+      Stage.center(b, 104, C.text, 2)
+      Stage.center("Das Pferd ist jetzt weg. A: weiter", 160, C.dim)
+    end
+    if msg and msg_t > 0 then print(msg, 10, 210, C.red) end
+    footer(stage == "code" and "A: weiter" or "A: wählen   B: zurück")
+  end
+  return s
+end
+
 -- ---- Zeitung (E4): aktive Reformen, nächste Ausgabe ----
 
 function Screens.zeitung(ctx)
@@ -1315,6 +1401,7 @@ function Screens.pause(ctx, nav)
     {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot()},
     {label = "Zeitung", id = "news"},
     {label = "Album", id = "album"},
+    {label = "Tauschen", id = "swap"},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok},
   }
   local m = Menu.new(items, "Pause")
@@ -1330,6 +1417,7 @@ function Screens.pause(ctx, nav)
       n.push(Screens.build(ctx))
     elseif r == "news" then n.push(Screens.zeitung(ctx))
     elseif r == "album" then n.push(Screens.album(ctx))
+    elseif r == "swap" then n.push(Screens.tausch(ctx))
     elseif r == "orders" then n.push(Screens.orders(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then

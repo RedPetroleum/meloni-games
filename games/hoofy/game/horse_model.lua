@@ -109,6 +109,7 @@ function H.wild_breed(gebiet, rng)
 end
 
 local TRAITS = {"verfressen", "schreckhaft", "faul", "eitel", "nachteule"}
+H.TRAITS = TRAITS
 -- Bindung zum Start je Charakterzug (E15)
 H.TRAIT_BOND = {schreckhaft = -10, faul = 5, verfressen = 5, eitel = 0, nachteule = 0}
 

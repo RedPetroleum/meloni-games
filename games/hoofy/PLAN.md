@@ -285,7 +285,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Reform-Wirkungen; Screenshot Zeitung und Hundenacht.
 - [x] **E5 Sammelalbum** (E61; Screenshot Albumseite, SELFTEST 210): jede entdeckte Kombination Rasse × Farbe.
   Prüfung: Screenshot.
-- [ ] **E6 Tauschcode**: Pferd → Code (Vorschlag Katalog: 16 Zeichen A–Z, 2–9), Code → Pferd,
+- [x] **E6 Tauschcode** (E62; 1 000 Pferde hin/zurück, Verfälschungen abgelehnt, SELFTEST 214): Pferd → Code (Vorschlag Katalog: 16 Zeichen A–Z, 2–9), Code → Pferd,
   Prüfsumme gegen Tippfehler, Pferd danach weg.
   Prüfung: Selbsttest Hin- und Rückweg für 1 000 Zufallspferde, falscher Code abgelehnt.
 - [ ] **E-Ende**: Cover, version 0.5.0, Konsolen-Checkliste, Abschluss nach LOOP.md, Push.

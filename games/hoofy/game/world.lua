@@ -210,6 +210,7 @@ function WorldScene.enter(arg)
     ctx.heim = reise and reise.heim or nil
     ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
     ctx.turnier, ctx.reform, ctx.album = snap.turnier, snap.reform, snap.album
+    ctx.getauscht = snap.getauscht
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -257,6 +258,7 @@ function WorldScene.enter(arg)
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "springen" then nav.push(Screens.springreiten(ctx, ctx.herd[1], function() end)) end
     if name == "rennen" then nav.push(Screens.rennen(ctx, ctx.herd[1], {35, 30, 25, 20, 15}, function() end)) end
+    if name == "tausch" then nav.push(Screens.tausch(ctx)) end
     if name == "album" then nav.push(Screens.album(ctx)) end
     if name == "zeitung" then nav.push(Screens.zeitung(ctx)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end

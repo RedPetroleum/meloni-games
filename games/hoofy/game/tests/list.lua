@@ -44,4 +44,5 @@ return {
   "rennen",
   "reformen",
   "album",
+  "tausch",
 }

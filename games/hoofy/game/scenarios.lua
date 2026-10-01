@@ -118,6 +118,11 @@ function Scenarios.album(save)
   return "world", {ort = "start", hof = true, screen = "album", album_voll = save.viele}
 end
 
+-- Tauschen (E6): öffnet den Tauschbildschirm mit drei Pferden.
+function Scenarios.tausch(save)
+  return "world", {ort = "start", hof = true, screen = "tausch"}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end
