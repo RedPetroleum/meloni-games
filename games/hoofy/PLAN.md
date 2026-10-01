@@ -31,6 +31,14 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Version 0.5.3** – Rückmeldungen, siehe E65. **Braucht neue Firmware (Meloni API 3: Schrift `font`).**
+- [ ] Erst Firmware mit der neuen Engine flashen, sonst überspringt „Update games“ Hoofy.
+- [ ] Neues Spiel: Kunden ab Tag 4, Käufer im Dorf ab Tag 5, Turnier ab Tag 7, Zeitung ab Tag 10. Fühlt sich der Anfang ruhiger an?
+- [ ] Nacht ohne Laterne gleichmäßig dunkel, mit Laterne (Laden, 80 G) heller Bereich. Schlafen ab 2 min vor der Nacht.
+- [ ] Nur 1 Pferd an der Leine; Weidepferde bleiben allein drin, an der Leine geht es durchs Tor.
+- [ ] Baumodus: START öffnet die Auswahl, A baut, B fertig. Verständlich?
+- [ ] Info-Bildschirm: Name in feiner Schrift, Balken mit Segmenten, Training farbig abgesetzt.
+
 **Version 0.5.2** – Rückmeldungen, siehe E64. **Braucht neue Firmware (Meloni API 2).**
 - [ ] Erst Firmware mit der neuen Engine flashen, sonst überspringt „Update games“ Hoofy.
 - [ ] Abend und Nacht: weich dunkler, nachts heller Bereich um dich. Läuft es flüssig?
