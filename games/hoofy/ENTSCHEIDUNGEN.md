@@ -440,5 +440,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Die Heimfahrt kostet höchstens das Geld, das noch da ist (auch 0 G), damit man unterwegs nie festsitzt. Fahrten in
   andere Gebiete brauchen weiter den vollen Preis.
 - Schuppen ohne das graue Blechdach: flaches Holzdach mit kleinem Überstand.
-- Reisemenü (Garage) in gedämpften Blautönen, wie der Laden mit eigener Palette (GARAGE in game/screens.lua).
+- Reisemenü (Garage) in gedämpften Blautönen, wie der Laden mit eigener Palette (GARAGE in game/screens.lua); das Bild
+  des Gespanns steht auf grauem Grund mit angedeuteter Straße statt auf Gras.
 - `make run GAME=hoofy SCENARIO=reise` startet ein Szenario im Fenster.

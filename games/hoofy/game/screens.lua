@@ -503,7 +503,11 @@ function Screens.reise(ctx, go)
     local px = SCREEN_W - 7 - pw
     rectfill(px, 26, SCREEN_W - 7, 77, GARAGE.dark)
     rect(px + 1, 27, SCREEN_W - 8, 76, GARAGE.edge)
-    rectfill(px + 2, 28, SCREEN_W - 9, 75, rgb(0x7f, 0xb0, 0x4f))
+    -- Hintergrund grau mit angedeuteter Straße: hellerer Gehweg oben, Fahrbahn mit gestrichelter Mittellinie
+    rectfill(px + 2, 28, SCREEN_W - 9, 75, rgb(0x8a, 0x90, 0x98))
+    rectfill(px + 2, 60, SCREEN_W - 9, 75, rgb(0x5c, 0x62, 0x6b))
+    line(px + 2, 59, SCREEN_W - 9, 59, rgb(0x6d, 0x73, 0x7a))
+    for x = px + 4, SCREEN_W - 13, 10 do line(x, 73, x + 5, 73, rgb(0xc8, 0xcd, 0xd1)) end
     Reise.draw_rig(ctx.S, f.id, plaetze, px + (pw - rw) // 2, 70)
     local n = Reise.geladen(ctx)
     print(plaetze > 0 and ("Anhänger: " .. n .. "/" .. plaetze) or "Kein Anhänger", 8, 27, C.text)
