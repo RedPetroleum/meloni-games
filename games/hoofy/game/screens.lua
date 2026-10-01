@@ -138,13 +138,18 @@ local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), talent = C.panel
 local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x1a, 0x1a, 0x16), talent = rgb(0x45, 0x4a, 0x3f)}
 local BAR_STATE = {bg = BOX_STATE, track = rgb(0x19, 0x17, 0x1c)}
 
--- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine Linie in der Spurfarbe
-local function notches(y, h, th)
+-- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine Linie, die den
+-- Untergrund nur leicht verändert: auf gefüllter Fläche (links von filled_x) etwas dunkler, auf der leeren Spur heller.
+local NOTCH_DARK, NOTCH_LIGHT = rgb(0, 0, 0), rgb(0xff, 0xf0, 0xd8)
+
+local function notches(y, h, th, filled_x)
   for v = 20, 80, 20 do
     local x = bx_of(v)
     pset(x, y, th.bg)
     pset(x, y + h - 1, th.bg)
-    line(x, y + 1, x, y + h - 2, th.track)
+    clip(x, y + 1, 1, h - 2)
+    if x < filled_x then shade(NOTCH_DARK, 0.3) else shade(NOTCH_LIGHT, 0.16) end
+    clip()
   end
 end
 
@@ -159,7 +164,7 @@ local function stat_bar(x, y, label, data, key, th)
   local g = min(data.gen[key], v)
   if g >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(g) - 1, y + 6, GEN_COL) end
   if bx_of(v) > bx_of(g) then rectfill(max(BAR_X + 1, bx_of(g)), y + 2, bx_of(v) - 1, y + 6, TRAIN_COL) end
-  notches(y, 9, th)
+  notches(y, 9, th, bx_of(pot))
   print(tostring(flr(v)), BAR_X + BAR_W + 6, y, SKILL_COL)
 end
 
@@ -171,7 +176,7 @@ local function state_bar(x, y, label, value, max, col, th)
   local v = 100 * value / max
   col = col or STATE_COL
   if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col) end
-  notches(y, 9, th)
+  notches(y, 9, th, bx_of(v))
   print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col)
 end
 
