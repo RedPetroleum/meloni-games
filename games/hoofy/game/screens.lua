@@ -133,23 +133,32 @@ end
 local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
--- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent
-local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), talent = C.panel_light}
-local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x1a, 0x1a, 0x16), talent = rgb(0x45, 0x4a, 0x3f)}
-local BAR_STATE = {bg = BOX_STATE, track = rgb(0x19, 0x17, 0x1c)}
+-- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent; *_line = Farbe der
+-- Unterteilung auf diesem Untergrund (Spur: etwas heller, Rahmen: etwas dunkler)
+local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), track_line = rgb(0x34, 0x27, 0x22),
+  talent = C.panel_light, talent_line = rgb(0x3a, 0x2a, 0x23)}
+local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x1a, 0x1a, 0x16), track_line = rgb(0x30, 0x30, 0x29),
+  talent = rgb(0x45, 0x4a, 0x3f), talent_line = rgb(0x37, 0x3b, 0x32)}
+local BAR_STATE = {bg = BOX_STATE, track = rgb(0x19, 0x17, 0x1c), track_line = rgb(0x2f, 0x2c, 0x33)}
 
--- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine Linie, die den
--- Untergrund nur leicht verändert: auf gefüllter Fläche (links von filled_x) etwas dunkler, auf der leeren Spur heller.
-local NOTCH_DARK, NOTCH_LIGHT = rgb(0, 0, 0), rgb(0xff, 0xf0, 0xd8)
+-- Unterteilung auf den gefüllten Balken: eine dunklere Stufe derselben Farbe
+local FILL_LINE = {
+  [GEN_COL] = rgb(0x7a, 0xb6, 0x94), [TRAIN_COL] = rgb(0x2d, 0x8e, 0x72),
+  [STATE_COL] = rgb(0x70, 0xa4, 0xc1), [C.red] = rgb(0xb2, 0x37, 0x47),
+}
 
-local function notches(y, h, th, filled_x)
+-- Einschnürung alle 20 Punkte (wirkt leicht abgerundet): oben und unten je ein Pixel in Hintergrundfarbe, dazwischen
+-- eine Linie in der Farbe passend zum Untergrund. frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe}}
+-- der gefüllten Abschnitte in den inneren Zeilen.
+local function notches(y, th, frame_x, fills)
   for v = 20, 80, 20 do
     local x = bx_of(v)
     pset(x, y, th.bg)
-    pset(x, y + h - 1, th.bg)
-    clip(x, y + 1, 1, h - 2)
-    if x < filled_x then shade(NOTCH_DARK, 0.3) else shade(NOTCH_LIGHT, 0.16) end
-    clip()
+    pset(x, y + 8, th.bg)
+    line(x, y + 1, x, y + 7, x < frame_x and th.talent_line or th.track_line)
+    for _, f in ipairs(fills) do
+      if x >= f[1] and x <= f[2] then line(x, y + 2, x, y + 6, FILL_LINE[f[3]] or f[3]) end
+    end
   end
 end
 
@@ -162,9 +171,17 @@ local function stat_bar(x, y, label, data, key, th)
   rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)                       -- Spur bis 100
   rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, th.talent)                         -- Talent
   local g = min(data.gen[key], v)
-  if g >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(g) - 1, y + 6, GEN_COL) end
-  if bx_of(v) > bx_of(g) then rectfill(max(BAR_X + 1, bx_of(g)), y + 2, bx_of(v) - 1, y + 6, TRAIN_COL) end
-  notches(y, 9, th, bx_of(pot))
+  local fills = {}
+  if g >= 1 then
+    rectfill(BAR_X + 1, y + 2, bx_of(g) - 1, y + 6, GEN_COL)
+    fills[#fills + 1] = {BAR_X + 1, bx_of(g) - 1, GEN_COL}
+  end
+  if bx_of(v) > bx_of(g) then
+    local x0 = max(BAR_X + 1, bx_of(g))
+    rectfill(x0, y + 2, bx_of(v) - 1, y + 6, TRAIN_COL)
+    fills[#fills + 1] = {x0, bx_of(v) - 1, TRAIN_COL}
+  end
+  notches(y, th, bx_of(pot), fills)
   print(tostring(flr(v)), BAR_X + BAR_W + 6, y, SKILL_COL)
 end
 
@@ -175,8 +192,12 @@ local function state_bar(x, y, label, value, max, col, th)
   rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)
   local v = 100 * value / max
   col = col or STATE_COL
-  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col) end
-  notches(y, 9, th, bx_of(v))
+  local fills = {}
+  if v >= 1 then
+    rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col)
+    fills[1] = {BAR_X + 1, bx_of(v) - 1, col}
+  end
+  notches(y, th, BAR_X, fills)
   print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col)
 end
 
