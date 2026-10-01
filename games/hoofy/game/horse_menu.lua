@@ -244,8 +244,7 @@ function HM:act(id)
     self:close()
   elseif id == "leash" then
     if h.state == "led" or h.state == "follow" then
-      wild:release(h)
-      say(d.name .. " ist frei.")
+      if wild:release(h) then say(d.name .. " bleibt auf der Weide.") else say(d.name .. " ist frei.") end
     elseif wild:attach(h) then
       say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
     else

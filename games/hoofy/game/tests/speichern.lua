@@ -145,6 +145,37 @@ return {
       C.eq(h.state, "free", h.data.name .. " lose")
       C.eq(h.x, pos[i][1], h.data.name .. " x") C.eq(h.y, pos[i][2], h.data.name .. " y")
       C.eq(h.data.lose, nil, "Platz nach dem Laden vergessen")
+      C.eq(h.data.ort, "weide", h.data.name .. " zählt jetzt als Weidepferd (Rückmeldung 1.3.2)")
     end
+    C.eq(require("game.farm").count(ctx2.herd, "weide"), 3)
+  end},
+  {"In der Weide losgelassen: wird Weidepferd und zählt unter Ort, voll bleibt es lose (Rückmeldung 1.3.2)", function()
+    local Area = require("game.area")
+    local Farm = require("game.farm")
+    Area.clear()
+    local ctx = Stage.build(1, 77)
+    local w = Wild.new(ctx, 3) w.count = 0
+    local g = ctx.area.farm.weide
+    local list = Farm.pastures(ctx.map, ctx.area.farm)
+    C.eq(#list, 1)
+    local plaetze = list[1].plaetze
+    local horses = {}
+    for i = 1, plaetze + 1 do
+      local h = w:add_own({rasse = "noriker", name = "W" .. i, bindung = 80})
+      w:attach(h)
+      h.x, h.y = (g.x0 + 1 + (i % 6)) * 16 + 8, (g.y0 + 2) * 16 + 14
+      horses[i] = h
+    end
+    for i = 1, plaetze do C.ok(w:release(horses[i]), "W" .. i .. " bleibt auf der Weide") end
+    C.eq(Farm.count(ctx.herd, "weide"), plaetze)
+    C.ok(not w:release(horses[plaetze + 1]), "Weide voll: bleibt lose")
+    C.eq(horses[plaetze + 1].data.ort, nil)
+    local out = w:add_own({rasse = "noriker", name = "Draußen", bindung = 80})
+    w:attach(out)
+    C.ok(not w:release(out), "außerhalb der Weide: lose")
+    -- Weidepferd bleibt in der Weide
+    local h = horses[1]
+    for _ = 1, 600 do h:update() end
+    C.ok(Farm.in_pasture(list[1], h.x, h.y), "bleibt drin")
   end},
 }

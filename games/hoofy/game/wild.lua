@@ -571,6 +571,7 @@ function Wild:release(h)
     if e == h then table.remove(self.ctx.lead, i) break end
   end
   h.state, h.timer, h.vx, h.vy = "free", 90, 0, 0
+  return self:settle(h)
 end
 
 -- Ein eigenes (gezähmtes) Pferd hinzufügen (Szenarien, Tests; später Kauf, Zucht). Gibt es zurück,
@@ -607,6 +608,7 @@ function Wild:adopt(data)
   -- lose gespeichert (z. B. in die Weide geführt, aber nicht untergebracht): bleibt, wo es stand
   if not ort and lose then
     h.x, h.y, h.timer = lose[1], lose[2], 60
+    self:settle(h)                 -- stand es in einer Weide: ist jetzt Weidepferd (Rückmeldung 1.3.2)
     return h
   end
   -- Gespeicherte Unterbringung wiederherstellen, ohne Platz und Bedingungen neu zu prüfen: was beim Speichern
@@ -679,6 +681,23 @@ local function confine_to(h, pasture)
   h.data.weide_id = pasture.id
   h.bounds = nil
   h.allow = function(x, y) return Farm.in_pasture(pasture, x, y) end
+end
+
+-- Lose in einer Weide (losgelassen, oder so gespeichert): wird Weidepferd dieser Weide, wenn dort Platz ist,
+-- und bleibt, wo es steht (Rückmeldung 1.3.2: zählte sonst nicht unter „Ort“). Gibt true zurück, wenn ja.
+function Wild:settle(h)
+  local farm = self.ctx.area.farm
+  if not farm or h.data.ort then return false end
+  for _, w in ipairs(Farm.pastures(self.ctx.map, farm)) do
+    if Farm.in_pasture(w, h.x, h.y) then
+      if Farm.count_pasture(self.ctx.herd, w.id) >= w.plaetze then return false end
+      h.data.ort, h.data.lose, h.data.neu = "weide", nil, nil
+      confine_to(h, w)
+      h.state, h.timer, h.vx, h.vy, h.scared = "free", 60, 0, 0, false
+      return true
+    end
+  end
+  return false
 end
 
 -- Unterbringung (E32, C2): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.

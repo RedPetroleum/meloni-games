@@ -517,3 +517,9 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Füttern: unten steht zum gewählten Futter „Heu: Hunger -30“ (die Anzahl steht weiter auf der Kachel).
 - Leine: zwei Pferde am Strick statt einem (E65 geändert: 1 → 2, Wunsch des Menschen). Frei folgende zählen weiter
   nicht, zusammen höchstens 4. Jedes Pferd am Strick würfelt fürs Ausreißen für sich.
+
+## E80 Lose Pferde in der Weide zählen (Rückmeldung nach 1.3.2)
+- geändert (E67): Ein Pferd, das innerhalb einer Weide losgelassen wird, ist jetzt Weidepferd dieser Weide und zählt
+  unter „Ort“, solange dort Platz ist (Meldung „… bleibt auf der Weide.“). Ist die Weide voll oder steht es draußen,
+  bleibt es lose wie bisher. Beim Laden werden lose Pferde, die in einer Weide stehen, ebenso zu Weidepferden, auch in
+  vorhandenen Spielständen.
