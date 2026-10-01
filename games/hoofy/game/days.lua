@@ -4,6 +4,7 @@ local H = require("game.horse_model")
 local Care = require("game.care")
 local Farm = require("game.farm")
 local Wetter = require("game.wetter")
+local Reformen = require("game.reformen")
 local Breeding = require("game.breeding")
 
 local Days = {}
@@ -46,9 +47,10 @@ end
 -- Neuer Tag (day = Nummer): Tagesregeln für alle eigenen Pferde, Wildpferde wechseln.
 function Days.new_day(ctx, day)
   local report = {}
+  Reformen.tick(ctx, day)
   -- Göpel: Energie und Stärke zählen vor dem Tageswechsel
   local lauf, je = Farm.goepel_pferde(ctx.hof or ctx.area.farm, ctx.herd, H)
-  ctx.goepel_geld = #lauf * je * (ctx.goepel_mult or 1)
+  ctx.goepel_geld = #lauf * je * (ctx.goepel_mult or 1) * Reformen.faktor_strom(ctx)
   ctx.money = ctx.money + ctx.goepel_geld
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
   -- Regen am Vortag: Pferde draußen werden schmutzig (D4)

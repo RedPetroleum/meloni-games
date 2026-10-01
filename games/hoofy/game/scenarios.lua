@@ -107,6 +107,12 @@ function Scenarios.pferderennen(save)
   return "world", {ort = "start", hof = true, screen = "rennen"}
 end
 
+-- Reformen (E4): save.reform = Reform-id (aktiv ab jetzt), save.screen = "zeitung" öffnet die Zeitung;
+-- Hundenacht: save.zeit = 12500 (nachts) mit hunde_frei.
+function Scenarios.reform(save)
+  return "world", {ort = "start", hof = true, reform = save.reform or "hunde_frei", zeit = save.zeit, screen = save.screen or "none"}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

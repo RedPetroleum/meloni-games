@@ -280,7 +280,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
 - [x] **E3 Minispiel Pferderennen** (E59; Drehbuch-Shot-Sheet, SELFTEST 201): Tempo, Ausdauer, Gegner.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
-- [ ] **E4 Reformen**: Zeitung alle 4 Tage, alle Reformen aus KATALOG §14, Hunde/Wölfe/Krokodile
+- [x] **E4 Reformen** (E60; Screenshots Hundenacht, Krokodile am Tag, Zeitung; SELFTEST 206): Zeitung alle 4 Tage, alle Reformen aus KATALOG §14, Hunde/Wölfe/Krokodile
   nachts (Krokodile auch tags), zerstören Deko, starke Pferde wehren ab.
   Prüfung: Selbsttest Reform-Wirkungen; Screenshot Zeitung und Hundenacht.
 - [ ] **E5 Sammelalbum**: jede entdeckte Kombination Rasse × Farbe.

@@ -42,4 +42,5 @@ return {
   "turniere",
   "springen",
   "rennen",
+  "reformen",
 }

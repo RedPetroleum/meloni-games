@@ -102,3 +102,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:17 | E2 Minispiel Springreiten | fertig | Drehbuch-Shot-Sheet (9 von 10 sauber), SELFTEST OK 196 | Hoofy E2
 2026-10-01 09:19 | E3 Minispiel Pferderennen | begonnen | – | –
 2026-10-01 09:20 | E3 Minispiel Pferderennen | fertig | Drehbuch-Shot-Sheet, SELFTEST OK 201, make test grün | Hoofy E3
+2026-10-01 09:22 | E4 Reformen | begonnen | – | –
+2026-10-01 09:24 | E4 Reformen | fertig | Screenshots Hundenacht/Krokodile/Zeitung, SELFTEST OK 206, make test grün | Hoofy E4

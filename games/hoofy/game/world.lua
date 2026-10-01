@@ -15,6 +15,7 @@ local Economy = require("game.economy")
 local Reise = require("game.reise")
 local Schaetze = require("game.schaetze")
 local Wetter = require("game.wetter")
+local Reformen = require("game.reformen")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
@@ -207,7 +208,7 @@ function WorldScene.enter(arg)
     if snap.erkundet then ctx.explored = snap.erkundet end
     ctx.heim = reise and reise.heim or nil
     ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
-    ctx.turnier = snap.turnier
+    ctx.turnier, ctx.reform = snap.turnier, snap.reform
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -216,6 +217,8 @@ function WorldScene.enter(arg)
       end
     end
   end
+  Reformen.erreicht(ctx, ctx.area.nr, clock.day)
+  Reformen.anwenden(ctx)
   ctx.lager = ctx.lager or {}
   ctx.fund_rng = Rng.new((ctx.seed or 1) + 77)
   Schaetze.setup(ctx)
@@ -231,6 +234,11 @@ function WorldScene.enter(arg)
   end
   if arg and arg.kaeufer then ctx.buyer = {typ = arg.kaeufer, tag = clock.day, verkauft = false} end
   Buyers.sync(ctx, clock:is_night())
+  if arg and arg.reform then
+    local st = Reformen.state(ctx)
+    st.aktiv[#st.aktiv + 1] = {id = arg.reform, von = 1, bis = clock.day + 3}
+    Reformen.anwenden(ctx)
+  end
   if arg and arg.fahrzeug then ctx.inv[arg.fahrzeug] = 1 Economy.refresh_gebiet(ctx) end
   if arg and arg.screen then
     local name = arg.screen
@@ -243,6 +251,7 @@ function WorldScene.enter(arg)
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "springen" then nav.push(Screens.springreiten(ctx, ctx.herd[1], function() end)) end
     if name == "rennen" then nav.push(Screens.rennen(ctx, ctx.herd[1], {35, 30, 25, 20, 15}, function() end)) end
+    if name == "zeitung" then nav.push(Screens.zeitung(ctx)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
@@ -258,6 +267,19 @@ local FOODS = {"heu", "hafer", "karotte", "premiumfutter"}
 
 local function say(text, frames)
   toast = {text = text, t = frames or 120}
+end
+
+-- Meldungen der Reformen am Morgen (E4): Angriff der Nacht, Steuer, neue Zeitung. nil, wenn nichts war.
+local function chaos_text()
+  local a = ctx.angriff
+  if a then
+    if a.abgewehrt then return a.tiere .. ": Starke Pferde haben die Tiere abgewehrt." end
+    if a.zerstoert > 0 or a.erschreckt > 0 then
+      return a.tiere .. ": " .. a.zerstoert .. " Deko kaputt, " .. a.erschreckt .. " Pferd(e) erschreckt."
+    end
+  end
+  if (ctx.steuer or 0) > 0 then return "Pferdesteuer: " .. ctx.steuer .. " G bezahlt." end
+  if ctx.reform_neu then return "Zeitung: Neue Reform " .. ctx.reform_neu .. "!" end
 end
 
 -- Hauptmenü eines eigenen Pferds (E2).
@@ -564,7 +586,9 @@ function WorldScene.update()
     local od = Orders.tick(ctx, clock.day)
     if od.neu then say("Neue Bestellung von " .. od.neu.kunde .. ".", 150) end
     if #od.verfallen > 0 then say("Eine Bestellung ist verfallen.", 150) end
-    if ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
+    local chaos = chaos_text()
+    if chaos then say(chaos, 200)
+    elseif ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
     elseif not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
   end
   local p = ctx.player
@@ -627,6 +651,8 @@ function WorldScene.update()
           local saved = WorldScene.save()
           local fohlen = #ctx.geburten > 0 and (" Fohlen geboren: " .. ctx.geburten[1]) or ""
           say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. fohlen .. (saved and " Gespeichert." or ""), 200)
+          local chaos = chaos_text()
+          if chaos then say(chaos, 200) end
           ctx.sfx.start()
         else
           say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)
@@ -728,6 +754,7 @@ function WorldScene.draw()
   if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
   Stage.draw_world(ctx, function()
     draw_rope()
+    if ctx.area.farm then Reformen.draw_tiere(ctx, clock, t) end
     if ctx.heim then      -- unterwegs steht das Fahrzeug am Ankunftspunkt
       local st = ctx.area.places.start
       ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)

@@ -1227,6 +1227,38 @@ function Screens.map(ctx)
   return s
 end
 
+-- ---- Zeitung (E4): aktive Reformen, nächste Ausgabe ----
+
+function Screens.zeitung(ctx)
+  local Reformen = require("game.reformen")
+  local s = {full = true}
+  function s.update(nav)
+    if btnp(BTN_B) or btnp(BTN_A) then SFX.back() nav.pop() end
+  end
+  function s.draw()
+    cls(rgb(0xe8, 0xdd, 0xc0))
+    rectfill(0, 0, SCREEN_W - 1, 13, C.panel)
+    print("Hoofy-Bote", 6, 3, C.gold)
+    local day = ctx.clock and ctx.clock.day or 1
+    local ink = rgb(0x2b, 0x1f, 0x1d)
+    local st = Reformen.state(ctx)
+    print("Die Regierung ist radikal. Neu im Land:", 10, 22, ink)
+    local y = 40
+    if #st.aktiv == 0 then print("Zurzeit gilt keine Reform.", 10, y, ink) y = y + 14 end
+    for _, a in ipairs(st.aktiv) do
+      local def = Reformen.def(a.id)
+      def = {name = def.name, text = (def.text:gsub("–", "-"):gsub("≥", ">=")):gsub("×", "x")}
+      print(def.name .. "  (noch bis Tag " .. a.bis .. ")", 10, y, rgb(0xb8, 0x47, 0x3a))
+      for i, l in ipairs(require("lib.util").wrap(def.text, SCREEN_W - 30)) do print(l, 18, y + 10 * i, ink) end
+      y = y + 12 + 10 * #require("lib.util").wrap(def.text, SCREEN_W - 30) + 6
+      if a.id == "pferdesteuer" then print("Heute " .. Reformen.steuer(day) .. " G je Pferd.", 18, y - 8, ink) y = y + 8 end
+    end
+    print("Nächste Ausgabe an Tag " .. st.naechste, 10, 206, ink)
+    footer("B: zurück")
+  end
+  return s
+end
+
 -- ---- Pausenmenü (E5) ----
 
 function Screens.pause(ctx, nav)
@@ -1237,6 +1269,7 @@ function Screens.pause(ctx, nav)
     {label = "Bestellungen", id = "orders"},
     {label = "Karte", id = "map"},
     {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot()},
+    {label = "Zeitung", id = "news"},
     {label = "Album (bald)", id = "album", dim = true},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok},
   }
@@ -1251,6 +1284,7 @@ function Screens.pause(ctx, nav)
     elseif r == "build" then
       n.pop()
       n.push(Screens.build(ctx))
+    elseif r == "news" then n.push(Screens.zeitung(ctx))
     elseif r == "orders" then n.push(Screens.orders(ctx))
     elseif r == "inventory" then n.push(Screens.inventory(ctx))
     elseif r == "save" then
