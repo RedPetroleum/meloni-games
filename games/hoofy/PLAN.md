@@ -35,7 +35,9 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Bei der Pferde übersicht soll nicht mehr der Ort stehen und nicht "B" (wofür auch immer das steht?) und nicht der zahlenwert für die Stärke. (0.5.4, E66: „B 73“ war die Bindung, beides weg)
 - [x] wenn man ein neues Pferd sieht, soll es nicht so schnell ins album eingetragen werden. erst, wenn man es gezämt hat. (0.5.4, E66: nur eigene Pferde)
 - [x] beim Stammbaum: unbaknnt ersetzen durch ?. Infos unten weglassen (0.5.4, E66)
-- [ ] Karte: Schrift Hof und Dorf und Pfeil: du Gelb: Pferde weglassen. 
+- [x] Karte: Schrift Hof und Dorf und Pfeil: du Gelb: Pferde weglassen. (0.5.4, E66)
+- [x] Karte nicht mehr über select aufrufbar machen (0.5.4, E66: nur Pausenmenü)
+- [ ] Musik: tiefere Töne weglassen. diese scheppern auf billiger hardware. musik etwas schneller.
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

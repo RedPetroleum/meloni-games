@@ -1347,7 +1347,7 @@ function Screens.map(ctx)
   for ch, g in pairs(Tiles.GROUNDS) do colors[byte(ch)] = g.map end
   local cell = Explore.CELL
   function s.update(nav)
-    if btnp(BTN_B) or btnp(BTN_A) or btnp(BTN_SELECT) then nav.pop() end
+    if btnp(BTN_B) or btnp(BTN_A) then nav.pop() end
   end
   local function explored(tx, ty)
     return Explore.is_explored(ctx.explored, tx // cell, ty // cell)
@@ -1390,11 +1390,6 @@ function Screens.map(ctx)
     if explored(p.x + p.w // 2, p.y + p.h // 2) then
       if area.farm then Farm.outline(area.farm, ox, oy, PX, C.gold)
       else rect(ox + p.x * PX - 1, oy + p.y * PX - 1, ox + (p.x + p.w) * PX, oy + (p.y + p.h) * PX, C.gold) end
-      print("Hof", ox + p.x * PX + 3, oy + p.y * PX + 3, C.gold)
-    end
-    local v = area.village
-    if v and explored(v.x + v.w // 2, v.y + v.h // 2) then
-      print("Dorf", ox + v.x * PX + 2, oy + (v.y + v.h) * PX + 2, C.text)
     end
     -- gezähmte Pferde (gelbe Punkte) und der Spieler mit Blickrichtung (roter Pfeil)
     for _, h in ipairs(ctx.herd_horses) do
@@ -1415,7 +1410,6 @@ function Screens.map(ctx)
     circfill(x, y, 2, C.red)
     circ(x, y, 3, C.text)
     footer("B: zurück")
-    print("Pfeil: du   Gelb: Pferde", 120, SCREEN_H - 10, C.dim)
   end
   return s
 end

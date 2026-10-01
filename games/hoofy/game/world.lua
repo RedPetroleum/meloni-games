@@ -32,7 +32,6 @@ local WorldScene = {}
 
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
 local stack, nav = {}, {}
-local select_held, select_used = false, false
 local idle_t = 0
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
 
@@ -574,21 +573,6 @@ function WorldScene.update()
     nav.push(Screens.pause(ctx, nav))
     ctx.sfx.ok()
     return
-  end
-  -- SELECT allein (beim Loslassen, wenn dabei nichts anderes gedrückt wurde): Karte (E6)
-  if btn(BTN_SELECT) then
-    for _, b in ipairs({BTN_LEFT, BTN_RIGHT, BTN_UP, BTN_DOWN, BTN_A, BTN_B, BTN_START}) do
-      if btn(b) then select_used = true end
-    end
-    select_held = true
-  elseif select_held then
-    select_held = false
-    if not select_used then
-      nav.push(Screens.map(ctx))
-      select_used = false
-      return
-    end
-    select_used = false
   end
   if menu then
     local r = menu.m:update()

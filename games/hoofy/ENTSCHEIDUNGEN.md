@@ -21,6 +21,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Album, Speichern.
 - **E6** **SELECT** allein (beim Loslassen, wenn dabei keine andere Taste gedrückt wurde): Karte.
   So kollidiert es nicht mit SELECT+START / SELECT+A.
+  geändert (Rückmeldung 0.5.4): SELECT ist frei, die Karte gibt es nur noch über das Pausenmenü.
 - **E7** In allen Menüs: Steuerkreuz wählen, A bestätigen, B zurück. Namen und Tauschcodes über
   eine Bildschirmtastatur.
 - **E8** Baumodus: Cursor im Kachelraster, A setzen, B zurück, LEFT/RIGHT bei gehaltenem B
@@ -352,3 +353,5 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   lose Hofpferde richten sich nach den Feldern. Alte Spielstände bekommen die Felder aus dem Rechteck.
 - Laterne: Schirm wie ein Trichter, unten offen mit Licht, 7 × 9 Pixel.
 - Album: nur eigene Pferde (gezähmt, gekauft, gezüchtet) werden eingetragen, Wildpferde im Bild nicht mehr.
+- Karte (Nachtrag): ohne die Schrift „Hof“ und „Dorf“ und ohne die Legende unten; der Hof bleibt gelb umrandet. Nur
+  noch über das Pausenmenü, nicht mehr mit SELECT (E6 geändert); A oder B schließt.
