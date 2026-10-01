@@ -31,4 +31,5 @@ return {
   "weiden",
   "gebaeude",
   "schoenheit",
+  "anbau",
 }

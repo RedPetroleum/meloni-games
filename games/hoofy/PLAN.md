@@ -227,8 +227,10 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **C4 Hof-Schönheit**: Summe, Bindungsbonus ab 50/150/400.
   Prüfung: Selbsttest.
   *Erledigt:* `Farm.schoenheit_bonus`, Anzeige im Baumodus, Tageswechsel in `game/days.lua`. E48.
-- [ ] **C5 Anbau**: Beete/Felder, Samen, Wachstum, Ernte ins Inventar (KATALOG §7).
+- [x] **C5 Anbau**: Beete/Felder, Samen, Wachstum, Ernte ins Inventar (KATALOG §7).
   Prüfung: Selbsttest über Tage; Shot-Sheet Wachstum.
+  *Erledigt:* Pflanzen-Logik in `game/farm.lua` (`plant/harvest/grow`), 33 Pflanzensprites, Erntefutter in
+  `game/care.lua`. Szenario `anbau` (`SCENARIO_OPTS='tage = 2'`): Screenshot zeigt Keimling → Wachstum → reif. E49.
 - [ ] **C6 Göpel-Generator**: 40 je Pferd und Tag, Bedingungen.
   Prüfung: Selbsttest.
 - [ ] **C7 Land kaufen**: 10×10-Stücke, steigender Preis, bis zum ganzen Startgebiet.

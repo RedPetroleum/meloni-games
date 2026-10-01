@@ -199,6 +199,8 @@ end
 Farm.CATEGORIES = {
   {id = "deko", name = "Deko", items = {"bank", "lampe", "blumenkuebel", "busch", "hecke", "stein", "baum", "brunnen", "teich", "statue"}},
   {id = "wege", name = "Wege", items = {"weg", "boden"}},
+  {id = "anbau", name = "Anbau", items = {"beet", "feld"}},
+  {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
   {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar"}},
   {id = "abriss", name = "Abreißen", items = {}},
@@ -210,6 +212,7 @@ Farm.ITEMS = {
   busch = {prop = "bush"}, hecke = {prop = "hecke"}, stein = {prop = "rock"}, baum = {prop = "tree"},
   brunnen = {prop = "brunnen", w = 2, h = 2}, teich = {prop = "teich", w = 2, h = 2}, statue = {prop = "statue"},
   weg = {ground = ":"}, boden = {ground = "s"},
+  beet = {ground = "b"}, feld = {ground = "b"},
   zaun = {prop = "fence", fence = true}, tor = {prop = "gate", gate = true},
   -- Gebäude (C3): Grundfläche in Kacheln
   wohnwagen = {prop = "wohnwagen", w = 3, h = 2, building = true},
@@ -398,6 +401,11 @@ end
 -- Reißt ab, was an (cx, cy) steht, und erstattet den Kaufpreis. Gibt Erstattung oder nil, Grund zurück.
 function Farm.remove(ctx, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
+  local plant = Farm.plant_at(farm, cx, cy)
+  if plant then
+    Farm.remove_plant(ctx, plant)
+    return 0
+  end
   local it = Farm.item_at(farm, cx, cy)
   if not it then return nil, "hier steht nichts Abreißbares" end
   local d = Farm.ITEMS[it.id]
@@ -444,6 +452,10 @@ function Farm.schoenheit(farm)
   local sum = 0
   for _, it in ipairs(farm.items) do sum = sum + (K.bauteil(it.id).wirkung.schoenheit or 0) end
   for _, b in ipairs(farm.buildings) do sum = sum + ((K.bauteil(b.id).wirkung or {}).schoenheit or 0) end
+  for _, p in ipairs(farm.pflanzen or {}) do
+    local crop = Farm.crop(p.id)
+    if crop.deko then sum = sum + (crop.wirkung.schoenheit or 0) end
+  end
   return sum
 end
 
@@ -462,11 +474,149 @@ end
 -- Spielerbauten beim Laden wieder in die Karte eintragen (Farm.apply ruft das).
 function Farm.apply_items(map, farm)
   farm.items = farm.items or {}
+  farm.pflanzen = farm.pflanzen or {}
   Farm.reindex(farm)
   for _, it in ipairs(farm.items) do put(map, farm, it) end
+  Farm.apply_plants(map, farm)
   for _, it in ipairs(farm.items) do
     if Farm.ITEMS[it.id].fence or Farm.ITEMS[it.id].gate then refit_around(map, farm, it.cx, it.cy) end
   end
+end
+
+-- ---- Anbau (C5): Pflanzen auf Beeten (farm.pflanzen = Liste {id, cx, cy, start, bereit, stufe}) ----
+
+-- Ertrag: Pflanze → Name des Vorrats-Eintrags (heu, karotte, hafer wie im Laden, sonst eigene Namen)
+Farm.CROP_ITEM = {gras = "heu", karotte = "karotte", apfelbaum = "apfel", hafer = "hafer", sonnenblume = "sonnenblumenkerne",
+  minze = "minze", zuckerruebe = "zuckerruebe", luzerne = "luzerne", drachenfrucht = "drachenfrucht", goldene_karotte = "goldene_karotte"}
+Farm.CROP_NAME = {heu = "Heu", karotte = "Karotte", apfel = "Äpfel", hafer = "Hafer", sonnenblumenkerne = "Sonnenblumenkerne",
+  minze = "Minze", zuckerruebe = "Zuckerrüben", luzerne = "Luzerne", drachenfrucht = "Drachenfrüchte", goldene_karotte = "Goldene Karotten"}
+
+function Farm.crop(id)
+  for _, p in ipairs(K.futter.anbau) do if p.id == id then return p end end
+  error("unbekannte Pflanze " .. tostring(id))
+end
+
+local function pkind(p) return "pflanze_" .. p.id .. "_" .. p.stufe end
+
+-- Kategorien des Baumodus: wie Farm.CATEGORIES, „Pflanzen“ enthält die gekauften Samen (einmalig gekauft = unbegrenzt pflanzbar).
+function Farm.categories(ctx)
+  local out = {}
+  for _, c in ipairs(Farm.CATEGORIES) do
+    if c.id == "pflanzen" then
+      local items = {}
+      for _, p in ipairs(K.futter.anbau) do
+        if (ctx.inv["samen_" .. p.id] or 0) > 0 then items[#items + 1] = p.id end
+      end
+      out[#out + 1] = {id = c.id, name = c.name, items = items}
+    else
+      out[#out + 1] = c
+    end
+  end
+  return out
+end
+
+function Farm.plant_at(farm, cx, cy)
+  for _, p in ipairs(farm.pflanzen or {}) do
+    local crop = Farm.crop(p.id)
+    if cx >= p.cx and cx < p.cx + crop.w and cy >= p.cy and cy < p.cy + crop.h then return p end
+  end
+end
+
+-- Darf id an (cx, cy) gepflanzt werden? Braucht den Samen im Vorrat (einmal gekauft), Beet auf allen Kacheln, nichts darauf.
+function Farm.can_plant(ctx, id, cx, cy)
+  local farm, map = ctx.area.farm, ctx.map
+  if (ctx.inv["samen_" .. id] or 0) < 1 then return false, "kein Samen" end
+  local crop = Farm.crop(id)
+  for dy = 0, crop.h - 1 do
+    for dx = 0, crop.w - 1 do
+      if map:code(cx + dx, cy + dy) ~= "b" then return false, "braucht Beet" end
+      if Farm.plant_at(farm, cx + dx, cy + dy) then return false, "schon bepflanzt" end
+    end
+  end
+  return true
+end
+
+local function stage_of(p, day)
+  if day >= p.bereit then return 3 end
+  local total = max(1, p.bereit - p.start)
+  return ((day - p.start) / total >= 0.5) and 2 or 1
+end
+
+local function put_plant(map, p)
+  map:add_object(pkind(p), p.cx, p.cy)
+end
+
+-- Pflanzt (kostenlos, der Samen bleibt: die Pflanze trägt danach unbegrenzt). day: heutiger Tag.
+function Farm.plant(ctx, id, cx, cy, day)
+  local ok, why = Farm.can_plant(ctx, id, cx, cy)
+  if not ok then return false, why end
+  local farm = ctx.area.farm
+  local crop = Farm.crop(id)
+  day = day or (ctx.clock and ctx.clock.day) or 1
+  local p = {id = id, cx = cx, cy = cy, start = day, bereit = day + crop.reif, stufe = 1}
+  p.stufe = stage_of(p, day)
+  farm.pflanzen = farm.pflanzen or {}
+  farm.pflanzen[#farm.pflanzen + 1] = p
+  put_plant(ctx.map, p)
+  return true
+end
+
+-- Ausgewachsene Pflanze ernten: Ertrag in den Vorrat, nächste Reife nach „dann alle“ Tagen. Gibt Vorrats-Name und Menge zurück.
+function Farm.harvest(ctx, p, day)
+  if p.stufe < 3 then return nil, "noch nicht reif" end
+  local crop = Farm.crop(p.id)
+  local item = Farm.CROP_ITEM[p.id]
+  ctx.inv[item] = (ctx.inv[item] or 0) + crop.ertrag
+  day = day or (ctx.clock and ctx.clock.day) or 1
+  ctx.map:remove_object(pkind(p), p.cx, p.cy)
+  p.start, p.bereit = day, day + crop.dann
+  p.stufe = 1
+  put_plant(ctx.map, p)
+  return item, crop.ertrag
+end
+
+-- Nächste reife Pflanze in Reichweite des Spielers (Pixel), nil wenn keine.
+function Farm.ripe_near(ctx, reach)
+  reach = reach or 26
+  local best, bd = nil, reach
+  local pl = ctx.player
+  for _, p in ipairs(ctx.area.farm.pflanzen or {}) do
+    if p.stufe == 3 then
+      local crop = Farm.crop(p.id)
+      local x, y = (p.cx + crop.w / 2) * 16, (p.cy + crop.h / 2) * 16
+      local d = math.sqrt((x - pl.x) ^ 2 + (y - (pl.y - 6)) ^ 2)
+      if d <= bd then best, bd = p, d end
+    end
+  end
+  return best
+end
+
+-- Tageswechsel (day = neuer Tag): Pflanzen wachsen, Bilder wechseln. Gibt die Zahl reifer Pflanzen zurück.
+function Farm.grow(ctx, day)
+  local ripe = 0
+  for _, p in ipairs(ctx.area.farm.pflanzen or {}) do
+    local stufe = stage_of(p, day)
+    if stufe ~= p.stufe then
+      ctx.map:remove_object(pkind(p), p.cx, p.cy)
+      p.stufe = stufe
+      put_plant(ctx.map, p)
+    end
+    if p.stufe == 3 then ripe = ripe + 1 end
+  end
+  return ripe
+end
+
+-- Pflanze entfernen (Abreißen): kein Geld zurück, der Samen bleibt.
+function Farm.remove_plant(ctx, p)
+  local farm = ctx.area.farm
+  for i, e in ipairs(farm.pflanzen) do if e == p then table.remove(farm.pflanzen, i) break end end
+  ctx.map:remove_object(pkind(p), p.cx, p.cy)
+end
+
+-- Pflanzen beim Laden wieder in die Karte eintragen.
+function Farm.apply_plants(map, farm)
+  farm.pflanzen = farm.pflanzen or {}
+  for _, p in ipairs(farm.pflanzen) do put_plant(map, p) end
 end
 
 return Farm

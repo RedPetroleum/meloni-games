@@ -58,6 +58,8 @@ function Days.new_day(ctx, day)
   if schoen > 0 then
     for _, d in ipairs(ctx.herd) do d.bindung = mid(0, d.bindung + schoen, 100) end
   end
+  local reif = Farm.grow(ctx, day)
+  ctx.reife = reif
   ctx.wild:new_day(day)
   -- Fohlen kommen zur Welt und folgen dem Spieler (oder stehen lose, wenn die Leine voll ist)
   local born = Breeding.tick(ctx, day)

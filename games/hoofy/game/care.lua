@@ -57,26 +57,43 @@ function Care.stroke(data)
   return add
 end
 
--- Füttern mit Futter id aus KATALOG §7 (heu, hafer, karotte, premiumfutter). Bindung +1 je
--- Fütterung. Gibt Text und Bindungsänderung zurück.
+-- Füttern mit Futter id: gekauftes (heu, hafer, karotte, premiumfutter; KATALOG §7) oder Ernte
+-- (apfel, sonnenblumenkerne, minze, zuckerruebe, luzerne, drachenfrucht, goldene_karotte).
+-- Bindung +1 je Fütterung. Gibt Namen und Bindungsänderung zurück.
+local CROP_OF = {apfel = "apfelbaum", sonnenblumenkerne = "sonnenblume", minze = "minze", zuckerruebe = "zuckerruebe",
+  luzerne = "luzerne", drachenfrucht = "drachenfrucht", goldene_karotte = "goldene_karotte"}
+
 function Care.feed(data, id)
   local item
   for _, f in ipairs(K.futter.kaufen) do if f.id == id then item = f end end
-  if not item then error("unbekanntes Futter " .. tostring(id)) end
-  local w = item.wirkung
+  local crop
+  if not item and CROP_OF[id] then
+    for _, p in ipairs(K.futter.anbau) do if p.id == CROP_OF[id] then crop = p end end
+  end
+  if not item and not crop then error("unbekanntes Futter " .. tostring(id)) end
+  local src = item or crop
+  local w = src.wirkung
   local bond = K.stats.bindung.fuettern + (w.bindung or 0)
+  -- Minze: Bindung ×2 bei eitel
+  if crop and crop.eitel_faktor and data.zug == "eitel" then bond = K.stats.bindung.fuettern + (w.bindung or 0) * crop.eitel_faktor end
   data.hunger = clamp(data.hunger + (w.hunger or 0), 0, 100)
   if w.energie then data.energie = min(H.stat(data, "ausdauer"), data.energie + w.energie) end
+  if w.sauberkeit then data.sauberkeit = clamp(data.sauberkeit + w.sauberkeit, 0, 100) end
+  if w.gewicht then data.gewicht = clamp(data.gewicht + w.gewicht, 0, 100) end
   data.bindung = clamp(data.bindung + bond, 0, 100)
-  if item.fohlen_potenzial and data.alter < 1 then
-    local room = item.fohlen_potenzial_max - (data.pot_bonus or 0)
-    local add = min(item.fohlen_potenzial, max(0, room))
+  -- Drachenfrucht: Training ×2 für einen Tag
+  if crop and crop.training_faktor then data.boost = 1 end
+  local pot_add = src.fohlen_potenzial
+  local pot_max = src.fohlen_potenzial_max or 10
+  if pot_add and data.alter < 1 then
+    local room = pot_max - (data.pot_bonus or 0)
+    local add = min(pot_add, max(0, room))
     if add > 0 then
       data.pot_bonus = (data.pot_bonus or 0) + add
       for _, key in ipairs(H.STATS) do data.pot[key] = min(K.stats.potenzial_max, data.pot[key] + add) end
     end
   end
-  return item.name, bond
+  return src.name, bond
 end
 
 -- Striegeln (braucht die Bürste): Sauberkeit +40, Bindung +1.

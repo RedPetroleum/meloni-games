@@ -66,6 +66,11 @@ function Scenarios.weiden()
   return "world", {ort = "start", screen = "weiden", weiden = true}
 end
 
+-- Anbau: Beete und alle Pflanzen am Tag 1 gepflanzt, save.tage Tage später. Kamera auf dem Beet.
+function Scenarios.anbau(save)
+  return "world", {ort = "start", anbau = true, tage = save.tage or 0}
+end
+
 -- Gebäude: alle Gebäude auf dem Grundstück. save.cx, save.cy: Startkachel der Kamera.
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}

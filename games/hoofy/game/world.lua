@@ -54,7 +54,21 @@ function WorldScene.enter(arg)
   toast, a_hold, a_free, menu = nil, 0, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
-  if arg and arg.gebaeude then
+  if arg and arg.anbau then
+    -- Beete mit allen Pflanzen, danach arg.tage Tage vergehen (nur das Wachsen, keine Tagesregeln)
+    local pl = ctx.area.plot
+    ctx.money = 1000
+    ctx.player.x, ctx.player.y = (pl.x + 10) * 16, (pl.y + 8) * 16 + 12
+    for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 1 end
+    for x = 13, 19 do for y = 5, 6 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
+    for x = 13, 14 do for y = 7, 8 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
+    local row = {"gras", "karotte", "hafer", "sonnenblume", "zuckerruebe", "drachenfrucht", "goldene_karotte"}
+    for i, id in ipairs(row) do Farm.plant(ctx, id, pl.x + 12 + i, pl.y + 5, 1) end
+    for x = 13, 19 do Farm.plant(ctx, "karotte", pl.x + x, pl.y + 6, 1) end
+    Farm.plant(ctx, "apfelbaum", pl.x + 13, pl.y + 7, 1)
+    for d = 2, 1 + (arg.tage or 0) do Farm.grow(ctx, d) end
+    wild.count = 0
+  elseif arg and arg.gebaeude then
     -- Alle Gebäude auf dem Grundstück (Koordinaten relativ zum Grundstück)
     local pl = ctx.area.plot
     ctx.money = 100000
@@ -205,13 +219,19 @@ local function open_menu(h)
   }
 end
 
+local CROP_FOODS = {"apfel", "sonnenblumenkerne", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}
+
 local function open_food(h)
   local items = {}
   for _, id in ipairs(FOODS) do
     local n = ctx.inv[id] or 0
-    local name = K.futter.kaufen
+    local name = id
     for _, f in ipairs(K.futter.kaufen) do if f.id == id then name = f.name end end
     items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1}
+  end
+  for _, id in ipairs(CROP_FOODS) do          -- Ernte nur, wenn welche da ist
+    local n = ctx.inv[id] or 0
+    if n > 0 then items[#items + 1] = {label = Farm.CROP_NAME[id] .. " x" .. n, id = id} end
   end
   menu.stage, menu.m = "food", Menu.new(items, "Füttern")
 end
@@ -496,9 +516,14 @@ function WorldScene.update()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
     else
       local own = wild:nearest_own()
+      local ripe = Farm.ripe_near(ctx)
       if own then
         open_menu(own)
         ctx.sfx.select()
+      elseif ripe then
+        local item, n = Farm.harvest(ctx, ripe, clock.day)
+        ctx.sfx.eat()
+        say("Geerntet: " .. n .. "x " .. Farm.CROP_NAME[item] .. ".", 120)
       elseif wild:at_bed_door() then
         if clock:sleep() then
           Days.new_day(ctx, clock.day)

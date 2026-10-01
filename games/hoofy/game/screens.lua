@@ -698,18 +698,20 @@ function Screens.build(ctx)
     if #lost > 0 then return "Weide weg: " .. lost[1] .. " kommt an die Leine." end
     if after ~= before then return "Weiden: " .. #pastures .. ", Plätze " .. after .. "." end
   end
+  local cats = Farm.categories(ctx)
   local function cur_item()
-    local c = Farm.CATEGORIES[cat]
+    local c = cats[cat]
     return c.items[item], c
   end
   local function say(text) msg, msg_t = text, 180 end
   function s.update(nav)
-    local c = Farm.CATEGORIES[cat]
+    cats = Farm.categories(ctx)
+    local c = cats[math.min(cat, #cats)]
     if btn(BTN_B) then
       local moved = false
-      if btnp(BTN_LEFT) then cat = (cat - 2) % #Farm.CATEGORIES + 1; item, moved = 1, true end
-      if btnp(BTN_RIGHT) then cat = cat % #Farm.CATEGORIES + 1; item, moved = 1, true end
-      c = Farm.CATEGORIES[cat]
+      if btnp(BTN_LEFT) then cat = (cat - 2) % #cats + 1; item, moved = 1, true end
+      if btnp(BTN_RIGHT) then cat = cat % #cats + 1; item, moved = 1, true end
+      c = cats[cat]
       if #c.items > 0 then
         if btnp(BTN_UP) then item = (item - 2) % #c.items + 1; moved = true end
         if btnp(BTN_DOWN) then item = item % #c.items + 1; moved = true end
@@ -725,6 +727,12 @@ function Screens.build(ctx)
         if c.id == "abriss" then
           local sum, why = Farm.remove(ctx, cx, cy)
           if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
+        elseif c.id == "pflanzen" then
+          if not id then say("Noch keine Samen: im Laden kaufen.")
+          else
+            local ok, why = Farm.plant(ctx, id, cx, cy)
+            if ok then SFX.ok() say(Farm.crop(id).name .. " gepflanzt.") else SFX.snort() say(why .. ".") end
+          end
         else
           local ok, why = Farm.place(ctx, id, cx, cy)
           if ok then SFX.ok() say(changed() or (K.bauteil(id).name .. " gebaut."))
@@ -747,7 +755,15 @@ function Screens.build(ctx)
     local w, h = 1, 1
     local ok = true
     if c.id == "abriss" then
-      ok = Farm.item_at(farm, cx, cy) ~= nil
+      ok = Farm.item_at(farm, cx, cy) ~= nil or Farm.plant_at(farm, cx, cy) ~= nil
+    elseif c.id == "pflanzen" then
+      if id then
+        local crop = Farm.crop(id)
+        w, h = crop.w, crop.h
+        ok = Farm.can_plant(ctx, id, cx, cy)
+      else
+        ok = false
+      end
     else
       local it = Farm.ITEMS[id]
       w, h = it.w or 1, it.h or 1
@@ -775,9 +791,9 @@ function Screens.build(ctx)
     rectfill(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel)
     rect(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel_light)
     local x = 6
-    for i, cc in ipairs(Farm.CATEGORIES) do
+    for i, cc in ipairs(cats) do
       print(cc.name, x, SCREEN_H - 31, i == cat and C.gold or C.dim)
-      x = x + textw(cc.name) + 8
+      x = x + textw(cc.name) + 6
     end
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, SCREEN_H - 31, C.gold)
@@ -787,7 +803,16 @@ function Screens.build(ctx)
     local line
     if c.id == "abriss" then
       local it = Farm.item_at(farm, cx, cy)
-      line = it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
+      local pf = Farm.plant_at(farm, cx, cy)
+      line = pf and ("Abreißen: " .. Farm.crop(pf.id).name .. " (Samen bleibt)")
+        or it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
+    elseif c.id == "pflanzen" then
+      if id then
+        local crop = Farm.crop(id)
+        line = "< " .. crop.name .. " >  reif nach " .. crop.reif .. " T, dann alle " .. crop.dann .. " T, " .. crop.ertrag .. "x"
+      else
+        line = "Keine Samen im Vorrat"
+      end
     else
       local b = K.bauteil(id)
       line = "< " .. b.name .. " >  " .. b.preis .. " G" .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
@@ -827,6 +852,20 @@ function Screens.inventory(ctx)
           y = y + 10
         end
         y = y + 4
+      end
+    end
+    -- Ernte (C5)
+    local crops = {}
+    for _, id in ipairs({"apfel", "sonnenblumenkerne", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}) do
+      if (ctx.inv[id] or 0) > 0 then crops[#crops + 1] = id end
+    end
+    if #crops > 0 then
+      print("Ernte", 20, y, C.gold)
+      y = y + 11
+      for _, id in ipairs(crops) do
+        print(Farm.CROP_NAME[id], 28, y, C.text)
+        print("x" .. ctx.inv[id], 200, y, C.text)
+        y = y + 10
       end
     end
     footer("B: zurück")

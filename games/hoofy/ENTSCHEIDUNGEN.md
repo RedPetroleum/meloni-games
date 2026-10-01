@@ -74,6 +74,14 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   die Schritt-Posen schneller.
 
 ## Werte
+- **E49** (C5) Anbau: Baumodus → „Anbau“ (Beet/Feld, 20 je Kachel; beides derselbe Boden) und „Pflanzen“ (zeigt die
+  gekauften Samen). **Ein Samen schaltet die Pflanze frei, danach beliebig viele Pflanzungen** (KATALOG: „Samen einmal
+  kaufen: Pflanze trägt danach unbegrenzt“). Pflanzen kosten nichts, brauchen ein Beet auf allen Kacheln (Apfelbaum 2×2).
+  Wachstum in Tagen nach „reif nach / dann alle“, drei Bilder (Keimling, wächst, reif); geerntet wird per A neben der
+  reifen Pflanze, der Ertrag landet sofort im Vorrat (Hausinventar, Gras → Heu). Pflanzen blockieren nicht. Ernte als
+  Futter im Füttern-Menü: Wirkung nach KATALOG §7, Minze bei eitel doppelt, Drachenfrucht Training ×2 für den Tag nach
+  dem Füttern, goldene Karotte wie Premiumfutter (gemeinsam bis +10). Sonnenblumen zählen +2 Schönheit. Abreißen entfernt
+  erst die Pflanze (kein Geld, Samen bleibt), dann das Beet (20 zurück).
 - **E48** (C4) Hof-Schönheit: Summe der Deko-Punkte aller gebauten Dinge und Gebäude (Wege/Böden 0,5 je Kachel),
   ab 50 / 150 / 400 Punkten bekommen **alle** Pferde (auch an der Leine, auf der Weide …) jeden Tageswechsel +1 / +2 / +3
   Bindung, zusätzlich zum Stallbonus (E47). Anzeige im Baumodus unten rechts („Schönheit 48/50 (Bindung +0)“).

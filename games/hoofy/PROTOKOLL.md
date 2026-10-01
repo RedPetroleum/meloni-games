@@ -73,3 +73,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:52 | C3 Gebäude | fertig | Screenshot aller 8 Gebäude, Plätze 2+4+8+12, Bindung, SELFTEST OK 155, make test grün | Hoofy C3
 2026-10-01 01:54 | C4 Hof-Schönheit | begonnen | – | –
 2026-10-01 01:55 | C4 Hof-Schönheit | fertig | Schwellen 50/150/400 geprüft, Tageswechsel, SELFTEST OK 159, make test grün | Hoofy C4
+2026-10-01 01:57 | C5 Anbau | begonnen | – | –
+2026-10-01 08:38 | C5 Anbau | fertig | Shot-Sheet Tag 0/1/2/4, Wachstum nach Katalog (Karotte 2/2, Gras 1/1, Apfelbaum 4/3), SELFTEST OK 168, make test grün | Hoofy C5

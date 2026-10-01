@@ -25,9 +25,13 @@ T.GROUNDS = {
   I = {sprites = {"ground_bridge_v"}, shadow = C.wood_shadow, map = rgb(0xb0, 0x7a, 0x44)},
   [":"] = {sprites = {"ground_path1", "ground_path2"}, edges = "fringe", shadow = C.path_shadow,
     map = rgb(0xd4, 0xb0, 0x77)},
+  b = {sprites = {"ground_carrots"}, edges = "fringe", shadow = C.path_shadow, map = rgb(0x8a, 0x5a, 0x36)},
   s = {sprites = {"ground_sand1", "ground_sand2"}, edges = "fringe", shadow = C.sand_shadow,
     map = rgb(0xea, 0xd7, 0xa0)},
 }
+
+-- Pflanzen (C5): pflanze_<id>_<stufe> als Objekte, 1×1 (Apfelbaum 2×2), ohne Kollision
+T.PLANT_IDS = {"gras", "karotte", "apfelbaum", "hafer", "sonnenblume", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}
 
 -- Deko auf Gras (Ebene deco), Lage in der Kachel aus einem Hash.
 T.DECOS = {a = "deco_tuft", b = "deco_tuft2", c = "deco_flower_p", d = "deco_flower_y", e = "deco_pebble"}
@@ -111,5 +115,11 @@ T.PROPS = {
   hangar = {sprite = "hangar", w = 6, h = 4, coll = "X", map = rgb(0x6d, 0x73, 0x7a)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
+for _, id in ipairs(T.PLANT_IDS) do
+  for stufe = 1, 3 do
+    T.PROPS["pflanze_" .. id .. "_" .. stufe] = {sprite = "pflanze_" .. id .. "_" .. stufe, w = id == "apfelbaum" and 2 or 1,
+      h = id == "apfelbaum" and 2 or 1, map = rgb(0x4f, 0x8b, 0x3a)}
+  end
+end
 
 return T
