@@ -118,7 +118,7 @@ return {
     for _ = 1, 20 do Body.move(f, 1, 0, ctx.map) end
     C.ok(f.x > x0 + 10, "Weg ist begehbar")
   end},
-  {"Baumodus-Bildschirm: B gehalten wählt Art und Bauteil, A baut, B allein schließt, Pausenmenü nur auf dem Grundstück", function()
+  {"Baumodus-Bildschirm: START öffnet die Auswahl (Art, dann Bauteil), A baut, B schließt, Pausenmenü nur auf dem Grundstück", function()
     local Screens = require("game.screens")
     local ctx, p = setup()
     ctx.player.x, ctx.player.y = (p.x + 12) * 16 + 8, (p.y + 7) * 16 + 8
@@ -135,17 +135,21 @@ return {
       btn, btnp = ob, obtn
     end
     press({}, {})
-    press({[BTN_B] = true}, {[BTN_RIGHT] = true})           -- Kategorie Wege
-    press({}, {})                                          -- B losgelassen nach Benutzung: bleibt offen
-    C.eq(#nav.stack, 1, "B nach Auswahl schließt nicht")
+    press({}, {[BTN_START] = true})                         -- Auswahl auf
+    b.draw()
+    press({}, {[BTN_RIGHT] = true})                         -- Art: Wege
+    press({}, {[BTN_A] = true})                             -- Bauteile der Wege
+    press({}, {[BTN_B] = true})                             -- B: zurück zu den Arten
+    C.eq(#nav.stack, 1, "B in der Auswahl schließt den Baumodus nicht")
+    press({}, {[BTN_A] = true})                             -- wieder Wege
+    press({}, {[BTN_A] = true})                             -- Weg gewählt, Auswahl zu
     press({}, {[BTN_DOWN] = true})                          -- Cursor nach unten
     press({}, {[BTN_A] = true})                             -- Weg bauen
     C.eq(#ctx.area.farm.items, 1)
     C.eq(ctx.area.farm.items[1].id, "weg")
     C.eq(ctx.area.farm.items[1].cy, p.y + 8)
-    press({[BTN_B] = true}, {})                             -- B allein gedrückt
-    press({}, {})                                          -- und losgelassen: zurück
-    C.eq(#nav.stack, 0, "B allein schließt")
+    press({}, {[BTN_B] = true})                             -- B: Baumodus zu
+    C.eq(#nav.stack, 0, "B schließt")
     b.draw()
     C.ok(ctx.on_plot == nil)
     -- Pausenmenü: Bauen nur auf dem Grundstück

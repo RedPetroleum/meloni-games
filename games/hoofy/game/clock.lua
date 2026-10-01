@@ -1,4 +1,5 @@
--- Tageslauf (KATALOG §1): 1 Spieltag = 5 min echt, davon 3 min hell und 2 min dunkel.
+-- Tageslauf (KATALOG §1): 1 Spieltag = 5 min echt, davon 3 min hell und 2 min dunkel; auf Wunsch des
+-- Menschen alles um LONGER länger (E65): 6:15 min, davon 3:45 hell und 2:30 dunkel.
 -- Zeit zählt Frames seit Tagesanfang (Morgen). Pause und Menüs halten sie an (der Aufrufer
 -- ruft update nur, wenn die Welt läuft).
 local K = require("game.katalog")
@@ -6,8 +7,9 @@ local K = require("game.katalog")
 local Clock = {}
 Clock.__index = Clock
 
-Clock.DAY = K.zeit.tag_min * 3600            -- 18 000 Frames
-Clock.LIGHT = K.zeit.hell_min * 3600         -- 10 800 Frames hell, danach dunkel
+Clock.LONGER = 1.25
+Clock.DAY = flr(K.zeit.tag_min * 3600 * Clock.LONGER)      -- 22 500 Frames
+Clock.LIGHT = flr(K.zeit.hell_min * 3600 * Clock.LONGER)   -- 13 500 Frames hell, danach dunkel
 Clock.DUSK = 900                             -- so lange dauert die Dämmerung vor der Nacht (15 s)
 Clock.DAWN = 600                             -- und der Sonnenaufgang nach dem Aufwachen (10 s)
 
@@ -31,9 +33,16 @@ function Clock:update()
   end
 end
 
--- Schlafen überspringt den Rest der Nacht. Nur nachts; gibt true zurück, wenn es geklappt hat.
+-- Ab hier darf man schlafen (Rückmeldung 0.5.2: schon vor der Nacht): 2 Minuten vor Nachtbeginn.
+Clock.SLEEP_FROM = Clock.LIGHT - 2 * 3600
+
+function Clock:can_sleep()
+  return self.t >= Clock.SLEEP_FROM
+end
+
+-- Schlafen überspringt den Rest des Abends und der Nacht. Gibt true zurück, wenn es geklappt hat.
 function Clock:sleep()
-  if not self:is_night() then return false end
+  if not self:can_sleep() then return false end
   self.t = 0
   self.day = self.day + 1
   self.woke = true
@@ -41,9 +50,12 @@ function Clock:sleep()
 end
 
 -- Sichtradius in Pixeln um den Spieler (E14): tagsüber unbegrenzt (nil), nachts `night`, dazwischen
--- weicher Übergang in der Dämmerung und beim Sonnenaufgang. lamp: Sattellampe vergrößert ihn.
-function Clock:sight(night, lamp)
-  night = night * (lamp and 1.8 or 1)
+-- weicher Übergang in der Dämmerung und beim Sonnenaufgang. light: Licht des Spielers (1 Laterne,
+-- 1,8 Sattellampe), ohne Licht sieht man nachts nur NO_LIGHT davon.
+Clock.NO_LIGHT = 0.6
+
+function Clock:sight(night, light)
+  night = night * (light or Clock.NO_LIGHT)
   local far = 420
   local t = self.t
   if t >= Clock.LIGHT then return night end

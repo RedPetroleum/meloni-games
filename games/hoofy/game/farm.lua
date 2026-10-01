@@ -364,6 +364,14 @@ function Farm.item_at(farm, cx, cy)
   return (INDEX[farm] or Farm.reindex(farm))[cell_key(cx, cy)]
 end
 
+-- Ist die Kachel ein Tor (gebautes Tor oder das Tor der ersten Weide)?
+function Farm.is_gate(farm, cx, cy)
+  local g = farm.weide.gate
+  if g[1] == cx and g[2] == cy then return true end
+  local it = Farm.item_at(farm, cx, cy)
+  return it ~= nil and it.id == "tor"
+end
+
 local function in_plot(farm, cx, cy, w, h)
   local p = farm.plot
   return cx >= p.x and cy >= p.y and cx + w <= p.x + p.w and cy + h <= p.y + p.h

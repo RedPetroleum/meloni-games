@@ -6,11 +6,12 @@ function FX.new(S)
   return setmetatable({S = S, list = {}}, FX)
 end
 
--- sprite: Name aus sprites.txt oder nil für einen Punkt in color.
+-- sprite: Name aus sprites.txt oder nil für einen Punkt in color. opts.ground: liegt am Boden und wird
+-- vor den Figuren gezeichnet (Staub), sonst danach (Herzchen).
 function FX:spawn(x, y, opts)
   local p = {
     x = x, y = y, vx = opts.vx or 0, vy = opts.vy or -0.4,
-    life = opts.life or 40, sprite = opts.sprite, color = opts.color,
+    life = opts.life or 40, sprite = opts.sprite, color = opts.color, ground = opts.ground or false,
   }
   self.list[#self.list + 1] = p
 end
@@ -26,9 +27,12 @@ function FX:update()
   for i = j, #list do list[i] = nil end
 end
 
-function FX:draw()
+-- ground: true zeichnet nur die Bodeneffekte, sonst nur die übrigen.
+function FX:draw(ground)
+  ground = ground or false
   for _, p in ipairs(self.list) do
-    if p.sprite then
+    if p.ground ~= ground then
+    elseif p.sprite then
       local w, h = self.S.size(p.sprite)
       self.S.draw(p.sprite, flr(p.x - w / 2), flr(p.y - h / 2))
     else

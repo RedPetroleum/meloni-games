@@ -54,7 +54,24 @@ return {
     ctx.player.moving = false
     for _ = 1, 600 do ctx.world:update() end
     for _, e in ipairs(w.list) do
-      C.ok(not ctx.map:blocked(e.x - 7, e.y - 6, e.x + 7, e.y), "Pferd steckt in Hindernis")
+      C.ok(require("lib.body").free(ctx.map, e.x, e.y, e.fw, e.fh), "Pferd steckt in Hindernis")
     end
+  end},
+  {"Fliehendes Pferd vor einer Wand weicht seitlich aus, statt hängen zu bleiben", function()
+    local ctx, w = setup()
+    local h = w.list[1]
+    -- Mauer aus Steinen 2 Kacheln rechts vom Pferd, Spieler links: geradeaus geht es nicht weiter
+    local cx, cy = h.x // 16 + 2, (h.y - 2) // 16
+    for dy = -4, 4 do ctx.map:set("coll", cx, cy + dy, "o") end
+    ctx.player.x, ctx.player.y = h.x - 40, h.y
+    h:flee(ctx.player)
+    local x0 = h.x
+    local max_moved = 0
+    for _ = 1, 80 do
+      h:update()
+      max_moved = math.max(max_moved, math.abs(h.y - ctx.player.y))
+    end
+    C.ok(max_moved > 40, "seitlich ausgewichen: " .. flr(max_moved))
+    C.ok(require("game.wild").Horse.flee_dir ~= nil)
   end},
 }

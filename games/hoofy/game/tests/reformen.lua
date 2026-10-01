@@ -41,7 +41,7 @@ return {
     for day = 2, 60 do
       Reformen.tick(ctx, day)
       if ctx.reform_neu then
-        C.ok(day % 4 == 0, "Verkündung an Tag " .. day)
+        C.ok(day >= 10 and (day - 10) % 4 == 0, "Verkündung an Tag " .. day)
         local a = Reformen.state(ctx).aktiv[#Reformen.state(ctx).aktiv]
         C.between(a.bis - a.von + 1, 3, 5)
         gesehen[a.id] = true
@@ -118,8 +118,11 @@ return {
     local ctx = setup()
     ctx.clock = {day = 4}
     Days.new_day(ctx, 4)
-    C.ok(ctx.reform_neu ~= nil, "Tag 4: erste Verkündung")
-    C.eq(Reformen.state(ctx).naechste, 8)
+    C.ok(ctx.reform_neu == nil, "Tag 4: noch keine Zeitung")
+    ctx.clock = {day = 10}
+    Days.new_day(ctx, 10)
+    C.ok(ctx.reform_neu ~= nil, "Tag 10: erste Verkündung")
+    C.eq(Reformen.state(ctx).naechste, 14)
     local Screens = require("game.screens")
     Screens.zeitung(ctx).draw()
     local st = Reformen.state(ctx)

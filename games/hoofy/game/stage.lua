@@ -72,7 +72,8 @@ end
 -- Dunkelheit (E14, geändert, Engine-Funktion shade ab API 2): die Welt wird stufenlos mit Nachtblau
 -- gemischt, höchstens DARK_MAX deckend. Um den Spieler (cx, cy auf dem Bildschirm) bleibt es nachts heller:
 -- bis SIGHT_IN fast so hell wie am Abend, bis SIGHT_OUT weicher Übergang. Der Sichtbereich kommt erst mit der
--- Nacht, am Abend wird alles gleichmäßig dunkler. Die Sattellampe vergrößert ihn. dark: 0 (Tag) bis 1 (Nacht).
+-- Nacht, am Abend wird alles gleichmäßig dunkler. Den Sichtbereich gibt es nur mit Licht (Rückmeldung 0.5.2):
+-- light = 1 Laterne, 1,8 Sattellampe; ohne Licht (nil) ist alles gleichmäßig dunkel. dark: 0 (Tag) bis 1 (Nacht).
 Stage.DARK_COLOR = rgb(0x0e, 0x10, 0x28)
 Stage.DARK_MAX = 0.86
 Stage.SIGHT_IN, Stage.SIGHT_OUT = 40, 112
@@ -88,12 +89,12 @@ function Stage.dark_alpha(dark)
   return a, base + (a - base) * (1 - keep)
 end
 
-function Stage.draw_dark(cx, cy, dark, lamp)
+function Stage.draw_dark(cx, cy, dark, light)
   if dark <= 0.01 then return end
   local a, a0 = Stage.dark_alpha(dark)
-  local f = lamp and 1.8 or 1
+  local f = light or 1
   clip(0, Stage.HUD_H, SCREEN_W, SCREEN_H - Stage.HUD_H)
-  if a0 < a then
+  if light and a0 < a then
     shade(Stage.DARK_COLOR, a, cx, cy, Stage.SIGHT_IN * f, Stage.SIGHT_OUT * f, a0)
   else
     shade(Stage.DARK_COLOR, a)
@@ -107,6 +108,7 @@ function Stage.draw_world(ctx, extra)
   cls(Stage.COLORS.grass)
   cam:apply()
   ctx.map:draw(cam.x, cam.y, SCREEN_W, SCREEN_H)
+  ctx.fx:draw(true)
   ctx.world:draw(cam.x, cam.y, SCREEN_W, SCREEN_H)
   draw_labels(ctx)
   if extra then extra() end

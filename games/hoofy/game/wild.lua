@@ -58,8 +58,25 @@ local function set_state(h, state, frames)
   h.state, h.timer = state, frames
 end
 
+-- Durchs Tor nur mit dem Menschen (Rückmeldung 0.5.2): an der Leine, folgend oder geritten. Allein
+-- (lose, auf der Weide, ausgerissen, wild) bleibt der Fußpunkt aus Torkacheln heraus.
+local WITH_PLAYER = {led = true, follow = true, ridden = true}
+
+local function gate_allow(self)
+  local farm = self.ctx.area.farm
+  return function(x, y)
+    if self.allow and not self.allow(x, y) then return false end
+    return not Farm.is_gate(farm, flr(x / 16), flr((y - 1) / 16))
+  end
+end
+
 function Horse:step(dx, dy)
-  local ok_x, ok_y = Body.move(self, dx, dy, self.ctx.map, self.allow)
+  local allow = self.allow
+  if self.ctx.area.farm and not WITH_PLAYER[self.state] then
+    self.alone_allow = self.alone_allow or gate_allow(self)
+    allow = self.alone_allow
+  end
+  local ok_x, ok_y = Body.move(self, dx, dy, self.ctx.map, allow)
   if dx ~= 0 then self.dir = dx > 0 and "right" or "left" end
   return ok_x or ok_y
 end
@@ -124,6 +141,8 @@ function Horse:update_tamed()
       self.moving = true
     end
   elseif st == "escape" then
+    self.flee_t = (self.flee_t or 0) + 1
+    if self.flee_t % 12 == 0 then self.vx, self.vy = self:flee_dir(p, 1.8) end
     local mx, my = self:step(self.vx, 0), self:step(0, self.vy)
     self.anim = self.anim + 0.25
     self.timer = self.timer - 1
@@ -167,8 +186,15 @@ function Horse:update()
     return
   end
   if self.state == "flee" then
+    -- Richtung alle 12 Frames neu wählen (und sofort, wenn es hängt)
+    self.flee_t = (self.flee_t or 0) + 1
+    if self.flee_t % 12 == 0 then self.vx, self.vy = self:flee_dir(p, 1.7) end
     local mx, my = self:step(self.vx, 0), self:step(0, self.vy)   -- beide Achsen, rutscht an Hindernissen
     local moved = mx or my
+    if not moved then
+      self.vx, self.vy = self:flee_dir(p, 1.7)
+      moved = self:step(self.vx, 0) or self:step(0, self.vy)
+    end
     self.anim = self.anim + 0.25
     if not moved or (self.timer <= 0 and d > CALM_DIST) then set_state(self, "idle", 40); self.cool = 240 end
     if self.timer <= 0 and d <= CALM_DIST then self.timer = 30 end
@@ -187,6 +213,37 @@ function Horse:update()
   end
 end
 
+-- Fluchtrichtung (Rückmeldung 0.5.2: nicht stur geradeaus in die Wand): weg vom Spieler, aber nur in eine
+-- Richtung, in der die nächsten FLEE_LOOK Pixel frei sind. Geprüft wird geradeaus, dann immer weiter
+-- seitlich, zuerst auf der Seite, auf die das Pferd zuletzt ausgewichen ist. Gibt vx, vy zurück.
+local FLEE_LOOK = {14, 28, 42}
+local FLEE_TURN = {0, 0.45, -0.45, 0.9, -0.9, 1.35, -1.35, 1.8, -1.8, 2.3, -2.3}
+
+local function path_free(h, ax, ay)
+  local map = h.ctx.map
+  for _, d in ipairs(FLEE_LOOK) do
+    local x, y = h.x + ax * d, h.y + ay * d
+    if not Body.free(map, x, y, h.fw, h.fh) then return false end
+    if h.allow and not h.allow(x, y) then return false end
+    if h.alone_allow and not h.alone_allow(x, y) then return false end
+  end
+  return true
+end
+
+function Horse:flee_dir(p, speed)
+  local base = math.atan(self.y - p.y, self.x - p.x)
+  local side = self.flee_side or (rnd() < 0.5 and 1 or -1)
+  for _, t in ipairs(FLEE_TURN) do
+    local a = base + t * side
+    local ax, ay = math.cos(a), math.sin(a)
+    if path_free(self, ax, ay) then
+      if t ~= 0 then self.flee_side = t > 0 and side or -side end
+      return ax * speed, ay * speed
+    end
+  end
+  return 0, 0                    -- eingekesselt: stehen bleiben
+end
+
 function Horse:face(p)
   self.dir = p.x >= self.x and "right" or "left"
 end
@@ -194,9 +251,9 @@ end
 function Horse:flee(p)
   SFX.whinny()
   set_state(self, "flee", 90)
-  local ax, ay = self.x - p.x, self.y - p.y
-  local n = max(1, U.dist(0, 0, ax, ay))
-  self.vx, self.vy = ax / n * 1.7, ay / n * 1.7
+  self.flee_side = nil
+  self.vx, self.vy = self:flee_dir(p, 1.7)
+  self.flee_t = 0
   self.dir = self.vx >= 0 and "right" or "left"
 end
 
@@ -310,15 +367,32 @@ function Wild:spawn()
   return h
 end
 
--- Nimmt ein gezähmtes Pferd mit: an die Leine, ab Bindung 70 frei folgend (max. MAX_LEAD).
+-- Nimmt ein gezähmtes Pferd mit: an die Leine (höchstens Leash.MAX_LED), ab Bindung 70 frei folgend
+-- (zusammen höchstens Leash.MAX_LEAD). Geht das nicht, steht es lose: false.
+function Wild:can_lead(h)
+  if #self.ctx.lead >= Leash.MAX_LEAD then return false end
+  return h.data.bindung >= Leash.FOLLOW or self:led_count() < Leash.MAX_LED
+end
+
 function Wild:attach(h)
   h.data.ort, h.bounds, h.allow, h.hidden = nil, nil, nil, false
   local lead = self.ctx.lead
-  if #lead >= 4 then h.state, h.timer = "free", 60; return false end
+  local follow = h.data.bindung >= Leash.FOLLOW
+  if not self:can_lead(h) then
+    h.state, h.timer, h.vx, h.vy = "free", 60, 0, 0
+    return false
+  end
   lead[#lead + 1] = h
-  h.state = h.data.bindung >= Leash.FOLLOW and "follow" or "led"
+  h.state = follow and "follow" or "led"
   h.leash_t = 0
   return true
+end
+
+-- Pferde am Strick (ohne die frei folgenden).
+function Wild:led_count()
+  local n = 0
+  for _, h in ipairs(self.ctx.lead) do if h.state == "led" then n = n + 1 end end
+  return n
 end
 
 -- Die Leine reißt: Pferd läuft weg und bleibt dort lose stehen.
@@ -327,9 +401,8 @@ function Wild:escape(h)
     if e == h then table.remove(self.ctx.lead, i) break end
   end
   local p = self.ctx.player
-  local ax, ay = h.x - p.x, h.y - p.y
-  local n = max(1, U.dist(0, 0, ax, ay))
-  h.vx, h.vy = ax / n * 1.8, ay / n * 1.8
+  h.state, h.flee_side, h.flee_t = "escape", nil, 0
+  h.vx, h.vy = h:flee_dir(p, 1.8)
   SFX.snap()
   SFX.whinny()
   h.state, h.timer = "escape", 70

@@ -70,6 +70,7 @@ return {
   end},
   {"Pausenmenü: START öffnet/schließt, Pferde und Inventar öffnen Unterbildschirme", function()
     local ctx = Stage.build(1)
+    ctx.clock = {day = 20}                 -- alles freigeschaltet
     Wild.new(ctx, 3):add_own({name = "Hilde"})
     local nav = nav_new()
     local p = Screens.pause(ctx, nav)

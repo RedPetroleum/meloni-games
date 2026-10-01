@@ -1043,40 +1043,76 @@ DDDDDDD
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
 
 sprite ground_forest1
-FFFFFFFFFFFFFFFF
-FFFFFffffffFFFFF
-FFFffflllffffFFF
-FFffllllffffffFF
-FFfllllffffffkFF
-FfflllffffffffkF
-FflllffffflfffkF
-FfllffffffffffkF
-FflfffffffffffkF
-FfffffffffffffkF
-FffffffffffflFkF
-FFffffflffffFkFF
-FFfffffffffFFkFF
-FFFfkfffffFkkFFF
-FFFFFkkkkkkFFFFF
-FFFFFFFFFFFFFFFF
+fffffffFFfffffFF
+fffffffFFfffffFF
+FfffffFFfFFFFFFF
+FFFfFFFFFFFFFFFF
+FFFFFFfFFFFllfff
+fFfffFFFFFllllff
+ffffffFFFFllllff
+lllffffffffllffl
+fflfflffffffFffl
+lffflllllfffffll
+fffffllllfffFFlf
+lffffFllffffffll
+lffffFffflllffll
+flllffFfflllfffl
+flllfffFfllffffF
+flllfffFfffffffF
 
 sprite ground_forest2
-FFFFFFffffffFFFF
-FFFFffflllffffFF
-FFFffllllffffffF
-FFFfllllffffffkF
-FFfflllffffffffk
-FFflllffffflfffk
-FFfllffffffffffk
-FFflfffffffffffk
-FFfffffffffffffk
-FFffffffffffflFk
-FFFffffflffffFkF
-FFFfffffffffFFkF
-FFFFfkfffffFkkFF
-FFFFFFkkkkkkFFFF
-FFFFFFFFFFFFFFFF
-FFFFFFFFFFFFFFFF
+fffffFFFFfllffff
+fffffFFFFfflffff
+ffffFFFFFfffffff
+fffFFFlffffffFff
+FFFFFlffffffffFF
+FFFffllffffFFFFF
+ffFfllllfffFFFll
+lfffllllffffFfll
+fffflllllffffFfl
+fffffllllfffFfff
+llffffffffffFFll
+fffffFffffffFFlf
+lffffFfffffFFfll
+lffffFFfffFFFlll
+lffffFFFFFFFflll
+lffffFFFFFllffll
+
+sprite ground_forest3
+ffffFFFFFFFFffff
+ffffFFFFFFFFFfff
+fffFFFFfFFFFFFff
+fFFFFlfffFFFFFFF
+FFFfFlfffFFFFFFF
+llfffFffffFFFFfl
+lffffFffffffffff
+ffllfffflffffffF
+Fllllfflllffffff
+ffflfffllllfffff
+lffffffflllfffll
+fffffFffflffffll
+ffffFfffffffffll
+lffffFFfffffflll
+lfffFFfFFfffflll
+ffffFFFFFFFFffll
+
+sprite ground_forest4
+ffffffffffFFffFf
+ffffffffffFFffff
+lFfffFFfFFFlllfl
+llFFFFFFFFllllfl
+ffffFFFFffflllfl
+lllfffFFfffffffl
+lfffffFFFFfffffl
+llfffffFFFfffffl
+lllffffFFFFffffl
+llffffFFFFFFFFfl
+lfffffFFFFFFFFff
+fffffffffFFFFFff
+ffllffffffFFFFFf
+flllllllffFFfffF
+FlllflllffFfflff
+ffllfflfffFFfflf
 
 sprite ground_bridge_v
 vvvvvvvvvvvvvvvv
@@ -1224,8 +1260,17 @@ recolor player reithof B=4f9a4f X=37702f T=6b4a2a L=8a5a2b
 recolor player zuechter B=b8473a X=8a3129 T=3b2a24 L=2a1a14
 recolor player schlachter B=f0f0f0 X=c8c8c8 T=3a3a3a L=2a1a14
 
-# Umriss der Spielfigur, wenn sie hinter einem Baum oder Haus steht
-recolor player xray k=fbf8ef B=41557a K=41557a L=41557a T=41557a X=41557a Z=41557a i=41557a
+# Laterne, die der Mensch nachts hochhält (Rückmeldung 0.5.2)
+sprite laterne
+..k..
+..k..
+.kkk.
+kpppk
+kYAYk
+kAVAk
+kYAYk
+kpppk
+.kkk.
 
 # Staub beim Rennen
 sprite dust

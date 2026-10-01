@@ -125,10 +125,15 @@ end
 
 -- ---- Besuch ----
 
--- Der Käufer des Tages (deterministisch aus Seed und Tag). Gibt {typ, tag, verkauft} zurück.
+-- Der Käufer des Tages (deterministisch aus Seed und Tag). Gibt {typ, tag, verkauft} zurück, vor
+-- Fortschritt.AB.kaeufer nil; die Sammlerin kommt erst ab Fortschritt.AB.sammlerin.
 function B.visit(seed, day)
+  local F = require("game.fortschritt")
+  if not F.offen("kaeufer", day) then return nil end
   local rng = Rng.new((seed or 1) * 977 + day * 13 + 3)
-  return {typ = B.TYPES[rng:int(1, #B.TYPES)], tag = day, verkauft = false}
+  local typ = B.TYPES[rng:int(1, #B.TYPES)]
+  if typ == "sammlerin" and not F.offen("sammlerin", day) then typ = B.TYPES[rng:int(2, #B.TYPES)] end
+  return {typ = typ, tag = day, verkauft = false}
 end
 
 -- Verkauf von Pferd d (Daten) an den Käufer: entfernt das Pferd und zahlt. Gibt Preis oder nil, Grund.
@@ -156,7 +161,7 @@ function B.sell(ctx, typ, d)
   return price, delta
 end
 
--- ---- Figur am Hof ----
+-- ---- Figur im Dorf ----
 
 local Buyer = {}
 Buyer.__index = Buyer
@@ -176,7 +181,31 @@ function Buyer:draw_over()
   self.ctx.S.draw("emo_bang", flr(self.x) - 7, flr(self.y) - 34 - ((frame() // 20) % 2))
 end
 
--- Stellt die Figur des Tages hin (oder nimmt sie weg): sie steht am Hoftor, solange der Käufer da
+-- Platz der Figur (Rückmeldung 0.5.2): im Dorf vor dem Wohnhaus, die erste freie Kachel in der Nähe; ohne
+-- Dorf am Hoftor.
+local function spot(ctx)
+  local pl, map = ctx.area.places, ctx.map
+  if pl.wohnhaus then
+    local bx, by = pl.wohnhaus[1] + B.SPOT[1], pl.wohnhaus[2] + B.SPOT[2]
+    for r = 0, 5 do
+      for dy = -r, r do
+        for dx = -r, r do
+          if math.max(math.abs(dx), math.abs(dy)) == r then
+            local cx, cy = bx + dx, by + dy
+            local x, y = cx * 16 + 8, cy * 16 + 14
+            if map:walkable(cx, cy) and not map:blocked(x - 8, y - 6, x + 8, y) then return x, y end
+          end
+        end
+      end
+    end
+  end
+  local g, p = pl.hoftor, ctx.area.plot
+  local inward = (g[1] < p.x + p.w // 2) and 1 or -1
+  return (g[1] + inward * 2) * 16 + 8, g[2] * 16 + 14
+end
+B.SPOT = {-3, 3}          -- Kachel relativ zum Wohnhaus, von dort wird gesucht
+
+-- Stellt die Figur des Tages hin (oder nimmt sie weg): sie steht im Dorf, solange der Käufer da
 -- ist, also tagsüber und bis er etwas gekauft hat.
 function B.sync(ctx, night)
   local want = ctx.buyer and not ctx.buyer.verkauft and not night
@@ -187,12 +216,10 @@ function B.sync(ctx, night)
     ent = nil
   end
   if want and not ent then
-    local g = ctx.area.places.hoftor
-    local p = ctx.area.plot
-    local inward = (g[1] < p.x + p.w // 2) and 1 or -1
-    local shadow = ctx.map:ground_at(g[1] * 16, g[2] * 16)
+    local x, y = spot(ctx)
+    local shadow = ctx.map:ground_at(x, y)
     local e = setmetatable({
-      ctx = ctx, typ = ctx.buyer.typ, x = (g[1] + inward * 2) * 16 + 8, y = g[2] * 16 + 14,
+      ctx = ctx, typ = ctx.buyer.typ, x = x, y = y,
       reach = 40, shadow = shadow and shadow.shadow or 0, is_buyer = true,
     }, Buyer)
     ctx.world:add(e)

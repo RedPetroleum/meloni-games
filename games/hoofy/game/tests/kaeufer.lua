@@ -122,17 +122,17 @@ return {
   end},
   {"Täglich ein zufälliger Käufer aus Seed und Tag, alle vier kommen vor", function()
     local counts = {}
-    for day = 1, 400 do counts[Buyers.visit(11, day).typ] = (counts[Buyers.visit(11, day).typ] or 0) + 1 end
+    for day = 21, 420 do counts[Buyers.visit(11, day).typ] = (counts[Buyers.visit(11, day).typ] or 0) + 1 end
     for _, t in ipairs(Buyers.TYPES) do C.between(counts[t], 70, 130, t) end
     C.eq(Buyers.visit(11, 7).typ, Buyers.visit(11, 7).typ)
     local other = 0
-    for day = 1, 40 do if Buyers.visit(11, day).typ ~= Buyers.visit(12, day).typ then other = other + 1 end end
+    for day = 21, 60 do if Buyers.visit(11, day).typ ~= Buyers.visit(12, day).typ then other = other + 1 end end
     C.ok(other > 10, "anderer Seed, andere Folge")
   end},
   {"Figur am Hoftor tagsüber, nachts und nach dem Verkauf weg; im Spielstand", function()
     local ctx = Stage.build(1, 4)
     Wild.new(ctx, 3)
-    ctx.buyer = Buyers.visit(4, 1)
+    ctx.buyer = Buyers.visit(4, 11)
     Buyers.sync(ctx, false)
     C.ok(ctx.buyer_ent and not ctx.buyer_ent.dead, "da")
     local e = ctx.buyer_ent
@@ -145,7 +145,7 @@ return {
     ctx.buyer.verkauft = true
     Buyers.sync(ctx, false)
     C.eq(ctx.buyer_ent, nil, "nach dem Verkauf weg")
-    ctx.buyer = Buyers.visit(4, 2)
+    ctx.buyer = Buyers.visit(4, 12)
     local snap = Save.snapshot(ctx, Clock.new(2, 0), 4)
     local back = load("return " .. Save.encode(snap), "=x", "t", {})()
     C.eq(back.kaeufer.typ, ctx.buyer.typ)

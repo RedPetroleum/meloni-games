@@ -57,19 +57,19 @@ return {
     for _ in pairs(stats) do n = n + 1 end
     C.eq(n, 4, "alle vier Stats")
   end},
-  {"Tick: alle 3 Tage eine Bestellung (Tag 1, 4, 7 …), Verfall nach der Frist", function()
+  {"Tick: alle 3 Tage eine Bestellung (ab Tag 4: 4, 7, 10 …), Verfall nach der Frist", function()
     local ctx = ctx_new()
     local neu = 0
     for day = 1, 30 do
       local r = Orders.tick(ctx, day)
       if r.neu then neu = neu + 1 end
-      C.eq(r.neu ~= nil, (day - 1) % 3 == 0, "Tag " .. day)
+      C.eq(r.neu ~= nil, day >= 4 and (day - 1) % 3 == 0, "Tag " .. day)
       for _, o in ipairs(ctx.orders) do C.ok(day <= o.frist, "verfallene Bestellung noch offen an Tag " .. day) end
       C.ok(#ctx.orders <= 4, "höchstens 4 offen")
     end
-    C.eq(neu, 10)
+    C.eq(neu, 9)
     local ctx2 = ctx_new()
-    Orders.tick(ctx2, 1)
+    Orders.tick(ctx2, 4)
     local o = ctx2.orders[1]
     local r = Orders.tick(ctx2, o.frist + 1)
     local expired = false

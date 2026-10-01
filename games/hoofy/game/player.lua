@@ -13,10 +13,6 @@ local SPRITES = {
   up = {"player_up", "player_up_walk"},
   side = {"player_side", "player_side_walk"},
 }
-local XRAY = {}
-for dir, list in pairs(SPRITES) do
-  XRAY[dir] = {(list[1]:gsub("^player", "xray")), (list[2]:gsub("^player", "xray"))}
-end
 
 function Player.new(ctx, x, y)
   return setmetatable({
@@ -57,7 +53,7 @@ function Player:update()
       self.dust_t = self.dust_t - 1
       if self.dust_t <= 0 then
         self.dust_t = 9
-        self.ctx.fx:spawn(self.x - dx * 5, self.y - 1, {sprite = "dust", vx = -dx * 0.3, vy = -0.25, life = 16})
+        self.ctx.fx:spawn(self.x - dx * 5, self.y - 1, {sprite = "dust", ground = true, vx = -dx * 0.3, vy = -0.25, life = 16})
       end
     end
   end
@@ -85,29 +81,23 @@ function Player:draw_shadow()
   rectfill(x - 3, y - 2, x + 3, y + 1, c)
 end
 
--- prefix: "player" (normal) oder "xray" (Umriss, wenn die Figur verdeckt ist)
-function Player:draw(prefix)
+function Player:draw()
   if self.riding then return end   -- der Reiter wird mit dem Pferd gezeichnet
   local S = self.ctx.S
-  local names = prefix == "xray" and XRAY or SPRITES
+  local names = SPRITES
   local phase = self.moving and flr(self.anim) % 4 or 0
   local step = (phase == 1 or phase == 3) and 2 or 1
   local x, y = flr(self.x), flr(self.y)
+  -- Laterne (wenn gekauft) ab der Dämmerung hochgehalten; von hinten verdeckt sie die Figur nicht
+  local lantern = (self.ctx.inv.laterne or 0) > 0 and self.ctx.clock and self.ctx.clock:darkness() > 0.2
+  local lx = self.dir == "left" and x - 10 or x + 5
+  if lantern and self.dir == "up" then S.draw("laterne", lx, y - 24) end
   if self.dir == "left" or self.dir == "right" then
     S.draw(names.side[step], x - 6, y - 19, self.dir == "left")
   else
     S.draw(names[self.dir][step], x - 6, y - 19, phase == 3)
   end
-end
-
--- Verdeckt ein Baum oder Haus die Figur, zeichnet die Welt danach den Umriss (lib/world.lua).
-function Player:xray_box()
-  return self.x - 6, self.y - 19, self.x + 6, self.y
-end
-
-function Player:draw_xray()
-  if self.riding then return end
-  self:draw("xray")
+  if lantern and self.dir ~= "up" then S.draw("laterne", lx, y - 24) end
 end
 
 return Player

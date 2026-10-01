@@ -23,6 +23,7 @@ local Orders = require("game.orders")
 local Breeding = require("game.breeding")
 local Rng = require("lib.rng")
 local Menu = require("game.menu")
+local Fortschritt = require("game.fortschritt")
 local K = require("game.katalog")
 local H = require("game.horse_model")
 local U = require("lib.util")
@@ -79,7 +80,7 @@ function WorldScene.enter(arg)
     for d = 2, 1 + (arg.tage or 0) do Farm.grow(ctx, d) end
     wild.count = 0
   elseif arg and arg.fahrt then
-    -- Reise: Schuppen mit Mofa, Anhänger für 2, zwei Pferde an der Leine, vor dem Schuppen
+    -- Reise: Schuppen mit Mofa, Anhänger für 2, ein Pferd an der Leine und eins, das folgt, vor dem Schuppen
     local pl = ctx.area.plot
     ctx.money = 1000
     assert(Farm.place(ctx, "schuppen", pl.x + 13, pl.y + 14))
@@ -90,7 +91,7 @@ function WorldScene.enter(arg)
     ctx.trail:reset(ctx.player.x, ctx.player.y)
     ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
     wild.count = 0
-    for _, n in ipairs({"Hilde", "Bruno"}) do wild:attach(wild:add_own({rasse = "noriker", bindung = 40, name = n})) end
+    for _, n in ipairs({"Hilde", "Bruno"}) do wild:attach(wild:add_own({rasse = "noriker", bindung = n == "Bruno" and 75 or 40, name = n})) end
   elseif arg and arg.schatz then
     -- Reiter mit Aufspürung 100 steht 5 Kacheln neben dem ersten Schatz; ohne Steuern findet er ihn
     Schaetze.setup(ctx)
@@ -191,6 +192,7 @@ function WorldScene.enter(arg)
   end
   ctx.save = function() end
   if arg and arg.geld then ctx.money = arg.geld end
+  if arg and arg.laterne then ctx.inv.laterne = 1 end
   ctx.saving_ok = saving
   ctx.toast = function(text) toast = {text = text, t = 120} end
   if saving then ctx.save = WorldScene.save end
@@ -434,9 +436,11 @@ local function do_action(id)
     local inside = wild:in_stall()
     local sel = inside[id]
     menu = nil
-    if sel then
+    if sel and not wild:can_lead(sel) then
+      say("Du führst schon ein Pferd. " .. sel.data.name .. " bleibt im Stall.")
+    elseif sel then
       wild:take_out(sel)
-      say(sel.data.name .. " ist an der Leine.")
+      say(sel.data.name .. (sel.state == "follow" and " folgt dir." or " ist an der Leine."))
     end
     return
   end
@@ -491,8 +495,11 @@ local function do_action(id)
       wild:release(h)
       say(d.name .. " ist frei.")
     else
-      wild:attach(h)
-      say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
+      if wild:attach(h) then
+        say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
+      else
+        say("Du führst schon ein Pferd. Mehr als eins passt nicht an die Leine.")
+      end
     end
     menu = nil
   elseif id == "mount" then
@@ -533,16 +540,19 @@ function WorldScene.quit()
   WorldScene.save()
 end
 
--- Sattellampe (D5): leuchtet, wenn das Pferd, auf dem man reitet, sie trägt (Sichtkreis × 1,8).
-function WorldScene.lamp()
+-- Licht des Spielers: Sattellampe (D5) am gerittenen Pferd 1,8, sonst Laterne 1 (einmal gekauft, wird
+-- nachts von selbst getragen), ohne beides nil (alles gleichmäßig dunkel).
+function WorldScene.light()
   local r = ctx.player.riding
-  return r and r.data.lampe or false
+  if r and r.data.lampe then return 1.8 end
+  if (ctx.inv.laterne or 0) > 0 then return 1 end
+  return nil
 end
 
 -- Erkundung: alles, was der Spieler gerade sieht (tagsüber der Bildschirm, nachts der Sichtkreis).
 function WorldScene.explore()
   local p, cam = ctx.player, ctx.camera
-  local r = clock:sight(70, WorldScene.lamp())
+  local r = clock:sight(70, WorldScene.light())
   if r and r < 400 then
     Explore.reveal(ctx.explored, p.x - r, p.y - r, p.x + r, p.y + r)
   else
@@ -610,7 +620,9 @@ function WorldScene.update()
     if od.neu then say("Neue Bestellung von " .. od.neu.kunde .. ".", 150) end
     if #od.verfallen > 0 then say("Eine Bestellung ist verfallen.", 150) end
     local chaos = chaos_text()
-    if chaos then say(chaos, 200)
+    local neu = Fortschritt.neu(clock.day)[1]
+    if neu then say(neu, 240)
+    elseif chaos then say(chaos, 200)
     elseif ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
     elseif not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
   end
@@ -633,9 +645,10 @@ function WorldScene.update()
     elseif btn(BTN_A) then
       a_hold = a_hold + 1
       if a_hold == Ride.HOLD then
+        local rh = p.riding
         Ride.dismount(ctx)
         a_free = false
-        toast = {text = "Abgestiegen.", t = 60}
+        toast = {text = rh.state == "free" and ("Abgestiegen. Deine Leine ist belegt, " .. rh.data.name .. " wartet hier.") or "Abgestiegen.", t = rh.state == "free" and 150 or 60}
       end
     else
       if a_hold > 0 and a_hold < 20 and p.riding then Ride.jump(p) end
@@ -645,7 +658,8 @@ function WorldScene.update()
     a_hold, a_free = 0, false
     local h = wild:try_tame()
     if h then
-      local how = h.state == "follow" and "gezähmt, folgt dir." or "gezähmt, an der Leine."
+      local how = h.state == "follow" and "gezähmt, folgt dir." or h.state == "led" and "gezähmt, an der Leine."
+        or "gezähmt. Deine Leine ist belegt, es wartet hier."
       toast = {text = h.data.name .. " ist " .. how, t = 150}
       ctx.sfx.tame()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
@@ -676,9 +690,11 @@ function WorldScene.update()
           say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. fohlen .. (saved and " Gespeichert." or ""), 200)
           local chaos = chaos_text()
           if chaos then say(chaos, 200) end
+          local neu = Fortschritt.neu(clock.day)[1]
+          if neu then say(neu, 240) end
           ctx.sfx.start()
         else
-          say("Noch nicht müde. Nachts kannst du im Wohnwagen schlafen.", 150)
+          say("Noch nicht müde. Ab dem späten Nachmittag kannst du hier schlafen.", 150)
         end
       elseif ctx.buyer_ent and U.dist(p.x, p.y, ctx.buyer_ent.x, ctx.buyer_ent.y) <= 30 then
         nav.push(Screens.buyer(ctx, function(text) say(text, 150) end))
@@ -687,8 +703,12 @@ function WorldScene.update()
         nav.push(Screens.jobs(ctx))
         ctx.sfx.ok()
       elseif ctx.area.places.turnier and U.dist(p.x, p.y, ctx.area.places.turnier[1] * 16 + 8, ctx.area.places.turnier[2] * 16 + 8) <= 30 then
-        nav.push(Screens.turnier(ctx))
-        ctx.sfx.ok()
+        if Fortschritt.offen("turnier", clock.day) then
+          nav.push(Screens.turnier(ctx))
+          ctx.sfx.ok()
+        else
+          say("Der Turnierplatz öffnet an Tag " .. Fortschritt.AB.turnier .. ".", 120)
+        end
       elseif ctx.area.places.laden and U.dist(p.x, p.y, ctx.area.places.laden[1] * 16 + 8, ctx.area.places.laden[2] * 16 + 8) <= 26 then
         nav.push(Screens.shop(ctx))
         ctx.sfx.ok()
@@ -784,7 +804,7 @@ function WorldScene.draw()
     end
   end)
   local p = ctx.player
-  Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.lamp())
+  Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.light())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()
   if menu then

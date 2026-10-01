@@ -14,6 +14,8 @@ E.CATEGORIES = {
   {id = "fahrzeuge", name = "Fahrzeuge"},
 }
 
+E.LATERNE_PREIS = 80
+
 local function item(cat, e, extra)
   local it = {id = e.id, name = e.name, preis = e.preis, text = e.text, kat = cat, einmalig = e.einmalig}
   for k, v in pairs(extra or {}) do it[k] = v end
@@ -32,6 +34,9 @@ function E.catalog(maxgebiet)
     else cat = "schmuck" end
     list[#list + 1] = item(cat, a)
   end
+  -- Laterne (Rückmeldung 0.5.2, E65): einmal kaufen, nachts trägt man sie von selbst
+  list[#list + 1] = {id = "laterne", name = "Laterne", preis = E.LATERNE_PREIS, kat = "zubehoer", einmalig = true,
+    text = "Leuchtet nachts um dich herum. Trägst du von selbst."}
   for _, p in ipairs(K.futter.anbau) do
     if p.gebiet <= (maxgebiet or 1) then
       list[#list + 1] = {id = "samen_" .. p.id, name = "Samen: " .. p.name, preis = p.samen, text = p.text,

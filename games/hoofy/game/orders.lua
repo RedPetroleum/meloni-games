@@ -119,7 +119,7 @@ function O.tick(ctx, day)
       out.verfallen[#out.verfallen + 1] = table.remove(ctx.orders, i)
     end
   end
-  if (day - 1) % W.alle_tage == 0 then
+  if (day - 1) % W.alle_tage == 0 and require("game.fortschritt").offen("bestellungen", day) then
     out.neu = O.generate(ctx.seed, day, ctx.max_gebiet)
     ctx.orders[#ctx.orders + 1] = out.neu
   end

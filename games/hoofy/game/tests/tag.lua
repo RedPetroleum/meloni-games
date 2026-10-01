@@ -18,8 +18,8 @@ end
 
 return {
   {"Ein Tag = 5 min (18 000 Frames), 3 min hell, 2 min dunkel", function()
-    C.eq(Clock.DAY, 18000)
-    C.eq(Clock.LIGHT, 10800)
+    C.eq(Clock.DAY, 22500)
+    C.eq(Clock.LIGHT, 13500)
     local c = Clock.new(1, 0)
     local dusk, days, dark = 0, 0, 0
     for _ = 1, Clock.DAY * 2 + 5 do
@@ -32,34 +32,39 @@ return {
     C.eq(c.day, 3)
     C.between(dark / (Clock.DAY * 2), 0.39, 0.41, "40 % dunkel")
   end},
-  {"Schlafen nur nachts, überspringt den Rest der Nacht", function()
+  {"Schlafen ab 2 min vor der Nacht, überspringt den Rest der Nacht", function()
     local c = Clock.new(4, 5000)
     C.ok(not c:sleep(), "tagsüber nicht")
     C.eq(c.day, 4)
-    c.t = 12000
-    C.ok(c:sleep(), "nachts")
+    c.t = Clock.SLEEP_FROM - 1
+    C.ok(not c:sleep(), "nachmittags noch nicht")
+    c.t = Clock.SLEEP_FROM
+    C.ok(c:sleep(), "ab dem Abend")
     C.eq(c.day, 5)
+    c.t = 15000
+    C.ok(c:sleep(), "nachts")
+    C.eq(c.day, 6)
     C.eq(c.t, 0)
   end},
   {"Sichtradius: tagsüber unbegrenzt, Dämmerung schrumpft, Nacht 70, Lampe größer", function()
     local c = Clock.new(1, 100)
-    C.eq(c:sight(70), nil, "Tag")
+    C.eq(c:sight(70, 1), nil, "Tag")
     c.t = Clock.LIGHT - Clock.DUSK - 1
-    C.eq(c:sight(70), nil)
+    C.eq(c:sight(70, 1), nil)
     local last = 1e9
     for t = Clock.LIGHT - Clock.DUSK, Clock.LIGHT - 1, 60 do
       c.t = t
-      local r = c:sight(70)
+      local r = c:sight(70, 1)
       C.ok(r <= last and r >= 70 and r <= 420, "monoton fallend")
       last = r
     end
     c.t = Clock.LIGHT + 1000
-    C.eq(c:sight(70), 70)
-    C.near(c:sight(70, true), 126, 0.01, "Lampe")
+    C.eq(c:sight(70, 1), 70)
+    C.near(c:sight(70, 1.8), 126, 0.01, "Lampe")
     c.woke, c.t = true, 0
-    C.near(c:sight(70), 70, 0.01, "Sonnenaufgang beginnt dunkel")
+    C.near(c:sight(70, 1), 70, 0.01, "Sonnenaufgang beginnt dunkel")
     c.t = Clock.DAWN
-    C.eq(c:sight(70), nil, "danach hell")
+    C.eq(c:sight(70, 1), nil, "danach hell")
   end},
   {"Dunkelheit: tagsüber 0, am Abend stetig dunkler, nachts 1, vor dem Morgen heller", function()
     local c = Clock.new(1, 100)
@@ -116,10 +121,11 @@ return {
       cls()
       return v
     end
-    C.ok(at(160) > at(300), "Spieler hell, Rand dunkel")
-    C.ok(at(240, true) > at(240), "Lampe leuchtet weiter")
+    C.ok(at(160, 1) > at(300, 1), "mit Laterne: Spieler hell, Rand dunkel")
+    C.ok(at(240, 1.8) > at(240, 1), "Sattellampe leuchtet weiter")
+    C.eq(at(160), at(300), "ohne Licht gleichmäßig dunkel")
     rectfill(0, 0, 319, 239, rgb(200, 200, 200))
-    Stage.draw_dark(160, 120, 0, false)
+    Stage.draw_dark(160, 120, 0, 1)
     C.eq(r(pget(10, 100)), 200, "Tag: kein Schleier")
     cls()
   end},

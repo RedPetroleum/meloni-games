@@ -115,7 +115,7 @@ function R.update(p)
       p.dust_t = p.dust_t - 1
       if p.running and p.dust_t <= 0 then
         p.dust_t = 7
-        ctx.fx:spawn(p.x - dx * 8, p.y - 1, {sprite = "dust", vx = -dx * 0.3, vy = -0.25, life = 16})
+        ctx.fx:spawn(p.x - dx * 8, p.y - 1, {sprite = "dust", ground = true, vx = -dx * 0.3, vy = -0.25, life = 16})
       end
     end
     -- Energie: 1 je 10 s Reiten, Galopp doppelt (E30)

@@ -146,4 +146,20 @@ return {
     C.eq(d.ort, "weide")
     C.ok(hh.allow, "Pferd wieder auf der Weide eingegrenzt")
   end},
+  {"Weidetor: allein kommt kein Pferd durch, an der Leine schon", function()
+    local ctx = setup()
+    local g = ctx.area.farm.weide.gate
+    local h = ctx.wild:add_own({rasse = "haflinger", bindung = 40})
+    ctx.wild:house(h, "weide")
+    h.x, h.y = g[1] * 16 + 8, (g[2] + 1) * 16 + 14          -- in der Weide direkt unter dem Tor
+    for _ = 1, 60 do h:step(0, -1) end
+    C.ok(h.y > (g[2] + 1) * 16, "Weidepferd bleibt drin")
+    ctx.wild:release(h)
+    h.data.ort, h.allow = nil, nil                            -- lose, ohne Weidengrenze
+    for _ = 1, 60 do h:step(0, -1) end
+    C.ok(h.y > (g[2] + 1) * 16, "loses Pferd geht nicht durchs Tor")
+    h.state = "led"
+    for _ = 1, 60 do h:step(0, -1) end
+    C.ok(h.y < g[2] * 16, "an der Leine durchs Tor")
+  end},
 }

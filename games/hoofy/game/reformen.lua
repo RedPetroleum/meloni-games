@@ -44,6 +44,7 @@ local function moegliche(ctx, day)
       ok = seit ~= nil and day >= seit + (r.tage_nach or 0)
     end
     if R.ist_aktiv(ctx, r.id) then ok = false end
+    if r.id == "hunde_frei" and not require("game.fortschritt").offen("hunde", day) then ok = false end
     if ok then out[#out + 1] = r end
   end
   return out
@@ -130,7 +131,7 @@ function R.tick(ctx, day)
     ctx.steuer = total
   end
   for i = #st.aktiv, 1, -1 do if st.aktiv[i].bis < day then table.remove(st.aktiv, i) end end
-  if day >= st.naechste then
+  if day >= st.naechste and require("game.fortschritt").offen("zeitung", day) then
     local list = moegliche(ctx, day)
     local rng = Rng.new((ctx.seed or 1) * 13 + day)
     if #list > 0 then

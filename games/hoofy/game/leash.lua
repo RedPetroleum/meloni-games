@@ -9,6 +9,8 @@ L.FOLLOW = K.stats.bindung.folgt     -- ab hier folgt das Pferd ohne Leine
 L.WHISTLE = K.stats.bindung.pfiff    -- ab hier kommt es auf Pfiff
 L.SPEED = 2.4                        -- so schnell holt ein geführtes Pferd höchstens auf
 L.WHISTLE_FRAMES = 30                -- A so lange halten ohne Pferd in Reichweite (E29)
+L.MAX_LED = 1                        -- Pferde am Strick (Rückmeldung 0.5.2); frei folgende zählen nicht
+L.MAX_LEAD = 4                       -- geführte und folgende zusammen
 
 -- Ausreiß-Chance je 10 s: (100 − Bindung) / 10 %, sprinten ×2, reiten ×3, schreckhaft ×1,5.
 -- mode: "gehen", "sprinten" oder "reiten".

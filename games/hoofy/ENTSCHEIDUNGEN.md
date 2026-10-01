@@ -314,3 +314,25 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   gibt. Außerdem zeigte `ctx.hof` nach „Weiter“ auf eine zweite, nicht angewandte Kopie des Hofs (Reisen nahm sie mit):
   jetzt der Hof der Karte. Die genaue Ursache auf der Konsole ließ sich am Rechner nicht nachstellen.
 
+
+## E65 Spielverlauf, Licht, Leine, Baumodus (Rückmeldung nach 0.5.2)
+- Freischalten nach Spieltag (`game/fortschritt.lua`, Werte vom Loop gewählt): Bestellungen ab Tag 4, Käufer im Dorf ab Tag 5
+  (Sammlerin ab Tag 9), Turnierplatz ab Tag 7, Tauschen ab Tag 9, Zeitung/Reformen ab Tag 10, Hunde frühestens ab Tag 16.
+  Noch nicht freie Einträge fehlen im Pausenmenü ganz; am Morgen des Freischalttags kommt eine Meldung „Neu: …“.
+- Tag und Nacht × 1,25 (`Clock.LONGER`): 6:15 min, davon 3:45 hell. Der Katalog (5 min) bleibt unverändert; Abend-
+  und Morgenübergänge behalten ihre Länge. Schlafen geht ab 2 min vor der Nacht.
+- Laterne (nicht im Katalog): 80 G im Laden unter Zubehör, einmal kaufen, ab der Dämmerung hält die Figur sie hoch. Ohne
+  Laterne und ohne Sattellampe ist die Nacht gleichmäßig dunkel (kein Sichtbereich), Erkundung nachts nur 60 % des Radius.
+  Sattellampe beim Reiten bleibt × 1,8.
+- Leine: höchstens 1 Pferd am Strick, frei folgende (Bindung ≥ 70) zählen nicht (zusammen weiter höchstens 4). Ist der Strick
+  belegt, bleibt ein frisch gezähmtes oder abgesessenes Pferd lose stehen; aus dem Stall holen geht dann nicht.
+- Weidetor: Pferde, die allein laufen (lose, auf der Weide, ausgerissen, wild), betreten keine Torkachel; an der Leine,
+  folgend (auch nach Pfiff) und geritten geht es durch.
+- Flucht (Wildpferde, ausgerissene Pferde): Richtung alle 12 Frames neu, weg vom Spieler, aber nur dorthin, wo die nächsten
+  42 px frei sind (sonst schrittweise seitlich, zuerst zur zuletzt gewählten Seite).
+- Käufer steht im Dorf vor dem Wohnhaus statt am Hoftor. Röntgen-Umriss hinter Objekten entfernt. Staub beim Rennen liegt
+  am Boden (unter den Figuren). Waldboden: vier nahtlose Blätterdach-Kacheln statt runder Kugeln im Raster.
+- geändert (E8): Baumodus: START öffnet die Auswahl als Kachelmenü (erst Art, dann Bauteil mit Bild und Preis), A baut,
+  B schließt sofort (kein „B halten + Pfeile“ mehr). Leiste unten neu (Bauteil mit Bild, Meldung oder Schönheit, Tasten).
+  Raster: 2 × 2 Pixel große helle Punkte an allen Kachelecken des Grundstücks. Behoben: Auswahl außerhalb der Liste, wenn
+  die Samenliste beim Pflanzen kürzer wird; Meldung und Schönheit überlagerten sich.

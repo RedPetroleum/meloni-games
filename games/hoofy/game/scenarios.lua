@@ -41,9 +41,9 @@ function Scenarios.wildpferde(save)
   return "world", {ort = "start", wild_nah = true}
 end
 
--- Tageszeit: save.zeit = Frame im Tag (0–18000, ab 10800 ist es dunkel), save.tag = Tagesnummer.
+-- Tageszeit: save.zeit = Frame im Tag (0–22500, ab 13500 ist es dunkel), save.tag = Tagesnummer.
 function Scenarios.abend(save)
-  return "world", {ort = "start", zeit = save.zeit or 9800, tag = save.tag}
+  return "world", {ort = "start", zeit = save.zeit or 12250, tag = save.tag, laterne = save.laterne}
 end
 
 -- Bildschirme: save.screen = pause, horses, info, keyboard, inventar, map (Pferde wie in hof_start).
@@ -89,7 +89,7 @@ end
 
 -- Nachtritt (D5): Reiter bei Nacht, save.lampe = true mit Sattellampe.
 function Scenarios.nachtritt(save)
-  return "world", {ort = "start", ritt = true, aufsitzen = true, lampe = save.lampe, zeit = 12500}
+  return "world", {ort = "start", ritt = true, aufsitzen = true, lampe = save.lampe, zeit = 15600}
 end
 
 -- Turnierplatz (E1): am Turnierplatz mit Pferden und Fahrzeug nach save.fahrzeug (Standard: Fahrrad).
@@ -108,7 +108,7 @@ function Scenarios.pferderennen(save)
 end
 
 -- Reformen (E4): save.reform = Reform-id (aktiv ab jetzt), save.screen = "zeitung" öffnet die Zeitung;
--- Hundenacht: save.zeit = 12500 (nachts) mit hunde_frei.
+-- Hundenacht: save.zeit = 15600 (nachts) mit hunde_frei.
 function Scenarios.reform(save)
   return "world", {ort = "start", hof = true, reform = save.reform or "hunde_frei", zeit = save.zeit, screen = save.screen or "none"}
 end
@@ -144,7 +144,7 @@ end
 
 -- Käufer: drei Pferde (Hof), save.kaeufer = sammlerin, reithof, zuechter oder schlachter; Dialog offen.
 function Scenarios.kaeufer(save)
-  return "world", {ort = "start", hof = true, kaeufer = save.kaeufer or "sammlerin", screen = "kaeufer"}
+  return "world", {ort = save.ort or "start", hof = true, kaeufer = save.kaeufer or "sammlerin", screen = save.screen or "kaeufer"}
 end
 
 -- Pferdemarkt: am Stand, save.geld setzt das Geld, save.gebiet das weiteste erreichbare Gebiet.

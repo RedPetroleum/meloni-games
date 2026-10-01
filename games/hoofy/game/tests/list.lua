@@ -45,4 +45,5 @@ return {
   "reformen",
   "album",
   "tausch",
+  "fortschritt",
 }

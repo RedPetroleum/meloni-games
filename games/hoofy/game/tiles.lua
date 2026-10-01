@@ -27,7 +27,7 @@ T.PALETTES = {
 T.GROUND = {GRASS = ".", FOREST = "F", WATER = "~", BRIDGE = "=", BRIDGE_V = "I", PATH = ":", SAND = "s"}
 T.GROUNDS = {
   ["."] = {base = true, shadow = C.grass_shadow, map = rgb(0x7f, 0xb0, 0x4f)},
-  F = {sprites = {"ground_forest1", "ground_forest2"}, solid = true, shadow = C.grass_shadow,
+  F = {sprites = {"ground_forest1", "ground_forest2", "ground_forest3", "ground_forest4"}, solid = true, shadow = C.grass_shadow,
     map = rgb(0x37, 0x68, 0x2d)},
   ["~"] = {frames = {{"ground_water1"}, {"ground_water2"}}, edges = "bank", solid = true,
     shadow = C.grass_shadow, map = rgb(0x4a, 0x8c, 0xc0)},

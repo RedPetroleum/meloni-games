@@ -27,7 +27,7 @@ return {
     for _, it in ipairs(Economy.catalog(1)) do cats[it.kat] = (cats[it.kat] or 0) + 1 end
     C.eq(cats.futter, 5, "Heu, Hafer, Karotte, Premium, Bürste")
     C.eq(cats.saettel, 4)
-    C.eq(cats.zubehoer, 4, "Taschen S/M/L und Lampe")
+    C.eq(cats.zubehoer, 5, "Taschen S/M/L, Sattellampe, Laterne")
     C.eq(cats.schmuck, 4)
     C.eq(cats.samen, 3, "Gebiet 1: Gras, Karotte, Apfelbaum")
     local all = 0

@@ -12,6 +12,21 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Beim Fortsetzen stehen Weidepferde außerhalb an der Leine. (0.5.2, E64)
 - [x] Meldung am Haus passt nicht in den Kasten; Pflege ohne „Bindung +1“, Pferd zeigt Emojis. (0.5.2, E64)
 - [x] Auf dem Grundstück „Dein Hof“ statt „Heimattal“. (0.5.2, E64)
+- [x] Funktionen kommen erst später im Spielverlauf dazu, um nicht zu überfordern: Käufer/Sammler erscheinen erst später, Zeitung etc. (0.5.3, E65: Kunden Tag 4, Käufer 5, Turnier 7, Sammlerin/Tauschen 9, Zeitung 10)
+- [x] Hunde kommen viel zu früh im Spielverlauf (0.5.3, E65: frühestens Tag 16)
+- [x] mache Tage (und proportional Nächte) etwas länger, ca. 25 % (0.5.3, E65: 6:15 min statt 5 min)
+- [x] Man kann eine Lampe kaufen, so eine die man oben festhält. wenn man die einmal gekauft hat, wird die automatisch getragen bei nacht. Dann sieht es so aus, wie gerade, dass um einen herum alles etwas heller ist. Wenn man die nicht hat, dann ist alles gleichmäßig dunkel. (0.5.3, E65: Laterne 80 G im Laden, Zubehör)
+- [x] man kann auch schon vor Nachteinbruch schlafen. (0.5.3, E65: ab 2 min vor der Nacht)
+- [x] Sammler/Händler stehen nicht so nah am Hof, sondern irgendwo im Dorf. (0.5.3, E65: vor dem Wohnhaus)
+- [x] wenn man nach unten rennt, soll der partikeleffekt nicht über dem menschen sein, sondern dahinter. (0.5.3, E65: Staub am Boden)
+- [x] Die "Bäume" am Gebietsrand sehen unrealistsich aus. mache das vernünftig. (0.5.3, E65: Wald als Blätterdach, 4 Varianten)
+- [x] wenn man hinter objekten ist, soll man nicht so xray mäßig aussehen. das nervt. funktion komplett weg. (0.5.3, E65: entfernt)
+- [x] Wenn wilde pferde wegrennen sind die zu dumm, weil die konstant in eine richtung laufen, und dann an wänden etc. hängen bleiben. mache das smarter. (0.5.3, E65: weichen Hindernissen aus)
+- [x] Pferde sollen nicht durch das weiden tor abhauen können. (0.5.3, E65: allein nicht, mit dir schon)
+- [x] man kann immer nur max. 1 Pferd an einer Leine haben. (0.5.3, E65: frei folgende zählen nicht)
+- [x] im Baumodus kleines dezentes raster über 2x2. (0.5.3, E65: Punkte an den Kachelecken)
+- [x] das Baumenü ist unübersichtlich und verbuggt. auch die steuerung davon vermutlich. (0.5.3, E65: START öffnet Kachel-Auswahl)
+
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

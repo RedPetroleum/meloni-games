@@ -931,7 +931,38 @@ function Screens.stammbaum(ctx, data)
   return s
 end
 
--- ---- Baumodus (E8): Cursor im Kachelraster, A setzen, B gehalten + Steuerkreuz wählt ----
+-- ---- Baumodus (E8, geändert nach Rückmeldung 0.5.2): Cursor im Kachelraster, A setzt, START öffnet die
+-- Bauteil-Auswahl als Kachelmenü (erst Art, dann Bauteil), B schließt. Dezentes Raster aus 2 × 2 Pixel großen
+-- Punkten an den Kachelecken des Grundstücks. ----
+
+-- Bild eines Bauteils für das Kachelmenü
+local BUILD_ICON = {
+  weg = "ground_path1", boden = "ground_sand1", beet = "ground_carrots", feld = "ground_carrots",
+  zaun = "fence_post", land_n = "ico_karte", land_o = "ico_karte", land_s = "ico_karte", land_w = "ico_karte",
+}
+local CAT_ICON = {
+  deko = "blumenkuebel", wege = "ground_path1", anbau = "ground_carrots", pflanzen = "pflanze_karotte_3",
+  zaun = "gate", gebaeude = "stable", land = "ico_karte", abriss = "cursor_bad",
+}
+local function build_icon(cat, id)
+  if cat == "pflanzen" then return "pflanze_" .. id .. "_3" end
+  if BUILD_ICON[id] then return BUILD_ICON[id] end
+  local it = Farm.ITEMS[id]
+  local P = it and it.prop and Tiles.PROPS[it.prop]
+  return P and (P.sprite or (P.variants and P.variants[1])) or "ico_bauen"
+end
+
+-- Name, Preis (oder nil) eines Bauteils
+local function build_name(ctx, cat, id)
+  if cat == "pflanzen" then return Farm.crop(id).name, nil end
+  if cat == "land" then return Farm.LAND_DIRS[id].name, (Farm.land_angebot(ctx, id)) end
+  local b = K.bauteil(id)
+  return b.name, b.preis
+end
+
+local function short(name)
+  return #name > 9 and name:sub(1, 8) .. "." or name
+end
 
 function Screens.build(ctx)
   local farm = ctx.area.farm
@@ -939,8 +970,8 @@ function Screens.build(ctx)
   local cat, item = 1, 1
   local cx = mid(plot.x, flr(ctx.player.x / 16), plot.x + plot.w - 1)
   local cy = mid(plot.y, flr((ctx.player.y - 2) / 16), plot.y + plot.h - 1)
-  local msg, msg_t = "B halten + Pfeile: Bauteil", 400
-  local b_used = false
+  local msg, msg_t = "START: anderes Bauteil", 300
+  local picker                 -- offenes Kachelmenü: {stage = "cat"|"item", m = Menu}
   local s = {}
   local pastures = Farm.pastures(ctx.map, farm)
   -- Nach jedem Umbau: Weiden neu berechnen, Pferde umsetzen, Meldung
@@ -955,115 +986,137 @@ function Screens.build(ctx)
     if after ~= before then return "Weiden: " .. #pastures .. ", Plätze " .. after .. "." end
   end
   local cats = Farm.categories(ctx)
+  -- Kategorie und Bauteil gültig halten (die Samenliste ändert sich beim Pflanzen)
   local function cur_item()
+    cats = Farm.categories(ctx)
+    cat = mid(1, cat, #cats)
     local c = cats[cat]
+    item = mid(1, item, max(1, #c.items))
     return c.items[item], c
   end
   local function say(text) msg, msg_t = text, 180 end
-  function s.update(nav)
-    cats = Farm.categories(ctx)
-    local c = cats[math.min(cat, #cats)]
-    if btn(BTN_B) then
-      local moved = false
-      if btnp(BTN_LEFT) then cat = (cat - 2) % #cats + 1; item, moved = 1, true end
-      if btnp(BTN_RIGHT) then cat = cat % #cats + 1; item, moved = 1, true end
-      c = cats[cat]
-      if #c.items > 0 then
-        if btnp(BTN_UP) then item = (item - 2) % #c.items + 1; moved = true end
-        if btnp(BTN_DOWN) then item = item % #c.items + 1; moved = true end
+
+  local function open_cats(sel)
+    local items = {}
+    for i, c in ipairs(cats) do
+      local empty = #c.items == 0 and c.id ~= "abriss"
+      items[i] = {label = c.name .. (empty and " (keine Samen)" or ""), id = i, icon = CAT_ICON[c.id] or "ico_bauen",
+        short = short(c.name), dim = empty}
+    end
+    picker = {stage = "cat", m = Menu.new(items, "Was bauen?")}
+    picker.m.sel = sel or cat
+  end
+  local function open_items(ci)
+    local c = cats[ci]
+    local items = {}
+    for i, id in ipairs(c.items) do
+      local name, price = build_name(ctx, c.id, id)
+      items[i] = {label = name .. (price and ("  " .. price .. " G") or ""), id = i, icon = build_icon(c.id, id),
+        short = short(name), badge = price and tostring(price) or nil}
+    end
+    picker = {stage = "item", cat = ci, m = Menu.new(items, c.name)}
+    if ci == cat then picker.m.sel = item end
+  end
+
+  local function act()
+    local id, c = cur_item()
+    if c.id == "abriss" then
+      local sum, why = Farm.remove(ctx, cx, cy)
+      if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
+    elseif c.id == "land" then
+      local ok, why = Farm.buy_land(ctx, id)
+      if ok then
+        SFX.ok() say(Farm.LAND_DIRS[id].name .. " gekauft: " .. why .. " G.")
+        pastures = Farm.pastures(ctx.map, farm)
+        plot = farm.plot
+      else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
+    elseif c.id == "pflanzen" then
+      if not id then say("Noch keine Samen: im Laden kaufen.")
+      else
+        local ok, why = Farm.plant(ctx, id, cx, cy)
+        if ok then SFX.ok() say(Farm.crop(id).name .. " gepflanzt.") else SFX.snort() say(why .. ".") end
       end
-      if moved then b_used = true; SFX.select() end
+    else
+      local ok, why = Farm.place(ctx, id, cx, cy)
+      if ok then SFX.ok() say(changed() or (K.bauteil(id).name .. " gebaut."))
+      else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
+    end
+  end
+
+  function s.update(nav)
+    cur_item()
+    if picker then
+      local r = picker.m:update()
+      if btnp(BTN_START) and not btn(BTN_SELECT) then picker = nil
+      elseif r == "close" then
+        if picker.stage == "item" then open_cats(picker.cat) else picker = nil end
+      elseif r and picker.stage == "cat" then
+        if cats[r].id == "abriss" then cat, item, picker = r, 1, nil  say("A reißt ab, was unter dem Cursor steht.")
+        else open_items(r) end
+      elseif r and picker.stage == "item" then
+        cat, item, picker = picker.cat, r, nil
+      end
     else
       if btnp(BTN_LEFT) then cx = max(plot.x, cx - 1) end
       if btnp(BTN_RIGHT) then cx = min(plot.x + plot.w - 1, cx + 1) end
       if btnp(BTN_UP) then cy = max(plot.y, cy - 1) end
       if btnp(BTN_DOWN) then cy = min(plot.y + plot.h - 1, cy + 1) end
-      if btnp(BTN_A) then
-        local id = c.items[item]
-        if c.id == "abriss" then
-          local sum, why = Farm.remove(ctx, cx, cy)
-          if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
-        elseif c.id == "land" then
-          local ok, why = Farm.buy_land(ctx, id)
-          if ok then
-            SFX.ok() say(Farm.LAND_DIRS[id].name .. " gekauft: " .. why .. " G.")
-            pastures = Farm.pastures(ctx.map, farm)
-          else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
-        elseif c.id == "pflanzen" then
-          if not id then say("Noch keine Samen: im Laden kaufen.")
-          else
-            local ok, why = Farm.plant(ctx, id, cx, cy)
-            if ok then SFX.ok() say(Farm.crop(id).name .. " gepflanzt.") else SFX.snort() say(why .. ".") end
-          end
-        else
-          local ok, why = Farm.place(ctx, id, cx, cy)
-          if ok then SFX.ok() say(changed() or (K.bauteil(id).name .. " gebaut."))
-          else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
-        end
-      end
+      if btnp(BTN_START) and not btn(BTN_SELECT) then open_cats() SFX.select()
+      elseif btnp(BTN_B) then SFX.back() nav.pop() return
+      elseif btnp(BTN_A) then act() end
     end
-    -- B allein (ohne gewählt zu haben) beim Loslassen: zurück
-    if not btn(BTN_B) then
-      if s.b_was and not b_used then SFX.back() nav.pop() end
-      b_used = false
-    end
-    s.b_was = btn(BTN_B)
     if msg_t > 0 then msg_t = msg_t - 1 end
     ctx.camera:follow(cx * 16 + 8, cy * 16 + 8)
   end
+
+  -- Passt das Bauteil an die Cursorstelle? Gibt ok, Breite, Höhe (Kacheln) zurück.
+  local function check(id, c)
+    if c.id == "abriss" then return Farm.item_at(farm, cx, cy) ~= nil or Farm.plant_at(farm, cx, cy) ~= nil, 1, 1 end
+    if c.id == "land" then local price = Farm.land_angebot(ctx, id) return price ~= nil and ctx.money >= price, 1, 1 end
+    if c.id == "pflanzen" then
+      if not id then return false, 1, 1 end
+      local crop = Farm.crop(id)
+      return Farm.can_plant(ctx, id, cx, cy), crop.w, crop.h
+    end
+    local it = Farm.ITEMS[id]
+    return Farm.can_place(ctx.map, farm, id, cx, cy, ctx.player) and ctx.money >= K.bauteil(id).preis, it.w or 1, it.h or 1
+  end
+
   function s.draw()
     local cam = ctx.camera
     local id, c = cur_item()
-    local w, h = 1, 1
-    local ok = true
-    if c.id == "abriss" then
-      ok = Farm.item_at(farm, cx, cy) ~= nil or Farm.plant_at(farm, cx, cy) ~= nil
-    elseif c.id == "land" then
-      ok = Farm.land_angebot(ctx, id) ~= nil
-    elseif c.id == "pflanzen" then
-      if id then
-        local crop = Farm.crop(id)
-        w, h = crop.w, crop.h
-        ok = Farm.can_plant(ctx, id, cx, cy)
-      else
-        ok = false
-      end
-    else
-      local it = Farm.ITEMS[id]
-      w, h = it.w or 1, it.h or 1
-      ok = Farm.can_place(ctx.map, farm, id, cx, cy, ctx.player) and ctx.money >= K.bauteil(id).preis
-    end
-    -- Grundstücksgrenze und Cursor (Weltkoordinaten)
+    local ok, w, h = check(id, c)
     camera(cam.x, cam.y)
+    -- Raster: dezente 2 × 2-Punkte an den Kachelecken (nur Sichtbares)
+    local x0 = max(plot.x, cam.x // 16)
+    local x1 = min(plot.x + plot.w, (cam.x + SCREEN_W) // 16 + 1)
+    local y0 = max(plot.y, cam.y // 16)
+    local y1 = min(plot.y + plot.h, (cam.y + SCREEN_H) // 16 + 1)
+    local dot = rgb(0xfb, 0xf8, 0xef)
+    for ty = y0, y1 do
+      for tx = x0, x1 do rectfill(tx * 16 - 1, ty * 16 - 1, tx * 16, ty * 16, dot) end
+    end
     rect(plot.x * 16 - 1, plot.y * 16 - 1, (plot.x + plot.w) * 16, (plot.y + plot.h) * 16, C.gold)
-    -- Weiden: grüne Punkte auf jeder Kachel, Beschriftung an der ersten
-    for _, w in ipairs(pastures) do
-      for _, t in ipairs(w.list) do
+    -- Weiden: gelbe Punkte auf jeder Kachel, Beschriftung an der ersten
+    for _, pw in ipairs(pastures) do
+      for _, t in ipairs(pw.list) do
         local x, y = t[1] * 16, t[2] * 16
         if x + 16 > cam.x and x < cam.x + SCREEN_W and y + 16 > cam.y and y < cam.y + SCREEN_H then
-          rectfill(x + 7, y + 7, x + 8, y + 8, rgb(0xf3, 0xd5, 0x7f))
+          rectfill(x + 7, y + 7, x + 8, y + 8, C.gold)
         end
       end
-      local t = w.list[1]
-      print("Weide " .. w.plaetze .. " Plätze", t[1] * 16 + 2, t[2] * 16 + 2, rgb(0xf3, 0xd5, 0x7f))
+      local t = pw.list[1]
+      print("Weide " .. pw.plaetze .. " Plätze", t[1] * 16 + 2, t[2] * 16 + 2, C.gold)
     end
-    for dy = 0, h - 1 do
-      for dx = 0, w - 1 do ctx.S.draw(ok and "cursor_ok" or "cursor_bad", (cx + dx) * 16, (cy + dy) * 16) end
+    if c.id ~= "land" then
+      for dy = 0, h - 1 do
+        for dx = 0, w - 1 do ctx.S.draw(ok and "cursor_ok" or "cursor_bad", (cx + dx) * 16, (cy + dy) * 16) end
+      end
     end
     camera()
-    -- Leiste unten
-    rectfill(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel)
-    rect(0, SCREEN_H - 34, SCREEN_W - 1, SCREEN_H - 1, C.panel_light)
-    local x = 6
-    for i, cc in ipairs(cats) do
-      print(cc.name, x, SCREEN_H - 31, i == cat and C.gold or C.dim)
-      x = x + textw(cc.name) + 6
-    end
-    local money = ctx.money .. " G"
-    print(money, SCREEN_W - textw(money) - 6, SCREEN_H - 31, C.gold)
-    local bonus, next_at, score = Farm.schoenheit_bonus(farm)
-    local beauty = "Schönheit " .. flr(score) .. (next_at and ("/" .. next_at) or "") .. " (Bindung +" .. bonus .. ")"
-    print(beauty, SCREEN_W - textw(beauty) - 6, SCREEN_H - 9, C.gold)
+    -- Leiste unten: gewähltes Bauteil, Meldung, Tasten
+    local y = SCREEN_H - 36
+    Stage.panel(0, y, SCREEN_W - 1, SCREEN_H - 1)
     local line
     if c.id == "abriss" then
       local it = Farm.item_at(farm, cx, cy)
@@ -1072,21 +1125,28 @@ function Screens.build(ctx)
         or it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
     elseif c.id == "land" then
       local price, n = Farm.land_angebot(ctx, id)
-      line = "< " .. Farm.LAND_DIRS[id].name .. " >  " .. (price and (n .. " Stücke, " .. price .. " G") or "Kartenrand")
-      ok = price ~= nil and ctx.money >= price
+      line = Farm.LAND_DIRS[id].name .. ": " .. (price and (n .. " Stück(e), " .. price .. " G") or "Kartenrand")
     elseif c.id == "pflanzen" then
       if id then
         local crop = Farm.crop(id)
-        line = "< " .. crop.name .. " >  reif nach " .. crop.reif .. " T, dann alle " .. crop.dann .. " T, " .. crop.ertrag .. "x"
+        line = crop.name .. ": reif nach " .. crop.reif .. " T, dann alle " .. crop.dann .. " T, " .. crop.ertrag .. "x"
       else
         line = "Keine Samen im Vorrat"
       end
     else
       local b = K.bauteil(id)
-      line = "< " .. b.name .. " >  " .. b.preis .. " G" .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
+      line = b.name .. "  " .. b.preis .. " G" .. (b.wirkung.schoenheit and ("  Schönheit +" .. b.wirkung.schoenheit) or "")
     end
-    print(line, 6, SCREEN_H - 20, ok and C.text or C.red)
-    if msg_t > 0 then print(msg, 6, SCREEN_H - 9, C.dim) else print("A: bauen  B: zurück", 6, SCREEN_H - 9, C.dim) end
+    Menu.icon(c.id == "abriss" and "cursor_bad" or (id and build_icon(c.id, id)) or "ico_bauen", 16, y + 13, 20)
+    print(line, 32, y + 5, ok and C.text or C.red)
+    if msg_t > 0 then
+      print(msg, 32, y + 16, C.dim)          -- Meldung bekommt die ganze Zeile
+    else
+      local bonus, next_at, score = Farm.schoenheit_bonus(farm)
+      print("Schönheit " .. flr(score) .. (next_at and ("/" .. next_at) or "") .. "  Bindung +" .. bonus, 32, y + 16, C.dim)
+    end
+    Stage.center("A bauen   START Auswahl   B fertig", y + 27, C.gold)
+    if picker then picker.m:draw() end
   end
   return s
 end
@@ -1392,18 +1452,22 @@ end
 -- ---- Pausenmenü (E5) ----
 
 function Screens.pause(ctx, nav)
-  local items = {
+  local F = require("game.fortschritt")
+  local day = F.tag(ctx)
+  local all = {
     {label = "Weiter", id = "resume", icon = "ico_weiter"},
     {label = "Pferde", id = "horses", icon = "icon_horse"},
     {label = "Inventar", id = "inventory", icon = "ico_vorrat", short = "Vorrat"},
-    {label = "Bestellungen", id = "orders", icon = "ico_kunden", short = "Kunden"},
+    {label = "Bestellungen", id = "orders", icon = "ico_kunden", short = "Kunden", ab = "bestellungen"},
     {label = "Karte", id = "map", icon = "ico_karte"},
     {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot(), icon = "ico_bauen"},
-    {label = "Zeitung", id = "news", icon = "ico_zeitung"},
+    {label = "Zeitung", id = "news", icon = "ico_zeitung", ab = "zeitung"},
     {label = "Album", id = "album", icon = "ico_album"},
-    {label = "Tauschen", id = "swap", icon = "ico_tausch", short = "Tausch"},
+    {label = "Tauschen", id = "swap", icon = "ico_tausch", short = "Tausch", ab = "tauschen"},
     {label = "Speichern", id = "save", dim = not ctx.saving_ok, icon = "ico_sichern", short = "Sichern"},
   }
+  local items = {}                 -- noch nicht freigeschaltete Einträge fehlen ganz (Fortschritt)
+  for _, it in ipairs(all) do if not it.ab or F.offen(it.ab, day) then items[#items + 1] = it end end
   local m = Menu.new(items, "Pause")
   local s = {}
   function s.update(n)
@@ -1430,6 +1494,7 @@ function Screens.pause(ctx, nav)
     local _, h = m:size()
     m:draw(nil, (SCREEN_H - h) // 2 + 6)
   end
+  s.items = items
   s.overlay = true        -- Welt bleibt darunter sichtbar
   return s
 end
