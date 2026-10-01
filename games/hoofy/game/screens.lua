@@ -355,16 +355,16 @@ function Screens.shop(ctx)
   end
   function s.draw()
     cls(C.panel)
-    header("Laden")
+    header("Laden: " .. Economy.CATEGORIES[cat].name)
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
-    -- Reiter
-    local x = 6
+    -- Reiter als Icons über die ganze Breite (die Namen passen nicht nebeneinander), Name steht im Kopf
+    local n = #Economy.CATEGORIES
+    local w = (SCREEN_W - 12 - (n - 1) * 3) // n
     for i, c in ipairs(Economy.CATEGORIES) do
-      local w = textw(c.name) + 10
-      rectfill(x, 18, x + w - 1, 30, i == cat and C.gold or C.panel_light)
-      print(c.name, x + 5, 21, i == cat and C.panel or C.text)
-      x = x + w + 3
+      local x = 6 + (i - 1) * (w + 3)
+      rectfill(x, 17, x + w - 1, 31, i == cat and C.gold or C.panel_light)
+      Menu.icon(c.icon, x + w // 2, 24, 12)
     end
     local list = items()
     local y = 38

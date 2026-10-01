@@ -6,12 +6,12 @@ local Farm = require("game.farm")
 local E = {}
 
 E.CATEGORIES = {
-  {id = "futter", name = "Futter"},
-  {id = "saettel", name = "Sättel"},
-  {id = "zubehoer", name = "Zubehör"},
-  {id = "schmuck", name = "Schmuck"},
-  {id = "samen", name = "Samen"},
-  {id = "fahrzeuge", name = "Fahrzeuge"},
+  {id = "futter", name = "Futter", icon = "ico_hafer"},
+  {id = "saettel", name = "Sättel", icon = "ico_reiten"},
+  {id = "zubehoer", name = "Zubehör", icon = "ico_buerste"},
+  {id = "schmuck", name = "Schmuck", icon = "ico_schmuck"},
+  {id = "samen", name = "Samen", icon = "ico_samen"},
+  {id = "fahrzeuge", name = "Fahrzeuge", icon = "ico_fahrzeug"},
 }
 
 E.LATERNE_PREIS = 80

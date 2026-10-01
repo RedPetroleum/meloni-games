@@ -30,7 +30,7 @@ local U = require("lib.util")
 
 local WorldScene = {}
 
-local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
+local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, a_release, menu, clock
 local stack, nav = {}, {}
 local idle_t = 0
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
@@ -60,7 +60,7 @@ function WorldScene.enter(arg)
   paused, anim_frame, t = false, 1, 0
   stack = {}
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
-  toast, a_hold, a_free, menu = nil, 0, false, nil
+  toast, a_hold, a_free, a_release, menu = nil, 0, false, false, nil
   clock = Clock.new(arg and arg.tag, arg and arg.zeit)
   ctx.clock = clock
   if arg and arg.regen ~= nil then ctx.regen_erzwungen = arg.regen end
@@ -506,7 +506,7 @@ local function do_action(id)
     menu = nil
   elseif id == "mount" then
     if wild:mount(h) == "ok" then
-      mounted_hold = true
+      a_release = true
     else
       ctx.sfx.snort()
       h:react("emo_storm", 120)                                  -- verweigert das Reiten
@@ -625,16 +625,17 @@ function WorldScene.update()
     local n = Schaetze.abladen(ctx)
     if n > 0 then say(n .. " Fund" .. (n > 1 and "e" or "") .. " ins Fahrzeug geladen.", 150) end
   end
-  if p.riding then
+  if a_release then
+    -- Nach Auf- oder Absteigen zählt A erst nach dem Loslassen wieder (btnp wiederholt gehaltene Tasten)
+    if not btn(BTN_A) then a_release, a_hold = false, 0 end
+  elseif p.riding then
     -- Reiten (E3): A antippen = springen, A lange halten = absteigen
-    if mounted_hold then
-      if not btn(BTN_A) then mounted_hold = false end
-    elseif btn(BTN_A) then
+    if btn(BTN_A) then
       a_hold = a_hold + 1
       if a_hold == Ride.HOLD then
         local rh = p.riding
         Ride.dismount(ctx)
-        a_free = false
+        a_free, a_release = false, true
         toast = {text = rh.state == "free" and ("Abgestiegen. Deine Leine ist belegt, " .. rh.data.name .. " wartet hier.") or "Abgestiegen.", t = rh.state == "free" and 150 or 60}
       end
     else
