@@ -269,3 +269,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 ## E58 Springreiten-Minispiel (E2)
 - Seitenansicht: das Pferd galoppiert von selbst (2,2 px/Frame), A springt (30 Frames Bogen), 10 Stangen von 8 bis 30 px, Abstand 105 px, ≈ 14 s. Sprunghöhe wie beim Reiten (6 + 0,3 × effektive Stärke), schwindet mit dem Fortschritt um bis zu die Hälfte × (1 − Ausdauer/100). Zu niedrig an der Stange = Fehler, 24 Frames Stolpern. Punkte = saubere Stangen in % × (0,5 + Bindung/200) und ersetzen die gerechnete Wertung im Turnier. Die Startgebühr wird vorher auf Deckung geprüft, abgezogen nach dem Lauf; kein Abbruch mit B (sonst würde man Gebühr sparen).
 - Die Chancen-Anzeige vor dem Start rechnet weiter mit Stärke/Ausdauer (Schätzung); die Leistung im Minispiel kann davon abweichen. Zu Fuß keine Sättel nötig.
+
+## E59 Pferderennen-Minispiel (E3)
+- Seitenansicht, 6 Bahnen (eigenes Pferd unten, 5 Gegner), 900 px. A halten = Spurt mit Höchstgeschwindigkeit 1,3 + 2,1 × Tempo × (0,5 + Bindung/200) / 100 px pro Frame; Vorrat 120 + 3 × Ausdauer Frames, danach lahmt es (55 %); ohne A trabt es (70 %) und erholt sich (0,5 pro Frame). Gegner laufen gleichmäßig mit ihrer Turnierstärke ± 10 % Tagesform. Der Platz im Rennen ist der Platz im Turnier (`platz_fix`), die Punkte (Durchschnittstempo als 0–100) stehen im Ergebnis.
+- Balance-Hinweis: Wilde Pferde (Tempo ≈ 30–50) kommen im Dorf-Rennen mit klugem Spurt oft aufs Podest, in höheren Klassen brauchen sie Training. Das Ergebnis ist deterministisch bis auf die Eingabe; die Chancenanzeige vorher bleibt eine Schätzung.

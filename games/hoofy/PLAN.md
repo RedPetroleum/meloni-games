@@ -278,7 +278,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Wertung; Screenshot.
 - [x] **E2 Minispiel Springreiten** (E58; Drehbuch-Shot-Sheet, SELFTEST 196): Parcours, Stärke → Sprunghöhe, Ausdauer → Leistungsabfall.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
-- [ ] **E3 Minispiel Pferderennen**: Tempo, Ausdauer, Gegner.
+- [x] **E3 Minispiel Pferderennen** (E59; Drehbuch-Shot-Sheet, SELFTEST 201): Tempo, Ausdauer, Gegner.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
 - [ ] **E4 Reformen**: Zeitung alle 4 Tage, alle Reformen aus KATALOG §14, Hunde/Wölfe/Krokodile
   nachts (Krokodile auch tags), zerstören Deko, starke Pferde wehren ab.

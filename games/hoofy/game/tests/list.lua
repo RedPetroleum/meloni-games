@@ -41,4 +41,5 @@ return {
   "nachtsicht",
   "turniere",
   "springen",
+  "rennen",
 }

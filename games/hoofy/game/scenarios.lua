@@ -102,6 +102,11 @@ function Scenarios.springreiten(save)
   return "world", {ort = "start", hof = true, screen = "springen", staerke = save.staerke}
 end
 
+-- Pferderennen-Minispiel (E3): A halten = Spurt (INPUT-Drehbuch), save.staerke ist hier ohne Wirkung.
+function Scenarios.pferderennen(save)
+  return "world", {ort = "start", hof = true, screen = "rennen"}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

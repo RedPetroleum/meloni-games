@@ -428,14 +428,20 @@ function Screens.turnier(ctx)
         else sel_w, stage, sel = list[sel].id, "pferd", 1 SFX.ok() end
       else
         local d = list[sel]
-        local function antreten(punkte)
-          local r, why = Turniere.teilnehmen(ctx, day, d, sel_k, sel_w, punkte)
+        local function antreten(punkte, platz)
+          local r, why = Turniere.teilnehmen(ctx, day, d, sel_k, sel_w, punkte, platz)
           if r then result, stage = r, "ergebnis" if r.rank == 1 then SFX.tame() else SFX.ok() end
           else SFX.snort() msg, msg_t = why == "Geld" and "Zu wenig Geld für die Startgebühr." or (why .. "."), 150 end
         end
         if sel_w == "springreiten" then
           if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
           else nav.push(Screens.springreiten(ctx, d, antreten)) end
+        elseif sel_w == "pferderennen" then
+          if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
+          else
+            local g = Turniere.gegner(ctx, sel_k, sel_w, Turniere.state(ctx, day).runde)
+            nav.push(Screens.rennen(ctx, d, g, antreten))
+          end
         else
           antreten()
         end
@@ -545,6 +551,61 @@ function Screens.springreiten(ctx, d, done)
       Stage.center("A: weiter", 116, C.dim)
     else
       print("A: springen", 6, SCREEN_H - 10, C.dim)
+    end
+  end
+  return s
+end
+
+-- ---- Minispiel Pferderennen (E3): A halten = Spurt; am Ende A, dann done(punkte, platz) ----
+
+function Screens.rennen(ctx, d, gegner, done)
+  local Rn = require("game.rennen")
+  local st = Rn.new(d, gegner, require("lib.rng").new(5))
+  local s = {full = true}
+  local finished = false
+  local rasse = K.rasse(d.rasse)
+  function s.update(nav)
+    Rn.update(st, btn(BTN_A) and not st.done)
+    if st.done and btnp(BTN_A) and not finished then
+      finished = true
+      nav.pop()
+      done(Rn.punkte(st), Rn.platz(st))
+    end
+  end
+  function s.draw()
+    cls(rgb(0x9f, 0xcd, 0x66))
+    rectfill(0, 0, SCREEN_W - 1, 13, C.panel)
+    print("Pferderennen: " .. d.name, 6, 3, C.gold)
+    local lanes = #st.rivals + 1
+    local lane_h = 24
+    local y0 = 30
+    local cam = min(st.x, Rn.LENGTH) - 90
+    for i = 1, lanes do
+      local y = y0 + (i - 1) * lane_h
+      rectfill(0, y + 20, SCREEN_W - 1, y + 21, rgb(0xb3, 0x8c, 0x57))
+    end
+    -- Ziellinie
+    local fx = flr(Rn.LENGTH - cam)
+    if fx < SCREEN_W then rectfill(fx, y0, fx + 3, y0 + lanes * lane_h, C.text) end
+    -- eigenes Pferd auf der letzten Bahn, Gegner darüber
+    local function horse_at(x, i, own)
+      local y = y0 + (i - 1) * lane_h + 20
+      local pose = ((st.frame // 5) % 2 == 0) and "gallop1" or "gallop2"
+      local col = own and d.farbe or "brauner"
+      G.draw(col, rasse.koerper, pose, flr(x - cam), y, false)
+    end
+    for i, r in ipairs(st.rivals) do horse_at(r.x, i, false) end
+    horse_at(st.x, lanes, true)
+    -- Ausdauer
+    rectfill(10, 216, 129, 224, C.panel)
+    rectfill(11, 217, 11 + flr(117 * st.stamina / st.cap), 223, st.stamina > 0 and C.gold or C.red)
+    print("Ausdauer", 136, 216, C.text)
+    if st.done then
+      Stage.panel(70, 90, 249, 140)
+      Stage.center("Platz " .. Rn.platz(st) .. " von " .. lanes, 100, C.gold, 2)
+      Stage.center("Punkte " .. flr(Rn.punkte(st)) .. "   A: weiter", 124, C.dim)
+    else
+      print("A: Spurt", SCREEN_W - 70, 216, C.dim)
     end
   end
   return s

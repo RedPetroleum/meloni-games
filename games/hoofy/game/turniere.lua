@@ -92,8 +92,8 @@ function T.chancen(ctx, d, klasse, wb, runde, punkte)
 end
 
 -- Teilnehmen: bezahlt, verbraucht den Wettbewerb, würfelt den Platz. Gibt Ergebnis oder false und Grund zurück.
--- punkte: Punktzahl aus einem Minispiel (sonst gerechnet).
-function T.teilnehmen(ctx, day, d, klasse, wb, punkte)
+-- punkte: Punktzahl aus einem Minispiel (sonst gerechnet); platz_fix: Platz aus einem Rennen (Gegner laufen mit).
+function T.teilnehmen(ctx, day, d, klasse, wb, punkte, platz_fix)
   local st = T.state(ctx, day)
   local k = K.turniere.klassen[klasse]
   local ok = false
@@ -107,7 +107,7 @@ function T.teilnehmen(ctx, day, d, klasse, wb, punkte)
   st.weg[key] = true
   local own = punkte or T.wertung(d, wb)
   local R = Rng.new((ctx.seed or 1) + day * 17 + klasse)
-  local rank = platz(own, T.gegner(ctx, klasse, wb, st.runde), R)
+  local rank = platz_fix or platz(own, T.gegner(ctx, klasse, wb, st.runde), R)
   local preis = k.preise[rank] or 0
   ctx.money = ctx.money + preis
   return {rank = rank, preis = preis, gebuehr = k.gebuehr, wertung = own, klasse = k.name, wb = wb}

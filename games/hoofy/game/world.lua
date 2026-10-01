@@ -242,6 +242,7 @@ function WorldScene.enter(arg)
     if name == "bauen" or name == "weiden" then nav.push(Screens.build(ctx)) end
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
     if name == "springen" then nav.push(Screens.springreiten(ctx, ctx.herd[1], function() end)) end
+    if name == "rennen" then nav.push(Screens.rennen(ctx, ctx.herd[1], {35, 30, 25, 20, 15}, function() end)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end
