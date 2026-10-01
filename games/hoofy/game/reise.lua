@@ -49,15 +49,16 @@ function R.draw_rig(S, f, plaetze, x, y)
   S.draw(name, x, y - h)
 end
 
--- Figur für die Welt (ctx.world:add): das eigene Gespann, rechts neben seinem Platz (zu Hause die
--- Tür von Schuppen/Garage/Hangar, unterwegs der Ankunftspunkt), damit es Tür und Spieler nicht verdeckt.
+-- Figur für die Welt (ctx.world:add). Zu Hause steht das Zugfahrzeug in Schuppen/Garage/Hangar,
+-- nur der Anhänger parkt rechts neben der Tür; unterwegs steht das ganze Gespann rechts neben dem
+-- Ankunftspunkt. So verdeckt es weder Tür noch Spieler.
 -- Prüft alle halbe Sekunde, ob sich Fahrzeug, Anhänger oder Gebäude geändert haben.
 function R.entity(ctx)
   local e = {x = 0, y = 0, reach = 100, t = 0}
   local function place()
     local f = Economy.fahrzeug(ctx)
     local st = f.preis > 0 and R.station(ctx)
-    e.f, e.plaetze = st and f.id, Economy.plaetze(ctx)
+    e.f, e.plaetze, e.daheim = st and f.id, Economy.plaetze(ctx), ctx.area.farm ~= nil
     if st then e.x0, e.y = st[1] * 16 + 18, st[2] * 16 + 15 e.x = e.x0 + 40 end
   end
   place()
@@ -66,7 +67,13 @@ function R.entity(ctx)
     if e.t % 30 == 0 then place() end
   end
   function e.draw()
-    if e.f then R.draw_rig(ctx.S, e.f, e.plaetze, e.x0, e.y) end
+    if not e.f then return end
+    if not e.daheim then R.draw_rig(ctx.S, e.f, e.plaetze, e.x0, e.y)
+    elseif e.plaetze > 0 then
+      local name = "anhaenger_" .. e.plaetze
+      local _, h = ctx.S.size(name)
+      ctx.S.draw(name, e.x0, e.y - h)
+    end
   end
   return e
 end
