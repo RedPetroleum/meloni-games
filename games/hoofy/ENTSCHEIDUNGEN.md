@@ -249,3 +249,8 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 
 ## E53 Gebiete 2–6 (D2)
 - Der Generator hatte Größe, Wildpferdezahl und Rassenauswahl (neue Rassen dreifach gewichtet, frühere seltener) schon aus dem Katalog; neu ist nur die Palette: Wiese und Schatten je Gebiet (`Tiles.PALETTES`, gesetzt in `Stage.build` und der Übersicht). Wald, Wasser und Deko behalten ihre Farben. Karte, Speicher je Gebiet geloggt (Karte ≈ 120 KB im Heimattal bis 232 KB im Canyon, 128×112): unkritisch.
+
+## E54 Schätze (D3)
+- 15–30 Schätze je Gebiet aus dem Seed, auf freier Wiese, nicht auf dem Hof (+2 Rand), im Dorf oder am Start; mindestens 4 Kacheln auseinander. Fundart gewichtet nach Häufigkeit (40/25/6/2/1); seltene Funde zählen × Gebietsnummer, die Truhe gibt es ab Gebiet 3. Gefundene bleiben weg (`ctx.gefunden[gebiet]`, wird gespeichert).
+- Suchen dürfen das geritten Pferd und freie Folger (nicht am Seil), einmal je Sekunde mit Chance Aufspürung/2 % im Radius 2 + Aufspürung/10 Kacheln. Nach 60 Frames ohne Steuerkreuz läuft es hin (Reiter: das Pferd trägt den Spieler; Hindernis: seitlich ausweichen, nach 15 s Aufgeben und 1 min Pause für diesen Schatz).
+- Funde: im Heimattal sofort im Haus (Münzbeutel/Hufeisen/Antiquität/Truhe/Blume = Wert in Geld; Samen schalten die Pflanze frei, doppelte zählen halben Samenpreis). In fremden Gebieten braucht das Pferd Satteltaschen mit freiem Platz (sonst spürt es nichts auf); am Fahrzeug werden die Taschen automatisch ins Fahrzeuglager (unbegrenzt) geladen; Heimfahrt oder Speichern unterwegs bringt alles ins Haus und verkauft es. Aufspürung steigt je Fund mit der Trainingsformel (Basis 1).

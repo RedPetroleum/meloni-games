@@ -85,6 +85,10 @@ function R.update(p)
   if btn(BTN_RIGHT) then dx = dx + 1 end
   if btn(BTN_UP) then dy = dy - 1 end
   if btn(BTN_DOWN) then dy = dy + 1 end
+  if dx == 0 and dy == 0 then          -- 👃 und losgelassen: das Pferd läuft zum Fund (D3)
+    local hx, hy = require("game.schaetze").heading(h, p.x, p.y)
+    if hx then dx, dy = hx, hy end
+  end
   local walk, gallop = R.speeds(d)
   local tired = d.energie <= 0
   p.running = btn(BTN_B) and not tired

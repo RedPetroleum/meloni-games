@@ -36,4 +36,5 @@ return {
   "land",
   "reise",
   "gebiete",
+  "schaetze",
 }

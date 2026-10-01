@@ -72,6 +72,13 @@ function Horse:update_tamed()
     self.anim = r.anim
     self.ride_dir = r.dir
     self.dir = (r.dir == "left" or r.dir == "right") and r.dir or self.dir
+  elseif st == "follow" and self.laufen and self.schatz then      -- läuft zum aufgespürten Schatz (D3)
+    local hx, hy = require("game.schaetze").heading(self, self.x, self.y)
+    if hx then
+      self.moving = self:step(hx * 1.0, hy * 1.0)
+      self.anim = self.anim + 0.1
+      self.speed = 1
+    end
   elseif st == "led" or st == "follow" then
     local i = 1
     for n, h in ipairs(ctx.lead) do if h == self then i = n end end

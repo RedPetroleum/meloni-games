@@ -77,6 +77,11 @@ function Scenarios.reise(save)
   return "world", {fahrt = true}
 end
 
+-- Schatzsuche (D3): Reiter nahe eines Schatzes, ohne Eingabe; Drehbuch nicht nötig (--shots 30,90,150,300).
+function Scenarios.schatz(save)
+  return "world", {schatz = true}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

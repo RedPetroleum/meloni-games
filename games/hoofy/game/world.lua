@@ -13,6 +13,7 @@ local Save = require("game.save")
 local Explore = require("game.explore")
 local Economy = require("game.economy")
 local Reise = require("game.reise")
+local Schaetze = require("game.schaetze")
 local Market = require("game.market")
 local Buyers = require("game.buyers")
 local Orders = require("game.orders")
@@ -28,6 +29,7 @@ local WorldScene = {}
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, mounted_hold, menu, clock
 local stack, nav = {}, {}
 local select_held, select_used = false, false
+local idle_t = 0
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
@@ -85,6 +87,19 @@ function WorldScene.enter(arg)
     ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
     wild.count = 0
     for _, n in ipairs({"Hilde", "Bruno"}) do wild:attach(wild:add_own({rasse = "noriker", bindung = 40, name = n})) end
+  elseif arg and arg.schatz then
+    -- Reiter mit Aufspürung 100 steht 5 Kacheln neben dem ersten Schatz; ohne Steuern findet er ihn
+    Schaetze.setup(ctx)
+    local t = ctx.schaetze[1]
+    ctx.player.x, ctx.player.y = (t.cx + 5) * 16 + 8, t.cy * 16 + 8
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+    wild.count = 0
+    local h = wild:add_own({rasse = "haflinger", bindung = 80, name = "Spürnase", sattel = "einfacher_sattel"})
+    h.x, h.y = ctx.player.x, ctx.player.y
+    h.data.gen.spuer, h.data.pot.spuer = 100, 100
+    wild:mount(h)
+    ctx.money = 0
   elseif arg and arg.gebaeude then
     -- Alle Gebäude auf dem Grundstück (Koordinaten relativ zum Grundstück)
     local pl = ctx.area.plot
@@ -186,6 +201,7 @@ function WorldScene.enter(arg)
     for _, c in ipairs(snap.aenderungen or {}) do ctx.map:set(c[1], c[2], c[3], c[4]) end
     if snap.erkundet then ctx.explored = snap.erkundet end
     ctx.heim = reise and reise.heim or nil
+    ctx.gefunden, ctx.lager = snap.gefunden or {}, snap.lager or {}
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -193,6 +209,13 @@ function WorldScene.enter(arg)
         wild:adopt(d)
       end
     end
+  end
+  ctx.lager = ctx.lager or {}
+  ctx.fund_rng = Rng.new((ctx.seed or 1) + 77)
+  Schaetze.setup(ctx)
+  if ctx.area.nr == 1 and reise then
+    local n, sum = Schaetze.heimbringen(ctx)
+    if n > 0 then toast = {text = "Fundstücke verkauft: " .. n .. " (" .. sum .. " G).", t = 200} end
   end
   if not ctx.buyer then ctx.buyer = Buyers.visit(ctx.seed, clock.day) end
   if not snap and #ctx.orders == 0 and (clock.day - 1) % 3 == 0 then Orders.tick(ctx, clock.day) end
@@ -438,6 +461,7 @@ end
 -- Speichert (Schlafen, Gebietswechsel, Pause-Menü, Beenden). Nur im echten Spiel.
 function WorldScene.save()
   if not saving then return false end
+  if ctx.heim then Schaetze.heimbringen(ctx) end        -- Fahrzeug fährt heim, Funde kommen ins Haus
   local snap = Save.snapshot(ctx, clock, seed_now)
   Save.write(snap)
   return true
@@ -527,6 +551,17 @@ function WorldScene.update()
     if not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
   end
   local p = ctx.player
+  -- Schätze (D3): Frames ohne Steuern zählen, Pferd spürt auf und läuft los
+  if btn(BTN_LEFT) or btn(BTN_RIGHT) or btn(BTN_UP) or btn(BTN_DOWN) then idle_t = 0 else idle_t = idle_t + 1 end
+  local fname, fval = Schaetze.update(ctx, idle_t, t)
+  if fname then
+    ctx.sfx.ok()
+    say("Gefunden: " .. fname .. (fval and fval > 0 and (" (+" .. fval .. " G)") or "") .. "!", 150)
+  end
+  if ctx.heim and Reise.at_station(ctx) and t % 30 == 0 then
+    local n = Schaetze.abladen(ctx)
+    if n > 0 then say(n .. " Fund" .. (n > 1 and "e" or "") .. " ins Fahrzeug geladen.", 150) end
+  end
   if p.riding then
     -- Reiten (E3): A antippen = springen, A lange halten = absteigen
     if mounted_hold then

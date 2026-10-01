@@ -87,3 +87,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 08:54 | D1 Fahrzeuge | fertig | Szenario reise (Menü, Ankunft, Heimfahrt), SELFTEST OK 176, make test grün | Hoofy D1
 2026-10-01 08:56 | D2 Gebiete 2–6 | begonnen | – | –
 2026-10-01 08:57 | D2 Gebiete 2–6 | fertig | Übersicht aller 6 Gebiete, Karte 122–232 KB, SELFTEST OK 178, make test grün | Hoofy D2
+2026-10-01 08:59 | D3 Schätze | begonnen | – | –
+2026-10-01 09:02 | D3 Schätze | fertig | Szenario schatz findet ohne Eingabe, Selbsttests Radius/Chance/Transport, SELFTEST OK 183 | Hoofy D3

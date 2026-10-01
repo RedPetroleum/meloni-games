@@ -254,7 +254,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **D2 Gebiete 2–6** (E53; Übersicht aller 6 Gebiete, SELFTEST 178): Generator mit Palette, Größe, Wildpferden und Rassen je Gebiet
   (KATALOG §10), frühere Rassen seltener.
   Prüfung: Szenario `karte_ganz` für jedes Gebiet; Speicher beim größten Gebiet geloggt.
-- [ ] **D3 Schätze**: 15–30 je Gebiet, Aufspüren nach KATALOG §11 (E4), Satteltaschen →
+- [x] **D3 Schätze** (E54; Szenario `schatz`: Reiter findet „Samen: Minze“, SELFTEST 183): 15–30 je Gebiet, Aufspüren nach KATALOG §11 (E4), Satteltaschen →
   Fahrzeug → Hausinventar, Aufspürung +1 je Fund.
   Prüfung: Selbsttest Radius/Chance; `INPUT`-Drehbuch findet einen Schatz.
 - [ ] **D4 Wetter**: Regen (Sprites/Linien), Sauberkeit −15 draußen.
