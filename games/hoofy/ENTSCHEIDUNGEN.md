@@ -301,3 +301,16 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   bleibt um den Spieler ein hellerer Bereich (weich bis 112 px, Sattellampe × 1,8). Zeichenaufwand: Abend 75,
   tiefe Nacht ≈ 180 Sprite-Aufrufe je Frame (gleiche Stufen als 64-px-Streifen). Auf der Konsole prüfen, ob das flüssig läuft.
 
+## E64 Nacht mit echter Transparenz, Emoji-Reaktionen, Laden (Rückmeldung nach 0.5.1)
+- geändert (E63, Rückmeldung „Raster hässlich“): neue Engine-Funktion `shade(c, a, [x, y, r0, r1, a0])` (API 2, mit dem
+  Menschen abgesprochen). Der Abend mischt die Welt stufenlos mit Nachtblau (bis 86 % deckend); ab 45 % Dunkelheit
+  hält der Sichtbereich um den Spieler die Helligkeit fest (weicher Rand 40–112 px, Sattellampe × 1,8). Raster-Sprites
+  entfernt. Ausgegraute Kacheln nutzen ebenfalls `shade`. Hoofy braucht damit `"api": 2` und neue Firmware.
+- Pflege ohne Zahlen (Rückmeldung): Streicheln und Füttern zeigen ein Herz über dem Pferd (Füttern ohne Bindungsgewinn:
+  Apfel; schon gestreichelt: Zzz), Striegeln Glitzer, Reiten verweigert: Gewitterwolke. Info öffnet den Info-Bildschirm.
+  Meldungen werden umgebrochen, der Kasten wächst mit. Auf dem Grundstück steht oben „Dein Hof“.
+- Laden (Rückmeldung „Pferde von der Weide an der Leine“): Beim Laden wird die gespeicherte Unterbringung ohne neue Platz-
+  oder Bindungsprüfung wiederhergestellt (Weide: die gespeicherte zuerst); an die Leine nur, wenn es gar keine Weide mehr
+  gibt. Außerdem zeigte `ctx.hof` nach „Weiter“ auf eine zweite, nicht angewandte Kopie des Hofs (Reisen nahm sie mit):
+  jetzt der Hof der Karte. Die genaue Ursache auf der Konsole ließ sich am Rechner nicht nachstellen.
+

@@ -83,12 +83,10 @@ function Menu.icon(name, cx, cy, box)
   sspr(S.img, r[1], r[2], w, h, cx - dw // 2, cy - dh // 2, dw, dh)
 end
 
--- Graut ein Rechteck mit dem Nacht-Dither ab (x0, y0, x1, y1 inklusive).
+-- Graut ein Rechteck ab (x0, y0, x1, y1 inklusive).
 function Menu.grey(x0, y0, x1, y1)
   clip(x0, y0, x1 - x0 + 1, y1 - y0 + 1)
-  for y = y0, y1, 16 do
-    for x = x0, x1, 16 do S.draw("dunkel_9", x, y) end
-  end
+  shade(Stage.COLORS.panel, 0.6)
   clip()
 end
 

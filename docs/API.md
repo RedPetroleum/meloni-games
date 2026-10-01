@@ -1,4 +1,4 @@
-# Meloni API (Version 1)
+# Meloni API (Version 2)
 
 Meloni-Spiele sind Lua-Programme (Lua 5.4), die auf der HU-086 in der Firmware-App **meloni** laufen
 ([open-086](https://github.com/RedPetroleum/open-086)) und am Rechner im Runner. Beide nutzen
@@ -76,8 +76,12 @@ Alle Koordinaten sind Pixel, Kommazahlen werden abgerundet. Rechtecke nehmen **z
 | `textw(text, [scale=1])` | Breite eines Textes in Pixeln (zum Zentrieren) |
 | `camera([x, y])` | verschiebt alles Gezeichnete um −x, −y (Scrolling). Ohne Argumente: zurücksetzen |
 | `clip([x, y, w, h])` | nur innerhalb dieses Rechtecks zeichnen. Ohne Argumente: zurücksetzen |
+| `shade(c, a, [x, y, r0, r1, a0])` | **ab API 2.** Mischt alles im `clip`-Bereich mit der Farbe `c`, Deckkraft `a` (0–1, in 32 Stufen): Nacht, Abblenden, ausgegraute Flächen. Mit Punkt `x, y`: bis Abstand `r0` Deckkraft `a0` (Standard 0), bis `r1` weicher Übergang zu `a` (Lichtkegel, Sichtkreis) |
 
 `print` zeichnet auf den Bildschirm. Für Debug-Ausgaben gibt es `log(...)`.
+
+`shade` rechnet jedes Pixel im Bereich neu (in C, ein Aufruf für den ganzen Bildschirm ist auf dem Gerät
+in Ordnung). Spiele, die es nutzen, brauchen `"api": 2` in `meta.json`.
 
 ### Bilder
 
@@ -136,7 +140,7 @@ nicht in jedem Frame. Auf dem Gerät liegt die Datei unter `/retro-go/saves/melo
 | `flr`, `ceil`, `abs`, `min`, `max`, `sgn`, `mid(a, b, c)` | wie PICO-8 (`mid` = mittlerer der drei Werte) |
 | `require('modul')` | lädt `modul.lua` aus dem Spiel, `require('lib.karte')` lädt `lib/karte.lua` |
 | `log(...)` | Ausgabe im Terminal (Runner) bzw. im seriellen Log (Gerät) |
-| `API_VERSION` | Version dieser API (1) |
+| `API_VERSION` | Version dieser API (2) |
 
 Die normale Lua-Standardbibliothek (`math`, `string`, `table`, `utf8`, `coroutine`) ist vorhanden.
 `math.sin` und `math.cos` rechnen im Bogenmaß (anders als in PICO-8).

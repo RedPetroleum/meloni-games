@@ -39,6 +39,11 @@ function Horse.new(ctx, data, x, y)
   }, Horse)
 end
 
+-- Reaktion als Sprechblase (Rückmeldung 0.5.1: das Pferd zeigt Emojis statt Werte im Text).
+function Horse:react(sprite, frames)
+  self.react, self.react_until = sprite, frame() + (frames or 120)
+end
+
 -- Kopf des Pferds (Weltkoordinaten), dort hängt das Seil.
 function Horse:head()
   return self.x + (self.dir == "right" and 11 or -11), self.y - 14
@@ -408,7 +413,9 @@ function Wild:adopt(data)
   self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
   local ort = data.ort
   data.ort = nil
-  if not ort or not self:house(h, ort) then self:attach(h) end
+  -- Gespeicherte Unterbringung wiederherstellen, ohne Platz und Bedingungen neu zu prüfen: was beim Speichern
+  -- auf der Weide stand, bleibt dort (Rückmeldung 0.5.1). Nur wenn es gar keine Weide mehr gibt: an die Leine.
+  if not ort or not self:house(h, ort, true) then self:attach(h) end
   return h
 end
 
@@ -420,20 +427,29 @@ local function confine_to(h, pasture)
 end
 
 -- Unterbringung (E32, C2): ort = "stall", "weide" oder "frei". Gibt true oder false und den Grund zurück.
-function Wild:house(h, ort)
+-- restore: Spielstand laden: keine Platz- und Stärkeprüfung, die gespeicherte Weide (weide_id) zuerst.
+function Wild:house(h, ort, restore)
   local farm = self.ctx.area.farm
   if not farm then return false, "nur auf dem Hof" end
-  local cap = Farm.capacity(farm)
-  local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
-  if n >= cap[ort] then return false, "voll" end
-  if ort == "frei" and not Farm.may_roam(h.data, H) then return false, "zu schwach oder zu scheu" end
+  if not restore then
+    local cap = Farm.capacity(farm)
+    local n = Farm.count(self.ctx.herd, ort) - (h.data.ort == ort and 1 or 0)
+    if n >= cap[ort] then return false, "voll" end
+    if ort == "frei" and not Farm.may_roam(h.data, H) then return false, "zu schwach oder zu scheu" end
+  end
   local pasture
   if ort == "weide" then
-    -- erste Weide mit freiem Platz
-    for _, w in ipairs(Farm.pastures(self.ctx.map, farm)) do
-      local used = Farm.count_pasture(self.ctx.herd, w.id) - ((h.data.ort == "weide" and h.data.weide_id == w.id) and 1 or 0)
-      if used < w.plaetze then pasture = w break end
+    local list = Farm.pastures(self.ctx.map, farm)
+    if restore then
+      for _, w in ipairs(list) do if w.id == h.data.weide_id then pasture = w end end
     end
+    -- sonst die erste Weide mit freiem Platz (beim Laden notfalls irgendeine)
+    for _, w in ipairs(list) do
+      if pasture then break end
+      local used = Farm.count_pasture(self.ctx.herd, w.id) - ((h.data.ort == "weide" and h.data.weide_id == w.id) and 1 or 0)
+      if used < w.plaetze then pasture = w end
+    end
+    if not pasture and restore then pasture = list[1] end
     if not pasture then return false, "voll" end
   end
   for i, e in ipairs(self.ctx.lead) do

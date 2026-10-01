@@ -69,60 +69,34 @@ local function draw_labels(ctx)
   end
 end
 
--- Dunkelheit (E14, geändert): ein Dither-Schleier aus Kacheln (16 × 16, Stufen dunkel_1 … dunkel_14 von 16
--- Pixeln je 4 × 4 dunkel). Je dunkler, desto dichter; um den Spieler (cx, cy auf dem Bildschirm) bleibt es
--- heller (erst ab etwa Nachtbeginn): bis SIGHT_IN um 8 Stufen, nach außen weich abnehmend bis SIGHT_OUT. Die Sattellampe vergrößert
--- beide Radien. dark: 0 (Tag) bis 1 (Nacht).
-Stage.DARK_MAX = 14
-Stage.SIGHT_IN, Stage.SIGHT_OUT, Stage.SIGHT_BONUS = 40, 112, 8
+-- Dunkelheit (E14, geändert, Engine-Funktion shade ab API 2): die Welt wird stufenlos mit Nachtblau
+-- gemischt, höchstens DARK_MAX deckend. Um den Spieler (cx, cy auf dem Bildschirm) bleibt es nachts heller:
+-- bis SIGHT_IN fast so hell wie am Abend, bis SIGHT_OUT weicher Übergang. Der Sichtbereich kommt erst mit der
+-- Nacht, am Abend wird alles gleichmäßig dunkler. Die Sattellampe vergrößert ihn. dark: 0 (Tag) bis 1 (Nacht).
+Stage.DARK_COLOR = rgb(0x0e, 0x10, 0x28)
+Stage.DARK_MAX = 0.86
+Stage.SIGHT_IN, Stage.SIGHT_OUT = 40, 112
+Stage.SIGHT_FROM = 0.45                -- ab dieser Dunkelheit bleibt es um den Spieler so hell wie jetzt
+Stage.SIGHT_KEEP = 0.85                -- Anteil der weiteren Verdunkelung, den der Sichtbereich aufhält
 
-local DARK, BAND = {}, {}
-for l = 1, 14 do DARK[l], BAND[l] = "dunkel_" .. l, "dunkelband_" .. l end
-
--- Stufe einer Kachel mit Mittelpunktabstand² d2 (light: Aufhellung im Sichtbereich).
-local function level_at(full, light, d2, rin, rout, span)
-  local level = full
-  if light > 0 and d2 < rout * rout then
-    local w = (rout - math.sqrt(d2)) / span
-    if w > 1 then w = 1 end
-    level = full - light * w
-  end
-  level = flr(level + 0.5)
-  return level > 14 and 14 or level
+-- Deckkraft außen und im Sichtbereich für dark (0–1).
+function Stage.dark_alpha(dark)
+  local a = dark * Stage.DARK_MAX
+  local base = Stage.SIGHT_FROM * Stage.DARK_MAX
+  if a <= base then return a, a end
+  local keep = Stage.SIGHT_KEEP * mid(0, (dark - Stage.SIGHT_FROM) / 0.3, 1)
+  return a, base + (a - base) * (1 - keep)
 end
 
-local row = {}                        -- Stufen einer Reihe (wiederverwendet)
-
 function Stage.draw_dark(cx, cy, dark, lamp)
-  if dark <= 0.03 then return end
-  local top = Stage.HUD_H
+  if dark <= 0.01 then return end
+  local a, a0 = Stage.dark_alpha(dark)
   local f = lamp and 1.8 or 1
-  local rin, rout = Stage.SIGHT_IN * f, Stage.SIGHT_OUT * f
-  local span = rout - rin
-  local full = dark * Stage.DARK_MAX
-  -- Sichtbereich erst mit der Nacht: am Abend wird alles gleichmäßig dunkler
-  local light = Stage.SIGHT_BONUS * mid(0, (dark - 0.45) / 0.45, 1)
-  local S = require("sprites")
-  local cols = SCREEN_W // 16
-  clip(0, top, SCREEN_W, SCREEN_H - top)
-  for y = top, SCREEN_H - 1, 16 do
-    local dy = y + 8 - cy
-    for i = 1, cols do
-      local dx = (i - 1) * 16 + 8 - cx
-      row[i] = level_at(full, light, dx * dx + dy * dy, rin, rout, span)
-    end
-    -- gleiche Stufe in vier Kacheln hintereinander: ein Streifen statt vier Kacheln
-    local i = 1
-    while i <= cols do
-      local l = row[i]
-      if i + 3 <= cols and row[i + 1] == l and row[i + 2] == l and row[i + 3] == l then
-        if l >= 1 then S.draw(BAND[l], (i - 1) * 16, y) end
-        i = i + 4
-      else
-        if l >= 1 then S.draw(DARK[l], (i - 1) * 16, y) end
-        i = i + 1
-      end
-    end
+  clip(0, Stage.HUD_H, SCREEN_W, SCREEN_H - Stage.HUD_H)
+  if a0 < a then
+    shade(Stage.DARK_COLOR, a, cx, cy, Stage.SIGHT_IN * f, Stage.SIGHT_OUT * f, a0)
+  else
+    shade(Stage.DARK_COLOR, a)
   end
   clip()
 end

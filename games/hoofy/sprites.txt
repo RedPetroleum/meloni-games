@@ -59,7 +59,6 @@ I d9c38c   Strick
 5 4a8cf0   Regenbogen blau
 6 ffe070   Horn hell
 7 d9a830   Horn dunkel
-y 0e1028   Nacht (Dither-Schleier)
 
 # Fellfarben (KATALOG §4): jedes horse_… gibt es in jeder Farbe. horse_ selbst ist der Braune.
 # h Fell, H Fell hell, b Fell dunkel, u Mähne/Hufe, U Maul/Blesse.
@@ -1040,7 +1039,6 @@ DDDDDDD
 ..DDD..
 ...D...
 
-
 # Hoofy: Wald (Blätterdach, fest), Brücke längs, Dorf (Laden, Wohnhaus per recolor, Marktstand, Jobbrett, Hindernis)
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
 
@@ -1220,7 +1218,6 @@ sprite jump
 .DD..........DD.
 .DD..........DD.
 
-
 # Käufer am Hof (B3): die Spielfigur in anderen Farben
 recolor player sammlerin B=8a3fb0 X=5e2a80 T=3a2a4a L=e8d090
 recolor player reithof B=4f9a4f X=37702f T=6b4a2a L=8a5a2b
@@ -1235,8 +1232,6 @@ sprite dust
 .jj.
 jjjj
 .jj.
-
-
 
 # Sprechblasen (E10), 13 breit: Blase V mit Zipfel unten, Symbol darin
 sprite emo_nose
@@ -1314,8 +1309,6 @@ kVVVVVDDDVVVVk
 ....kVk
 .....k
 
-
-
 # Hof: Wohnwagen (Startunterkunft) und Weidentor
 sprite wohnwagen
 ................................................
@@ -1368,8 +1361,6 @@ kWwk........kWwk
 kWwk........kWwk
 kWwk........kWwk
 kWwk........kWwk
-
-
 
 # Baumodus (C1): Deko und Cursor
 sprite bank
@@ -1573,8 +1564,6 @@ DD............DD
 DD............DD
 DDD...DDD...DDDD
 DDDDDDDDDDDDDDDD
-
-
 
 # Gebäude (C3)
 sprite stall_m
@@ -1982,8 +1971,6 @@ kooooopoooooopkkppkpppppkpppppkpppppkpppppkpppppkpppppkpppppkpppppkpppppkpppppkp
 kooooopoooooopkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkopoooooooooook
 koooooooooooookkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkoooooooooooook
 koooooooooooookkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkoooooooooooook
-
-
 
 # Anbau (C5): Pflanzen in drei Stufen
 sprite pflanze_gras_1
@@ -2574,8 +2561,6 @@ sprite pflanze_apfelbaum_3
 ..............kwwk..............
 ..............kkkk..............
 
-
-
 sprite goepel
 ..............kkkk..............
 ..............kkkk..............
@@ -2610,8 +2595,6 @@ oooooooooooooooooooooooooooooooo
 oooooooooooooooooooooooooooooooo
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 
-
-
 sprite fahrzeug
 ................................
 ................................
@@ -2631,8 +2614,6 @@ kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 ....kppppk............kppppk....
 ....kppppk............kppppk....
 ....kkkkkk............kkkkkk....
-
-
 
 sprite tier_hund
 ..........kk....
@@ -2667,8 +2648,6 @@ kFFfFfFfFfFfFfFfFfFfFfFfFfFfFfFk
 .kFFFFFFFFFFFFFFFFFFFFFFFFFFFFk.
 ..kfk.kfk........kfk.kfk........
 ..kkk.kkk........kkk.kkk........
-
-
 
 sprite ico_weiter
 ............
@@ -2977,521 +2956,6 @@ kPPPPPPPPPPk
 ....kPPk....
 .....kk.....
 ............
-
-
-
-
-
-
-
-
-
-
-sprite dunkel_1
-y...y...y...y...
-................
-................
-................
-y...y...y...y...
-................
-................
-................
-y...y...y...y...
-................
-................
-................
-y...y...y...y...
-................
-................
-................
-
-sprite dunkel_2
-y...y...y...y...
-................
-..y...y...y...y.
-................
-y...y...y...y...
-................
-..y...y...y...y.
-................
-y...y...y...y...
-................
-..y...y...y...y.
-................
-y...y...y...y...
-................
-..y...y...y...y.
-................
-
-sprite dunkel_3
-y.y.y.y.y.y.y.y.
-................
-..y...y...y...y.
-................
-y.y.y.y.y.y.y.y.
-................
-..y...y...y...y.
-................
-y.y.y.y.y.y.y.y.
-................
-..y...y...y...y.
-................
-y.y.y.y.y.y.y.y.
-................
-..y...y...y...y.
-................
-
-sprite dunkel_4
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-................
-
-sprite dunkel_5
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-................
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-................
-
-sprite dunkel_6
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y...y...y...y..
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-
-sprite dunkel_7
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-...y...y...y...y
-
-sprite dunkel_8
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_9
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_10
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_11
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_12
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_13
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y
-
-sprite dunkel_14
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy
-
-
-
-sprite dunkelband_1
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-................................................................
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-................................................................
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-................................................................
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-................................................................
-................................................................
-
-sprite dunkelband_2
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-
-sprite dunkelband_3
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-..y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y.
-................................................................
-
-sprite dunkelband_4
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-
-sprite dunkelband_5
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-................................................................
-
-sprite dunkelband_6
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y..
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-
-sprite dunkelband_7
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y...y
-
-sprite dunkelband_8
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_9
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_10
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_11
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-y.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_12
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_13
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y.y
-
-sprite dunkelband_14
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-yy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.y
-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy.yyy
 
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 

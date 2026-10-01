@@ -85,4 +85,39 @@ return {
     C.ok(#text < 30000, "Spielstand zu groß")
     equal(snap, decode(text), "Rundlauf")
   end},
+  {"Laden: Pferde bleiben, wo sie gespeichert wurden (Weide, frei, Stall), auch wenn die Bedingungen nicht mehr passen", function()
+    local Area = require("game.area")
+    local Farm = require("game.farm")
+    Area.clear()
+    local ctx = Stage.build(1, 77)
+    local w = Wild.new(ctx, 3) w.count = 0
+    local list = {}
+    for i, ort in ipairs({"weide", "weide", "stall", "frei"}) do
+      local h = w:add_own({rasse = "noriker", name = "P" .. i})
+      h.data.bindung = 100
+      for _, k in ipairs(H.STATS) do h.data.gen[k], h.data.pot[k] = 90, 100 end
+      C.ok(w:house(h, ort), ort)
+      list[i] = h.data
+    end
+    list[4].bindung = 5                                         -- frei: heute nicht mehr erlaubt
+    local text = Save.encode(Save.snapshot(ctx, Clock.new(3, 100), 77))
+    local snap = load("return " .. text)()
+    Area.clear()
+    local ctx2 = Stage.build(1, 77, snap.hof)
+    local w2 = Wild.new(ctx2, 3) w2.count = 0
+    for _, d in ipairs(snap.herd) do w2:adopt(d) end
+    local orte = {}
+    for _, d in ipairs(ctx2.herd) do orte[#orte + 1] = tostring(d.ort) end
+    C.eq(table.concat(orte, ","), "weide,weide,stall,frei")
+    C.eq(#ctx2.lead, 0, "niemand an der Leine")
+    for _, h in ipairs(ctx2.herd_horses) do
+      if h.data.ort == "weide" then
+        local inside = false
+        for _, p in ipairs(Farm.pastures(ctx2.map, ctx2.area.farm)) do
+          if Farm.in_pasture(p, h.x, h.y) then inside = true end
+        end
+        C.ok(inside, h.data.name .. " steht auf der Weide")
+      end
+    end
+  end},
 }

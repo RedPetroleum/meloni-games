@@ -49,7 +49,7 @@ function WorldScene.enter(arg)
   seed_now = seed
   saving = (arg and (arg.neu or (arg.laden and snap) or (reise and arg.saving))) and true or false
   ctx = Stage.build(reise and reise.gebiet or 1, seed, farm)
-  ctx.hof = farm or ctx.area.farm
+  ctx.hof = ctx.area.farm or farm     -- der geladene Hof (Titel hat ihn schon im Speicher), unterwegs der Hof daheim
   if arg and (arg.ort or arg.cx) then
     local p = arg.ort and ctx.area.places[arg.ort] or (arg.cx and {arg.cx, arg.cy})
     if not p then error("unbekannter Ort " .. tostring(arg.ort)) end
@@ -463,19 +463,17 @@ local function do_action(id)
   if menu.stage == "food" then
     if id == "close" then return open_menu(h) end
     ctx.inv[id] = ctx.inv[id] - 1
-    local name, bond = Care.feed(d, id)
+    local _, bond = Care.feed(d, id)
     ctx.sfx.eat()
-    say(d.name .. " frisst " .. name .. ". Bindung +" .. bond .. ".")
-    h.heart_t = 90
+    h:react(bond > 0 and "emo_heart" or "emo_apple", 120)
     menu = nil
     return
   end
   if id == "close" then menu = nil return end
   if id == "stroke" then
     local add = Care.stroke(d)
-    ctx.sfx.pet()
-    h.heart_t = 120
-    say(add > 0 and d.name .. " genießt das. Bindung +" .. add .. "." or d.name .. " hatte heute schon genug Streicheleinheiten.")
+    if add > 0 then ctx.sfx.pet() h:react("emo_heart", 120)
+    else ctx.sfx.snort() h:react("emo_zzz", 90) end          -- heute schon genug gestreichelt
     menu = nil
   elseif id == "feed" then
     open_food(h)
@@ -484,9 +482,9 @@ local function do_action(id)
   elseif id == "gear" then
     open_gear(h)
   elseif id == "brush" then
-    local add = Care.brush(d)
+    Care.brush(d)
     ctx.sfx.brush()
-    say(d.name .. " glänzt. Sauberkeit +" .. add .. ".")
+    h:react("emo_sparkle", 120)
     menu = nil
   elseif id == "leash" then
     if h.state == "led" or h.state == "follow" then
@@ -499,16 +497,14 @@ local function do_action(id)
     menu = nil
   elseif id == "mount" then
     if wild:mount(h) == "ok" then
-      say(d.name .. ": aufgesessen!", 90)
       mounted_hold = true
     else
       ctx.sfx.snort()
-      say(d.name .. " verweigert das Reiten!")
+      h:react("emo_storm", 120)                                  -- verweigert das Reiten
     end
     menu = nil
   elseif id == "info" then
-    say(string.format("%s, %s: Tempo %d Stärke %d Bindung %d. %s.", d.name, K.rasse(d.rasse).name,
-      H.stat(d, "tempo"), H.stat(d, "staerke"), d.bindung, Care.describe(d)), 240)
+    nav.push(Screens.info(ctx, d))
     menu = nil
   end
 end
@@ -744,7 +740,7 @@ local function draw_hud()
   rectfill(62, 5, 62 + flr(39 * f), 8, icon == "icon_sun" and C.gold or C.dim)
   local money = ctx.money .. " G"
   print(money, SCREEN_W - textw(money) - 4, 3, C.gold)
-  local name = ctx.area.name
+  local name = (ctx.on_plot and ctx.on_plot()) and "Dein Hof" or ctx.area.name
   print(name, (SCREEN_W - textw(name)) // 2, 3, C.dim)
   if Wetter.regnet(ctx, clock.day) then print("Regen", 215, 3, rgb(0xa8, 0xc8, 0xe8)) end
   -- Energie des Pferds beim Reiten (E9)
@@ -796,10 +792,17 @@ function WorldScene.draw()
     if menu.m.grid then menu.m:draw() else menu.m:draw(h.x - ctx.camera.x + 24, h.y - ctx.camera.y - 50) end
   end
   if toast then
+    -- Meldung: umgebrochen, der Kasten wächst mit; bei offenem Menü oben, damit es das Raster nicht verdeckt
     local C = ctx.colors
-    local ty = (menu or #stack > 0) and 18 or 200     -- bei offenem Menü oben, damit es das Raster nicht verdeckt
-    Stage.panel(40, ty, 279, ty + 26)
-    Stage.center(toast.text, ty + 9, C.gold)
+    if toast.lines == nil then toast.lines = U.wrap(toast.text, SCREEN_W - 40) end
+    local n = #toast.lines
+    local w = 0
+    for _, l in ipairs(toast.lines) do w = max(w, textw(l)) end
+    local h = n * 11 + 14
+    local x0 = (SCREEN_W - w) // 2 - 12
+    local y0 = (menu or #stack > 0) and 18 or (SCREEN_H - h - 12)
+    Stage.panel(x0, y0, SCREEN_W - x0 - 1, y0 + h - 1)
+    for i, l in ipairs(toast.lines) do Stage.center(l, y0 + 8 + (i - 1) * 11, C.gold) end
   end
   for i = 1, #stack do stack[i].draw() end
 end

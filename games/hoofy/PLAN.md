@@ -8,9 +8,19 @@ der nächsten Aufgabe und hakt es ab.
 
 - [x] Menüs 2D mit Kacheln und Icons, hübsch und einfacher zu bedienen. (0.5.1, E63)
 - [x] Nachteinbruch graduell: am Abend immer dunkler, bis man nachts schwer sieht. (0.5.1, E63)
+- [x] Raster hässlich: echte Transparenz (Engine `shade`, API 2). (0.5.2, E64)
+- [x] Beim Fortsetzen stehen Weidepferde außerhalb an der Leine. (0.5.2, E64)
+- [x] Meldung am Haus passt nicht in den Kasten; Pflege ohne „Bindung +1“, Pferd zeigt Emojis. (0.5.2, E64)
+- [x] Auf dem Grundstück „Dein Hof“ statt „Heimattal“. (0.5.2, E64)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 0.5.2** – Rückmeldungen, siehe E64. **Braucht neue Firmware (Meloni API 2).**
+- [ ] Erst Firmware mit der neuen Engine flashen, sonst überspringt „Update games“ Hoofy.
+- [ ] Abend und Nacht: weich dunkler, nachts heller Bereich um dich. Läuft es flüssig?
+- [ ] Spielstand fortsetzen: stehen die Weidepferde auf ihrer Weide?
+- [ ] Streicheln/Füttern/Striegeln: Herz bzw. Glitzer über dem Pferd, keine Zahlen.
 
 **Version 0.5.1** – Rückmeldungen, siehe E63
 - [ ] Pausenmenü, Pferdemenü, Füttern, Unterbringen als Kacheln: mit dem Steuerkreuz gut zu treffen? Icons erkennbar?

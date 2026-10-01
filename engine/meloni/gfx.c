@@ -303,6 +303,113 @@ static int l_rectfill(lua_State *L)
     return 0;
 }
 
+// ---- shade: blend the clip area towards a colour (night, fading), optionally with a lighter spot ----
+
+// p, c as RGB565; a = 0..32 (0 = p unchanged, 32 = c)
+static inline uint16_t mix565(uint16_t p, uint32_t cc, unsigned a)
+{
+    uint32_t x = (p | ((uint32_t)p << 16)) & 0x07E0F81F;
+    x = ((x * (32 - a) + cc * a) >> 5) & 0x07E0F81F;
+    return (uint16_t)(x | (x >> 16));
+}
+
+static unsigned alpha32(double a)
+{
+    if (a <= 0)
+        return 0;
+    if (a >= 1)
+        return 32;
+    return (unsigned)(a * 32 + 0.5);
+}
+
+static void shade_run(uint16_t *p, int n, uint32_t cc, unsigned a)
+{
+    if (a == 0)
+        return;
+    if (a >= 32)
+    {
+        uint16_t c = (uint16_t)(cc | (cc >> 16));
+        while (n-- > 0)
+            *p++ = c;
+        return;
+    }
+    while (n-- > 0)
+    {
+        *p = mix565(*p, cc, a);
+        p++;
+    }
+}
+
+#define SHADE_LUT 1024
+
+// shade(c, a, [cx, cy, r0, r1, a0]): mixes every pixel inside the clip area with colour c at opacity a
+// (0..1). With a spot: within r0 pixels of (cx, cy) opacity a0, between r0 and r1 a smooth transition to a.
+static int l_shade(lua_State *L)
+{
+    uint16_t c = argcolor(L, 1, 0);
+    unsigned a = alpha32(luaL_checknumber(L, 2));
+    uint32_t cc = (c | ((uint32_t)c << 16)) & 0x07E0F81F;
+    int spot = !lua_isnoneornil(L, 3);
+    int cx = 0, cy = 0;
+    double r0 = 0, r1 = 0;
+    unsigned a0 = a;
+    if (spot)
+    {
+        cx = argi(L, 3) - cam_x;
+        cy = argi(L, 4) - cam_y;
+        r0 = luaL_checknumber(L, 5);
+        r1 = luaL_checknumber(L, 6);
+        a0 = alpha32(luaL_optnumber(L, 7, 0));
+        if (r0 < 0) r0 = 0;
+        if (r1 < r0 + 1) r1 = r0 + 1;
+        if (r1 > 2000) r1 = 2000;
+    }
+    // opacity by squared distance: lut[d2 >> shift]
+    static uint8_t lut[SHADE_LUT];
+    int shift = 0;
+    long r1sq = (long)(r1 * r1);
+    if (spot)
+    {
+        while ((r1sq >> shift) >= SHADE_LUT)
+            shift++;
+        for (int i = 0; i < SHADE_LUT; i++)
+        {
+            double d = sqrt((double)((long)i << shift));
+            double t = d <= r0 ? 0 : d >= r1 ? 1 : (d - r0) / (r1 - r0);
+            t = t * t * (3 - 2 * t); // smoothstep: soft edge
+            lut[i] = (uint8_t)(a0 + (int)((double)((int)a - (int)a0) * t + (a >= a0 ? 0.5 : -0.5)));
+        }
+    }
+    for (int y = clip_y0; y < clip_y1; y++)
+    {
+        uint16_t *row = &mel_fb[y * MEL_WIDTH];
+        int dy = y - cy;
+        long dy2 = (long)dy * dy;
+        if (!spot || dy2 >= r1sq)
+        {
+            shade_run(row + clip_x0, clip_x1 - clip_x0, cc, a);
+            continue;
+        }
+        int hw = (int)sqrt((double)(r1sq - dy2));
+        int xl = cx - hw, xr = cx + hw;
+        if (xl < clip_x0) xl = clip_x0;
+        if (xr > clip_x1 - 1) xr = clip_x1 - 1;
+        if (xl > clip_x0)
+            shade_run(row + clip_x0, (xl < clip_x1 ? xl : clip_x1) - clip_x0, cc, a);
+        for (int x = xl; x <= xr; x++)
+        {
+            long dx = x - cx;
+            long d2 = dx * dx + dy2;
+            unsigned ap = d2 >= r1sq ? a : lut[d2 >> shift];
+            if (ap)
+                row[x] = ap >= 32 ? (uint16_t)(cc | (cc >> 16)) : mix565(row[x], cc, ap);
+        }
+        if (xr + 1 < clip_x1)
+            shade_run(row + (xr + 1 > clip_x0 ? xr + 1 : clip_x0), clip_x1 - (xr + 1 > clip_x0 ? xr + 1 : clip_x0), cc, a);
+    }
+    return 0;
+}
+
 static int l_circ(lua_State *L)
 {
     drawcircle(argi(L, 1) - cam_x, argi(L, 2) - cam_y, argi(L, 3), argcolor(L, 4, 7), false);
@@ -490,7 +597,7 @@ void mel_gfx_open(lua_State *L)
         {"rect", l_rect},         {"rectfill", l_rectfill}, {"circ", l_circ},     {"circfill", l_circfill},
         {"print", l_print},       {"textw", l_textw},   {"camera", l_camera},     {"clip", l_clip},
         {"pal", l_pal},           {"rgb", l_rgb},       {"loadimg", l_loadimg},   {"spr", l_spr},
-        {"sspr", l_sspr},         {"tile", l_tile},     {NULL, NULL},
+        {"sspr", l_sspr},         {"tile", l_tile},     {"shade", l_shade},       {NULL, NULL},
     };
     lua_pushglobaltable(L);
     luaL_setfuncs(L, funcs, 0);

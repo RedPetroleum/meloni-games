@@ -82,30 +82,46 @@ return {
     c.t = Clock.DAWN
     C.eq(c:darkness(), 0, "danach hell")
   end},
-  {"Nachtschleier: tagsüber nichts, nachts um den Spieler heller, Lampe weiter, höchstens 200 Zeichenaufrufe", function()
-    local S = require("sprites")
-    local old = S.draw
-    local function run(dark, lamp)
-      local n, at = 0, {}
-      S.draw = function(name, x, y)
-        n = n + 1
-        local l = tonumber(name:match("%d+"))
-        for k = 0, (name:find("band") and 3 or 0) do at[(x + 16 * k) .. "," .. y] = l end
-      end
-      Stage.draw_dark(160, 120, dark, lamp)
-      S.draw = old
-      return n, at
+  {"Engine shade: mischt mit Deckkraft, Lichtpunkt bleibt hell, clip wirkt", function()
+    local function r(c) return (c >> 16) & 255 end
+    rectfill(0, 0, 319, 239, rgb(200, 200, 200))
+    shade(rgb(0, 0, 0), 0.5)
+    C.near(r(pget(10, 10)), 100, 8, "halb gemischt")
+    rectfill(0, 0, 319, 239, rgb(200, 200, 200))
+    shade(rgb(0, 0, 0), 1, 160, 120, 20, 60, 0)
+    C.near(r(pget(160, 120)), 200, 8, "Mitte unberührt")
+    C.eq(r(pget(300, 120)), 0, "außen voll")
+    local mid_r = r(pget(200, 120))
+    C.ok(mid_r > 0 and mid_r < 200, "weicher Übergang: " .. mid_r)
+    rectfill(0, 0, 319, 239, rgb(200, 200, 200))
+    clip(0, 0, 10, 10)
+    shade(rgb(0, 0, 0), 1)
+    clip()
+    C.eq(r(pget(5, 5)), 0)
+    C.near(r(pget(50, 50)), 200, 8, "außerhalb clip unberührt")
+    cls()
+  end},
+  {"Nachtschleier: tagsüber nichts, nachts außen dunkel, um den Spieler heller, Lampe weiter", function()
+    C.eq(select(1, Stage.dark_alpha(0)), 0)
+    local a, a0 = Stage.dark_alpha(0.3)
+    C.eq(a, a0, "Abend: gleichmäßig")
+    local an, an0 = Stage.dark_alpha(1)
+    C.ok(an >= 0.8, "Nacht außen sehr dunkel")
+    C.ok(an0 < an and an0 >= a, "Sichtbereich heller als außen, aber nicht heller als am Abend")
+    local function r(c) return (c >> 16) & 255 end
+    local function at(x, lamp)
+      rectfill(0, 0, 319, 239, rgb(200, 200, 200))
+      Stage.draw_dark(160, 120, 1, lamp)
+      local v = r(pget(x, 120))
+      cls()
+      return v
     end
-    C.eq(run(0), 0, "Tag: kein Schleier")
-    local n, at = run(1)
-    C.ok(n <= 200, "Aufrufe " .. n)
-    log("TAG Nachtschleier: " .. n .. " Kacheln je Frame")
-    C.eq(at["0,14"], 14, "weit weg sehr dunkel")
-    C.ok((at["160,126"] or 0) <= 6, "am Spieler heller")
-    local _, lamp = run(1, true)
-    C.ok((lamp["224,126"] or 0) < (at["224,126"] or 0), "Lampe leuchtet weiter")
-    local _, evening = run(0.3)
-    C.eq(evening["160,126"], evening["0,14"], "am Abend gleichmäßig, noch kein Sichtkreis")
+    C.ok(at(160) > at(300), "Spieler hell, Rand dunkel")
+    C.ok(at(240, true) > at(240), "Lampe leuchtet weiter")
+    rectfill(0, 0, 319, 239, rgb(200, 200, 200))
+    Stage.draw_dark(160, 120, 0, false)
+    C.eq(r(pget(10, 100)), 200, "Tag: kein Schleier")
+    cls()
   end},
   {"Tageswechsel: Hunger +25 (verfressen +35), Energie zurück, Streicheln frei", function()
     local d = horse("faul", {hunger = 40, gestreichelt = true})
