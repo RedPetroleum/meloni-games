@@ -235,3 +235,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   allein wären nur ~100 G/Tag (Katalog nimmt für Phase 1 ~80 an). Mit Turnieren kämen noch etwas dazu;
   Phase 1 ginge dann schneller als 8 Tage. Futterkosten 8 G/Tag liegen unter den 11 des Katalogs, weil die
   Steuer (E4) fehlt und Hafer/Premium nicht gekauft werden. Zahlen nicht geändert.
+
+## E50 Göpel-Generator (C6)
+- Je Generator läuft ein Pferd; Bedingungen (vor dem Tageswechsel geprüft): Pferd ist auf dem Hof (Stall/Weide/frei), kein Fohlen, Stärke ≥ 40, Energie ≥ 40. Die stärksten Pferde laufen zuerst. 40 Geld je Pferd, Gutschrift beim Tageswechsel, kein Energieabzug (Energie wird morgens ohnehin zurückgesetzt). `ctx.goepel_mult` (Standard 1) ist der Haken für die Reform „Stromsubvention“ (E4). Bild: einfaches Tretrad, 2×2 Kacheln, unter „Bauten“.

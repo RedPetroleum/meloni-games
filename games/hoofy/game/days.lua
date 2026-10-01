@@ -45,6 +45,10 @@ end
 -- Neuer Tag (day = Nummer): Tagesregeln für alle eigenen Pferde, Wildpferde wechseln.
 function Days.new_day(ctx, day)
   local report = {}
+  -- Göpel: Energie und Stärke zählen vor dem Tageswechsel
+  local lauf, je = Farm.goepel_pferde(ctx.area.farm, ctx.herd, H)
+  ctx.goepel_geld = #lauf * je * (ctx.goepel_mult or 1)
+  ctx.money = ctx.money + ctx.goepel_geld
   for i, d in ipairs(ctx.herd) do report[i] = Days.horse_day(d) end
   -- Stall: der beste Stall gibt allen Pferden im Stall Bindung (KATALOG §9)
   local bonus = Farm.stall_bonus(ctx.area.farm)

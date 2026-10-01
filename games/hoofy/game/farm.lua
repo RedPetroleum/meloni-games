@@ -202,7 +202,7 @@ Farm.CATEGORIES = {
   {id = "anbau", name = "Anbau", items = {"beet", "feld"}},
   {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
-  {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar"}},
+  {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar", "goepel_generator"}},
   {id = "abriss", name = "Abreißen", items = {}},
 }
 
@@ -225,6 +225,7 @@ Farm.ITEMS = {
   schuppen = {prop = "schuppen", w = 3, h = 2, building = true},
   garage = {prop = "garage", w = 4, h = 3, building = true},
   hangar = {prop = "hangar", w = 6, h = 4, building = true},
+  goepel_generator = {prop = "goepel", w = 2, h = 2, building = true},
 }
 
 -- Alle Bauten des Hofs: Startbauten und gebaute Gebäude, {id, cx, cy}.
@@ -271,6 +272,20 @@ function Farm.garaged(farm)
     for _, v in ipairs(def.fahrzeuge or {}) do out[v] = true end
   end
   return out
+end
+
+-- Göpel-Generatoren (C6): je Generator ein Pferd, das Stärke und Energie mitbringt, bringt Geld pro Tag.
+-- Gibt die Pferde zurück, die heute laufen (stärkste zuerst), und das Geld je Pferd.
+function Farm.goepel_pferde(farm, herd, H)
+  local n, def = 0, K.bauteil("goepel_generator")
+  for _, b in ipairs(Farm.all_buildings(farm)) do if b.id == "goepel_generator" then n = n + 1 end end
+  local ok = {}
+  for _, d in ipairs(herd) do
+    if d.ort and d.alter >= 1 and H.stat(d, "staerke") >= def.min_staerke and d.energie >= def.energie then ok[#ok + 1] = d end
+  end
+  table.sort(ok, function(a, b) return H.stat(a, "staerke") > H.stat(b, "staerke") end)
+  while #ok > n do ok[#ok] = nil end
+  return ok, def.geld_pferd
 end
 
 local function size(id)

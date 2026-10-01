@@ -112,6 +112,7 @@ T.PROPS = {
   villa = {sprite = "villa", w = 5, h = 3, coll = "X", map = rgb(0xfb, 0xf8, 0xef)},
   schuppen = {sprite = "schuppen", w = 3, h = 2, coll = "X", map = rgb(0x7b, 0x4c, 0x2b)},
   garage = {sprite = "garage", w = 4, h = 3, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
+  goepel = {sprite = "goepel", w = 2, h = 2, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
   hangar = {sprite = "hangar", w = 6, h = 4, coll = "X", map = rgb(0x6d, 0x73, 0x7a)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)

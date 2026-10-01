@@ -32,4 +32,5 @@ return {
   "gebaeude",
   "schoenheit",
   "anbau",
+  "goepel",
 }

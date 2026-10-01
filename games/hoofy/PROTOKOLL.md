@@ -75,3 +75,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 01:55 | C4 Hof-Schönheit | fertig | Schwellen 50/150/400 geprüft, Tageswechsel, SELFTEST OK 159, make test grün | Hoofy C4
 2026-10-01 01:57 | C5 Anbau | begonnen | – | –
 2026-10-01 08:38 | C5 Anbau | fertig | Shot-Sheet Tag 0/1/2/4, Wachstum nach Katalog (Karotte 2/2, Gras 1/1, Apfelbaum 4/3), SELFTEST OK 168, make test grün | Hoofy C5
+2026-10-01 08:40 | C6 Göpel-Generator | begonnen | – | –
+2026-10-01 08:42 | C6 Göpel-Generator | fertig | Selbsttest Bedingungen/Anzahl/Stromsubvention-Haken, SELFTEST OK 170, make test grün | Hoofy C6

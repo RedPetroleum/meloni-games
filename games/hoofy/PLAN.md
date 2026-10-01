@@ -231,7 +231,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest über Tage; Shot-Sheet Wachstum.
   *Erledigt:* Pflanzen-Logik in `game/farm.lua` (`plant/harvest/grow`), 33 Pflanzensprites, Erntefutter in
   `game/care.lua`. Szenario `anbau` (`SCENARIO_OPTS='tage = 2'`): Screenshot zeigt Keimling → Wachstum → reif. E49.
-- [ ] **C6 Göpel-Generator**: 40 je Pferd und Tag, Bedingungen.
+- [x] **C6 Göpel-Generator**: 40 je Pferd und Tag, Bedingungen. (E50; Selbsttest, 170 grün; Bild nicht im Shot geprüft)
   Prüfung: Selbsttest.
 - [ ] **C7 Land kaufen**: 10×10-Stücke, steigender Preis, bis zum ganzen Startgebiet.
   Prüfung: Selbsttest Preise; Screenshot Grundstücksgrenze.
