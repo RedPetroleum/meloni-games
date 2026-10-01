@@ -113,6 +113,8 @@ end
 -- ---- Pferde-Info (Rückmeldung 0.5.3: aufgeräumt, Balken mit Unterteilung alle 20) ----
 
 local BAR_X, BAR_W = 150, 120          -- Balken: 100 Punkte = 120 px
+local SKILL_COL = C.gold               -- Fähigkeiten: Überschrift, Balken, Zahl
+local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
 -- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine dunkle Linie
@@ -132,19 +134,20 @@ local function stat_bar(x, y, label, data, key)
   local pot = data.pot[key]
   rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))          -- Spur bis 100
   rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, C.panel_light)                      -- Talent
-  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, C.gold) end     -- aktueller Wert
+  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, SKILL_COL) end   -- aktueller Wert
   notches(y, 9)
-  print(tostring(flr(v)), BAR_X + BAR_W + 6, y, C.gold)
+  print(tostring(flr(v)), BAR_X + BAR_W + 6, y, SKILL_COL)
 end
 
--- Zustand: ein Balken 0–100 (value/max), Farbe col.
+-- Zustand: ein Balken 0–100 (value/max), Farbe col (Standard STATE_COL, rot als Warnung).
 local function state_bar(x, y, label, value, max, col)
   print(label, x, y, C.text)
   rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))
   local v = 100 * value / max
-  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col or C.dim) end
+  col = col or STATE_COL
+  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col) end
   notches(y, 9)
-  print(tostring(flr(value)), BAR_X + BAR_W + 6, y, C.dim)
+  print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col)
 end
 
 function Screens.info(ctx, data)
@@ -177,20 +180,17 @@ function Screens.info(ctx, data)
       rectfill(6, 129, 76, 133, rgb(0x1e, 0x16, 0x14))
       rectfill(6, 129, 6 + flr(70 * data.alter), 133, C.gold)
     end
-    -- Fähigkeiten: Legende rechts neben der Überschrift
-    print("Fähigkeiten", 84, 64, C.gold)
-    rectfill(BAR_X + 52, 64, BAR_X + 62, 72, C.panel_light)
-    print("= Talent", BAR_X + 66, 64, C.dim)
+    print("Fähigkeiten", 84, 64, SKILL_COL)
     local y = 77
-    for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spürsinn"}, {"ausdauer", "Ausdauer"}}) do
+    for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"ausdauer", "Ausdauer"}, {"spuer", "Spürsinn"}}) do
       stat_bar(84, y, e[2], data, e[1])
       y = y + 12
     end
-    print("Zustand", 84, 128, C.gold)
+    print("Zustand", 84, 128, STATE_COL)
     y = 141
-    state_bar(84, y, "Bindung", data.bindung, 100, C.gold); y = y + 12
-    state_bar(84, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or C.dim); y = y + 12
-    state_bar(84, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or C.dim); y = y + 12
+    state_bar(84, y, "Bindung", data.bindung, 100); y = y + 12
+    state_bar(84, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or nil); y = y + 12
+    state_bar(84, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or nil); y = y + 12
     state_bar(84, y, "Gewicht", data.gewicht, 100)
     line(bx_of(50), y - 1, bx_of(50), y + 9, C.text)                -- Idealgewicht
     y = y + 12
@@ -399,7 +399,7 @@ function Screens.market(ctx)
     local d = list[sel]
     if d then
       rectfill(0, 116, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
-      for k, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spürsinn"}, {"ausdauer", "Ausdauer"}}) do
+      for k, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"ausdauer", "Ausdauer"}, {"spuer", "Spürsinn"}}) do
         stat_bar(8, 120 + (k - 1) * 12, e[2], d, e[1])
       end
       print("Bindung " .. d.bindung .. ", " .. K.charakter[d.zug].name, 8, 171, C.text)
