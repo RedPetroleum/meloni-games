@@ -138,15 +138,16 @@ local function col(t) return rgb(t[1], t[2], t[3]) end
 local function mix(a, b, f) return rgb(flr(a[1] + (b[1] - a[1]) * f), flr(a[2] + (b[2] - a[2]) * f), flr(a[3] + (b[3] - a[3]) * f)) end
 
 -- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent
-local BAR_BROWN = {bg = C.panel, track = {0x1e, 0x16, 0x14}, talent = {0x4a, 0x36, 0x2c}}
-local BAR_SKILL = {bg = BOX_SKILL, track = {0x1a, 0x1a, 0x16}, talent = {0x45, 0x4a, 0x3f}}
-local BAR_STATE = {bg = BOX_STATE, track = {0x19, 0x17, 0x1c}}
+-- (bg_rgb: dieselbe Hintergrundfarbe als {r, g, b} für Zwischentöne)
+local BAR_BROWN = {bg = C.panel, bg_rgb = {0x2b, 0x1f, 0x1d}, track = {0x1e, 0x16, 0x14}, talent = {0x4a, 0x36, 0x2c}}
+local BAR_SKILL = {bg = BOX_SKILL, bg_rgb = {0x29, 0x29, 0x23}, track = {0x1a, 0x1a, 0x16}, talent = {0x45, 0x4a, 0x3f}}
+local BAR_STATE = {bg = BOX_STATE, bg_rgb = {0x27, 0x25, 0x2b}, track = {0x19, 0x17, 0x1c}}
 
 -- Füllfarben des inneren Balkens
 local FILL = {gen = {0x9a, 0xdc, 0xb4}, train = {0x3a, 0xb0, 0x8e}, state = {0x8f, 0xc8, 0xe6}, red = {0xe0, 0x47, 0x5a}}
 
 -- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze oben und unten drei Pixel breit und eins tief in
--- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; dazwischen die Farbe des Balkens (Talent oder Spur). Der gefüllte
+-- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; dazwischen die Farbe des Balkens (Talent oder Spur) halb durchsichtig. Der gefüllte
 -- innere Balken bekommt an der Grenze nur eine Andeutung: oberstes und unterstes Pixel halb durchsichtig.
 -- frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe {r, g, b}}} der gefüllten Abschnitte.
 local function notches(y, th, frame_x, fills)
@@ -156,7 +157,7 @@ local function notches(y, th, frame_x, fills)
     pset(x - 1, y, th.bg) pset(x, y, th.bg) pset(x + 1, y, th.bg) pset(x, y + 1, th.bg)
     pset(x - 1, y + 8, th.bg) pset(x, y + 8, th.bg) pset(x + 1, y + 8, th.bg) pset(x, y + 7, th.bg)
     local under = x < frame_x and th.talent or th.track
-    line(x, y + 2, x, y + 6, col(under))                -- ohne Füllung: Farbe des Balkens darunter
+    line(x, y + 2, x, y + 6, mix(under, th.bg_rgb, 0.5))  -- ohne Füllung: Balkenfarbe halb durchsichtig
     for _, f in ipairs(fills) do
       if x >= f[1] and x <= f[2] then
         line(x, y + 3, x, y + 5, col(f[3]))
