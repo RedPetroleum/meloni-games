@@ -55,7 +55,7 @@ return {
       id = "hacke",
       name = "Hacke",
       preis = 100,
-      text = "Beete und Felder anlegen",
+      text = "Beete anlegen",
       wirkung = {},
       einmalig = true,
     },

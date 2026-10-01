@@ -124,6 +124,7 @@ end
 function T.pferd(d)
   local S = K.stats
   d.name = H.NAMES[d.kennung % #H.NAMES + 1]
+  H.claim_name(d)                     -- schon vergeben: neuer Name
   d.id = string.format("%06d900", d.kennung * 15 % 1000000)
   d.hunger, d.gewicht, d.sauberkeit = S.hunger.start, S.gewicht.start, S.sauberkeit.start
   d.energie = H.stat(d, "ausdauer")
@@ -138,12 +139,7 @@ function T.abgeben(ctx, d)
   if not idx then return nil, "nicht im Bestand" end
   for _, h in ipairs(ctx.herd_horses) do if h.data == d and h.state == "ridden" then return nil, "wird geritten" end end
   local code = T.encode(d)
-  local worn = {}
-  if d.taschen then worn[#worn + 1] = d.taschen end
-  if d.sattel then worn[#worn + 1] = d.sattel end
-  if d.lampe then worn[#worn + 1] = "sattellampe" end
-  for _, j in ipairs(Economy.JEWELRY) do if d.schmuck and d.schmuck[j] then worn[#worn + 1] = j end end
-  for _, id in ipairs(worn) do Economy.unequip(ctx, d, id) end
+  Economy.strip(ctx, d)
   for i, h in ipairs(ctx.herd_horses) do
     if h.data == d then h.dead = true table.remove(ctx.herd_horses, i) break end
   end

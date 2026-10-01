@@ -86,12 +86,12 @@ function HM:food()
     local n = ctx.inv[id] or 0
     local name = id
     for _, f in ipairs(K.futter.kaufen) do if f.id == id then name = f.name end end
-    items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1, icon = FOOD_ICON[id], short = FOOD_SHORT[id] or name, badge = tostring(n)}
+    items[#items + 1] = {label = name .. ": " .. Care.hunger_text(id), id = id, dim = n < 1, icon = FOOD_ICON[id], short = FOOD_SHORT[id] or name, badge = tostring(n)}
   end
   for _, id in ipairs(CROP_FOODS) do          -- Ernte nur, wenn welche da ist
     local n = ctx.inv[id] or 0
     if n > 0 then
-      items[#items + 1] = {label = Farm.CROP_NAME[id] .. " x" .. n, id = id, icon = FOOD_ICON[id], short = FOOD_SHORT[id], badge = tostring(n)}
+      items[#items + 1] = {label = Farm.CROP_NAME[id] .. ": " .. Care.hunger_text(id), id = id, icon = FOOD_ICON[id], short = FOOD_SHORT[id], badge = tostring(n)}
     end
   end
   self.stage, self.m = "food", Menu.new(items, "Füttern")

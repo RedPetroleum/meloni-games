@@ -155,6 +155,7 @@ function B.sell(ctx, typ, d)
   end
   for i, h in ipairs(ctx.lead) do if h.data == d then table.remove(ctx.lead, i) break end end
   table.remove(ctx.herd, idx)
+  require("game.economy").strip(ctx, d)       -- Sattel, Schmuck … bleiben bei dir (Rückmeldung 1.3.1)
   ctx.money = ctx.money + price
   local delta = B.folge(typ)
   for _, e in ipairs(ctx.herd) do e.bindung = clamp(e.bindung + delta, 0, 100) end

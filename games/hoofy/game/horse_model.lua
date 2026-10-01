@@ -113,6 +113,74 @@ H.TRAITS = TRAITS
 -- Bindung zum Start je Charakterzug (E15)
 H.TRAIT_BOND = {schreckhaft = -10, faul = 5, verfressen = 5, eitel = 0, nachteule = 0}
 
+-- ---- Namen (Rückmeldung 1.3.1): kein neues Pferd bekommt einen Namen, den es schon einmal gab ----
+-- Vergeben ist ein Name, sobald ein Pferd mit ihm dir gehört hat (gezähmt, geboren, gekauft, getauscht,
+-- umbenannt); die Liste steht im Spielstand (namen). Wildpferde und Marktpferde bekommen beim Erzeugen nur
+-- einen noch freien Namen, belegt wird er erst, wenn das Pferd deins wird. Sind die Namen oben alle weg,
+-- kommen zusammengesetzte (Sternentänzer …), danach nummerierte (Blitz II …).
+H.NAMEN_VORN = {"Sternen", "Mond", "Sonnen", "Wind", "Silber", "Gold", "Feuer", "Schnee", "Sturm", "Morgen",
+  "Abend", "Wiesen", "Wald", "Fluss", "Nebel", "Honig", "Kirsch", "Funken", "Wolken", "Moos"}
+H.NAMEN_HINTEN = {"tänzer", "läufer", "flocke", "glanz", "funke", "hauch", "traum", "blüte", "feder", "stern",
+  "zauber", "schweif"}
+local ROMAN = {"II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"}
+
+local used = {}                -- Name → true
+
+-- Vergebene Namen neu setzen (Spielstand laden, neues Spiel): Liste von Namen.
+function H.names_reset(list)
+  used = {}
+  for _, n in ipairs(list or {}) do used[n] = true end
+end
+
+function H.name_used(n) return used[n] == true end
+function H.reserve_name(n) if n and n ~= "" then used[n] = true end end
+
+-- Alle vergebenen Namen (für den Spielstand), sortiert.
+function H.used_names()
+  local out = {}
+  for n in pairs(used) do out[#out + 1] = n end
+  table.sort(out)
+  return out
+end
+
+local combos
+local function scan(list, r)
+  local n = #list
+  local start = flr(r * n)
+  for k = 0, n - 1 do
+    local c = list[(start + k) % n + 1]
+    if not used[c] then return c end
+  end
+end
+
+-- Ein noch nie vergebener Name (belegt ihn nicht). Verbraucht genau einen Zufallswert.
+function H.fresh_name(rng)
+  local r = rng and rng:next() or rnd()
+  local name = scan(H.NAMES, r)
+  if name then return name end
+  if not combos then
+    combos = {}
+    for _, a in ipairs(H.NAMEN_VORN) do for _, b in ipairs(H.NAMEN_HINTEN) do combos[#combos + 1] = a .. b end end
+  end
+  name = scan(combos, r)
+  if name then return name end
+  for i = 1, 1000 do
+    local suffix = ROMAN[i] or tostring(i + 1)
+    local list = {}
+    for k, n in ipairs(H.NAMES) do list[k] = n .. " " .. suffix end
+    name = scan(list, r)
+    if name then return name end
+  end
+  return "Pferd " .. (#H.used_names() + 1)
+end
+
+-- Das Pferd wird deins: hat es einen schon vergebenen Namen, bekommt es einen neuen; der Name ist dann belegt.
+function H.claim_name(d, rng)
+  if not d.name or used[d.name] then d.name = H.fresh_name(rng) end
+  used[d.name] = true
+  return d.name
+end
+
 -- Neues Wildpferd. opts: gebiet (Standard 1), rasse, sex, zug, rng.
 function H.wild(opts)
   opts = opts or {}
@@ -141,7 +209,7 @@ function H.wild(opts)
   h.gewicht = S.gewicht.start
   h.sauberkeit = S.sauberkeit.start
   h.energie = H.stat(h, "ausdauer")
-  h.name = opts.name or pick(H.NAMES, rng)
+  h.name = opts.name or H.fresh_name(rng)
   return h
 end
 

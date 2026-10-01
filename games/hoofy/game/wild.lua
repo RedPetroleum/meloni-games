@@ -413,6 +413,7 @@ function Wild:tame(h)
   h.wild, h.data.wild, h.tamed = false, nil, true
   h.data.reit_ab = h.data.bindung + Ride.FRESH_BOND          -- frisch gezähmt: noch nicht reitbar (E71)
   h.data.neu = true
+  H.claim_name(h.data, self.rng)                 -- nie ein Name, den es schon gab (Rückmeldung 1.3.1)
   require("game.breeding").ensure_id(h.data, self.ctx.herd)
   self.ctx.herd[#self.ctx.herd + 1] = h.data
   self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h

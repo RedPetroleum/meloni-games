@@ -51,8 +51,7 @@ return {
     C.ok(Farm.place(ctx, "beet", p.x + 13, p.y + 5))
     C.eq(ctx.money, m)
     C.eq(ctx.map:code(p.x + 13, p.y + 5), "b")
-    C.ok(Farm.place(ctx, "feld", p.x + 14, p.y + 5))
-    C.eq(ctx.map:code(p.x + 14, p.y + 5), "b")
+    C.ok(not Farm.ITEMS.feld, "Feld gibt es nicht mehr, nur Beet")
     C.ok(ctx.map:walkable(p.x + 13, p.y + 5), "Beete sind begehbar")
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 0)
     C.eq(ctx.map:code(p.x + 13, p.y + 5), ".")
@@ -226,6 +225,23 @@ return {
     end
     C.ok(found, "reifes Gras wieder sichtbar")
     log("ANBAU Spielstand mit 2 Pflanzen und 3 Beeten: " .. #text .. " Bytes")
+  end},
+  {"Alter Spielstand mit Feldern (bis 1.3.1): werden beim Laden zu Beeten, bepflanzt bleibt bepflanzt", function()
+    local Save = require("game.save")
+    local Clock = require("game.clock")
+    local ctx, p = setup()
+    beds(ctx, p.x + 13, p.y + 5, 2, 1)
+    Farm.plant(ctx, "karotte", p.x + 14, p.y + 5, 1)
+    ctx.area.farm.items[2].id = "feld"                -- so stand es in alten Spielständen
+    local back = load("return " .. Save.encode(Save.snapshot(ctx, Clock.new(2, 0), 10)), "=x", "t", {})()
+    Area.clear()
+    local ctx2 = Stage.build(1, 10, back.hof)
+    for _, it in ipairs(ctx2.area.farm.items) do C.eq(it.id, "beet") end
+    C.eq(ctx2.map:code(p.x + 14, p.y + 5), "b")
+    C.ok(Farm.plant_at(ctx2.area.farm, p.x + 14, p.y + 5), "Karotte noch da")
+    ctx2.money, ctx2.inv = 0, {}
+    C.eq(Farm.remove(ctx2, p.x + 13, p.y + 5), 0, "abreißbar")
+    C.ok(Farm.schoenheit(ctx2.area.farm) >= 0)
   end},
   {"Baumodus: Pflanzen-Reiter zeigt gekaufte Samen, Pflanzen per A", function()
     local Screens = require("game.screens")

@@ -74,6 +74,26 @@ return {
       C.ok(ctx.buyer.verkauft)
     end
   end},
+  {"Verkauf: Sattel, Taschen, Lampe und Schmuck bleiben im Vorrat (Rückmeldung 1.3.1)", function()
+    local ctx = Stage.build(1)
+    local w = Wild.new(ctx, 3)
+    w.count = 0
+    local a = w:add_own()
+    a.data.sauberkeit = 80
+    a.data.sattel, a.data.taschen, a.data.lampe = "einfacher_sattel", "satteltaschen_s", true
+    a.data.schmuck = {blumenkranz = true, goldhufeisen = true}
+    C.ok(Buyers.sell(ctx, "reithof", a.data))
+    for _, id in ipairs({"einfacher_sattel", "satteltaschen_s", "sattellampe", "blumenkranz", "goldhufeisen"}) do
+      C.eq(ctx.inv[id], 1, id)
+    end
+    local Orders = require("game.orders")
+    local b = w:add_own()
+    b.data.schmuck = {maehnenschleife = true}
+    local o = Orders.for_horse(b.data, 1, "Frau Test")
+    ctx.orders = {o}
+    C.ok(Orders.deliver(ctx, o, b.data))
+    C.eq(ctx.inv.maehnenschleife, 1, "auch beim Liefern")
+  end},
   {"Bindung der übrigen Pferde bleibt in 0–100", function()
     local ctx = Stage.build(1)
     local w = Wild.new(ctx, 3)

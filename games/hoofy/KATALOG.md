@@ -151,10 +151,10 @@ Pro Tag kommt ein zufälliger Käufer vorbei, der Pferdemarkt im Ort ist immer o
 | Karotte | 3 | Bindung +3, Hunger −5 |
 | Premiumfutter | 60 | Hunger −40; Fohlen: Max-Potenzial +2 (bis +10 insgesamt) |
 | Bürste | 20 (einmalig) | Striegeln: Sauberkeit +40 |
-| Hacke | 100 (einmalig) | Beete und Felder anlegen |
+| Hacke | 100 (einmalig) | Beete anlegen |
 
 ### Anbau
-Samen einmal kaufen oder finden: Die Pflanze trägt danach unbegrenzt. Beete und Felder kosten 0 je Kachel (Baumodus), anlegen braucht eine Hacke. Der Apfelbaum wächst ohne Beet auf Gras. Geerntetes kommt ins Hausinventar.
+Samen einmal kaufen oder finden: Die Pflanze trägt danach unbegrenzt. Beete kosten 0 je Kachel (Baumodus), anlegen braucht eine Hacke. Der Apfelbaum wächst ohne Beet auf Gras. Geerntetes kommt ins Hausinventar.
 
 | Pflanze | Samen | ab Gebiet | Platz | reif nach / dann alle | Ertrag | Wirkung je Stück |
 |---|---|---|---|---|---|---|
@@ -198,7 +198,7 @@ Abreißen bringt 100 % des Preises zurück.
 | Zaun (je Kachel) / Tor | 5 / 30 | Weide |
 | Schuppen / Garage / Hangar | 600 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
 | Göpel-Generator | 1 500 | 40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie) |
-| Beet / Feld (je Kachel) | 0 | Pflanzen anbauen (siehe Anbau), braucht eine Hacke |
+| Beet (je Kachel) | 0 | Pflanzen anbauen (siehe Anbau), braucht eine Hacke |
 | Bank / Lampe / Blumenkübel | 40 / 60 / 20 | Schönheit +3 / +4 / +2 |
 | Weg / Boden (je Kachel) | 5 | Schönheit +0,5 |
 | Brunnen / Teich / Statue | 400 / 600 / 1 500 | Schönheit +25 / +35 / +80 |

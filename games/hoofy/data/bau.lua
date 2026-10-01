@@ -133,14 +133,6 @@ return {
       preis = 0,
     },
     {
-      id = "feld",
-      name = "Feld",
-      text = "Pflanzen anbauen (siehe Anbau), braucht eine Hacke",
-      wirkung = {},
-      je_kachel = true,
-      preis = 0,
-    },
-    {
       id = "bank",
       name = "Bank",
       text = "Schönheit +3",

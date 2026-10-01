@@ -50,6 +50,7 @@ function M.buy(ctx, i)
   ctx.money = ctx.money - d.preis
   table.remove(m.horses, i)
   d.preis = nil
+  H.claim_name(d)
   local h = ctx.wild:adopt(d)
   return true, h
 end

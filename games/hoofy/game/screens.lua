@@ -234,7 +234,7 @@ function Screens.info(ctx, data)
     if btnp(BTN_B) then nav.pop() end
     if btnp(BTN_A) then
       local d = data
-      nav.push(Screens.keyboard("Neuer Name", d.name, 12, function(text) d.name = text end))
+      nav.push(Screens.keyboard("Neuer Name", d.name, 12, function(text) d.name = text H.reserve_name(text) end))
     end
     if btnp(BTN_DOWN) then SFX.ok() nav.push(Screens.stammbaum(ctx, data)) end
     local i = index()
@@ -832,6 +832,51 @@ function Screens.rennen(ctx, d, gegner, done)
   return s
 end
 
+-- ---- Rückfrage (Rückmeldung 1.3.1: Verkaufen bestätigen) ----
+-- lines: Text; yes: Beschriftung für Ja; on_yes(nav) nach dem Schließen. „Nein“ ist vorgewählt, B = nein.
+function Screens.confirm(title, text, yes, on_yes)
+  local lines = {}
+  for _, t in ipairs(text) do
+    for _, l in ipairs(require("lib.util").wrap(t, SCREEN_W - 20)) do lines[#lines + 1] = l end
+  end
+  local sel = 1
+  local s = {full = true}
+  local wait = btn(BTN_A)
+  function s.update(nav)
+    if wait then if not btn(BTN_A) then wait = false end return end
+    if btnp(BTN_UP) or btnp(BTN_DOWN) then sel = 3 - sel SFX.select() end
+    if btnp(BTN_B) then SFX.back() nav.pop() return end
+    if btnp(BTN_A) then
+      nav.pop()
+      if sel == 2 then on_yes(nav) else SFX.back() end
+    end
+  end
+  function s.draw()
+    cls(C.panel)
+    header(title)
+    for i, l in ipairs(lines) do print(l, 10, 30 + (i - 1) * 12, C.text) end
+    local y0 = 40 + #lines * 12
+    for i, label in ipairs({"Nein, behalten", yes}) do
+      local y = y0 + (i - 1) * 18
+      if i == sel then rectfill(4, y - 3, SCREEN_W - 5, y + 11, C.panel_light) end
+      print(label, 14, y, i == 2 and C.red or (i == sel and C.gold or C.text))
+    end
+    footer("A: wählen   B: zurück")
+  end
+  return s
+end
+
+-- Was beim Verkauf in den Vorrat zurückgeht (Text), nil wenn nichts.
+local function worn_text(d)
+  local names = {}
+  if d.sattel then names[#names + 1] = Economy.find(d.sattel).name end
+  if d.taschen then names[#names + 1] = Economy.find(d.taschen).name end
+  if d.lampe then names[#names + 1] = "Sattellampe" end
+  for _, j in ipairs(Economy.JEWELRY) do if d.schmuck and d.schmuck[j] then names[#names + 1] = Economy.find(j).name end end
+  if #names == 0 then return nil end
+  return "Zurück in den Vorrat: " .. table.concat(names, ", ") .. "."
+end
+
 -- ---- Käufer am Hof ----
 
 function Screens.buyer(ctx, nav_done)
@@ -856,14 +901,25 @@ function Screens.buyer(ctx, nav_done)
     if btnp(BTN_A) and l[sel] then
       local d = l[sel]
       local name = d.name
-      local price, extra = Buyers.sell(ctx, typ, d)
-      if price then
-        SFX.tame()
-        nav.pop()
-        if nav_done then nav_done(name .. " verkauft für " .. price .. " G.") end
-      else
+      local offer, why = Buyers.offer(typ, d)
+      if not offer then
         SFX.snort()
-        msg = "Das nimmt er nicht: " .. tostring(extra)
+        msg = "Das nimmt er nicht: " .. tostring(why)
+      else
+        SFX.ok()
+        local lines = {name .. " für " .. offer .. " G an " .. info.name .. " verkaufen?", "Das lässt sich nicht rückgängig machen."}
+        lines[#lines + 1] = worn_text(d)
+        nav.push(Screens.confirm("Wirklich verkaufen?", lines, "Ja, verkaufen", function(nv)
+          local price, extra = Buyers.sell(ctx, typ, d)
+          if price then
+            SFX.tame()
+            nv.pop()
+            if nav_done then nav_done(name .. " verkauft für " .. price .. " G.") end
+          else
+            SFX.snort()
+            msg = "Das nimmt er nicht: " .. tostring(extra)
+          end
+        end))
       end
     end
   end
@@ -929,14 +985,24 @@ local function order_horses(ctx, order, done)
     if btnp(BTN_DOWN) and #l > 0 then sel = sel % #l + 1; SFX.select() end
     if btnp(BTN_B) then SFX.back() nav.pop() end
     if btnp(BTN_A) and l[sel] then
-      local name = l[sel].name
-      local sum, why = Orders.deliver(ctx, order, l[sel])
-      if sum then
-        SFX.tame()
-        nav.pop()
-        if done then done(name .. " geliefert: " .. sum .. " G von " .. order.kunde .. ".") end
-      else
+      local d = l[sel]
+      local name = d.name
+      if not Orders.matches(order, d) then
         SFX.snort()
+      else
+        SFX.ok()
+        local lines = {name .. " für " .. Orders.reward(d) .. " G an " .. order.kunde .. " liefern?", "Das lässt sich nicht rückgängig machen."}
+        lines[#lines + 1] = worn_text(d)
+        nav.push(Screens.confirm("Wirklich liefern?", lines, "Ja, liefern", function(nv)
+          local sum = Orders.deliver(ctx, order, d)
+          if sum then
+            SFX.tame()
+            nv.pop()
+            if done then done(name .. " geliefert: " .. sum .. " G von " .. order.kunde .. ".") end
+          else
+            SFX.snort()
+          end
+        end))
       end
     end
   end
@@ -1163,11 +1229,11 @@ end
 
 -- Bild eines Bauteils für das Kachelmenü
 local BUILD_ICON = {
-  weg = "land_path1", boden = "land_sand1", beet = "ground_carrots", feld = "ground_carrots",
+  weg = "land_path1", boden = "land_sand1", beet = "ground_beet",
   zaun = "fence_post",
 }
 local CAT_ICON = {
-  deko = "blumenkuebel", wege = "land_path1", anbau = "ground_carrots", pflanzen = "pflanze_karotte_3",
+  deko = "blumenkuebel", wege = "land_path1", anbau = "ground_beet", pflanzen = "pflanze_karotte_3",
   zaun = "gate", gebaeude = "stable", land = "ico_karte", abriss = "cursor_bad",
 }
 local function build_icon(cat, id)

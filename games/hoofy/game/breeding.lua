@@ -181,7 +181,7 @@ function B.foal(f, m, rng, inzucht)
   d.bindung = mid(0, rasse.bindung + H.TRAIT_BOND[d.zug] + flr((rng:next() * 2 - 1) * 5 + 0.5), 100)
   d.hunger, d.gewicht, d.sauberkeit = S.hunger.start, S.gewicht.start, S.sauberkeit.start
   d.energie = d.gen.ausdauer
-  d.name = H.NAMES[rng:int(1, #H.NAMES)]
+  d.name = H.fresh_name(rng)
   d.ahnen = {v = ahn(f, B.DEPTH), m = ahn(m, B.DEPTH)}
   return d
 end
@@ -196,6 +196,7 @@ function B.tick(ctx, day)
       B.ensure_id(m, ctx.herd)
       local malus = B.inzucht_malus(m.traechtig.vater, m)
       local foal = B.foal(m.traechtig.vater, m, rng, malus)
+      H.claim_name(foal, rng)
       B.ensure_id(foal, ctx.herd)
       m.traechtig = nil
       m.zucht_pause = day + K.zeit.stute_pause_tage

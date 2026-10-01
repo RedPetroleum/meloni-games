@@ -500,3 +500,18 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   abreißen. Regen trifft Göpel-Pferde wie Weidepferde.
 - README_HOOFY.md beschreibt Jobs und Göpel noch wie vorher (nicht geändert, gehört dem Menschen).
 - Neue Szenarien: `zucht` (geburt = true), `stall` (stall = "stall_xl" …), `goepel`, `jobspiel` (job = …), `schmuck`.
+
+## E79 Feld, Namen, Verkauf, Beete, Futter (Rückmeldung nach 1.3.1)
+- Feld gestrichen (war dasselbe wie das Beet). Alte Spielstände: Felder werden beim Laden zu Beeten, Pflanzen darauf
+  bleiben (Selbsttest). KATALOG §7/§9 sagt nur noch „Beet“.
+- Namen: Kein neues Pferd heißt wie eins, das es schon gab. Belegt wird ein Name, sobald das Pferd dir gehört (gezähmt,
+  geboren, gekauft, getauscht, umbenannt); die Liste steht im Spielstand (`namen`). Eigene Wahl: Wild- und Marktpferde
+  bekommen beim Erzeugen nur einen noch freien Namen und belegen ihn erst beim Zähmen/Kauf, sonst wären die Namen
+  nach ein paar Reisen aufgebraucht. Nach den 57 Namen kommen zusammengesetzte (Sternentänzer, Windflocke …, 240
+  Stück), danach „Blitz II“ usw. Ältere Spielstände: vergeben sind die Namen der eigenen Pferde und ihrer Vorfahren;
+  Namen früher verkaufter Pferde kennt der Spielstand nicht.
+- Verkaufen an Käufer und Liefern bei Bestellungen fragen nach („Nein, behalten“ vorgewählt) und nennen, was zurück in
+  den Vorrat geht. Sattel, Taschen, Lampe und Schmuck bleiben bei dir (beim Tauschen war das schon so).
+- Beete: Das leere Beet ist jetzt helle, gepflügte Erde ohne Grün (vorher das Möhrenbeet, sah bepflanzt aus). Unter
+  jeder gesäten Pflanze liegt in allen Stufen ein dunkler, feuchter Erdhügel.
+- Füttern: unten steht zum gewählten Futter „Heu: Hunger -30“ (die Anzahl steht weiter auf der Kachel).

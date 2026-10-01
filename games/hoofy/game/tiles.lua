@@ -42,7 +42,7 @@ T.GROUNDS = {
   I = {sprites = {"ground_bridge_v"}, shadow = C.wood_shadow, map = rgb(0xb0, 0x7a, 0x44)},
   [":"] = {sprites = {"land_path1", "land_path2"}, edges = "land_fringe", shadow = C.path_shadow,
     map = rgb(0xd4, 0xb0, 0x77)},
-  b = {sprites = {"ground_carrots"}, edges = "land_fringe", shadow = C.path_shadow, map = rgb(0x8a, 0x5a, 0x36)},
+  b = {sprites = {"ground_beet"}, edges = "land_fringe", shadow = C.path_shadow, map = rgb(0x8a, 0x5a, 0x36)},
   s = {sprites = {"land_sand1", "land_sand2"}, edges = "land_fringe", shadow = C.sand_shadow,
     map = rgb(0xea, 0xd7, 0xa0)},
 }

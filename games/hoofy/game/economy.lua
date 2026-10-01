@@ -181,6 +181,22 @@ E.SLOTS = {
 }
 E.JEWELRY = {"maehnenschleife", "blumenkranz", "glitzerdecke", "goldhufeisen"}
 
+-- Alles, was das Pferd trägt (Sattel, Taschen, Lampe, Schmuck), zurück in den Vorrat (Verkauf, Lieferung,
+-- Tausch; Rückmeldung 1.3.1). Gibt die Liste der Namen zurück.
+function E.strip(ctx, d)
+  local worn = {}
+  if d.taschen then worn[#worn + 1] = d.taschen end
+  if d.sattel then worn[#worn + 1] = d.sattel end
+  if d.lampe then worn[#worn + 1] = "sattellampe" end
+  for _, j in ipairs(E.JEWELRY) do if d.schmuck and d.schmuck[j] then worn[#worn + 1] = j end end
+  local names = {}
+  for _, id in ipairs(worn) do
+    E.unequip(ctx, d, id)
+    names[#names + 1] = E.find(id).name
+  end
+  return names
+end
+
 -- Rüstet id am Pferd (data) aus dem Vorrat aus und gibt das alte Stück zurück in den Vorrat.
 -- Gibt true oder false, Grund zurück. Sättel: einer; Taschen: nur mit Sattel; Lampe und Schmuck: je einmal.
 function E.equip(ctx, data, id)

@@ -48,6 +48,8 @@ function WorldScene.enter(arg)
   local reise = arg and arg.reise            -- Fahrt in ein anderes Gebiet (D1), arg.reise = Reisedaten
   if reise then snap, seed, farm = reise, reise.seed, reise.hof end
   seed_now = seed
+  -- Vergebene Namen (Rückmeldung 1.3.1): aus dem Spielstand, bei einer Reise bleiben sie, sonst neu
+  if snap and snap.namen then H.names_reset(snap.namen) elseif not reise then H.names_reset({}) end
   saving = (arg and (arg.neu or (arg.laden and snap) or (reise and arg.saving))) and true or false
   ctx = Stage.build(reise and reise.gebiet or arg and arg.gebiet or 1, seed, farm)
   ctx.hof = ctx.area.farm or farm     -- der geladene Hof (Titel hat ihn schon im Speicher), unterwegs der Hof daheim
@@ -74,6 +76,7 @@ function WorldScene.enter(arg)
     ctx.inv.hacke = 1
     for x = 13, 19 do for y = 5, 6 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
     for x = 13, 14 do for y = 7, 8 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
+    for x = 15, 19 do Farm.place(ctx, "beet", pl.x + x, pl.y + 8) end        -- leere Beete zum Vergleich
     local row = {"gras", "karotte", "hafer", "sonnenblume", "zuckerruebe", "drachenfrucht", "goldene_karotte"}
     for i, id in ipairs(row) do Farm.plant(ctx, id, pl.x + 12 + i, pl.y + 5, 1) end
     for x = 13, 19 do Farm.plant(ctx, "karotte", pl.x + x, pl.y + 6, 1) end
@@ -279,6 +282,18 @@ function WorldScene.enter(arg)
         wild:adopt(d)
       end
     end
+  end
+  -- Namen eigener Pferde und ihrer Vorfahren gelten als vergeben (auch für ältere Spielstände ohne Liste)
+  local function reserve_tree(a)
+    if not a then return end
+    H.reserve_name(a.name)
+    reserve_tree(a.v)
+    reserve_tree(a.m)
+  end
+  for _, d in ipairs(ctx.herd) do
+    H.reserve_name(d.name)
+    if d.ahnen then reserve_tree(d.ahnen.v) reserve_tree(d.ahnen.m) end
+    if d.traechtig then H.reserve_name(d.traechtig.vater.name) end
   end
   if fill_later then wild:fill() end
   Reformen.erreicht(ctx, ctx.area.nr, clock.day)

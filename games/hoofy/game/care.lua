@@ -63,7 +63,8 @@ end
 local CROP_OF = {apfel = "apfelbaum", sonnenblumenkerne = "sonnenblume", minze = "minze", zuckerruebe = "zuckerruebe",
   luzerne = "luzerne", drachenfrucht = "drachenfrucht", goldene_karotte = "goldene_karotte"}
 
-function Care.feed(data, id)
+-- Katalogeintrag eines Futters: gekauft (item) oder Ernte (crop). Gibt item, crop zurück.
+function Care.food(id)
   local item
   for _, f in ipairs(K.futter.kaufen) do if f.id == id then item = f end end
   local crop
@@ -71,6 +72,18 @@ function Care.feed(data, id)
     for _, p in ipairs(K.futter.anbau) do if p.id == CROP_OF[id] then crop = p end end
   end
   if not item and not crop then error("unbekanntes Futter " .. tostring(id)) end
+  return item, crop
+end
+
+-- Kurztext, wie viel Hunger ein Futter wegnimmt (Rückmeldung 1.3.1): „Hunger -30“, ohne Wirkung „Hunger ±0“.
+function Care.hunger_text(id)
+  local item, crop = Care.food(id)
+  local h = (item or crop).wirkung.hunger or 0
+  return "Hunger " .. (h == 0 and "±0" or tostring(h))
+end
+
+function Care.feed(data, id)
+  local item, crop = Care.food(id)
   local src = item or crop
   local w = src.wirkung
   local bond = K.stats.bindung.fuettern + (w.bindung or 0)

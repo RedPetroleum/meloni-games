@@ -103,6 +103,7 @@ function O.deliver(ctx, o, d)
   end
   for i, h in ipairs(ctx.lead) do if h.data == d then table.remove(ctx.lead, i) break end end
   table.remove(ctx.herd, idx)
+  require("game.economy").strip(ctx, d)       -- Sattel, Schmuck … bleiben bei dir (Rückmeldung 1.3.1)
   local sum = O.reward(d)
   ctx.money = ctx.money + sum
   for i, e in ipairs(ctx.orders) do if e == o then table.remove(ctx.orders, i) break end end

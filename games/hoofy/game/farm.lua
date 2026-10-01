@@ -227,7 +227,7 @@ end
 Farm.CATEGORIES = {
   {id = "deko", name = "Deko", items = {"bank", "lampe", "blumenkuebel", "busch", "hecke", "stein", "baum", "brunnen", "teich", "statue"}},
   {id = "wege", name = "Wege", items = {"weg", "boden"}},
-  {id = "anbau", name = "Anbau", items = {"beet", "feld"}},
+  {id = "anbau", name = "Anbau", items = {"beet"}},
   {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
   {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar", "goepel_generator"}},
@@ -324,7 +324,7 @@ Farm.ITEMS = {
   busch = {prop = "bush"}, hecke = {prop = "hecke"}, stein = {prop = "rock"}, baum = {prop = "tree"},
   brunnen = {prop = "brunnen", w = 2, h = 2}, teich = {prop = "teich", w = 2, h = 2}, statue = {prop = "statue"},
   weg = {ground = ":"}, boden = {ground = "s"},
-  beet = {ground = "b"}, feld = {ground = "b"},
+  beet = {ground = "b"},
   zaun = {prop = "fence", fence = true}, tor = {prop = "gate", gate = true},
   -- Gebäude (C3): Grundfläche in Kacheln
   wohnwagen = {prop = "wohnwagen", w = 3, h = 2, building = true},
@@ -690,6 +690,8 @@ end
 -- Spielerbauten beim Laden wieder in die Karte eintragen (Farm.apply ruft das).
 function Farm.apply_items(map, farm)
   farm.items = farm.items or {}
+  -- „Feld“ gab es bis 1.3.1 als zweiten Namen fürs Beet (Rückmeldung): alte Spielstände bekommen Beete
+  for _, it in ipairs(farm.items) do if it.id == "feld" then it.id = "beet" end end
   farm.pflanzen = farm.pflanzen or {}
   Farm.reindex(farm)
   for _, it in ipairs(farm.items) do put(map, farm, it) end

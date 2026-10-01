@@ -405,7 +405,7 @@ def futter(s):
             e["deko"] = True
         anbau.append(e)
     return {"kaufen": kaufen, "anbau": anbau,
-            "beet_preis": s.find(r"Beete und Felder kosten (\d+) je Kachel")}
+            "beet_preis": s.find(r"Beete kosten (\d+) je Kachel")}
 
 
 def ausruestung(s):

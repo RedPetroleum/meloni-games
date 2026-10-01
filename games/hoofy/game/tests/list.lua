@@ -48,4 +48,5 @@ return {
   "fortschritt",
   "fohlen",
   "jobspiel",
+  "namen",
 }
