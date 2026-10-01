@@ -133,39 +133,39 @@ end
 local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
 
+-- Farben als {r, g, b}, damit sich Zwischentöne berechnen lassen
+local function col(t) return rgb(t[1], t[2], t[3]) end
+local function mix(a, b, f) return rgb(flr(a[1] + (b[1] - a[1]) * f), flr(a[2] + (b[2] - a[2]) * f), flr(a[3] + (b[3] - a[3]) * f)) end
+
 -- Farben eines Balkens: bg = Fläche dahinter, track = Spur bis 100, talent = Rahmen bis zum Talent; *_line = Farbe der
 -- Unterteilung auf diesem Untergrund (Spur: etwas heller, Rahmen: etwas dunkler)
-local BAR_BROWN = {bg = C.panel, track = rgb(0x1e, 0x16, 0x14), track_line = rgb(0x34, 0x27, 0x22),
-  talent = C.panel_light, talent_line = rgb(0x3a, 0x2a, 0x23)}
-local BAR_SKILL = {bg = BOX_SKILL, track = rgb(0x1a, 0x1a, 0x16), track_line = rgb(0x30, 0x30, 0x29),
-  talent = rgb(0x45, 0x4a, 0x3f), talent_line = rgb(0x37, 0x3b, 0x32)}
-local BAR_STATE = {bg = BOX_STATE, track = rgb(0x19, 0x17, 0x1c), track_line = rgb(0x2f, 0x2c, 0x33)}
+local BAR_BROWN = {bg = C.panel, track = {0x1e, 0x16, 0x14}, track_line = rgb(0x34, 0x27, 0x22),
+  talent = {0x4a, 0x36, 0x2c}, talent_line = rgb(0x3a, 0x2a, 0x23)}
+local BAR_SKILL = {bg = BOX_SKILL, track = {0x1a, 0x1a, 0x16}, track_line = rgb(0x30, 0x30, 0x29),
+  talent = {0x45, 0x4a, 0x3f}, talent_line = rgb(0x37, 0x3b, 0x32)}
+local BAR_STATE = {bg = BOX_STATE, track = {0x19, 0x17, 0x1c}, track_line = rgb(0x2f, 0x2c, 0x33)}
 
--- Unterteilung auf den gefüllten Balken: eine dunklere Stufe derselben Farbe
-local FILL_LINE = {
-  [GEN_COL] = rgb(0x7a, 0xb6, 0x94), [TRAIN_COL] = rgb(0x2d, 0x8e, 0x72),
-  [STATE_COL] = rgb(0x70, 0xa4, 0xc1), [C.red] = rgb(0xb2, 0x37, 0x47),
-}
+-- Füllfarben des inneren Balkens
+local FILL = {gen = {0x9a, 0xdc, 0xb4}, train = {0x3a, 0xb0, 0x8e}, state = {0x8f, 0xc8, 0xe6}, red = {0xe0, 0x47, 0x5a}}
 
--- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze und an den Enden abgerundete Ecken in Hintergrundfarbe,
--- dazwischen eine Linie in der Farbe passend zum Untergrund. frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe}}
--- der gefüllten Abschnitte in den inneren Zeilen.
-local function round_ends(x, dir, y, bg)    -- Balkenende abrunden: dir 1 = linkes Ende, -1 = rechtes
-  pset(x, y, bg) pset(x + dir, y, bg) pset(x, y + 1, bg)
-  pset(x, y + 8, bg) pset(x + dir, y + 8, bg) pset(x, y + 7, bg)
-end
-
+-- Segmente alle 20 Punkte wie (=====)(=====): an jeder Grenze oben und unten drei Pixel breit und eins tief in
+-- Hintergrundfarbe ausgespart, an den Enden je ein Eckpixel; dazwischen eine Linie passend zum Untergrund. Der gefüllte
+-- innere Balken bekommt an der Grenze nur eine Andeutung: oberstes und unterstes Pixel halb durchsichtig.
+-- frame_x: bis hier reicht der Rahmen (Talent), fills: {{x0, x1, Farbe {r, g, b}}} der gefüllten Abschnitte.
 local function notches(y, th, frame_x, fills)
-  round_ends(BAR_X, 1, y, th.bg)
-  round_ends(BAR_X + BAR_W - 1, -1, y, th.bg)
+  for _, x in ipairs({BAR_X, BAR_X + BAR_W - 1}) do pset(x, y, th.bg) pset(x, y + 8, th.bg) end
   for v = 20, 80, 20 do
     local x = bx_of(v)
-    -- „)(“: an der Grenze oben und unten drei Pixel breit und eins tief ausgespart
     pset(x - 1, y, th.bg) pset(x, y, th.bg) pset(x + 1, y, th.bg) pset(x, y + 1, th.bg)
     pset(x - 1, y + 8, th.bg) pset(x, y + 8, th.bg) pset(x + 1, y + 8, th.bg) pset(x, y + 7, th.bg)
+    local under = x < frame_x and th.talent or th.track
     line(x, y + 2, x, y + 6, x < frame_x and th.talent_line or th.track_line)
     for _, f in ipairs(fills) do
-      if x >= f[1] and x <= f[2] then line(x, y + 2, x, y + 6, FILL_LINE[f[3]] or f[3]) end
+      if x >= f[1] and x <= f[2] then
+        line(x, y + 3, x, y + 5, col(f[3]))
+        local soft = mix(f[3], under, 0.5)
+        pset(x, y + 2, soft) pset(x, y + 6, soft)
+      end
     end
   end
 end
@@ -176,37 +176,37 @@ local function stat_bar(x, y, label, data, key, th)
   print(label, x, y, C.text)
   local v = H.stat(data, key)
   local pot = data.pot[key]
-  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)                       -- Spur bis 100
-  rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, th.talent)                         -- Talent
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, col(th.track))                  -- Spur bis 100
+  rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, col(th.talent))                    -- Talent
   local g = min(data.gen[key], v)
   local fills = {}
   if g >= 1 then
     rectfill(BAR_X + 1, y + 2, bx_of(g) - 1, y + 6, GEN_COL)
-    fills[#fills + 1] = {BAR_X + 1, bx_of(g) - 1, GEN_COL}
+    fills[#fills + 1] = {BAR_X + 1, bx_of(g) - 1, FILL.gen}
   end
   if bx_of(v) > bx_of(g) then
     local x0 = max(BAR_X + 1, bx_of(g))
     rectfill(x0, y + 2, bx_of(v) - 1, y + 6, TRAIN_COL)
-    fills[#fills + 1] = {x0, bx_of(v) - 1, TRAIN_COL}
+    fills[#fills + 1] = {x0, bx_of(v) - 1, FILL.train}
   end
   notches(y, th, bx_of(pot), fills)
   print(tostring(flr(v)), BAR_X + BAR_W + 6, y, SKILL_COL)
 end
 
--- Zustand: ein Balken 0–100 (value/max), Farbe col (Standard STATE_COL, rot als Warnung).
-local function state_bar(x, y, label, value, max, col, th)
+-- Zustand: ein Balken 0–100 (value/max), blau, mit warn rot.
+local function state_bar(x, y, label, value, max, warn, th)
   th = th or BAR_STATE
   print(label, x, y, C.text)
-  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, th.track)
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, col(th.track))
   local v = 100 * value / max
-  col = col or STATE_COL
+  local fc = warn and FILL.red or FILL.state
   local fills = {}
   if v >= 1 then
-    rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col)
-    fills[1] = {BAR_X + 1, bx_of(v) - 1, col}
+    rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col(fc))
+    fills[1] = {BAR_X + 1, bx_of(v) - 1, fc}
   end
   notches(y, th, BAR_X, fills)
-  print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col)
+  print(tostring(flr(value)), BAR_X + BAR_W + 6, y, col(fc))
 end
 
 function Screens.info(ctx, data)
@@ -264,8 +264,8 @@ function Screens.info(ctx, data)
     print("Zustand", 8, 153, STATE_COL)
     y = 166
     state_bar(8, y, "Bindung", data.bindung, 100); y = y + 11
-    state_bar(8, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or nil); y = y + 11
-    state_bar(8, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or nil); y = y + 11
+    state_bar(8, y, "Hunger", data.hunger, 100, data.hunger > 60); y = y + 11
+    state_bar(8, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40); y = y + 11
     state_bar(8, y, "Gewicht", data.gewicht, 100)
     line(bx_of(50), y - 1, bx_of(50), y + 9, C.text)                -- Idealgewicht
     y = y + 11
