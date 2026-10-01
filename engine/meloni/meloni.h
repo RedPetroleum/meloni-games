@@ -12,7 +12,7 @@
 // Version of the Lua API that games are written against (meta.json "api"). Raise it when
 // the API changes in a way that older firmware cannot run newer games (and MELONI_API_VERSION
 // in open-086's meloni_update.c when the firmware takes over the new engine).
-#define MEL_API_VERSION   2
+#define MEL_API_VERSION   3
 
 #define MEL_WIDTH         320
 #define MEL_HEIGHT        240
@@ -70,6 +70,8 @@ void *mel_plat_realloc(void *ptr, size_t size); // realloc semantics, used for t
 
 extern uint16_t mel_fb[MEL_WIDTH * MEL_HEIGHT];
 extern const uint8_t mel_font8x8[256][8];
+extern const uint16_t mel_font8x16[256][16];   // font(1), bit 15 = left pixel
+extern const uint16_t mel_font12x24[256][24];  // font(2)
 
 void mel_gfx_reset(void);
 void mel_gfx_open(lua_State *L);

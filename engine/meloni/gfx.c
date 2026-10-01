@@ -48,9 +48,33 @@ static void palette_reset(void)
     }
 }
 
+// ---- fonts: 0 = 8x8 (default), 1 = 8x16, 2 = 12x24 (Spleen) ----
+
+typedef struct
+{
+    int w, h;
+} font_t;
+
+static const font_t fonts[] = {{8, 8}, {8, 16}, {12, 24}};
+#define FONT_COUNT ((int)(sizeof(fonts) / sizeof(fonts[0])))
+static int cur_font;
+
+// Row `row` of the glyph for cp in font f, left pixel in bit 15.
+static uint16_t glyph_row(int f, int cp, int row)
+{
+    if (cp < 0x20 || cp > 0xFF)
+        cp = '?';
+    if (f == 1)
+        return mel_font8x16[cp][row];
+    if (f == 2)
+        return mel_font12x24[cp][row];
+    return (uint16_t)(mel_font8x8[cp][row] << 8);
+}
+
 void mel_gfx_reset(void)
 {
     palette_reset();
+    cur_font = 0;
     cam_x = cam_y = 0;
     clip_x0 = clip_y0 = 0;
     clip_x1 = MEL_WIDTH;
@@ -178,10 +202,11 @@ static int utf8_next(const char **s)
     return cp;
 }
 
-// Draws text in screen coordinates, returns the x after the last line's end.
-static int drawtext(const char *text, int x, int y, uint16_t color, int scale)
+// Draws text in screen coordinates with font f, returns the x after the last line's end.
+static int drawtext(const char *text, int x, int y, uint16_t color, int scale, int f)
 {
     int start_x = x;
+    int fw = fonts[f].w, fh = fonts[f].h;
     if (scale < 1)
         scale = 1;
     while (*text)
@@ -190,31 +215,34 @@ static int drawtext(const char *text, int x, int y, uint16_t color, int scale)
         if (cp == '\n')
         {
             x = start_x;
-            y += 8 * scale + scale;
+            y += fh * scale + scale;
             continue;
         }
-        const uint8_t *glyph = mel_font8x8[cp < 256 ? cp : '?'];
-        for (int row = 0; row < 8; row++)
+        if (x < clip_x1 && x + fw * scale > clip_x0 && y < clip_y1 && y + fh * scale > clip_y0)
         {
-            uint8_t bits = glyph[row];
-            for (int col = 0; bits && col < 8; col++, bits <<= 1)
+            for (int row = 0; row < fh; row++)
             {
-                if (!(bits & 0x80))
-                    continue;
-                if (scale == 1)
-                    put(x + col, y + row, color);
-                else
-                    fillrect(x + col * scale, y + row * scale, x + col * scale + scale - 1, y + row * scale + scale - 1, color);
+                uint16_t bits = glyph_row(f, cp, row);
+                for (int col = 0; bits && col < fw; col++, bits <<= 1)
+                {
+                    if (!(bits & 0x8000))
+                        continue;
+                    if (scale == 1)
+                        put(x + col, y + row, color);
+                    else
+                        fillrect(x + col * scale, y + row * scale, x + col * scale + scale - 1, y + row * scale + scale - 1, color);
+                }
             }
         }
-        x += 8 * scale;
+        x += fw * scale;
     }
     return x;
 }
 
+// Error screen and platforms: always the 8x8 font, whatever the game selected.
 void mel_gfx_print(const char *text, int x, int y, uint16_t color, int scale)
 {
-    drawtext(text, x, y, color, scale);
+    drawtext(text, x, y, color, scale, 0);
 }
 
 static void blit(const image_t *img, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool flip_x, bool flip_y)
@@ -427,7 +455,7 @@ static int l_print(lua_State *L)
     int x = opti(L, 2, 0), y = opti(L, 3, 0), scale = opti(L, 5, 1);
     uint16_t color = argcolor(L, 4, 7);
     const char *text = luaL_tolstring(L, 1, NULL); // pushes a value, so read the other args first
-    int end = drawtext(text, x - cam_x, y - cam_y, color, scale);
+    int end = drawtext(text, x - cam_x, y - cam_y, color, scale, cur_font);
     lua_pushinteger(L, end + cam_x);
     return 1;
 }
@@ -443,7 +471,22 @@ static int l_textw(lua_State *L)
         else if (++line > width)
             width = line;
     }
-    lua_pushinteger(L, width * 8 * (scale < 1 ? 1 : scale));
+    lua_pushinteger(L, width * fonts[cur_font].w * (scale < 1 ? 1 : scale));
+    return 1;
+}
+
+// font([n]): selects the font for print/textw (0 = 8x8, 1 = 8x16, 2 = 12x24). Returns the previous one;
+// without argument just the current one.
+static int l_font(lua_State *L)
+{
+    int prev = cur_font;
+    if (!lua_isnoneornil(L, 1))
+    {
+        int f = argi(L, 1);
+        luaL_argcheck(L, f >= 0 && f < FONT_COUNT, 1, "font 0, 1 or 2");
+        cur_font = f;
+    }
+    lua_pushinteger(L, prev);
     return 1;
 }
 
@@ -595,7 +638,7 @@ void mel_gfx_open(lua_State *L)
     static const luaL_Reg funcs[] = {
         {"cls", l_cls},           {"pset", l_pset},     {"pget", l_pget},         {"line", l_line},
         {"rect", l_rect},         {"rectfill", l_rectfill}, {"circ", l_circ},     {"circfill", l_circfill},
-        {"print", l_print},       {"textw", l_textw},   {"camera", l_camera},     {"clip", l_clip},
+        {"print", l_print},       {"textw", l_textw},   {"font", l_font},   {"camera", l_camera},     {"clip", l_clip},
         {"pal", l_pal},           {"rgb", l_rgb},       {"loadimg", l_loadimg},   {"spr", l_spr},
         {"sspr", l_sspr},         {"tile", l_tile},     {"shade", l_shade},       {NULL, NULL},
     };

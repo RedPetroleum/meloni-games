@@ -72,8 +72,9 @@ Alle Koordinaten sind Pixel, Kommazahlen werden abgerundet. Rechtecke nehmen **z
 | `line(x0, y0, x1, y1, [c=7])` | Linie |
 | `rect(x0, y0, x1, y1, [c=7])` / `rectfill(...)` | Rechteck, Ecken inklusive |
 | `circ(x, y, r, [c=7])` / `circfill(...)` | Kreis um Mittelpunkt |
-| `print(text, [x=0], [y=0], [c=7], [scale=1])` | Text, 8×8-Font, `\n` für Zeilenumbruch, Umlaute gehen. Gibt das x nach dem Text zurück |
-| `textw(text, [scale=1])` | Breite eines Textes in Pixeln (zum Zentrieren) |
+| `print(text, [x=0], [y=0], [c=7], [scale=1])` | Text in der gewählten Schrift (Standard 8×8), `\n` für Zeilenumbruch, Umlaute gehen. Gibt das x nach dem Text zurück |
+| `textw(text, [scale=1])` | Breite eines Textes in Pixeln in der gewählten Schrift (zum Zentrieren) |
+| `font([n])` | **ab API 3.** Wählt die Schrift für `print` und `textw`: `0` = 8×8 (Standard), `1` = 8×16, `2` = 12×24 (Spleen, feiner gezeichnet als `scale`). Gibt die vorherige zurück, ohne Argument die aktuelle. Gilt, bis sie wieder umgestellt wird: nach Überschriften `font(0)` |
 | `camera([x, y])` | verschiebt alles Gezeichnete um −x, −y (Scrolling). Ohne Argumente: zurücksetzen |
 | `clip([x, y, w, h])` | nur innerhalb dieses Rechtecks zeichnen. Ohne Argumente: zurücksetzen |
 | `shade(c, a, [x, y, r0, r1, a0])` | **ab API 2.** Mischt alles im `clip`-Bereich mit der Farbe `c`, Deckkraft `a` (0–1, in 32 Stufen): Nacht, Abblenden, ausgegraute Flächen. Mit Punkt `x, y`: bis Abstand `r0` Deckkraft `a0` (Standard 0), bis `r1` weicher Übergang zu `a` (Lichtkegel, Sichtkreis) |
@@ -82,6 +83,9 @@ Alle Koordinaten sind Pixel, Kommazahlen werden abgerundet. Rechtecke nehmen **z
 
 `shade` rechnet jedes Pixel im Bereich neu (in C, ein Aufruf für den ganzen Bildschirm ist auf dem Gerät
 in Ordnung). Spiele, die es nutzen, brauchen `"api": 2` in `meta.json`.
+
+`font(1)` und `font(2)` sind für Namen und Überschriften gedacht; Fließtext bleibt in `font(0)`. Spiele, die
+`font` nutzen, brauchen `"api": 3` in `meta.json`.
 
 ### Bilder
 
