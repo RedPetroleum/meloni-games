@@ -170,4 +170,14 @@ return {
     Screens.info(ctx, m.data).draw()
     Screens.info(ctx, foal).draw()
   end},
+  {"Pferde ohne Kennung (gezähmt, nie geladen) im Bestand: Zucht hängt nicht, beide bekommen eine", function()
+    local ctx, w, m, f = farm()
+    m.data.id, f.data.id = nil, nil
+    C.ok(Breeding.start(ctx, f.data, m.data, 1), "Zucht startet")
+    C.ok(m.data.id and f.data.id and m.data.id ~= f.data.id, "eigene Kennungen")
+    m.data.id = nil
+    Days.new_day(ctx, 3)
+    C.eq(#ctx.herd, 3, "Fohlen geboren")
+    C.ok(m.data.id, "Mutter hat eine Kennung")
+  end},
 }

@@ -11,14 +11,15 @@ local B = {}
 local counter = 0
 
 -- Eindeutige Kennung eines Pferds (für den Stammbaum). Kommt ohne rnd() aus, damit die Zufallsfolge
--- der Spiele gleich bleibt.
+-- der Spiele gleich bleibt. Das Pferd selbst darf in taken stehen (sonst hing die Schleife endlos, wenn ein
+-- gezähmtes Pferd ohne Kennung zur Zucht kam).
 function B.ensure_id(data, taken)
   if data.id then return data.id end
   repeat
     counter = counter + 1
     data.id = string.format("%06d%03d", flr(U.hash(counter, frame(), 91) * 1000000), counter % 1000)
     local clash = false
-    for _, d in ipairs(taken or {}) do if d.id == data.id then clash = true end end
+    for _, d in ipairs(taken or {}) do if d ~= data and d.id == data.id then clash = true end end
   until not clash
   return data.id
 end

@@ -473,6 +473,11 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   alte Stallmenü ist weg. Das Pferdemenü steckt jetzt in game/horse_menu.lua (Welt und Stall).
 - Zucht-Absturz: am Rechner nicht nachzustellen (Szenario `zucht` mit Hengst und Stute lief durch). Der Ablauf ist
   neu gebaut und mit Tests abgesichert; bitte auf der Konsole prüfen und melden, falls es wieder abstürzt.
+  geändert (1.3.1): Ursache gefunden. Das Spiel hing in einer Endlosschleife: Breeding.ensure_id verglich die neue
+  Kennung auch mit dem Pferd selbst. Gezähmte Pferde hatten keine Kennung, bis der Spielstand einmal geladen war; kam
+  so ein Pferd zur Zucht, fand die Schleife immer einen „Treffer“. Jetzt zählt das Pferd selbst nicht, und gezähmte
+  Pferde bekommen sofort eine Kennung. Selbsttest dazu in game/tests/zucht.lua.
+- Info zeigt nur noch die sichtbare Farbe, die versteckte (rezessive) bleibt geheim (1.3.1).
 - Fohlen kommt in den Stall. Kein Platz: das billigste Stallpferd (nie Mutter oder Fohlen) zieht auf die Weide; ist
   die voll, zieht dort das billigste aufs Grundstück (frei, auch wenn es sonst zu schwach dafür wäre); ist auch das
   voll, läuft das Pferd mit dem geringsten Wert fort (Meldung). Eigene Ergänzung: Wird unterwegs ein Fohlen geboren,
