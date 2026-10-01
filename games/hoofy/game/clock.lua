@@ -57,6 +57,28 @@ function Clock:sight(night, lamp)
   return nil
 end
 
+-- Dunkelheit 0 (Tag) bis 1 (tiefe Nacht): wird ab EVENING Frames vor der Nacht langsam dunkler (bei
+-- Nachtbeginn 0,55), bis NIGHT_FULL Frames in die Nacht hinein ganz dunkel; vor dem Morgen und nach dem
+-- Aufwachen wieder heller.
+Clock.EVENING = 3600                          -- 60 s Abend vor der Nacht
+Clock.NIGHT_FULL = 1800                       -- 30 s nach Nachtbeginn ganz dunkel
+Clock.PREDAWN = 1800                          -- die letzten 30 s der Nacht wird es heller
+
+function Clock:darkness()
+  local t = self.t
+  local L = Clock.LIGHT
+  if t >= L then
+    if t >= Clock.DAY - Clock.PREDAWN then return 0.5 + 0.5 * (Clock.DAY - t) / Clock.PREDAWN end
+    return math.min(1, 0.55 + 0.45 * (t - L) / Clock.NIGHT_FULL)
+  end
+  if t >= L - Clock.EVENING then
+    local f = (t - (L - Clock.EVENING)) / Clock.EVENING
+    return 0.55 * f
+  end
+  if t < Clock.DAWN and self.woke then return 0.5 * (1 - t / Clock.DAWN) end
+  return 0
+end
+
 -- Uhrzeit für die Anzeige: Sonne/Mond und Anteil der Hell- bzw. Dunkelphase (0–1).
 function Clock:face()
   if self.t < Clock.LIGHT then return "icon_sun", self.t / Clock.LIGHT end

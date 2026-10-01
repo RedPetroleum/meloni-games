@@ -61,13 +61,51 @@ return {
     c.t = Clock.DAWN
     C.eq(c:sight(70), nil, "danach hell")
   end},
-  {"Nachtbild: nur ein paar Dutzend rectfill-Streifen", function()
-    local calls, old = 0, rectfill
-    rectfill = function(...) calls = calls + 1 old(...) end
-    Stage.draw_night(160, 120, 70)
-    rectfill = old
-    C.between(calls, 20, 130, "rectfill-Aufrufe")
-    log("TAG Nachtbild: " .. calls .. " rectfill je Frame")
+  {"Dunkelheit: tagsüber 0, am Abend stetig dunkler, nachts 1, vor dem Morgen heller", function()
+    local c = Clock.new(1, 100)
+    C.eq(c:darkness(), 0, "Tag")
+    c.t = Clock.LIGHT - Clock.EVENING - 1
+    C.eq(c:darkness(), 0, "vor dem Abend")
+    local last = 0
+    for t = Clock.LIGHT - Clock.EVENING, Clock.LIGHT + Clock.NIGHT_FULL, 120 do
+      c.t = t
+      local d = c:darkness()
+      C.ok(d >= last and d <= 1, "monoton steigend bei " .. t)
+      C.ok(d - last < 0.06, "ohne Sprung bei " .. t)
+      last = d
+    end
+    C.near(c:darkness(), 1, 0.001, "tiefe Nacht")
+    c.t = Clock.DAY - 1
+    C.ok(c:darkness() < 0.55, "vor dem Morgen heller")
+    c.woke, c.t = true, 0
+    C.near(c:darkness(), 0.5, 0.001, "nach dem Schlafen dämmert es")
+    c.t = Clock.DAWN
+    C.eq(c:darkness(), 0, "danach hell")
+  end},
+  {"Nachtschleier: tagsüber nichts, nachts um den Spieler heller, Lampe weiter, höchstens 200 Zeichenaufrufe", function()
+    local S = require("sprites")
+    local old = S.draw
+    local function run(dark, lamp)
+      local n, at = 0, {}
+      S.draw = function(name, x, y)
+        n = n + 1
+        local l = tonumber(name:match("%d+"))
+        for k = 0, (name:find("band") and 3 or 0) do at[(x + 16 * k) .. "," .. y] = l end
+      end
+      Stage.draw_dark(160, 120, dark, lamp)
+      S.draw = old
+      return n, at
+    end
+    C.eq(run(0), 0, "Tag: kein Schleier")
+    local n, at = run(1)
+    C.ok(n <= 200, "Aufrufe " .. n)
+    log("TAG Nachtschleier: " .. n .. " Kacheln je Frame")
+    C.eq(at["0,14"], 14, "weit weg sehr dunkel")
+    C.ok((at["160,126"] or 0) <= 6, "am Spieler heller")
+    local _, lamp = run(1, true)
+    C.ok((lamp["224,126"] or 0) < (at["224,126"] or 0), "Lampe leuchtet weiter")
+    local _, evening = run(0.3)
+    C.eq(evening["160,126"], evening["0,14"], "am Abend gleichmäßig, noch kein Sichtkreis")
   end},
   {"Tageswechsel: Hunger +25 (verfressen +35), Energie zurück, Streicheln frei", function()
     local d = horse("faul", {hunger = 40, gestreichelt = true})

@@ -1393,16 +1393,16 @@ end
 
 function Screens.pause(ctx, nav)
   local items = {
-    {label = "Weiter", id = "resume"},
-    {label = "Pferde", id = "horses"},
-    {label = "Inventar", id = "inventory"},
-    {label = "Bestellungen", id = "orders"},
-    {label = "Karte", id = "map"},
-    {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot()},
-    {label = "Zeitung", id = "news"},
-    {label = "Album", id = "album"},
-    {label = "Tauschen", id = "swap"},
-    {label = "Speichern", id = "save", dim = not ctx.saving_ok},
+    {label = "Weiter", id = "resume", icon = "ico_weiter"},
+    {label = "Pferde", id = "horses", icon = "icon_horse"},
+    {label = "Inventar", id = "inventory", icon = "ico_vorrat", short = "Vorrat"},
+    {label = "Bestellungen", id = "orders", icon = "ico_kunden", short = "Kunden"},
+    {label = "Karte", id = "map", icon = "ico_karte"},
+    {label = "Bauen", id = "build", dim = not ctx.on_plot or not ctx.on_plot(), icon = "ico_bauen"},
+    {label = "Zeitung", id = "news", icon = "ico_zeitung"},
+    {label = "Album", id = "album", icon = "ico_album"},
+    {label = "Tauschen", id = "swap", icon = "ico_tausch", short = "Tausch"},
+    {label = "Speichern", id = "save", dim = not ctx.saving_ok, icon = "ico_sichern", short = "Sichern"},
   }
   local m = Menu.new(items, "Pause")
   local s = {}
@@ -1427,7 +1427,8 @@ function Screens.pause(ctx, nav)
     end
   end
   function s.draw()
-    m:draw(100, 50)
+    local _, h = m:size()
+    m:draw(nil, (SCREEN_H - h) // 2 + 6)
   end
   s.overlay = true        -- Welt bleibt darunter sichtbar
   return s

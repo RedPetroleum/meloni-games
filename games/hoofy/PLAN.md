@@ -6,10 +6,15 @@ Regeln: [LOOP.md](LOOP.md). Die Phasen geben nur die Reihenfolge vor, der Loop h
 Hier schreibt der Mensch, was nach dem Konsolentest anders sein soll. Der Loop erledigt das vor
 der nächsten Aufgabe und hakt es ab.
 
-- (noch nichts)
+- [x] Menüs 2D mit Kacheln und Icons, hübsch und einfacher zu bedienen. (0.5.1, E63)
+- [x] Nachteinbruch graduell: am Abend immer dunkler, bis man nachts schwer sieht. (0.5.1, E63)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 0.5.1** – Rückmeldungen, siehe E63
+- [ ] Pausenmenü, Pferdemenü, Füttern, Unterbringen als Kacheln: mit dem Steuerkreuz gut zu treffen? Icons erkennbar?
+- [ ] Abend: wird es gleichmäßig dunkler? Nachts: Sichtbereich um den Spieler, mit Sattellampe größer. Ruckelt es nachts (≈ 180 Sprites je Frame)?
 
 **Phase E (Version 0.5.0)** – Turniere und Chaos, siehe E57–E62
 - [ ] Turnierplatz im Dorf (A): Klasse, Wettbewerb, Pferd mit Chancen. Wettbewerb nach Teilnahme weg, neue Runde alle 3 Tage.

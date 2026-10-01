@@ -288,3 +288,16 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Code: 28 Zeichen (in 4er-Gruppen mit Strich angezeigt), Alphabet 32 Zeichen = A–Z ohne I und O plus 2–9 (5 Bit je Zeichen; ohne I/O/0/1, weil verwechselbar). Länge geändert gegenüber dem Katalog-Vorschlag (16), weil ein Pferd mit allen Werten ≈ 130 Bit braucht: Rasse 4, Geschlecht 1, Charakter 3, zwei Farben 10, Gen/Training/Potenzial 4 × 3 × 7 Bit, Bindung 7, Alter 4 Bit (Fohlen ≈ 1/15-Schritte), Kennung 16, Prüfsumme 10. Training und Werte werden auf ganze Zahlen gerundet.
 - Nicht im Code: Name (aus der Kennung gewählt, umbenennbar), Stammbaum, Ausrüstung (kommt beim Abgeben zurück in den Vorrat), Tageszustand (Hunger/Sauberkeit/Gewicht/Energie starten frisch). Ein verfälschter Zeichen ergibt nie ein anderes Pferd (Test über alle Positionen), Tippfehler melden „Prüfsumme“. Der Code kann ohne Server nicht vor Mehrfachnutzung durch mehrere Spieler schützen; auf demselben Hof ist jeder Code einmal einlösbar (`ctx.getauscht`, gespeichert).
 - Bedienung: Pause → Tauschen: „Pferd abgeben“ (Pferd wählen, Rückfrage, Code groß anzeigen, Pferd ist weg), „Code eingeben“ (Tastatur mit den 32 Zeichen). Kein Abgeben beim Reiten.
+
+## E63 Kachelmenüs und Abenddämmerung (Rückmeldung nach 0.5.0)
+- geändert (E5, E7, Rückmeldung): Menüs mit Bildern sind ein Kachelraster statt einer Liste: Pausenmenü (5 × 2),
+  Pferdemenü (4 × 2), Füttern (mit Vorrat als Zahl in der Ecke), Unterbringen (mit Plätzen) und Stalltür. Steuerkreuz in
+  alle vier Richtungen (umlaufend), unter jedem Bild ein Kurzname, darunter der volle Name der gewählten Kachel.
+  Ausgegraute Kacheln lassen sich anwählen, A tut dort nichts. Listen ohne Bilder (Ausrüstung, Hengst/Stute) bleiben Listen.
+  Icons 12 × 12 in `sprites.txt` (`ico_…`), doppelt groß gezeichnet. Meldungen erscheinen bei offenem Menü oben.
+- geändert (E14, Rückmeldung): Statt des harten Sichtkreises legt sich ein Dither-Schleier (Bayer 4 × 4, 14 Stufen,
+  Farbe Nachtblau) über die Welt. Ab 60 s vor der Nacht wird es gleichmäßig dunkler (Nachtbeginn 55 %), 30 s später
+  ist es ganz dunkel (14/16), die letzten 30 s der Nacht und nach dem Aufwachen wieder heller. Erst mit der Nacht
+  bleibt um den Spieler ein hellerer Bereich (weich bis 112 px, Sattellampe × 1,8). Zeichenaufwand: Abend 75,
+  tiefe Nacht ≈ 180 Sprite-Aufrufe je Frame (gleiche Stufen als 64-px-Streifen). Auf der Konsole prüfen, ob das flüssig läuft.
+

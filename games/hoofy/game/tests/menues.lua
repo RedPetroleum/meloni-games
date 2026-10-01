@@ -77,29 +77,21 @@ return {
     keys(p, nav, {BTN_START})
     C.eq(#nav.stack, 0, "START schließt")
     nav.push(p)
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Pferde
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Inventar
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_A})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Bestellungen
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Karte
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Bauen ist ausgegraut: weiter zur Zeitung
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Album
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- Tauschen
-    C.eq(#nav.stack, 2)
-    keys(nav.stack[2], nav, {BTN_B})
-    keys(p, nav, {BTN_DOWN, BTN_A})                            -- ausgegraute Einträge (Speichern) werden übersprungen
-    C.eq(#nav.stack, 0, "springt zu Weiter und schließt")
+    -- Raster 5 × 2: Weiter Pferde Vorrat Kunden Karte / Bauen Zeitung Album Tausch Sichern
+    for _, step in ipairs({{BTN_RIGHT, "Pferde"}, {BTN_RIGHT, "Inventar"}, {BTN_RIGHT, "Bestellungen"}, {BTN_RIGHT, "Karte"},
+        {BTN_DOWN, "Speichern"}, {BTN_LEFT, "Tauschen"}, {BTN_LEFT, "Album"}, {BTN_LEFT, "Zeitung"}}) do
+      keys(p, nav, {step[1]})
+      if step[2] ~= "Speichern" then
+        keys(p, nav, {BTN_A})
+        C.eq(#nav.stack, 2, step[2] .. " öffnet")
+        keys(nav.stack[2], nav, {BTN_B})
+        C.eq(#nav.stack, 1, step[2] .. " zu")
+      end
+    end
+    keys(p, nav, {BTN_LEFT, BTN_A})                            -- Bauen ist ausgegraut (nicht auf dem Hof)
+    C.eq(#nav.stack, 1, "ausgegraut: nichts passiert")
+    keys(p, nav, {BTN_DOWN, BTN_A})                            -- nach oben umlaufen: Weiter
+    C.eq(#nav.stack, 0, "Weiter schließt")
   end},
   {"Alle Bildschirme zeichnen ohne Fehler", function()
     local ctx = Stage.build(1)
@@ -114,5 +106,29 @@ return {
     end
     ctx.herd = {}
     Screens.horses(ctx).draw()
+  end},
+  {"Kachelmenü: vier Richtungen, kurze letzte Reihe, ausgegraute Kacheln wählbar, aber nicht bestätigbar", function()
+    local Menu = require("game.menu")
+    local items = {}
+    for k = 1, 7 do items[k] = {label = "E" .. k, id = k, icon = "ico_info", dim = k == 6} end
+    local m = Menu.new(items, "Test")
+    C.ok(m.grid)
+    C.eq(m.cols, 4)
+    C.eq(m.rows, 2)
+    local old = btnp
+    local function press(b) btnp = function(x) return x == b end return m:update() end
+    press(BTN_LEFT)  C.eq(m.sel, 4, "links umlaufen")
+    press(BTN_DOWN)  C.eq(m.sel, 7, "unter der letzten Spalte: letzte Kachel")
+    press(BTN_RIGHT) C.eq(m.sel, 5, "rechts hinaus: Anfang der Reihe")
+    press(BTN_RIGHT) C.eq(m.sel, 6)
+    C.eq(press(BTN_A), nil, "ausgegraut")
+    press(BTN_UP)    C.eq(m.sel, 2)
+    C.eq(press(BTN_A), 2)
+    C.eq(press(BTN_B), "close")
+    btnp = old
+    m:draw()
+    local list = Menu.new({{label = "a", id = 1}, {label = "b", id = 2}})
+    C.ok(not list.grid, "ohne Bilder bleibt es eine Liste")
+    list:draw(10, 10)
   end},
 }

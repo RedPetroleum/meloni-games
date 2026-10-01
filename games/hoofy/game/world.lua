@@ -297,17 +297,28 @@ local function open_menu(h)
   menu = {
     horse = h, stage = "main",
     m = Menu.new({
-      {label = "Streicheln", id = "stroke"},
-      {label = "Füttern", id = "feed"},
-      {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1},
-      {label = led and "Leine lösen" or "Anleinen", id = "leash"},
-      {label = "Aufsitzen", id = "mount"},
-      {label = "Ausrüsten", id = "gear"},
-      {label = "Unterbringen", id = "house"},
-      {label = "Info", id = "info"},
+      {label = "Streicheln", id = "stroke", icon = "ico_herz", short = "Kraulen"},
+      {label = "Füttern", id = "feed", icon = "ico_karotte", short = "Futter"},
+      {label = "Striegeln", id = "brush", dim = (ctx.inv.buerste or 0) < 1, icon = "ico_buerste", short = "Bürste"},
+      {label = led and "Leine lösen" or "Anleinen", id = "leash", icon = "ico_leine", short = led and "Lösen" or "Leine"},
+      {label = "Aufsitzen", id = "mount", icon = "ico_reiten", short = "Reiten"},
+      {label = "Ausrüsten", id = "gear", icon = "ico_hufeisen", short = "Zubehör"},
+      {label = "Unterbringen", id = "house", icon = "ico_stall", short = "Wohin"},
+      {label = "Info", id = "info", icon = "ico_info", short = "Info"},
     }, h.data.name),
   }
 end
+
+-- Bilder und Kurznamen im Futter-Raster (Ernte: Bild der reifen Pflanze)
+local FOOD_ICON = {
+  heu = "hay", hafer = "ico_hafer", karotte = "ico_karotte", premiumfutter = "ico_premium", apfel = "emo_apple",
+  sonnenblumenkerne = "pflanze_sonnenblume_3", minze = "pflanze_minze_3", zuckerruebe = "pflanze_zuckerruebe_3",
+  luzerne = "pflanze_luzerne_3", drachenfrucht = "pflanze_drachenfrucht_3", goldene_karotte = "pflanze_goldene_karotte_3",
+}
+local FOOD_SHORT = {
+  heu = "Heu", hafer = "Hafer", karotte = "Karotte", premiumfutter = "Premium", apfel = "Apfel", sonnenblumenkerne = "Kerne",
+  minze = "Minze", zuckerruebe = "Rübe", luzerne = "Luzerne", drachenfrucht = "Drachen", goldene_karotte = "Gold",
+}
 
 local CROP_FOODS = {"apfel", "sonnenblumenkerne", "minze", "zuckerruebe", "luzerne", "drachenfrucht", "goldene_karotte"}
 
@@ -317,11 +328,13 @@ local function open_food(h)
     local n = ctx.inv[id] or 0
     local name = id
     for _, f in ipairs(K.futter.kaufen) do if f.id == id then name = f.name end end
-    items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1}
+    items[#items + 1] = {label = name .. " x" .. n, id = id, dim = n < 1, icon = FOOD_ICON[id], short = FOOD_SHORT[id] or name, badge = tostring(n)}
   end
   for _, id in ipairs(CROP_FOODS) do          -- Ernte nur, wenn welche da ist
     local n = ctx.inv[id] or 0
-    if n > 0 then items[#items + 1] = {label = Farm.CROP_NAME[id] .. " x" .. n, id = id} end
+    if n > 0 then
+      items[#items + 1] = {label = Farm.CROP_NAME[id] .. " x" .. n, id = id, icon = FOOD_ICON[id], short = FOOD_SHORT[id], badge = tostring(n)}
+    end
   end
   menu.stage, menu.m = "food", Menu.new(items, "Füttern")
 end
@@ -355,6 +368,7 @@ local function open_gear(h)
 end
 
 local HOUSE_NAMES = {stall = "Stall", weide = "Weide", frei = "Frei"}
+local HOUSE_ICONS = {stall = "ico_stall", weide = "ico_weide", frei = "ico_frei"}
 
 local function open_house(h)
   local cap = Farm.capacity(ctx.area.farm)
@@ -364,7 +378,7 @@ local function open_house(h)
     local full = n >= cap[ort] and h.data.ort ~= ort
     local weak = ort == "frei" and not Farm.may_roam(h.data, H)
     items[#items + 1] = {label = string.format("%s %d/%d", HOUSE_NAMES[ort], n, cap[ort]), id = ort,
-      dim = full or weak or h.data.ort == ort}
+      dim = full or weak or h.data.ort == ort, icon = HOUSE_ICONS[ort], short = HOUSE_NAMES[ort], badge = n .. "/" .. cap[ort]}
   end
   menu.stage, menu.m = "house", Menu.new(items, "Wohin mit " .. h.data.name .. "?")
 end
@@ -375,10 +389,10 @@ local function open_stall()
   for i, h in ipairs(wild:in_stall()) do
     local d = h.data
     local tag = d.traechtig and " (trächtig)" or (d.zucht_pause and d.zucht_pause > clock.day and " (Pause)") or ""
-    items[#items + 1] = {label = d.name .. tag, id = i}
+    items[#items + 1] = {label = d.name .. tag, id = i, icon = "icon_horse", short = d.name:sub(1, 7)}
   end
   local can = #Breeding.stallions(ctx.herd) > 0 and #Breeding.mares(ctx.herd, clock.day) > 0
-  items[#items + 1] = {label = "Zucht starten", id = "breed", dim = not can}
+  items[#items + 1] = {label = "Zucht starten", id = "breed", dim = not can, icon = "ico_zucht", short = "Zucht"}
   menu = {horse = ctx.player, stage = "stall", m = Menu.new(items, "Im Stall")}
 end
 
@@ -773,21 +787,19 @@ function WorldScene.draw()
       ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)
     end
   end)
-  local radius = clock:sight(70, WorldScene.lamp())
-  if radius and radius < 400 then
-    local p = ctx.player
-    Stage.draw_night(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), radius)
-  end
+  local p = ctx.player
+  Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.lamp())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()
   if menu then
     local h = menu.horse
-    menu.m:draw(h.x - ctx.camera.x + 24, h.y - ctx.camera.y - 50)
+    if menu.m.grid then menu.m:draw() else menu.m:draw(h.x - ctx.camera.x + 24, h.y - ctx.camera.y - 50) end
   end
   if toast then
     local C = ctx.colors
-    Stage.panel(40, 200, 279, 226)
-    Stage.center(toast.text, 209, C.gold)
+    local ty = (menu or #stack > 0) and 18 or 200     -- bei offenem Menü oben, damit es das Raster nicht verdeckt
+    Stage.panel(40, ty, 279, ty + 26)
+    Stage.center(toast.text, ty + 9, C.gold)
   end
   for i = 1, #stack do stack[i].draw() end
 end
