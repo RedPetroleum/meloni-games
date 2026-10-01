@@ -16,6 +16,29 @@ E.CATEGORIES = {
 
 E.LATERNE_PREIS = 80
 
+-- Kurzbeschreibungen der Fahrzeuge im Laden (E72): Reichweite und Spritkosten zum Herauslesen.
+local FAHRZEUG_TEXT = {
+  fahrrad = "Strampeln statt tanken: bringt dich bis in den Birkenwald, kostet nur Muskelkater.",
+  mofa = "Knattert bis in die Flussauen. Schluckt ein bisschen Sprit, und jedes Wildpferd hört dich kommen.",
+  kleinwagen = "Klein, aber mit Heizung. Schafft es bis in die Steppe, wenn du ab und zu tankst.",
+  suv = "Groß, schwarz, durstig. Rollt bis in den Canyon und trinkt unterwegs ordentlich Sprit.",
+  flugzeug = "Fliegt bis zur Nebelinsel, wo keine Straße hinführt. Der Tank ist teuer, die Aussicht unbezahlbar.",
+}
+
+-- Wer im Laden welches Fahrzeug unterstellt: „Für das Mofa fehlt dir ein Schuppen.“ (E72)
+local FAHRZEUG_AKK = {fahrrad = "das Fahrrad", mofa = "das Mofa", kleinwagen = "den Kleinwagen", suv = "den SUV",
+  flugzeug = "das Flugzeug"}
+local GARAGE_NOM = {schuppen = "ein Schuppen", garage = "eine Garage", hangar = "ein Hangar"}
+
+function E.garage_text(id)
+  for _, b in ipairs(K.bau.liste) do
+    for _, v in ipairs(b.fahrzeuge or {}) do
+      if v == id then return "Für " .. (FAHRZEUG_AKK[id] or id) .. " fehlt dir " .. (GARAGE_NOM[b.id] or b.name) .. "." end
+    end
+  end
+  return "Dafür fehlt dir die Unterbringung."
+end
+
 local function item(cat, e, extra)
   local it = {id = e.id, name = e.name, preis = e.preis, text = e.text, kat = cat, einmalig = e.einmalig}
   for k, v in pairs(extra or {}) do it[k] = v end
@@ -47,7 +70,7 @@ function E.catalog(maxgebiet)
   for _, f in ipairs(K.welt.fahrzeuge) do
     if f.preis > 0 then
       list[#list + 1] = {id = f.id, name = f.name, preis = f.preis, kat = "fahrzeuge", einmalig = true, fahrzeug = f,
-        text = "Erreicht Gebiet 1 bis " .. f.gebiete .. ", Fahrtkosten " .. f.fahrtkosten .. " je Gebiet Entfernung."}
+        text = FAHRZEUG_TEXT[f.id] or ("Erreicht Gebiet 1 bis " .. f.gebiete .. ".")}
     end
   end
   for _, a in ipairs(K.welt.anhaenger) do

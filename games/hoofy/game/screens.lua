@@ -358,7 +358,7 @@ function Screens.shop(ctx)
         msg = list[sel].name .. " gekauft."
       else
         SFX.snort()
-        msg = why == "Geld" and "Zu wenig Geld." or why == "Garage" and "Dafür fehlt die Garage (Schuppen/Garage/Hangar)." or "Hast du schon."
+        msg = why == "Geld" and "Zu wenig Geld." or why == "Garage" and Economy.garage_text(list[sel].id) or "Hast du schon."
       end
       msg_t = 120
     end

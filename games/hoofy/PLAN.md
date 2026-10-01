@@ -45,6 +45,8 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Häuser soll man auch abreißen können, wenn man ein weiteres hat, das gleiche gilt für garagen, ställe (0.5.7, E69)
 - [x] Titelbildschirm: Pferdezüchter im Jahr 2040 kann weg. (0.5.7, E69)
 - [x] Pferde sollen nicht sofort nach dem Zähmen reitbar sein. Dafür braucht es höhere Bindung, ein paar Mal füttern, sauber machen und streicheln sollte aber reichen. Ein frisch gezähmtes Pferd an der Leine zu rennen ist auch riskant und kann häufiger dazu führen, dass es sich losreißt. (0.5.8, E71: +6 Bindung seit dem Zähmen, Ausreißen beim Rennen ×3)
+- [x] Beim Laden, wenn man ein Fahrzeug kaufen will, was nicht geht, weil man die Unterbringung nicht hat, soll nicht generisch „dafür fehlt dir die Garage (Schuppen/Garage)“ stehen, sondern konkret, was dafür fehlt. (0.5.8, E72: „Für das Mofa fehlt dir ein Schuppen.“)
+- [x] Bei den Fahrzeugen soll in der Beschreibung nicht „erreicht Gebiet 2, kostet so und so viel Sprit“ stehen, sondern eher eine witzige Kurzbeschreibung, aus der das in etwa hervorgeht. (0.5.8, E72)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

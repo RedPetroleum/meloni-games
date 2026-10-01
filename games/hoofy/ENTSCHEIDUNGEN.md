@@ -404,3 +404,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Solange es frisch ist, reißt es an der Leine beim Sprinten oder Reiten ×3 so oft aus, im Gehen unverändert.
 - Eigene Wahl: relativ zur Start-Bindung statt der Katalog-Schwelle „ab 40 reitbar“ (Mustang mit 10 bräuchte sonst
   30 Punkte). Gekaufte, gezüchtete und alte Pferde sind nie frisch.
+
+## E72 Fahrzeuge im Laden (Rückmeldung nach 0.5.8)
+- Fehlt die Unterbringung, nennt der Laden das Gebäude: „Für das Mofa fehlt dir ein Schuppen.“ (Garage, Hangar ebenso).
+- Kurztexte statt Zahlen, Reichweite steckt im Zielgebiet, Sprit im Ton: Fahrrad „Strampeln statt tanken … Birkenwald,
+  kostet nur Muskelkater“, Mofa „knattert bis in die Flussauen“, Kleinwagen „mit Heizung … bis in die Steppe“, SUV
+  „groß, schwarz, durstig … Canyon“, Flugzeug „bis zur Nebelinsel … Tank teuer, Aussicht unbezahlbar“. Texte stehen in
+  game/economy.lua (FAHRZEUG_TEXT), nicht im KATALOG.

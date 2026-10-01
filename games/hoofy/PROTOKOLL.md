@@ -126,3 +126,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 20:02 | Rückmeldungen 0.5.6 | fertig | Fahrzeug- und Anhänger-Sprites, Gebietsfarben per recolor (E68); Shot-Sheets Gebiete/Fahrzeuge, SELFTEST OK 228, make test grün | Hoofy 0.5.6 (nicht gepusht)
 2026-10-01 20:22 | Rückmeldungen 0.5.7 | fertig | Häuser/Ställe/Garagen abreißen mit zweitem gleicher Art, Titel ohne Untertitel (E69); SELFTEST OK 231, make test grün | Hoofy 0.5.7 (nicht gepusht)
 2026-10-01 21:10 | Rückmeldung frisch gezähmt | fertig | reitbar erst ab +6 Bindung seit dem Zähmen, Ausreißen beim Rennen ×3 (E71); 2 neue Selbsttests, SELFTEST OK 233, make test grün | Hoofy 0.5.8 (nicht gepusht)
+2026-10-01 21:25 | Rückmeldung Fahrzeuge im Laden | fertig | konkrete Meldung zur fehlenden Unterbringung, witzige Fahrzeugtexte (E72); Shot-Sheet Laden, SELFTEST OK 233, make test grün | Hoofy 0.5.8 (nicht gepusht)
