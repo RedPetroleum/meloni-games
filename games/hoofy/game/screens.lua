@@ -28,9 +28,9 @@ end
 
 -- Tastenleiste unten: etwas heller als der Bildschirm, mit Trennlinie
 local FOOTER_BG = rgb(0x3d, 0x2c, 0x25)
-local function footer(text)
-  rectfill(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 1, FOOTER_BG)
-  line(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 13, C.panel_light)
+local function footer(text, bg, edge)
+  rectfill(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 1, bg or FOOTER_BG)
+  line(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 13, edge or C.panel_light)
   print(text, 6, SCREEN_H - 10, C.text)
 end
 
@@ -322,6 +322,16 @@ end
 
 -- ---- Laden (E13): Menübildschirm an der Tür, keine begehbaren Innenräume ----
 
+-- Eigene Farben des Ladens: Rot, Dunkelrot, Rosa
+local SHOP = {
+  bg = rgb(0x3b, 0x10, 0x1a),      -- Grund
+  dark = rgb(0x24, 0x08, 0x0e),    -- Kopf, Fuß, Textkasten
+  tab = rgb(0x7a, 0x1f, 0x30),     -- Reiter
+  pink = rgb(0xf3, 0x9b, 0xb8),    -- aktiver Reiter mit Linie, „Laden:“
+  sel = rgb(0x9e, 0x2a, 0x3e),     -- gewählte Zeile
+  dim = rgb(0xc9, 0x8f, 0x9c),     -- nicht kaufbar, Beschreibung
+}
+
 function Screens.shop(ctx)
   local cat, sel, msg, msg_t = 1, 1, nil, 0
   local function items()
@@ -354,35 +364,47 @@ function Screens.shop(ctx)
     if msg_t > 0 then msg_t = msg_t - 1 end
   end
   function s.draw()
-    cls(C.panel)
-    header("Laden: " .. Economy.CATEGORIES[cat].name)
+    cls(SHOP.bg)
+    rectfill(0, 0, SCREEN_W - 1, 13, SHOP.dark)
+    print("Laden:", 6, 3, SHOP.pink)
+    print(Economy.CATEGORIES[cat].name, 6 + textw("Laden: "), 3, C.text)
     local money = ctx.money .. " G"
     print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
-    -- Reiter als Icons über die ganze Breite (die Namen passen nicht nebeneinander), Name steht im Kopf
+    -- Reiter als Icons über die ganze Breite (die Namen passen nicht nebeneinander), Name steht im Kopf.
+    -- Darunter eine Linie in der Farbe des aktiven Reiters, der aktive Reiter geht in sie über.
     local n = #Economy.CATEGORIES
     local w = (SCREEN_W - 12 - (n - 1) * 3) // n
+    rectfill(0, 32, SCREEN_W - 1, 33, SHOP.pink)
     for i, c in ipairs(Economy.CATEGORIES) do
       local x = 6 + (i - 1) * (w + 3)
-      rectfill(x, 17, x + w - 1, 31, i == cat and C.gold or C.panel_light)
+      if i == cat then rectfill(x, 17, x + w - 1, 33, SHOP.pink) else rectfill(x, 18, x + w - 1, 30, SHOP.tab) end
       Menu.icon(c.icon, x + w // 2, 24, 12)
     end
     local list = items()
-    local y = 38
+    local y = 40
     local first = max(1, sel - 8)
     for i = first, min(#list, first + 8) do
       local it = list[i]
+      -- Fahrzeuge: Trennlinie vor den Anhängern
+      if it.anhaenger and i > first and not list[i - 1].anhaenger then
+        line(10, y - 2, SCREEN_W - 11, y - 2, SHOP.tab)
+        y = y + 4
+      end
       local price = Economy.price(ctx, it)
       local n = Economy.owned(ctx, it.id)
       local can = ctx.money >= price and not (it.einmalig and n > 0)
-      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
-      print(it.name, 10, y, can and (i == sel and C.gold or C.text) or C.dim)
-      print(price .. " G", 210, y, can and C.gold or C.dim)
-      print(n > 0 and ("x" .. n) or "", 270, y, C.dim)
+      if i == sel then
+        rectfill(4, y - 2, SCREEN_W - 5, y + 10, SHOP.sel)
+        rectfill(4, y - 2, 5, y + 10, SHOP.pink)
+      end
+      print(it.name, 10, y, can and C.text or SHOP.dim)
+      print(price .. " G", 210, y, can and C.gold or SHOP.dim)
+      print(n > 0 and ("x" .. n) or "", 270, y, SHOP.dim)
       y = y + 14
     end
     local cur = list[sel]
     if cur then
-      rectfill(0, 172, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
+      rectfill(0, 172, SCREEN_W - 1, 215, SHOP.dark)
       -- Fahrzeuge und Anhänger mit Bild rechts im Kasten
       local pic = cur.fahrzeug and "fahrzeug_" .. cur.id or cur.anhaenger and "anhaenger_" .. cur.anhaenger
       local pw = 0
@@ -393,10 +415,10 @@ function Screens.shop(ctx)
       end
       local t = (cur.text:gsub("−", "-"))
       local lines = require("lib.util").wrap(t, SCREEN_W - 16 - pw)
-      for i, line in ipairs(lines) do if i <= 4 then print(line, 8, 176 + (i - 1) * 10, C.dim) end end
+      for i, line in ipairs(lines) do if i <= 4 then print(line, 8, 176 + (i - 1) * 10, SHOP.dim) end end
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
-    footer("A: kaufen   </>: Reiter   B: zurück")
+    footer("A: kaufen   </>: Reiter   B: zurück", SHOP.dark, SHOP.tab)
   end
   return s
 end
@@ -1312,7 +1334,7 @@ function Screens.inventory(ctx)
       local lines = {}
       for _, it in ipairs(Economy.catalog(6)) do
         local n = Economy.owned(ctx, it.id)
-        if it.kat == c.id and (n > 0 or (c.id == "futter" and it.id ~= "buerste")) then
+        if it.kat == c.id and (n > 0 or c.id == "futter") then
           lines[#lines + 1] = {it.name, n}
         end
       end
