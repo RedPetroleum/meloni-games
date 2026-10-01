@@ -26,9 +26,12 @@ local function header(title)
   print(title, 6, 3, C.gold)
 end
 
+-- Tastenleiste unten: etwas heller als der Bildschirm, mit Trennlinie
+local FOOTER_BG = rgb(0x3d, 0x2c, 0x25)
 local function footer(text)
-  rectfill(0, SCREEN_H - 12, SCREEN_W - 1, SCREEN_H - 1, C.panel)
-  print(text, 6, SCREEN_H - 10, C.dim)
+  rectfill(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 1, FOOTER_BG)
+  line(0, SCREEN_H - 13, SCREEN_W - 1, SCREEN_H - 13, C.panel_light)
+  print(text, 6, SCREEN_H - 10, C.text)
 end
 
 local ORT = {stall = "im Stall", weide = "auf der Weide", frei = "frei auf dem Hof"}
@@ -112,7 +115,7 @@ end
 
 -- ---- Pferde-Info (Rückmeldung 0.5.3: aufgeräumt, Balken mit Unterteilung alle 20) ----
 
-local BAR_X, BAR_W = 150, 120          -- Balken: 100 Punkte = 120 px
+local BAR_X, BAR_W = 76, 196           -- Balken: 100 Punkte = 196 px
 local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Blau; Gold bleibt Geld und Titeln)
 local STATE_COL = rgb(0x8f, 0xc8, 0xe6) -- Zustand: Überschrift, Balken, Zahl
 local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
@@ -161,45 +164,50 @@ function Screens.info(ctx, data)
   end
   function s.draw()
     cls(C.panel)
-    header(data.name)
+    -- Kopf: Name groß, Wert rechts
+    rectfill(0, 0, SCREEN_W - 1, 21, C.panel)
+    print(data.name, 6, 3, C.gold, 2)
     local wert = "Wert " .. Value.wert(data) .. " G"
-    print(wert, SCREEN_W - textw(wert) - 6, 3, C.gold)
-    local sexw = data.sex == "m" and (data.alter < 1 and "Hengstfohlen" or "Hengst") or (data.alter < 1 and "Stutfohlen" or "Stute")
+    print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
+    -- Bild oben rechts unter dem Wert
     local rasse = K.rasse(data.rasse)
-    print(sexw .. ", " .. rasse.name, 6, 18, C.text)
-    local f1, f2 = K.farbe(data.farbe).name, K.farbe(data.farbe2).name
-    print("Farbe: " .. f1 .. (data.farbe2 ~= data.farbe and (" / " .. f2) or ""), 6, 29, C.dim)
-    print("Charakter: " .. K.charakter[data.zug].name, 6, 40, C.dim)
-    print("Ort: " .. place_of(data), 6, 51, C.dim)
-    -- Bild
-    Stage.panel(6, 64, 76, 112)
-    rectfill(8, 66, 74, 110, rgb(0x7f, 0xb0, 0x4f))
-    G.draw(data.farbe, rasse.koerper, "side", 41, 104, false)
-    if data.alter < 1 then
-      print("Fohlen", 6, 118, C.text)
-      rectfill(6, 129, 76, 133, rgb(0x1e, 0x16, 0x14))
-      rectfill(6, 129, 6 + flr(70 * data.alter), 133, C.gold)
+    Stage.panel(SCREEN_W - 76, 24, SCREEN_W - 6, 72)
+    rectfill(SCREEN_W - 74, 26, SCREEN_W - 8, 70, rgb(0x7f, 0xb0, 0x4f))
+    G.draw(data.farbe, rasse.koerper, "side", SCREEN_W - 41, 66, false)
+    if data.alter < 1 then                          -- Fohlen: wie weit ausgewachsen
+      rectfill(SCREEN_W - 76, 75, SCREEN_W - 6, 78, rgb(0x1e, 0x16, 0x14))
+      rectfill(SCREEN_W - 76, 75, SCREEN_W - 76 + flr(70 * data.alter), 78, C.gold)
     end
-    print("Fähigkeiten", 84, 64, SKILL_COL)
-    local y = 77
+    -- Steckbrief links
+    local sexw = data.sex == "m" and (data.alter < 1 and "Hengstfohlen" or "Hengst") or (data.alter < 1 and "Stutfohlen" or "Stute")
+    print(sexw .. ", " .. rasse.name, 6, 26, C.text)
+    local f1, f2 = K.farbe(data.farbe).name, K.farbe(data.farbe2).name
+    local farbe = f1 .. (data.farbe2 ~= data.farbe and (" / " .. f2) or "")
+    if textw("Farbe: " .. farbe) <= SCREEN_W - 90 then farbe = "Farbe: " .. farbe end
+    print(farbe, 6, 37, C.dim)
+    print("Charakter: " .. K.charakter[data.zug].name, 6, 48, C.dim)
+    print("Ort: " .. place_of(data), 6, 59, C.dim)
+    local extra
+    if data.traechtig then extra = "Trächtig bis Tag " .. data.traechtig.tag
+    elseif data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then extra = "Zuchtpause bis Tag " .. data.zucht_pause
+    elseif data.sattel then extra = "Sattel: " .. K.artikel(data.sattel).name end
+    if extra then print(extra, 6, 70, C.dim) end
+    -- Fähigkeiten und Zustand über die ganze Breite
+    print("Fähigkeiten", 6, 86, SKILL_COL)
+    local y = 99
     for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"ausdauer", "Ausdauer"}, {"spuer", "Spürsinn"}}) do
-      stat_bar(84, y, e[2], data, e[1])
+      stat_bar(6, y, e[2], data, e[1])
       y = y + 12
     end
-    print("Zustand", 84, 128, STATE_COL)
-    y = 141
-    state_bar(84, y, "Bindung", data.bindung, 100); y = y + 12
-    state_bar(84, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or nil); y = y + 12
-    state_bar(84, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or nil); y = y + 12
-    state_bar(84, y, "Gewicht", data.gewicht, 100)
+    print("Zustand", 6, 151, STATE_COL)
+    y = 164
+    state_bar(6, y, "Bindung", data.bindung, 100); y = y + 12
+    state_bar(6, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or nil); y = y + 12
+    state_bar(6, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or nil); y = y + 12
+    state_bar(6, y, "Gewicht", data.gewicht, 100)
     line(bx_of(50), y - 1, bx_of(50), y + 9, C.text)                -- Idealgewicht
     y = y + 12
-    state_bar(84, y, "Energie", data.energie, H.stat(data, "ausdauer"))
-    -- unten: Ausrüstung und Zucht
-    y = 204
-    if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, y, C.dim) y = y + 11 end
-    if data.traechtig then print("Trächtig bis Tag " .. data.traechtig.tag, 6, y, C.text)
-    elseif data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then print("Zuchtpause bis Tag " .. data.zucht_pause, 6, y, C.dim) end
+    state_bar(6, y, "Energie", data.energie, H.stat(data, "ausdauer"))
     footer("A umbenennen   > Stammbaum   B zurück")
   end
   s.full = true
