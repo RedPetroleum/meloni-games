@@ -11,6 +11,13 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Phase E (Version 0.5.0)** – Turniere und Chaos, siehe E57–E62
+- [ ] Turnierplatz im Dorf (A): Klasse, Wettbewerb, Pferd mit Chancen. Wettbewerb nach Teilnahme weg, neue Runde alle 3 Tage.
+- [ ] Springreiten (A springt) und Rennen (A halten = Spurt): Fühlt sich das Steuern fair an, stimmt der Schwierigkeitsgrad?
+- [ ] Pause → Zeitung: neue Reform alle 4 Tage; Hunde nachts, Pferdesteuer, Hafersteuer, Stromsubvention wirken. Wehren starke Pferde auf der Weide ab, zerstören Tiere sonst Deko?
+- [ ] Pause → Album: neue Kombinationen kommen beim Anschauen und Zähmen dazu.
+- [ ] Pause → Tauschen: Pferd als Code abgeben, mit dem Code auf einem zweiten Gerät/Spielstand einlösen. Ist die Eingabe der 28 Zeichen auf der Tastatur zumutbar?
+
 **Phase D (Version 0.4.0)** – Welt, siehe E52–E56
 - [ ] Laden → Fahrzeuge: Zugfahrzeug nur mit passendem Gebäude (Schuppen/Garage/Hangar), Anhänger frei kaufbar.
 - [ ] A vor der Schuppen-/Garagentür: Reisemenü; Fahrtkosten, Pferde an der Leine (höchstens Anhängerplätze) fahren mit.
@@ -54,10 +61,22 @@ Checklisten des Loops für jede fertige Phase.
 - [ ] Ruckelt das Scrollen? (Die Karte ist noch ein Platzhalter aus Ausgebüxt.)
 
 ## Stand
-- Phase 0 fertig (0.0.1): Gerüst, Test-Werkzeug (Szenarien, Selbsttest), Katalog-Generator.
-- Phase A fertig (0.1.0): Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Blasen, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht, Menüs, Speichern, Karte, Töne.
-- Phase B fertig (0.2.0): Laden, Markt, Käufer, Bestellungen, Jobs, Zucht, Stammbaum, Inzucht, Wirtschaftscheck.
-- Als Nächstes Phase C (Hof bauen), Start bei C1 Baumodus. Ausstehend: Balance-Befunde (Schlachter, Verkäufe) in ENTSCHEIDUNGEN.md ansehen.
+**Alle Aufgaben sind erledigt, keine ist blockiert.** Hoofy 0.5.0 enthält Phase 0 und A–E:
+- Phase 0/A (0.0.1/0.1.0): Gerüst, Test-Werkzeug, Katalog-Generator, Karte, Spieler, Pferdegrafik, Pferdemodell, Wildpferde, Zähmen, Leine, Reiten, Pflege, Hof, Tag/Nacht, Menüs, Speichern, Karte, Töne.
+- Phase B (0.2.0): Laden, Markt, Käufer, Bestellungen, Jobs, Zucht, Stammbaum, Inzucht, Wirtschaftscheck.
+- Phase C (0.3.0): Baumodus, Weiden, Gebäude, Schönheit, Anbau, Göpel-Generator, Land kaufen.
+- Phase D (0.4.0): Fahrzeuge und Reisen, Gebiete 2–6, Schätze, Regen, Sattellampe.
+- Phase E (0.5.0): Turniere mit zwei Minispielen, Reformen mit Zeitung, Sammelalbum, Tauschcode.
+
+**Zuerst ansehen (ENTSCHEIDUNGEN.md):**
+1. „Balance“: Schlachter zahlt oft mehr als ein Pferd wert ist; Verkäufe tragen zwei Drittel des Einkommens; Turnier- und Reformzahlen (E57, E59, E60) sind ungetestet auf der Konsole.
+2. E62 Tauschcode: 28 statt 16 Zeichen (Alphabet 32 Zeichen), Name/Stammbaum/Ausrüstung nicht im Code. Ist das so gewollt?
+3. E52/E54: Reisen und Schätze – Garage-Pflicht für Fahrzeuge, Satteltaschen nötig außerhalb des Heimattals, Fund-Verkauf beim Heimkommen. Passt der Ablauf?
+4. E60: Tierangriffe sind abstrakt (beim Tageswechsel gewürfelt, Tiere nur als Bild), ein starkes Pferd auf der Weide löst alles.
+5. E51: Land wächst als Streifen (Rechteck), nicht in Einzelstücken.
+6. Technik auf der Konsole prüfen: Sprite-Bild über 2,1 MB (Ladezeit, Speicher), größtes Gebiet Canyon (128×112), Ruckeln im Baumodus, Nachtkreis, Regen mit vielen Pferden.
+
+**Bekannte Lücken:** Käufer/Jobs/Markt gibt es nur im Heimattal; Gebiete 2–6 haben keine Dörfer-Besonderheiten; Tauschcodes lassen sich ohne Server nicht vor Mehrfachnutzung schützen; keine Musik- oder Soundprüfung für Phase C–E (nur kurze Klicks aus Phase A).
 
 ## Aufgaben
 
@@ -288,4 +307,4 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **E6 Tauschcode** (E62; 1 000 Pferde hin/zurück, Verfälschungen abgelehnt, SELFTEST 214): Pferd → Code (Vorschlag Katalog: 16 Zeichen A–Z, 2–9), Code → Pferd,
   Prüfsumme gegen Tippfehler, Pferd danach weg.
   Prüfung: Selbsttest Hin- und Rückweg für 1 000 Zufallspferde, falscher Code abgelehnt.
-- [ ] **E-Ende**: Cover, version 0.5.0, Konsolen-Checkliste, Abschluss nach LOOP.md, Push.
+- [x] **E-Ende**: Cover, version 0.5.0, Konsolen-Checkliste, Abschluss nach LOOP.md, Push.

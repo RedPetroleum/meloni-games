@@ -109,3 +109,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:28 | E5 Sammelalbum | fertig | Screenshot Albumseite, SELFTEST OK 210, make test grün | Hoofy E5
 2026-10-01 09:29 | E6 Tauschcode | begonnen | – | –
 2026-10-01 09:31 | E6 Tauschcode | fertig | 1000 Zufallspferde Hin/Zurück, alle Verfälschungen abgelehnt, SELFTEST OK 214, Shot-Sheet | Hoofy E6
+2026-10-01 09:34 | E-Ende | begonnen | – | –
+2026-10-01 09:34 | E-Ende | fertig | Cover (Regen am Hof), 0.5.0, Checkliste, README, Stand geschrieben | Hoofy Phase E
