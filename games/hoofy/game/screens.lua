@@ -120,8 +120,7 @@ local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Bl
 local GEN_COL = rgb(0x9a, 0xdc, 0xb4)   -- Fähigkeit aus den Genen (Mint wie die Überschrift)
 local TRAIN_COL = rgb(0x3a, 0xb0, 0x8e) -- dazutrainiert (kräftiges, gedecktes Türkisgrün)
 -- Info-Bildschirm: Kopfband und je Bereich ein dezent getönter Kasten
-local BOX_ABOUT = rgb(0x48, 0x34, 0x29)   -- Steckbrief: hervorgehoben, warm, mit Rand
-local BOX_ABOUT_EDGE = rgb(0x6b, 0x4e, 0x3a)
+local BOX_ABOUT = rgb(0x48, 0x34, 0x29)   -- Steckbrief: hervorgehoben, warm
 local BOX_SKILL = rgb(0x29, 0x29, 0x23)   -- Fähigkeiten: leicht zum Mint
 local BOX_STATE = rgb(0x27, 0x25, 0x2b)   -- Zustand: leicht zum Blau
 
@@ -194,7 +193,6 @@ function Screens.info(ctx, data)
     local wert = "Wert " .. Value.wert(data) .. " G"
     print(wert, SCREEN_W - textw(wert) - 6, 7, C.gold)
     box(3, 23, SCREEN_W - 4, 80, BOX_ABOUT)
-    rect(4, 24, SCREEN_W - 5, 79, BOX_ABOUT_EDGE)
     box(3, 83, SCREEN_W - 4, 146, BOX_SKILL)
     box(3, 149, SCREEN_W - 4, 224, BOX_STATE)
     -- Bild oben rechts unter dem Wert
