@@ -20,8 +20,6 @@ local Farm = require("game.farm")
 local Screens = {}
 
 local C = Stage.COLORS
-local BAR = 80     -- Balkenbreite in Pixeln für 100 Punkte
-local function px(v) return flr(v * BAR / 100) end
 
 local function header(title)
   rectfill(0, 0, SCREEN_W - 1, 13, C.panel)
@@ -112,27 +110,41 @@ function Screens.keyboard(title, text, max, on_done, rows)
   return s
 end
 
--- ---- Pferde-Info ----
+-- ---- Pferde-Info (Rückmeldung 0.5.3: aufgeräumt, Balken mit Unterteilung alle 20) ----
 
-local function stat_bar(x, y, label, data, key)
-  print(label, x, y, C.text)
-  local bx = x + 66
-  rectfill(bx, y, bx + BAR - 1, y + 6, C.panel)
-  local g, t, p = data.gen[key], data.train[key], data.pot[key]
-  rectfill(bx, y, bx + px(g) - 1, y + 6, C.gold)
-  if t >= 1 then rectfill(bx + px(g), y, bx + px(g + t) - 1, y + 6, rgb(0x7f, 0xd0, 0x6f)) end
-  rect(bx, y, bx + BAR - 1, y + 6, C.panel_light)
-  line(bx + px(p) - 1, y - 1, bx + px(p) - 1, y + 7, C.red)
-  print(string.format("%d+%d/%d", flr(g), flr(t), flr(p)), bx + BAR + 4, y, C.dim)
+local BAR_X, BAR_W = 150, 120          -- Balken: 100 Punkte = 120 px
+local function bx_of(v) return BAR_X + flr(mid(0, v, 100) * BAR_W / 100) end
+
+-- Einschnürung alle 20 Punkte: oben und unten je ein Pixel in Hintergrundfarbe, dazwischen eine dunkle Linie
+local function notches(y, h)
+  for v = 20, 80, 20 do
+    local x = bx_of(v)
+    pset(x, y, C.panel)
+    pset(x, y + h - 1, C.panel)
+    line(x, y + 1, x, y + h - 2, rgb(0x2b, 0x1f, 0x1d))
+  end
 end
 
-local function state_bar(x, y, label, value, max, good_high)
+-- Fähigkeit: heller Rahmen bis zum Talent (Potenzial), darin der aktuelle Wert (Gen + Training) als goldener Balken.
+local function stat_bar(x, y, label, data, key)
   print(label, x, y, C.text)
-  local bx = x + 66
-  rectfill(bx, y, bx + BAR - 1, y + 6, C.panel)
-  rectfill(bx, y, bx + flr(BAR * value / max) - 1, y + 6, C.dim)
-  rect(bx, y, bx + BAR - 1, y + 6, C.panel_light)
-  print(tostring(flr(value)), bx + BAR + 4, y, C.dim)
+  local v = H.stat(data, key)
+  local pot = data.pot[key]
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))          -- Spur bis 100
+  rectfill(BAR_X, y, bx_of(pot) - 1, y + 8, C.panel_light)                      -- Talent
+  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, C.gold) end     -- aktueller Wert
+  notches(y, 9)
+  print(tostring(flr(v)), BAR_X + BAR_W + 6, y, C.gold)
+end
+
+-- Zustand: ein Balken 0–100 (value/max), Farbe col.
+local function state_bar(x, y, label, value, max, col)
+  print(label, x, y, C.text)
+  rectfill(BAR_X, y, BAR_X + BAR_W - 1, y + 8, rgb(0x1e, 0x16, 0x14))
+  local v = 100 * value / max
+  if v >= 1 then rectfill(BAR_X + 1, y + 2, bx_of(v) - 1, y + 6, col or C.dim) end
+  notches(y, 9)
+  print(tostring(flr(value)), BAR_X + BAR_W + 6, y, C.dim)
 end
 
 function Screens.info(ctx, data)
@@ -147,43 +159,48 @@ function Screens.info(ctx, data)
   function s.draw()
     cls(C.panel)
     header(data.name)
+    local wert = "Wert " .. Value.wert(data) .. " G"
+    print(wert, SCREEN_W - textw(wert) - 6, 3, C.gold)
     local sexw = data.sex == "m" and (data.alter < 1 and "Hengstfohlen" or "Hengst") or (data.alter < 1 and "Stutfohlen" or "Stute")
     local rasse = K.rasse(data.rasse)
     print(sexw .. ", " .. rasse.name, 6, 18, C.text)
     local f1, f2 = K.farbe(data.farbe).name, K.farbe(data.farbe2).name
-    print("Farbe: " .. f1 .. (data.farbe2 ~= data.farbe and (" / " .. f2) or ""), 6, 28, C.dim)
-    print("Charakter: " .. K.charakter[data.zug].name .. ", " .. place_of(data), 6, 38, C.dim)
+    print("Farbe: " .. f1 .. (data.farbe2 ~= data.farbe and (" / " .. f2) or ""), 6, 29, C.dim)
+    print("Charakter: " .. K.charakter[data.zug].name, 6, 40, C.dim)
+    print("Ort: " .. place_of(data), 6, 51, C.dim)
     -- Bild
-    Stage.panel(6, 52, 71, 100)
-    rectfill(8, 54, 69, 98, rgb(0x7f, 0xb0, 0x4f))
-    G.draw(data.farbe, rasse.koerper, "side", 39, 92, false)
+    Stage.panel(6, 64, 76, 112)
+    rectfill(8, 66, 74, 110, rgb(0x7f, 0xb0, 0x4f))
+    G.draw(data.farbe, rasse.koerper, "side", 41, 104, false)
     if data.alter < 1 then
-      print("Fohlen", 8, 104, C.text)
-      rectfill(8, 114, 69, 119, C.panel_light)
-      rectfill(8, 114, 8 + flr(61 * data.alter), 119, C.gold)
+      print("Fohlen", 6, 118, C.text)
+      rectfill(6, 129, 76, 133, rgb(0x1e, 0x16, 0x14))
+      rectfill(6, 129, 6 + flr(70 * data.alter), 133, C.gold)
     end
-    -- Werte
-    local y = 54
-    print("Gen+Training/Potenzial", 82, 48, C.gold)
-    y = 60
-    for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spür"}, {"ausdauer", "Ausdauer"}}) do
-      stat_bar(82, y, e[2], data, e[1])
+    -- Fähigkeiten: Legende rechts neben der Überschrift
+    print("Fähigkeiten", 84, 64, C.gold)
+    rectfill(BAR_X + 52, 64, BAR_X + 62, 72, C.panel_light)
+    print("= Talent", BAR_X + 66, 64, C.dim)
+    local y = 77
+    for _, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spürsinn"}, {"ausdauer", "Ausdauer"}}) do
+      stat_bar(84, y, e[2], data, e[1])
       y = y + 12
     end
-    y = 116
-    print("Zustand", 82, 108, C.gold)
-    state_bar(82, y, "Bindung", data.bindung, 100); y = y + 12
-    state_bar(82, y, "Hunger", data.hunger, 100); y = y + 12
-    state_bar(82, y, "Sauber.", data.sauberkeit, 100); y = y + 12
-    state_bar(82, y, "Gewicht", data.gewicht, 100)
-    line(82 + 66 + BAR // 2, y - 1, 82 + 66 + BAR // 2, y + 7, C.text)
+    print("Zustand", 84, 128, C.gold)
+    y = 141
+    state_bar(84, y, "Bindung", data.bindung, 100, C.gold); y = y + 12
+    state_bar(84, y, "Hunger", data.hunger, 100, data.hunger > 60 and C.red or C.dim); y = y + 12
+    state_bar(84, y, "Sauber", data.sauberkeit, 100, data.sauberkeit < 40 and C.red or C.dim); y = y + 12
+    state_bar(84, y, "Gewicht", data.gewicht, 100)
+    line(bx_of(50), y - 1, bx_of(50), y + 9, C.text)                -- Idealgewicht
     y = y + 12
-    state_bar(82, y, "Energie", data.energie, H.stat(data, "ausdauer"))
-    if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, 130, C.dim) end
-    print("Wert: " .. Value.wert(data) .. " G", 6, 142, C.gold)
-    if data.traechtig then print("Trächtig bis Tag " .. data.traechtig.tag, 6, 154, C.text) end
-    if data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then print("Pause bis Tag " .. data.zucht_pause, 6, 154, C.dim) end
-    footer("A: umbenennen   >: Stammbaum   B: zurück")
+    state_bar(84, y, "Energie", data.energie, H.stat(data, "ausdauer"))
+    -- unten: Ausrüstung und Zucht
+    y = 204
+    if data.sattel then print("Sattel: " .. K.artikel(data.sattel).name, 6, y, C.dim) y = y + 11 end
+    if data.traechtig then print("Trächtig bis Tag " .. data.traechtig.tag, 6, y, C.text)
+    elseif data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then print("Zuchtpause bis Tag " .. data.zucht_pause, 6, y, C.dim) end
+    footer("A umbenennen   > Stammbaum   B zurück")
   end
   s.full = true
   return s
@@ -382,12 +399,12 @@ function Screens.market(ctx)
     local d = list[sel]
     if d then
       rectfill(0, 116, SCREEN_W - 1, 215, rgb(0x1a, 0x13, 0x12))
-      for k, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spür"}, {"ausdauer", "Ausdauer"}}) do
-        stat_bar(8, 120 + (k - 1) * 11, e[2], d, e[1])
+      for k, e in ipairs({{"tempo", "Tempo"}, {"staerke", "Stärke"}, {"spuer", "Spürsinn"}, {"ausdauer", "Ausdauer"}}) do
+        stat_bar(8, 120 + (k - 1) * 12, e[2], d, e[1])
       end
-      print("Bindung " .. d.bindung .. ", " .. K.charakter[d.zug].name, 8, 166, C.text)
-      print("Leistung " .. flr(Value.leistung(d) * 100) .. " %, Wert " .. Value.wert(d) .. " G", 8, 177, C.dim)
-      print("Farbfaktor x" .. Value.farbfaktor(d) .. ", Kauf = Wert x1,3", 8, 188, C.dim)
+      print("Bindung " .. d.bindung .. ", " .. K.charakter[d.zug].name, 8, 171, C.text)
+      print("Leistung " .. flr(Value.leistung(d) * 100) .. " %, Wert " .. Value.wert(d) .. " G", 8, 182, C.dim)
+      print("Farbfaktor x" .. Value.farbfaktor(d) .. ", Kauf = Wert x1,3", 8, 193, C.dim)
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
     footer("A: kaufen   B: zurück")
