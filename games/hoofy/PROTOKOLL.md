@@ -93,3 +93,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:05 | D4 Wetter | fertig | Shot-Sheet Regen, Selbsttest Sauberkeit −15 draußen, SELFTEST OK 185 | Hoofy D4
 2026-10-01 09:07 | D5 Sattellampe und Nachtsicht | begonnen | – | –
 2026-10-01 09:07 | D5 Sattellampe und Nachtsicht | fertig | Szenario nachtritt mit/ohne Lampe, SELFTEST OK 186 | Hoofy D5
+2026-10-01 09:09 | D-Ende | begonnen | – | –
+2026-10-01 09:09 | D-Ende | fertig | Cover (Nachtritt mit Lampe), 0.4.0, Checkliste, README | Hoofy Phase D

@@ -11,6 +11,14 @@ der nächsten Aufgabe und hakt es ab.
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
 
+**Phase D (Version 0.4.0)** – Welt, siehe E52–E56
+- [ ] Laden → Fahrzeuge: Zugfahrzeug nur mit passendem Gebäude (Schuppen/Garage/Hangar), Anhänger frei kaufbar.
+- [ ] A vor der Schuppen-/Garagentür: Reisemenü; Fahrtkosten, Pferde an der Leine (höchstens Anhängerplätze) fahren mit.
+- [ ] Gebiete 2–6: andere Farben, Rassen, mehr Wildpferde; Fahrzeug steht am Ankunftspunkt, A dort = Rückreise. Ladezeit/Ruckeln im größten Gebiet (Canyon)?
+- [ ] 👃 über dem Pferd beim Reiten: Steuerkreuz loslassen, es läuft zum Schatz. Satteltaschen nötig außerhalb des Heimattals.
+- [ ] Regen (jeder 4. Tag): Striche, „Regen“ oben, schmutzigere Pferde auf der Weide. Nachts mit Sattellampe größerer Sichtkreis.
+- [ ] Speichern unterwegs: danach steht man wieder zu Hause, Funde verkauft.
+
 **Phase C (Version 0.3.0)** – Hofbau, Bedienung E8, E32–E51
 - [ ] START → Bauen (oder am Hof): Cursor mit Steuerkreuz, B halten + Pfeile wählt Kategorie/Bauteil, A baut. Nachvollziehbar?
 - [ ] Zäune/Tore schließen eine Weide (grüne Punkte, „Weide n Plätze“); Pferd auf die Weide, Umbau setzt Pferde um.
@@ -261,7 +269,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Shot-Sheet; Selbsttest.
 - [x] **D5 Sattellampe und Nachtsicht** (E14, E56; Szenario `nachtritt` mit/ohne Lampe verglichen)
   Prüfung: Screenshot nachts mit und ohne Lampe.
-- [ ] **D-Ende**: Cover, version 0.4.0, Konsolen-Checkliste, Push.
+- [x] **D-Ende**: Cover, version 0.4.0, Konsolen-Checkliste, Push.
 
 ### E Turniere und Chaos
 
