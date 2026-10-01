@@ -152,6 +152,7 @@ function WorldScene.enter(arg)
     wild:house(a, "weide")
     wild:house(b, "stall")
     wild:attach(c)
+    if arg.staerke then a.data.gen.staerke, a.data.pot.staerke = arg.staerke, 100 end
   elseif arg and arg.ritt then
     -- Ein zahmes Pferd (Bindung 80, Sattel) steht neben dem Spieler; eine Reihe Büsche 6 Kacheln rechts.
     wild.count = 0
@@ -240,6 +241,7 @@ function WorldScene.enter(arg)
     if name == "map" then nav.push(Screens.map(ctx)) end
     if name == "bauen" or name == "weiden" then nav.push(Screens.build(ctx)) end
     if name == "stammbaum" then nav.push(Screens.stammbaum(ctx, ctx.herd[#ctx.herd])) end
+    if name == "springen" then nav.push(Screens.springreiten(ctx, ctx.herd[1], function() end)) end
     if name == "turnier" then nav.push(Screens.turnier(ctx)) end
     if name == "jobs" then nav.push(Screens.jobs(ctx)) end
     if name == "bestellung" then nav.push(Screens.orders(ctx)) end

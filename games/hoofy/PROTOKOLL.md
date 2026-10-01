@@ -98,3 +98,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:12 | Push bee80e1 | Release | CI success, Manifest Commit bee80e1, Hoofy 0.4.0 | –
 2026-10-01 09:12 | E1 Turniere | begonnen | – | –
 2026-10-01 09:14 | E1 Turniere | fertig | Shot-Sheet Klasse/Wettbewerb/Pferd/Ergebnis, SELFTEST OK 191 | Hoofy E1
+2026-10-01 09:16 | E2 Minispiel Springreiten | begonnen | – | –
+2026-10-01 09:17 | E2 Minispiel Springreiten | fertig | Drehbuch-Shot-Sheet (9 von 10 sauber), SELFTEST OK 196 | Hoofy E2

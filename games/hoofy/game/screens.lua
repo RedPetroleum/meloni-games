@@ -427,9 +427,18 @@ function Screens.turnier(ctx)
         if st.weg[sel_k .. ":" .. list[sel].id] then SFX.snort() msg, msg_t = "Dieser Wettbewerb ist bis zur nächsten Runde weg.", 150
         else sel_w, stage, sel = list[sel].id, "pferd", 1 SFX.ok() end
       else
-        local r, why = Turniere.teilnehmen(ctx, day, list[sel], sel_k, sel_w)
-        if r then result, stage = r, "ergebnis" if r.rank == 1 then SFX.tame() else SFX.ok() end
-        else SFX.snort() msg, msg_t = why == "Geld" and "Zu wenig Geld für die Startgebühr." or (why .. "."), 150 end
+        local d = list[sel]
+        local function antreten(punkte)
+          local r, why = Turniere.teilnehmen(ctx, day, d, sel_k, sel_w, punkte)
+          if r then result, stage = r, "ergebnis" if r.rank == 1 then SFX.tame() else SFX.ok() end
+          else SFX.snort() msg, msg_t = why == "Geld" and "Zu wenig Geld für die Startgebühr." or (why .. "."), 150 end
+        end
+        if sel_w == "springreiten" then
+          if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
+          else nav.push(Screens.springreiten(ctx, d, antreten)) end
+        else
+          antreten()
+        end
       end
     end
     if msg_t > 0 then msg_t = msg_t - 1 end
@@ -480,6 +489,63 @@ function Screens.turnier(ctx)
     end
     if msg and msg_t > 0 then print(msg, 10, 214, C.red) end
     footer((stage == "pferd" and "A: antreten" or "A: wählen") .. "   B: zurück")
+  end
+  return s
+end
+
+-- ---- Minispiel Springreiten (E2): A springt; am Ende A, dann done(punkte) ----
+
+function Screens.springreiten(ctx, d, done)
+  local Sp = require("game.springen")
+  local st = Sp.new(d)
+  local s = {full = true}
+  local finished = false
+  local rasse = K.rasse(d.rasse)
+  function s.update(nav)
+    Sp.update(st, btnp(BTN_A) and not st.done)
+    if st.done then
+      if btnp(BTN_A) then
+        if finished then return end
+        finished = true
+        nav.pop()
+        done(Sp.punkte(st))
+      end
+    elseif st.jump == 1 then SFX.jump() end
+  end
+  function s.draw()
+    cls(rgb(0x9f, 0xcd, 0x66))
+    rectfill(0, 150, SCREEN_W - 1, SCREEN_H - 1, rgb(0x7f, 0xb0, 0x4f))
+    rectfill(0, 0, SCREEN_W - 1, 13, C.panel)
+    print("Springreiten: " .. d.name, 6, 3, C.gold)
+    local info = st.clean .. " sauber, " .. st.faults .. " Fehler"
+    print(info, SCREEN_W - textw(info) - 6, 3, C.text)
+    local ground = 178
+    -- Stangen (Weltposition → Bildschirm)
+    for _, h in ipairs(st.hurdles) do
+      local sx = flr(h.x - st.x + Sp.HORSE_X)
+      if sx > -20 and sx < SCREEN_W + 10 then
+        if h.state == "down" then
+          rectfill(sx - 12, ground - 3, sx + 12, ground - 1, rgb(0xb0, 0x7a, 0x44))
+        else
+          rectfill(sx - 11, ground - h.h, sx - 9, ground, rgb(0x55, 0x33, 0x20))
+          rectfill(sx + 9, ground - h.h, sx + 11, ground, rgb(0x55, 0x33, 0x20))
+          rectfill(sx - 11, ground - h.h, sx + 11, ground - h.h + 2, h.state == "clean" and C.gold or rgb(0xe0, 0x47, 0x5a))
+        end
+      end
+    end
+    local pose = (st.stumble > 0 or st.jump > 0) and "side" or ((st.frame // 6) % 2 == 0 and "gallop1" or "gallop2")
+    G.draw(d.farbe, rasse.koerper, pose, Sp.HORSE_X, ground - st.air, false)
+    -- Fortschritt
+    rectfill(10, 24, 309, 28, C.panel)
+    rectfill(10, 24, 10 + flr(299 * min(1, st.x / Sp.END_X)), 28, C.gold)
+    if st.done then
+      Stage.panel(60, 80, 259, 130)
+      Stage.center(st.clean .. " von " .. Sp.HURDLES .. " Stangen sauber", 90, C.gold)
+      Stage.center("Punkte " .. flr(Sp.punkte(st)), 104, C.text)
+      Stage.center("A: weiter", 116, C.dim)
+    else
+      print("A: springen", 6, SCREEN_H - 10, C.dim)
+    end
   end
   return s
 end

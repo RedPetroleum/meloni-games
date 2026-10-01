@@ -40,4 +40,5 @@ return {
   "wetter",
   "nachtsicht",
   "turniere",
+  "springen",
 }

@@ -97,6 +97,11 @@ function Scenarios.turnier(save)
   return "world", {ort = "turnier", hof = true, geld = save.geld or 1000, screen = "turnier", fahrzeug = save.fahrzeug or "fahrrad"}
 end
 
+-- Springreiten-Minispiel (E2): Drehbuch per INPUT (A springt), save.staerke setzt die Stärke des Pferds.
+function Scenarios.springreiten(save)
+  return "world", {ort = "start", hof = true, screen = "springen", staerke = save.staerke}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

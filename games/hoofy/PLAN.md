@@ -276,7 +276,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
 - [x] **E1 Turniere** (E57; Shot-Sheet Turnierplatz, SELFTEST 191): Turnierplatz, 6 Klassen nach Fahrzeug, Startgebühr, Chancen vorab,
   Rotation alle 3 Tage, Wettbewerb nach Teilnahme weg; Schönheitswettbewerb berechnet.
   Prüfung: Selbsttest Wertung; Screenshot.
-- [ ] **E2 Minispiel Springreiten**: Parcours, Stärke → Sprunghöhe, Ausdauer → Leistungsabfall.
+- [x] **E2 Minispiel Springreiten** (E58; Drehbuch-Shot-Sheet, SELFTEST 196): Parcours, Stärke → Sprunghöhe, Ausdauer → Leistungsabfall.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
 - [ ] **E3 Minispiel Pferderennen**: Tempo, Ausdauer, Gegner.
   Prüfung: `INPUT`-Drehbuch, Shot-Sheet.
