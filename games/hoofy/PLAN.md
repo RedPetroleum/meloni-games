@@ -44,6 +44,7 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Die tragbare Laterne soll von der Position bei der rechten hand sein, so als würde man die tragen. am Tag ausblenden. (0.5.5, E67: hängt an der rechten Hand, erst ab dem Lichtkreis)
 - [x] Häuser soll man auch abreißen können, wenn man ein weiteres hat, das gleiche gilt für garagen, ställe (0.5.7, E69)
 - [x] Titelbildschirm: Pferdezüchter im Jahr 2040 kann weg. (0.5.7, E69)
+- [x] Pferde sollen nicht sofort nach dem Zähmen reitbar sein. Dafür braucht es höhere Bindung, ein paar Mal füttern, sauber machen und streicheln sollte aber reichen. Ein frisch gezähmtes Pferd an der Leine zu rennen ist auch riskant und kann häufiger dazu führen, dass es sich losreißt. (0.5.8, E71: +6 Bindung seit dem Zähmen, Ausreißen beim Rennen ×3)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

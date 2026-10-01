@@ -397,3 +397,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Bürste unter Zubehör statt Futter. Start ohne Bürste: „Striegeln“ im Pferdemenü ist ausgegraut, bis sie gekauft ist
   (alte Spielstände behalten ihre).
 - Nach dem Absteigen (A halten) öffnet die Tastenwiederholung nicht mehr das Pferdemenü.
+
+## E71 Frisch gezähmt (Rückmeldung nach 0.5.8)
+- Beim Zähmen merkt sich das Pferd seine Bindung; reitbar erst bei +6 darüber (z. B. 3× Heu, Striegeln, Streicheln).
+  Bis dahin schnaubt es beim Aufsitzen mit Gewitter-Blase und Hinweis; die Info zeigt „Frisch gezähmt: noch nicht reitbar“.
+- Solange es frisch ist, reißt es an der Leine beim Sprinten oder Reiten ×3 so oft aus, im Gehen unverändert.
+- Eigene Wahl: relativ zur Start-Bindung statt der Katalog-Schwelle „ab 40 reitbar“ (Mustang mit 10 bräuchte sonst
+  30 Punkte). Gekaufte, gezüchtete und alte Pferde sind nie frisch.

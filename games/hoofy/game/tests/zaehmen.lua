@@ -1,6 +1,8 @@
 -- Selbsttests für das Zähmen (Aufgabe A7, E16).
 local Stage = require("game.stage")
 local Wild = require("game.wild")
+local Care = require("game.care")
+local Leash = require("game.leash")
 local C = require("game.tests.check")
 
 local function setup(bindung)
@@ -68,5 +70,23 @@ return {
     C.eq(#ctx.herd, 1, "im Bestand")
     C.eq(ctx.herd[1].wild, nil)
     C.ok(h.state == "led" or h.state == "follow", "kommt an die Leine (A8)")
+  end},
+  {"Frisch gezähmt: erst nach 3× Heu, Striegeln und Streicheln reitbar (E71)", function()
+    local ctx, w, h = setup(35)
+    until_state(ctx, h, "look", 600)
+    ctx.player.x, ctx.player.y = h.x - 20, h.y
+    C.ok(w:try_tame() == h, "gezähmt")
+    C.eq(w:mount(h), "frisch", "gleich nach dem Zähmen")
+    for _ = 1, 3 do Care.feed(h.data, "heu") end
+    Care.brush(h.data)
+    C.eq(w:mount(h), "frisch", "noch nicht ohne Streicheln")
+    Care.stroke(h.data)
+    C.eq(w:mount(h), "ok", "nach der Pflege")
+    C.eq(h.data.reit_ab, nil, "nicht mehr frisch")
+  end},
+  {"Frisch gezähmt: Sprinten und Reiten an der Leine ×3, Gehen unverändert (E71)", function()
+    C.near(Leash.chance10(35, "gehen", nil, true), Leash.chance10(35, "gehen"), 0.0001)
+    C.near(Leash.chance10(35, "sprinten", nil, true), Leash.chance10(35, "sprinten") * 3, 0.0001)
+    C.near(Leash.chance10(35, "reiten", nil, true), Leash.chance10(35, "reiten") * 3, 0.0001)
   end},
 }

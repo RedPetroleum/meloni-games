@@ -122,7 +122,7 @@ function Horse:update_tamed()
       if self.leash_t >= 60 then
         self.leash_t = 0
         local mode = p.riding and "reiten" or (p.running and "sprinten" or "gehen")
-        if Leash.escape_roll(self.data.bindung, mode, self.data.zug) then ctx.wild:escape(self) end
+        if Leash.escape_roll(self.data.bindung, mode, self.data.zug, nil, Ride.fresh(self.data)) then ctx.wild:escape(self) end
       end
     end
   elseif st == "free" then
@@ -321,6 +321,7 @@ function Wild:try_tame()
     if h.state ~= "flee" and U.dist(h.x, h.y, p.x, p.y) <= TAME_DIST then
       table.remove(self.list, i)
       h.wild, h.data.wild, h.tamed = false, nil, true
+      h.data.reit_ab = h.data.bindung + Ride.FRESH_BOND          -- frisch gezähmt: noch nicht reitbar (E71)
       self.ctx.herd[#self.ctx.herd + 1] = h.data
       self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
       self:attach(h)
@@ -412,7 +413,7 @@ function Wild:escape(h)
 end
 
 -- A bei einem geführten oder folgenden Pferd in Reichweite: aufsteigen. Gibt Pferd und Ergebnis
--- ("ok" oder "verweigert") zurück, nil wenn keins in Reichweite ist.
+-- ("ok", "frisch" oder "verweigert") zurück, nil wenn keins in Reichweite ist.
 function Wild:try_mount()
   local p = self.ctx.player
   if p.riding then return nil end
@@ -422,6 +423,7 @@ function Wild:try_mount()
     if d <= bd then best, bd = h, d end
   end
   if not best then return nil end
+  if Ride.fresh(best.data) then return best, "frisch" end
   if Ride.refuses(best.data, self.rng) then return best, "verweigert" end
   Ride.mount(self.ctx, best)
   return best, "ok"
@@ -440,8 +442,9 @@ function Wild:nearest_own()
   return best
 end
 
--- Aufsitzen auf h (Menü, E2): "ok" oder "verweigert".
+-- Aufsitzen auf h (Menü, E2): "ok", "frisch" (frisch gezähmt, E71) oder "verweigert".
 function Wild:mount(h)
+  if Ride.fresh(h.data) then return "frisch" end
   if Ride.refuses(h.data, self.rng) then return "verweigert" end
   Ride.mount(self.ctx, h)
   return "ok"

@@ -33,6 +33,15 @@ function R.jump_height(data)
   return 6 + 0.3 * Care.effective(data, "staerke")
 end
 
+-- Frisch gezähmt (data.reit_ab, beim Zähmen gesetzt): lässt sich erst reiten, wenn die Bindung um
+-- FRESH_BOND gestiegen ist (ein paar Mal füttern, striegeln, streicheln; E71).
+R.FRESH_BOND = 6
+
+function R.fresh(data)
+  if data.reit_ab and data.bindung >= data.reit_ab then data.reit_ab = nil end
+  return data.reit_ab ~= nil
+end
+
 -- Verweigert das Pferd das Aufsteigen? Bindung < 20: zu 50 % (KATALOG §2).
 function R.refuses(data, rng)
   local b = K.stats.bindung

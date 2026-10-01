@@ -505,8 +505,13 @@ local function do_action(id)
     end
     menu = nil
   elseif id == "mount" then
-    if wild:mount(h) == "ok" then
+    local r = wild:mount(h)
+    if r == "ok" then
       a_release = true
+    elseif r == "frisch" then
+      ctx.sfx.snort()
+      h:react("emo_storm", 120)
+      say(d.name .. " ist frisch gezähmt und lässt dich noch nicht aufsitzen. Füttern, striegeln und streicheln.", 180)
     else
       ctx.sfx.snort()
       h:react("emo_storm", 120)                                  -- verweigert das Reiten

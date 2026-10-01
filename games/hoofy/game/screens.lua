@@ -262,6 +262,7 @@ function Screens.info(ctx, data)
     local extra
     if data.traechtig then extra = "Trächtig bis Tag " .. data.traechtig.tag
     elseif data.zucht_pause and ctx.clock and data.zucht_pause > ctx.clock.day then extra = "Zuchtpause bis Tag " .. data.zucht_pause
+    elseif data.reit_ab and data.bindung < data.reit_ab then extra = "Frisch gezähmt: noch nicht reitbar"
     elseif data.sattel then extra = "Sattel: " .. K.artikel(data.sattel).name end
     if extra then print(extra, 8, 71, C.dim) end
     -- Fähigkeiten und Zustand über die ganze Breite
