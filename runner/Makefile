@@ -5,15 +5,17 @@ MELONI := ../engine/meloni
 LUA    := ../engine/lua/src
 BUILD  := build
 
-SDL ?= $(shell command -v sdl2-config >/dev/null 2>&1 && echo 1 || echo 0)
+# sdl2-config from PATH, else a self-built SDL2 in ~/.local (./configure --prefix=$HOME/.local)
+SDL2_CONFIG ?= $(shell command -v sdl2-config 2>/dev/null || ls $(HOME)/.local/bin/sdl2-config 2>/dev/null)
+SDL ?= $(if $(SDL2_CONFIG),1,0)
 
 CFLAGS  ?= -O2 -g
 CFLAGS  += -std=gnu11 -Wall -Wno-unused-function -I$(MELONI) -I$(LUA) -Ilodepng
 LDLIBS  += -lm
 
 ifeq ($(SDL),1)
-CFLAGS  += -DMEL_SDL $(shell sdl2-config --cflags)
-LDLIBS  += $(shell sdl2-config --libs)
+CFLAGS  += -DMEL_SDL $(shell $(SDL2_CONFIG) --cflags)
+LDLIBS  += $(shell $(SDL2_CONFIG) --libs)
 endif
 
 SRCS := runner.c lodepng/lodepng.c $(wildcard $(MELONI)/*.c) $(wildcard $(LUA)/*.c)
