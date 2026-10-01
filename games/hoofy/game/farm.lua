@@ -17,6 +17,8 @@ function Farm.default(plot)
   local px, py = plot.x, plot.y
   return {
     plot = plot,
+    home = {px + 10, py + 8},         -- Startpunkt im Hof (bleibt, wenn das Grundstück wächst)
+    land = 0,                         -- gekaufte 10×10-Stücke (C7)
     buildings = {
       {id = "wohnwagen", cx = px + 2, cy = py + 2},
       {id = "stall_s", cx = px + 8, cy = py + 2},
@@ -203,8 +205,43 @@ Farm.CATEGORIES = {
   {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
   {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar", "goepel_generator"}},
+  {id = "land", name = "Land", items = {"land_n", "land_o", "land_s", "land_w"}},
   {id = "abriss", name = "Abreißen", items = {}},
 }
+
+-- ---- Land kaufen (C7): das Grundstück wächst streifenweise um 10 Kacheln, je 10×10-Stück 500 G, jedes weitere +250 ----
+Farm.LAND_DIRS = {
+  land_n = {name = "Land Nord", dx = 0, dy = -1}, land_o = {name = "Land Ost", dx = 1, dy = 0},
+  land_s = {name = "Land Süd", dx = 0, dy = 1}, land_w = {name = "Land West", dx = -1, dy = 0},
+}
+
+-- Zahl der Stücke und Preis des Streifens in Richtung id; nil + Grund am Kartenrand.
+function Farm.land_angebot(ctx, id)
+  local d = Farm.LAND_DIRS[id]
+  local p, map = ctx.area.farm.plot, ctx.map
+  local n = ((d.dx ~= 0) and p.h or p.w) // 10
+  local free
+  if id == "land_n" then free = p.y elseif id == "land_w" then free = p.x
+  elseif id == "land_s" then free = map.h - (p.y + p.h) else free = map.w - (p.x + p.w) end
+  if free < 10 then return nil, "Kartenrand" end
+  local k, sum = ctx.area.farm.land or 0, 0
+  for i = 0, n - 1 do sum = sum + 500 + 250 * (k + i) end
+  return sum, n
+end
+
+function Farm.buy_land(ctx, id)
+  local farm = ctx.area.farm
+  local price, n = Farm.land_angebot(ctx, id)
+  if not price then return false, n end
+  if ctx.money < price then return false, "Geld" end
+  ctx.money = ctx.money - price
+  local d, p = Farm.LAND_DIRS[id], farm.plot
+  if id == "land_n" then p.y, p.h = p.y - 10, p.h + 10
+  elseif id == "land_w" then p.x, p.w = p.x - 10, p.w + 10
+  elseif id == "land_s" then p.h = p.h + 10 else p.w = p.w + 10 end
+  farm.land = (farm.land or 0) + n
+  return true, price
+end
 
 -- id → Bild (prop), Größe in Kacheln; Boden-Ersatz bei Wegen.
 Farm.ITEMS = {

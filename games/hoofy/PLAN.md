@@ -233,7 +233,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   `game/care.lua`. Szenario `anbau` (`SCENARIO_OPTS='tage = 2'`): Screenshot zeigt Keimling → Wachstum → reif. E49.
 - [x] **C6 Göpel-Generator**: 40 je Pferd und Tag, Bedingungen. (E50; Selbsttest, 170 grün; Bild nicht im Shot geprüft)
   Prüfung: Selbsttest.
-- [ ] **C7 Land kaufen**: 10×10-Stücke, steigender Preis, bis zum ganzen Startgebiet.
+- [x] **C7 Land kaufen**: 10×10-Stücke, steigender Preis, bis zum ganzen Startgebiet. (E51; Selbsttest, 173 grün; Baumodus-Bild nicht im Shot geprüft)
   Prüfung: Selbsttest Preise; Screenshot Grundstücksgrenze.
 - [ ] **C-Ende**: Cover, version 0.3.0, Konsolen-Checkliste, Push.
 

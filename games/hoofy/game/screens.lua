@@ -727,6 +727,12 @@ function Screens.build(ctx)
         if c.id == "abriss" then
           local sum, why = Farm.remove(ctx, cx, cy)
           if sum then SFX.brush() say(changed() or ("Abgerissen: +" .. sum .. " G.")) else SFX.snort() say(why .. ".") end
+        elseif c.id == "land" then
+          local ok, why = Farm.buy_land(ctx, id)
+          if ok then
+            SFX.ok() say(Farm.LAND_DIRS[id].name .. " gekauft: " .. why .. " G.")
+            pastures = Farm.pastures(ctx.map, farm)
+          else SFX.snort() say(why == "Geld" and "Zu wenig Geld." or (why .. ".")) end
         elseif c.id == "pflanzen" then
           if not id then say("Noch keine Samen: im Laden kaufen.")
           else
@@ -756,6 +762,8 @@ function Screens.build(ctx)
     local ok = true
     if c.id == "abriss" then
       ok = Farm.item_at(farm, cx, cy) ~= nil or Farm.plant_at(farm, cx, cy) ~= nil
+    elseif c.id == "land" then
+      ok = Farm.land_angebot(ctx, id) ~= nil
     elseif c.id == "pflanzen" then
       if id then
         local crop = Farm.crop(id)
@@ -806,6 +814,10 @@ function Screens.build(ctx)
       local pf = Farm.plant_at(farm, cx, cy)
       line = pf and ("Abreißen: " .. Farm.crop(pf.id).name .. " (Samen bleibt)")
         or it and ("Abreißen: " .. K.bauteil(it.id).name .. "  +" .. K.bauteil(it.id).preis .. " G") or "Abreißen: hier steht nichts"
+    elseif c.id == "land" then
+      local price, n = Farm.land_angebot(ctx, id)
+      line = "< " .. Farm.LAND_DIRS[id].name .. " >  " .. (price and (n .. " Stücke, " .. price .. " G") or "Kartenrand")
+      ok = price ~= nil and ctx.money >= price
     elseif c.id == "pflanzen" then
       if id then
         local crop = Farm.crop(id)

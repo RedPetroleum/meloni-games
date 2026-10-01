@@ -33,4 +33,5 @@ return {
   "schoenheit",
   "anbau",
   "goepel",
+  "land",
 }

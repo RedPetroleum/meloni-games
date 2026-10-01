@@ -238,3 +238,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 
 ## E50 Göpel-Generator (C6)
 - Je Generator läuft ein Pferd; Bedingungen (vor dem Tageswechsel geprüft): Pferd ist auf dem Hof (Stall/Weide/frei), kein Fohlen, Stärke ≥ 40, Energie ≥ 40. Die stärksten Pferde laufen zuerst. 40 Geld je Pferd, Gutschrift beim Tageswechsel, kein Energieabzug (Energie wird morgens ohnehin zurückgesetzt). `ctx.goepel_mult` (Standard 1) ist der Haken für die Reform „Stromsubvention“ (E4). Bild: einfaches Tretrad, 2×2 Kacheln, unter „Bauten“.
+
+## E51 Land kaufen (C7)
+- Das Grundstück ist ein Rechteck (Start 20×20) und wächst im Baumodus unter „Land“ um einen Streifen von 10 Kacheln nach Nord/Ost/Süd/West. Ein Streifen besteht aus 2–n Stücken à 10×10; jedes Stück kostet 500 + 250 × (schon gekaufte Stücke), der Streifen die Summe. Ende am Kartenrand („Kartenrand“). Rechteck statt Einzelstücken, weil Bau, Weiden und Freilauf das Grundstück als Rechteck nutzen. Der Startpunkt bleibt (`farm.home`). Land (auch Wald/Fluss) ist nur Fläche: gebaut wird wie bisher nur auf freien Kacheln.

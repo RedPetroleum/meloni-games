@@ -77,3 +77,6 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 08:38 | C5 Anbau | fertig | Shot-Sheet Tag 0/1/2/4, Wachstum nach Katalog (Karotte 2/2, Gras 1/1, Apfelbaum 4/3), SELFTEST OK 168, make test grün | Hoofy C5
 2026-10-01 08:40 | C6 Göpel-Generator | begonnen | – | –
 2026-10-01 08:42 | C6 Göpel-Generator | fertig | Selbsttest Bedingungen/Anzahl/Stromsubvention-Haken, SELFTEST OK 170, make test grün | Hoofy C6
+2026-10-01 08:44 | Push 741a117 | Release | CI success, Manifest commit 741a117, Hoofy 0.2.0 | –
+2026-10-01 08:44 | C7 Land kaufen | begonnen | – | –
+2026-10-01 08:45 | C7 Land kaufen | fertig | Streifen/Preise/Kartenrand/Bauen auf neuem Land, SELFTEST OK 173 | Hoofy C7

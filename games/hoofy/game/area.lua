@@ -33,9 +33,11 @@ function Area.get(nr, seed, farm)
   }
   if nr == 1 then
     area.farm = farm or Farm.default(area.plot)
+    area.plot = area.farm.plot       -- gespeicherte Höfe haben ein gewachsenes Grundstück
     Farm.apply(area.map, area.farm)
     area.map.changes = {}          -- der Hof gehört zum Grundzustand, nur spätere Änderungen werden gespeichert
-    area.places.start = {area.plot.x + 10, area.plot.y + 8}   -- im Hof, zwischen Stall und Weide
+    local home = area.farm.home or {area.plot.x + 10, area.plot.y + 8}
+    area.places.start = {home[1], home[2]}   -- im Hof, zwischen Stall und Weide
     local d = Farm.stall_door(area.farm)
     area.places.stalltuer = {d[1], d[2]}
     local bd = Farm.bed_door(area.farm)
