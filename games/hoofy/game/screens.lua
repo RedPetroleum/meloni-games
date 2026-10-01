@@ -117,8 +117,8 @@ end
 
 local BAR_X, BAR_W = 76, 196           -- Balken: 100 Punkte = 196 px
 local SKILL_COL = rgb(0x9a, 0xdc, 0xb4) -- Fähigkeiten (Mintgrün, passt zum Blau; Gold bleibt Geld und Titeln)
-local GEN_COL = rgb(0x86, 0xbf, 0xa0)   -- Fähigkeit aus den Genen (sanft)
-local TRAIN_COL = rgb(0x4f, 0xec, 0x8e) -- dazutrainiert (kräftig)
+local GEN_COL = rgb(0x9a, 0xdc, 0xb4)   -- Fähigkeit aus den Genen (Mint wie die Überschrift)
+local TRAIN_COL = rgb(0x3a, 0xb0, 0x8e) -- dazutrainiert (kräftiges, gedecktes Türkisgrün)
 local BOX_COL = rgb(0x36, 0x28, 0x23)   -- dezente Kästen auf dem Info-Bildschirm
 
 -- Kasten mit abgeschnittenen Ecken
