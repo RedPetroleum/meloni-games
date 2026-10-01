@@ -157,11 +157,13 @@ function WorldScene.enter(arg)
     wild.count = 0
     local h = wild:spawn_at(ctx.player.x + 18, ctx.player.y, {rasse = arg.rasse or "haflinger", rng = wild.rng})
     h.data.bindung, h.data.sattel = arg.bindung or 80, arg.sattel or "einfacher_sattel"
+    h.data.lampe = arg.lampe or nil
     if arg.staerke then h.data.gen.staerke, h.data.pot.staerke = arg.staerke, max(arg.staerke, h.data.pot.staerke) end
     h.wild, h.data.wild, h.tamed = false, nil, true
     table.remove(wild.list)
     ctx.herd[1], ctx.herd_horses[1] = h.data, h
     wild:attach(h)
+    if arg.aufsitzen then wild:mount(h) end
     local cx, cy = ctx.player.x // 16 + 6, ctx.player.y // 16
     for dy = -2, 2 do
       ctx.map:set("coll", cx, cy + dy, arg.hindernis or "u")
@@ -484,10 +486,16 @@ function WorldScene.quit()
   WorldScene.save()
 end
 
+-- Sattellampe (D5): leuchtet, wenn das Pferd, auf dem man reitet, sie trägt (Sichtkreis × 1,8).
+function WorldScene.lamp()
+  local r = ctx.player.riding
+  return r and r.data.lampe or false
+end
+
 -- Erkundung: alles, was der Spieler gerade sieht (tagsüber der Bildschirm, nachts der Sichtkreis).
 function WorldScene.explore()
   local p, cam = ctx.player, ctx.camera
-  local r = clock:sight(70, false)
+  local r = clock:sight(70, WorldScene.lamp())
   if r and r < 400 then
     Explore.reveal(ctx.explored, p.x - r, p.y - r, p.x + r, p.y + r)
   else
@@ -716,7 +724,7 @@ function WorldScene.draw()
       ctx.S.draw("fahrzeug", st[1] * 16 - 8, st[2] * 16 - 10)
     end
   end)
-  local radius = clock:sight(70, false)
+  local radius = clock:sight(70, WorldScene.lamp())
   if radius and radius < 400 then
     local p = ctx.player
     Stage.draw_night(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), radius)

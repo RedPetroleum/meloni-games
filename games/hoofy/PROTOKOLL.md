@@ -91,3 +91,5 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-01 09:02 | D3 Schätze | fertig | Szenario schatz findet ohne Eingabe, Selbsttests Radius/Chance/Transport, SELFTEST OK 183 | Hoofy D3
 2026-10-01 09:04 | D4 Wetter | begonnen | – | –
 2026-10-01 09:05 | D4 Wetter | fertig | Shot-Sheet Regen, Selbsttest Sauberkeit −15 draußen, SELFTEST OK 185 | Hoofy D4
+2026-10-01 09:07 | D5 Sattellampe und Nachtsicht | begonnen | – | –
+2026-10-01 09:07 | D5 Sattellampe und Nachtsicht | fertig | Szenario nachtritt mit/ohne Lampe, SELFTEST OK 186 | Hoofy D5

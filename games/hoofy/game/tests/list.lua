@@ -38,4 +38,5 @@ return {
   "gebiete",
   "schaetze",
   "wetter",
+  "nachtsicht",
 }

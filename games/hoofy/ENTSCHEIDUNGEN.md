@@ -257,3 +257,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 
 ## E55 Wetter (D4)
 - Regen gibt es nur als Tageswetter: aus Seed und Tagesnummer, etwa jeder vierte Tag (`Wetter.CHANCE` 0,25), nur tagsüber gezeichnet (Striche, „Regen“ im Kopf). Wirkung beim Tageswechsel für den Vortag: Pferde auf Weide und frei verlieren 15 Sauberkeit (KATALOG), im Stall nicht; Meldung „Es hat geregnet: n Pferd(e) draußen sind schmutzig“. Kein Gewitter, keine Wirkung auf Tempo oder Zähmen. Gilt in allen Gebieten gleich (der Hof wird ohnehin nur beim Tageswechsel bewertet).
+
+## E56 Sattellampe (D5)
+- Die Lampe leuchtet nur, wenn man auf dem Pferd sitzt, das sie trägt; der Sichtkreis nachts wächst von 70 auf 126 Pixel (× 1,8, schon in `Clock:sight`), auch für die Erkundung der Karte. Zu Fuß oder am Seil bleibt es bei 70. Dunkle Pferde-Sprites gibt es weiter nicht (E14, geändert A3).

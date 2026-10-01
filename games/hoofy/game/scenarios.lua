@@ -87,6 +87,11 @@ function Scenarios.regen(save)
   return "world", {ort = "start", hof = true, regen = save.regen ~= false}
 end
 
+-- Nachtritt (D5): Reiter bei Nacht, save.lampe = true mit Sattellampe.
+function Scenarios.nachtritt(save)
+  return "world", {ort = "start", ritt = true, aufsitzen = true, lampe = save.lampe, zeit = 12500}
+end
+
 function Scenarios.gebaeude(save)
   return "world", {cx = save.cx, cy = save.cy, ort = (not save.cx) and "start" or nil, gebaeude = true}
 end

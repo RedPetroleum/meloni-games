@@ -259,7 +259,7 @@ Selbsttest = Test in `game/tests/`, läuft im Szenario `selftest`.
   Prüfung: Selbsttest Radius/Chance; `INPUT`-Drehbuch findet einen Schatz.
 - [x] **D4 Wetter** (E55; Shot-Sheet Regen, SELFTEST 185): Regen (Sprites/Linien), Sauberkeit −15 draußen.
   Prüfung: Shot-Sheet; Selbsttest.
-- [ ] **D5 Sattellampe und Nachtsicht** (E14).
+- [x] **D5 Sattellampe und Nachtsicht** (E14, E56; Szenario `nachtritt` mit/ohne Lampe verglichen)
   Prüfung: Screenshot nachts mit und ohne Lampe.
 - [ ] **D-Ende**: Cover, version 0.4.0, Konsolen-Checkliste, Push.
 
