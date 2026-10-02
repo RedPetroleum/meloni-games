@@ -245,6 +245,27 @@ void mel_gfx_print(const char *text, int x, int y, uint16_t color, int scale)
     drawtext(text, x, y, color, scale, 0);
 }
 
+void mel_draw_overlay(const char *text)
+{
+    int lines = 1, cols = 0, width = 0;
+    for (const char *p = text; *p; p++)
+    {
+        if (*p == '\n')
+            lines++, cols = 0;
+        else if (++cols > width)
+            width = cols;
+    }
+    // Over the whole screen, whatever clip the game left set
+    int cx0 = clip_x0, cy0 = clip_y0, cx1 = clip_x1, cy1 = clip_y1;
+    clip_x0 = clip_y0 = 0;
+    clip_x1 = MEL_WIDTH;
+    clip_y1 = MEL_HEIGHT;
+    int y0 = MEL_HEIGHT - lines * 9 - 3;
+    fillrect(0, y0, width * 8 + 3, MEL_HEIGHT - 1, 0);
+    drawtext(text, 2, y0 + 2, mel_rgb565(0xFF, 0xF1, 0xE8), 1, 0);
+    clip_x0 = cx0, clip_y0 = cy0, clip_x1 = cx1, clip_y1 = cy1;
+}
+
 static void blit(const image_t *img, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, bool flip_x, bool flip_y)
 {
     if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0)

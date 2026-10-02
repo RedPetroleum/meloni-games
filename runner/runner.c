@@ -2,6 +2,7 @@
 //
 //   meloni-run game-dir|game.mlg                  window (needs SDL2), F5 reloads, Esc quits
 //   meloni-run --headless --frames 600 --input "10:START,30-90:RIGHT" --screenshot out.png --wav out.wav game-dir
+//   meloni-run --headless --frames 600 --input ... --profile 60 game-dir    Lua profile from frame 60 on
 //
 // Headless mode exits with status 1 when the game raised a Lua error, which makes it usable
 // as a smoke test in CI and for checking a change without the device.
@@ -225,6 +226,7 @@ static int run_headless(const char *game, const char *save, int frames, const ch
             fwrite(audio, 4, count, wav_fp);
         total += count;
     }
+    mel_profile_report();
     if (screenshot && !shot_count)
         save_screenshot(screenshot);
     if (shot_count > 1)
@@ -417,6 +419,8 @@ static void usage(void)
             "  --cover FILE        headless: write the last frame at half size (160x120) for the launcher\n"
             "  --seed N            rnd() gives the same numbers on every run (N > 0)\n"
             "  --wav FILE          headless: write the sound output as WAV\n"
+            "  --profile N         headless: from frame N on count Lua instructions per frame and per function\n"
+            "                      and calls of C functions, report at the end (stand-in for time on the device)\n"
             "  --save FILE         file for savedata()/loaddata() (default: temporary headless, ./<game>.sav in a window)\n"
             "  --scale N           window scale (default 3)\n");
     exit(2);
@@ -451,6 +455,8 @@ int main(int argc, char **argv)
             parse_input(argv[++i]);
         else if (strcmp(a, "--screenshot") == 0 && has_value)
             screenshot = argv[++i];
+        else if (strcmp(a, "--profile") == 0 && has_value)
+            mel_set_profile(atoi(argv[++i]));
         else if (strcmp(a, "--wav") == 0 && has_value)
             wav = argv[++i];
         else if (strcmp(a, "--save") == 0 && has_value)

@@ -32,6 +32,7 @@ static struct
     uint32_t buttons, prev_buttons;
     uint16_t held[8];
     uint32_t frame;
+    bool started; // the first mel_update has run
 } eng;
 
 static void set_error(const char *msg);
@@ -396,6 +397,7 @@ bool mel_init(const char *game_path, const char *save_path)
         return false;
     }
     lua_atpanic(L, l_panic);
+    mel_profile_start(L);
 
     static const luaL_Reg libs[] = {
         {LUA_GNAME, luaopen_base},        {LUA_COLIBNAME, luaopen_coroutine}, {LUA_TABLIBNAME, luaopen_table},
@@ -449,21 +451,50 @@ bool mel_init(const char *game_path, const char *save_path)
     return ok && call_global("_init");
 }
 
-bool mel_frame(uint32_t buttons)
+bool mel_update(uint32_t buttons)
 {
     if (eng.failed || !eng.L)
         return false;
+
+    // The frame counter moves on here, not after _draw: _draw sees the same frame() as the _update
+    // before it, also when the platform skips drawing
+    if (eng.started)
+    {
+        eng.frame++;
+        if ((eng.frame & 63) == 0)
+            lua_gc(eng.L, LUA_GCSTEP, 0);
+    }
+    eng.started = true;
 
     eng.prev_buttons = eng.buttons;
     eng.buttons = buttons & 0xFF;
     for (int i = 0; i < 8; i++)
         eng.held[i] = (eng.buttons & (1u << i)) ? (eng.held[i] < 60000 ? eng.held[i] + 1 : eng.held[i]) : 0;
 
-    bool ok = call_global("__tick") && call_global("_update") && call_global("_draw");
-    eng.frame++;
-    if (ok && (eng.frame & 63) == 0)
-        lua_gc(eng.L, LUA_GCSTEP, 0);
+    mel_profile_phase(1);
+    bool ok = call_global("__tick") && call_global("_update");
+    mel_profile_phase(0);
     return ok;
+}
+
+bool mel_draw(void)
+{
+    if (eng.failed || !eng.L)
+        return false;
+    mel_profile_phase(2);
+    bool ok = call_global("_draw");
+    mel_profile_phase(0);
+    return ok;
+}
+
+bool mel_frame(uint32_t buttons)
+{
+    return mel_update(buttons) && mel_draw();
+}
+
+size_t mel_mem_used(void)
+{
+    return eng.L ? (size_t)lua_gc(eng.L, LUA_GCCOUNT, 0) * 1024 + lua_gc(eng.L, LUA_GCCOUNTB, 0) : 0;
 }
 
 void mel_quit(void)

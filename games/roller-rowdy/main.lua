@@ -729,23 +729,17 @@ local function draw_hud()
   local y = 44
   for i = #popups, 1, -1 do
     local p = popups[i]
-    p.t = p.t - 1
-    if p.t <= 0 then
-      table.remove(popups, i)
-    else
-      local s = p.scale
-      if textw(p.text, s) > W - 8 then s = 1 end
-      center(p.text, y, p.c, s)
-      y = y + 10 * s + 4
-    end
+    local s = p.scale
+    if textw(p.text, s) > W - 8 then s = 1 end
+    center(p.text, y, p.c, s)
+    y = y + 10 * s + 4
   end
 end
 
 local function draw_sparks()
   for i = #sparks, 1, -1 do
     local s = sparks[i]
-    s.x, s.y, s.vy, s.t = s.x + s.vx, s.y + s.vy, s.vy + 0.3, s.t - 1
-    if s.t <= 0 then table.remove(sparks, i) else rectfill(s.x, s.y, s.x + 1, s.y + 1, s.c) end
+    rectfill(s.x, s.y, s.x + 1, s.y + 1, s.c)
   end
 end
 
@@ -831,7 +825,22 @@ function _init()
   to_title()
 end
 
-function _update()
+-- Meldungen und Funken laufen hier weiter, nicht in _draw: Die Konsole lässt _draw aus, wenn sie nicht
+-- hinterherkommt. Wie vorher nur, solange das Rennen zu sehen ist (nicht im Titel und beim Erwischtwerden).
+local function update_effects()
+  for i = #popups, 1, -1 do
+    local p = popups[i]
+    p.t = p.t - 1
+    if p.t <= 0 then table.remove(popups, i) end
+  end
+  for i = #sparks, 1, -1 do
+    local s = sparks[i]
+    s.x, s.y, s.vy, s.t = s.x + s.vx, s.y + s.vy, s.vy + 0.3, s.t - 1
+    if s.t <= 0 then table.remove(sparks, i) end
+  end
+end
+
+local function update_state()
   t = t + 1
   prev_btn, cur_btn = cur_btn, btn()
   if state == "title" then
@@ -859,6 +868,11 @@ function _update()
       elseif btnp(BTN_B) then to_title() end
     end
   end
+end
+
+function _update()
+  update_state()
+  if state ~= "title" and state ~= "caught" then update_effects() end
 end
 
 function _draw()

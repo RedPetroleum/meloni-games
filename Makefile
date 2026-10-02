@@ -6,6 +6,8 @@
 #   make shot GAME=snake INPUT="5:START,60-90:RIGHT" FRAMES=120   one screenshot, prints the path
 #   make shot GAME=snake INPUT=... SHOTS=60,120,180                 one screenshot after each of these frames
 #   make cover GAME=snake INPUT=... FRAMES=120                      games/snake/cover.png for the launcher
+#   make profile GAME=hoofy INPUT=... FRAMES=600 [FROM=60] [SCENARIO=welt]   Lua profile: instructions per frame
+#                            in _update/_draw, busiest functions, C calls (stand-in for the time on the device)
 #   make sprites             games/*/sprites.txt -> sprites.png + sprites.lua (test, run, shot, dist do it too)
 #   make run GAME=hoofy SCENARIO=reise   Hoofy direkt in einem Szenario aus game/scenarios.lua starten
 #   make katalog             games/hoofy/KATALOG.md -> games/hoofy/data/*.lua (test, run, shot, dist do it too)
@@ -23,8 +25,10 @@ INPUT ?= 5:START,20:A,40-80:RIGHT,90-130:DOWN,140-180:LEFT,190-230:UP,240:A,300:
 SEED ?= 1
 SHOTS ?=
 EXTRA ?=
+# make profile: count from this frame on (skips loading and title screens)
+FROM ?= 60
 
-.PHONY: runner pferde sprites katalog run test shot cover new dist web clean
+.PHONY: runner pferde sprites katalog run test shot cover profile new dist web clean
 
 runner:
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
@@ -63,6 +67,13 @@ shot: runner sprites katalog
 cover: runner sprites katalog
 	@test -n "$(GAME)" || { echo "usage: make cover GAME=<name> [INPUT=...] [FRAMES=...]"; exit 1; }
 	@$(RUNNER) --headless --seed $(SEED) --frames $(FRAMES) --input "$(INPUT)" --cover games/$(GAME)/cover.png games/$(GAME)
+
+profile: runner sprites katalog
+	@test -n "$(GAME)" || { echo "usage: make profile GAME=<name> [INPUT=...] [FRAMES=...] [FROM=...] [SCENARIO=...]"; exit 1; }
+	@mkdir -p build
+	@save=; if [ -n "$(SCENARIO)" ]; then \
+	  save=build/$(GAME)-$(SCENARIO)-profile.sav; echo 'return {scenario = "$(SCENARIO)"}' > $$save; fi; \
+	$(RUNNER) --headless --seed $(SEED) --frames $(FRAMES) --input "$(INPUT)" --profile $(FROM) $${save:+--save $$save} games/$(GAME)
 
 new:
 	@test -n "$(GAME)" || { echo "usage: make new GAME=<name> (lowercase, no spaces)"; exit 1; }

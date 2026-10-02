@@ -47,6 +47,24 @@ void mel_set_seed(uint32_t seed);
 // Runs one frame (_update then _draw). Returns false while the game is in the error state.
 bool mel_frame(uint32_t buttons);
 
+// The two halves of mel_frame, for platforms that skip drawing when they fall behind (the device):
+// mel_update runs _update 60 times per second, mel_draw draws the current state into the framebuffer.
+bool mel_update(uint32_t buttons);
+bool mel_draw(void);
+
+// Draws text (ASCII, lines separated by \n) on a dark box at the bottom left of the framebuffer,
+// over the game's picture: the platform's frame statistics.
+void mel_draw_overlay(const char *text);
+
+// Bytes in use by the game's Lua state.
+size_t mel_mem_used(void);
+
+// Desktop runner only: profiles the Lua code from frame `from` on (0 = off, applied by the next
+// mel_init). Counts VM instructions per frame in _update and _draw, in which functions they are
+// spent and how often C functions (sspr, print …) are called. mel_profile_report() logs the result.
+void mel_set_profile(int from);
+void mel_profile_report(void);
+
 // Calls the game's optional _quit() (so it can save) before the platform exits.
 void mel_quit(void);
 
@@ -78,6 +96,8 @@ void mel_gfx_open(lua_State *L);
 void mel_gfx_print(const char *text, int x, int y, uint16_t color, int scale);
 void mel_audio_reset(void);
 void mel_audio_open(lua_State *L);
+void mel_profile_start(lua_State *L);
+void mel_profile_phase(int phase); // 0 = outside the game's code, 1 = __tick and _update, 2 = _draw
 
 // Reads a file of the running game (archive or directory). Returns a malloc'd buffer with a
 // trailing NUL (not counted in *size), or NULL.

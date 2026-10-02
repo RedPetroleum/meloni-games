@@ -28,9 +28,16 @@ Auf dem Gerät wird der Ordner zu einer Datei `<id>.mlg` gepackt (`roms/meloni/<
 ```lua
 function _init()   end  -- einmal beim Start
 function _update() end  -- 60× pro Sekunde: Logik, Eingabe
-function _draw()   end  -- nach jedem _update: zeichnen
+function _draw()   end  -- nach _update: zeichnen (auf dem Gerät nicht nach jedem, siehe unten)
 function _quit()   end  -- optional: vor dem Beenden über das Menü, z. B. zum Speichern
 ```
+
+Auf der Konsole läuft `_update` immer 60-mal pro Sekunde, `_draw` aber nur, wenn das Display das letzte
+Bild schon übernommen hat und die Konsole nicht hinterherhinkt (Frameskip, im Menü abschaltbar). Ändert
+sich der ganze Bildschirm (Scrollen), schafft das Display etwa 30 Bilder pro Sekunde, dann wird etwa jedes
+zweite `_update` nicht gezeichnet. Darum gehört alles, was mit der Zeit weiterläuft (Timer, Bewegung,
+Partikel, Meldungen, die ablaufen), in `_update`; `_draw` zeichnet nur den Zustand. Im Runner und im
+Browser folgt auf jedes `_update` ein `_draw`.
 
 Der Bildschirm bleibt zwischen Frames erhalten, `_draw` beginnt üblicherweise mit `cls()`.
 Ein Lua-Fehler zeigt einen Fehlerbildschirm mit Traceback, das Spiel läuft dann nicht weiter.
@@ -161,3 +168,7 @@ Lua-Code ist deutlich langsamer als auf dem PC. Faustregeln:
 - Bilder und Sounds einmal laden, nicht in `_update`/`_draw`.
 - Tabellen in heißen Schleifen wiederverwenden statt jedes Frame neu anzulegen.
 - Das Display überträgt nur geänderte Zeilen. Ruhige Hintergründe halten die Bildrate hoch.
+- Messen statt raten: `make profile GAME=<id> INPUT=… [SCENARIO=…]` zählt am PC die Lua-Befehle pro Frame
+  in `_update` und `_draw`, die Funktionen, in denen sie anfallen, und die Aufrufe von C-Funktionen
+  (`sspr`, `print` …). Lua-Befehle und Aufrufe sind auf dem Gerät das Teure. Auf der Konsole zeigt
+  „Show stats“ im Menü (SELECT+START) Spieltempo, Bilder pro Sekunde und Millisekunden für Update und Zeichnen.

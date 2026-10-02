@@ -44,7 +44,9 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
    Für Ton: `runner/build/meloni-run --headless --frames 300 --wav out.wav games/<id>`
 2. Das Menü der Konsole liegt auf SELECT+START und SELECT+A, diese Kombinationen nicht im Spiel belegen.
 3. Das Gerät ist viel langsamer als der PC: keine Lua-Schleifen über alle Pixel pro Frame,
-   Bilder und Sounds nur in `_init` laden (siehe „Performance“ in docs/API.md).
+   Bilder und Sounds nur in `_init` laden (siehe „Performance“ in docs/API.md). Wo die Zeit hingeht,
+   zeigt `make profile GAME=<id> INPUT=…` (Lua-Befehle pro Frame und Funktion). Auf dem Gerät wird
+   `_draw` ausgelassen, wenn es nicht hinterherkommt: Spiellogik und Timer gehören in `_update`.
 4. Bei neuen Spielen `meta.json` ausfüllen (`name`, `version`, `api: 1`, `description`) und
    die `version` erhöhen, wenn sich ein Spiel merklich ändert.
 5. Die Readme-Tabelle in `README.md` pflegen.
