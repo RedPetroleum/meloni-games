@@ -10,7 +10,6 @@ Menu.__index = Menu
 
 Menu.TILE_W, Menu.TILE_H, Menu.GAP = 58, 50, 3
 Menu.ICON = 24                  -- Bildfläche in der Kachel
-Menu.ASIDE = rgb(0xa8, 0x84, 0x60)   -- helles Braun für opts.aside
 
 -- items: Liste {label, id, dim = true (ausgegraut, nicht wählbar), icon = Sprite, short = Kurzname, badge = Text}.
 -- title optional. opts.cols: Spalten im Raster (Standard: bis 5). opts.names = false: im Raster nur Bilder,
@@ -129,7 +128,7 @@ local function draw_grid(self, x, y)
   local ty = y + 6
   if self.title then
     print(self.title, x + 8, ty, C.gold)
-    if self.aside then print(self.aside, x + w - 8 - textw(self.aside), ty, Menu.ASIDE) end
+    if self.aside then print(self.aside, x + w - 8 - textw(self.aside), ty, C.panel_light) end   -- wie der Kachelrand
     ty = ty + 13
   end
   local TW, TH, G = Menu.TILE_W, Menu.TILE_H, Menu.GAP
