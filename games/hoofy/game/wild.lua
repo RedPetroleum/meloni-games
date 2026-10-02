@@ -16,16 +16,13 @@ local U = require("lib.util")
 local Wild = {}
 Wild.Horse = nil
 
--- Zähmen (E16): In der Zone (ZONE Pixel um das Pferd) schaut es 2–4 s weg (kürzer bei niedriger
--- Bindung), warnt 0,3 s (❗), schaut 1–2 s her. Bewegt sich der Spieler, während es hinschaut,
--- flieht es. Schwerer gemacht (Rückmeldung 1.2.1): Wer in der Zone sprintet, verscheucht es; A muss man
--- nah genug (TAME_DIST) drücken, während es wegschaut, und dann stillstehend halten (Wild.tame_frames).
--- Es hört auch (Rückmeldung 1.3.4): Gehen in der Zone füllt einen verborgenen Lärmpegel (nah schneller),
--- Stehen leert ihn. Ab NOISE_ON zeigt es ❗, bis er unter NOISE_OFF fällt; ist er voll, flieht es.
+-- Zähmen: In der Zone (ZONE Pixel um das Pferd) bleibt es grasend stehen und hört (Rückmeldung 1.3.4,
+-- das Weg-/Hinschauen aus E16 ist gestrichen): Gehen in der Zone füllt einen verborgenen Lärmpegel (nah
+-- schneller), Stehen leert ihn. Ab NOISE_ON zeigt es ❗, bis er unter NOISE_OFF fällt; ist er voll, flieht es.
+-- Wer in der Zone sprintet, verscheucht es sofort (Rückmeldung 1.2.1). A nah genug (TAME_DIST) drücken und
+-- stillstehend halten (Wild.tame_frames).
 local ZONE = 110
 local TAME_DIST = 26
-local WARN = 18          -- 0,3 s
-local LEAVE = 140        -- so weit weg beruhigt sich das Pferd wieder
 local CALM_DIST = 110    -- nach der Flucht erst ab hier wieder grasen
 local FAR = 420          -- weiter weg: nur alle FAR_EVERY Frames bewegen
 local FAR_EVERY = 30
@@ -207,7 +204,6 @@ function Horse:update()
     return
   end
   self.timer = self.timer - 1
-  self.cool = max(0, (self.cool or 0) - 1)
   -- Sprinten (oder Galopp) in der Zone ist zu laut: es flieht sofort
   if d < ZONE and p.running and p.moving and self.state ~= "flee" then
     self:flee(p)
@@ -217,24 +213,10 @@ function Horse:update()
     self:flee(p)
     return
   end
-  local watching = self.state == "away" or self.state == "warn" or self.state == "look"
-  if not watching and self.state ~= "flee" and d < ZONE and self.cool == 0 then
-    local bond = self.data.bindung
-    local frames = (120 + rnd() * 120) * (0.5 + bond / 200)
-    set_state(self, "away", flr(frames))
-    watching = true
-  end
-  if watching then
-    if d > LEAVE then
-      set_state(self, "graze", 60)
-    elseif self.state == "away" then
-      if self.timer <= 0 then set_state(self, "warn", WARN); self:face(p); SFX.warn() end
-    elseif self.state == "warn" then
-      if self.timer <= 0 then set_state(self, "look", 60 + flr(rnd() * 60)) end
-    elseif self.state == "look" then
-      self:face(p)
-      if p.moving then self:flee(p) elseif self.timer <= 0 then set_state(self, "away", flr((120 + rnd() * 120) * (0.5 + self.data.bindung / 200))) end
-    end
+  if self.state ~= "flee" and d < ZONE then
+    -- in der Nähe: steht grasend und lauscht, läuft nicht weiter
+    if self.state ~= "graze" then set_state(self, "graze", 60) end
+    self.timer = max(self.timer, 1)
     return
   end
   if self.state == "flee" then
@@ -248,7 +230,7 @@ function Horse:update()
       moved = self:step(self.vx, 0) or self:step(0, self.vy)
     end
     self.anim = self.anim + 0.25
-    if not moved or (self.timer <= 0 and d > CALM_DIST) then set_state(self, "idle", 40); self.cool = 240 end
+    if not moved or (self.timer <= 0 and d > CALM_DIST) then set_state(self, "idle", 40) end
     if self.timer <= 0 and d <= CALM_DIST then self.timer = 30 end
   elseif self.state == "walk" then
     local ok = self:step(self.vx, self.vy)
@@ -343,8 +325,6 @@ function Horse:pose()
     end
     return "side"
   end
-  if self.state == "away" then return "graze" end
-  if self.state == "warn" or self.state == "look" then return "side" end
   if self.state == "flee" then return (flr(self.anim * 2) % 2 == 0) and "gallop1" or "gallop2" end
   if self.state == "walk" then return (flr(self.anim * 3) % 2 == 0) and "side" or "side_walk" end
   if self.state == "graze" then return "graze" end
@@ -418,7 +398,7 @@ function Horse:draw_over()
     return
   end
   self:draw_bar(self.x, self.y - 46)                      -- über der Sprechblase
-  local b = (self.state == "warn" or self.alarm) and "emo_bang" or Bubbles.choose(self, frame())
+  local b = self.alarm and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
 
@@ -452,13 +432,8 @@ function Wild:tame_target()
   end
 end
 
--- A gedrückt bei h: Schaut es gerade her (❗ oder hinschauen), sieht es die Hand und flieht (false).
--- Sonst beginnt das Zähmen (true); weiter mit tame_step, solange A gehalten wird.
+-- A gedrückt bei h: das Zähmen beginnt (true); weiter mit tame_step, solange A gehalten wird.
 function Wild:tame_begin(h)
-  if h.state == "warn" or h.state == "look" then
-    h:flee(self.ctx.player)
-    return false
-  end
   h.taming, h.tame_need = 0, Wild.tame_frames(h.data.bindung)
   return true
 end

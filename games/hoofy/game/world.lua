@@ -554,8 +554,7 @@ function WorldScene.update()
     a_hold, a_free = 0, false
     local h = wild:tame_target()
     if h then
-      if wild:tame_begin(h) then taming = h
-      else say("Es hat dich gesehen! Erst A drücken, wenn es wegschaut.", 150) end
+      if wild:tame_begin(h) then taming = h end
     else
       local own = wild:nearest_own()
       local ripe = Farm.ripe_near(ctx)

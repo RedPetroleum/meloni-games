@@ -15,18 +15,8 @@ local function setup(bindung)
   return ctx, w, h
 end
 
--- Läuft Frames, bis das Pferd in Zustand state ist (höchstens max). Gibt die Frames zurück.
-local function until_state(ctx, h, state, max_frames)
-  for n = 1, max_frames do
-    ctx.world:update()
-    if h.state == state then return n end
-  end
-  error("Zustand " .. state .. " nicht erreicht, steht bei " .. h.state)
-end
-
--- Zähmt h wie im Spiel: Spieler 20 px daneben, A drücken, während es wegschaut, dann halten.
+-- Zähmt h wie im Spiel: Spieler 20 px daneben, A drücken und still halten.
 local function tame(ctx, w, h)
-  until_state(ctx, h, "away", 600)
   ctx.player.x, ctx.player.y = h.x - 20, h.y
   ctx.player.moving = false
   C.ok(w:tame_target() == h, "in Reichweite")
@@ -41,41 +31,6 @@ local function tame(ctx, w, h)
 end
 
 return {
-  {"Wegschauen 2–4 s bei voller Bindung, bei niedriger kürzer", function()
-    local function avg(bond)
-      local sum, n = 0, 40
-      for _ = 1, n do
-        local ctx, w, h = setup(bond)
-        h.data.bindung = bond
-        ctx.world:update()                 -- betritt die Zone: away
-        C.eq(h.state, "away")
-        sum = sum + h.timer
-      end
-      return sum / n / 60
-    end
-    local full, low = avg(100), avg(10)
-    C.between(full, 2, 4, "Bindung 100")
-    C.ok(low < full * 0.7, "niedrige Bindung schaut kürzer weg")
-    log(string.format("ZAEHMEN Wegschauen: Bindung 100 %.2f s, Bindung 10 %.2f s", full, low))
-  end},
-  {"Ablauf away → warn (0,3 s) → look (1–2 s) → away", function()
-    local ctx, w, h = setup(100)
-    until_state(ctx, h, "away", 5)
-    until_state(ctx, h, "warn", 400)
-    local warn = until_state(ctx, h, "look", 100)
-    C.eq(warn, 18, "Warnung 0,3 s")
-    local look = until_state(ctx, h, "away", 200)
-    C.between(look, 60, 120, "Hinschauen 1–2 s")
-  end},
-  {"Bewegung beim Hinschauen: Pferd flieht und ist nicht zähmbar", function()
-    local ctx, w, h = setup(35)
-    until_state(ctx, h, "look", 600)
-    ctx.player.moving = true
-    h:update()                        -- (world:update würde moving zurücksetzen)
-    C.eq(h.state, "flee")
-    ctx.player.x, ctx.player.y = h.x - 10, h.y
-    C.eq(w:tame_target(), nil, "auf der Flucht")
-  end},
   {"A halten und stillstehen zähmt nach 1,5 s + 1 Frame je fehlendem Bindungspunkt, zu weit weg nicht", function()
     local ctx, w, h = setup(35)
     C.eq(w:tame_target(), nil, "60 px entfernt")
@@ -103,28 +58,24 @@ return {
     C.near(Leash.chance10(35, "sprinten", nil, true), Leash.chance10(35, "sprinten") * 3, 0.0001)
     C.near(Leash.chance10(35, "reiten", nil, true), Leash.chance10(35, "reiten") * 3, 0.0001)
   end},
-  {"Schwerer zähmen: A beim Hinschauen verscheucht es, Sprinten in der Zone auch; Loslassen oder Gehen bricht ab", function()
+  {"Kein Wegschauen mehr: in der Nähe steht es grasend, A geht jederzeit; Sprinten verscheucht, Loslassen oder Gehen bricht ab", function()
     local ctx, w, h = setup(35)
-    until_state(ctx, h, "look", 600)
     ctx.player.x, ctx.player.y = h.x - 20, h.y
-    C.ok(not w:tame_begin(h), "sieht die Hand")
-    C.eq(h.state, "flee")
-    ctx, w, h = setup(35)
-    ctx.world:update()
-    C.eq(h.state, "away")
-    ctx.player.running, ctx.player.moving = true, true
-    h:update()
-    C.eq(h.state, "flee", "Sprinten verscheucht")
-    ctx, w, h = setup(35)
-    until_state(ctx, h, "away", 5)
-    ctx.player.x, ctx.player.y = h.x - 20, h.y
-    C.ok(w:tame_begin(h))
+    for _ = 1, 600 do ctx.world:update() end
+    C.eq(h.state, "graze", "steht 10 s still da")
+    C.ok(w:tame_begin(h), "A beginnt sofort")
     C.eq(w:tame_step(h, true), nil)
     C.eq(w:tame_step(h, false), "weg", "losgelassen")
     C.ok(w:tame_begin(h))
     ctx.player.moving = true
     C.eq(w:tame_step(h, true), "weg", "bewegt")
     C.eq(#ctx.herd, 0)
+    ctx, w, h = setup(35)
+    ctx.player.running, ctx.player.moving = true, true
+    h:update()
+    C.eq(h.state, "flee", "Sprinten verscheucht")
+    ctx.player.x, ctx.player.y = h.x - 10, h.y
+    C.eq(w:tame_target(), nil, "auf der Flucht nicht zähmbar")
   end},
   {"Neu gezähmt reißt sich los: wieder wild, bis es einmal auf dem Grundstück war", function()
     local ctx, w, h = setup(35)
@@ -154,9 +105,9 @@ return {
   {"Es hört: Durchgehen verscheucht es (vorher ❗), kurz gehen und stehen nicht; ❗ mit Hysterese", function()
     local ctx, w, h = setup(100)
     local p = ctx.player
-    -- Pferd schaut die ganze Zeit weg, nur das Hören zählt; Spieler steht 20 px daneben
+    -- Spieler steht 20 px daneben, nur das Hören zählt
     local function step(moving)
-      h.state, h.timer = "away", 1000
+      h.state, h.timer = "graze", 1000
       p.x, p.y, p.moving, p.running = h.x - 20, h.y, moving, false
       h:update()
     end
@@ -175,7 +126,7 @@ return {
       for _ = 1, 15 do step(true) end
       for _ = 1, 30 do step(false) end
     end
-    C.eq(h.state, "away", "kurz gehen, stehen")
+    C.eq(h.state, "graze", "kurz gehen, stehen")
     C.ok(not h.alarm, "kein ❗")
     repeat step(true) until h.alarm
     for _ = 1, 5 do step(false) end
