@@ -16,6 +16,8 @@ local Buyers = require("game.buyers")
 local Orders = require("game.orders")
 local Jobs = require("game.jobs")
 local Farm = require("game.farm")
+local Care = require("game.care")
+local S = require("sprites")
 
 local Screens = {}
 
@@ -618,11 +620,81 @@ end
 
 -- ---- Turnierplatz (E1): Klasse → Wettbewerb → Pferd (mit Chancen) → Ergebnis ----
 
+-- Eigene Farben des Turnierplatzes: Grüntöne mit Gelb (Rückmeldung 1.3.5), Aufbau wie Garage und Pferde-Info
+local TURNIER = {
+  bg = rgb(0x16, 0x2b, 0x1a),      -- Grund
+  dark = rgb(0x0e, 0x1e, 0x12),    -- Fuß, Bildrahmen
+  about = rgb(0x22, 0x40, 0x28),   -- oberer Kasten
+  edge = rgb(0x30, 0x58, 0x37),
+  list = rgb(0x1b, 0x35, 0x21),    -- Kasten Liste
+  sel = rgb(0x35, 0x66, 0x3d),     -- gewählte Zeile
+  head = rgb(0xa6, 0xe0, 0x8a),    -- Überschriften (Hellgrün)
+  dim = rgb(0x8f, 0xb0, 0x92),     -- Nebentext, nicht wählbar
+  yellow = rgb(0xf6, 0xdc, 0x4a),  -- Gewähltes, Geld, Preise
+  grass = rgb(0x7f, 0xb0, 0x4f),
+}
+local RESULT_WAIT = 45             -- Ergebnis: so lange (und bis A losgelassen ist) nimmt es keine Taste an
+
+local function tbox(x0, y0, x1, y1, c)
+  rectfill(x0, y0, x1, y1, c)
+  pset(x0, y0, TURNIER.bg) pset(x1, y0, TURNIER.bg) pset(x0, y1, TURNIER.bg) pset(x1, y1, TURNIER.bg)
+end
+
+local function wb_name(id)
+  for _, w in ipairs(K.turniere.wettbewerbe) do if w.id == id then return (w.name:gsub(" %(Minispiel%)", "")) end end
+  return id
+end
+
+local function rprint(text, xr, y, c) print(text, xr - textw(text), y, c) end
+
+-- Siegerpodest mit Pferden (doppelt groß) in y0–y1: Platz 2 links, 1 Mitte, 3 rechts. Das eigene Pferd steht auf
+-- seinem Platz (mit Namen darüber), die übrigen Plätze bekommen Gegnerpferde.
+local PODEST = {{x = 160, top = 132}, {x = 88, top = 142}, {x = 232, top = 148}}   -- Mitte der Stufe, Oberkante
+local function podest(ctx, r)
+  local Turniere = require("game.turniere")
+  local y0, y1 = 40, 168
+  rectfill(4, y0, SCREEN_W - 5, y1, rgb(0x9c, 0xc8, 0xe0))           -- Himmel
+  rectfill(4, 154, SCREEN_W - 5, y1, TURNIER.grass)                   -- Rasen
+  -- die stärksten Gegner stehen oben (dieselben Pferde wie auf der Rennbahn)
+  local looks, g = Turniere.gegner_pferde(ctx, r.kidx, r.wb, r.runde), Turniere.gegner(ctx, r.kidx, r.wb, r.runde)
+  local order = {}
+  for i = 1, #looks do order[i] = i end
+  table.sort(order, function(x, y) return g[x] > g[y] end)
+  local fremde, n = {}, 0
+  for i, k in ipairs(order) do fremde[i] = looks[k] end
+  if r.lauf then                                    -- Minispiel: echter Einlauf ohne das eigene Pferd
+    fremde = {}
+    for _, e in ipairs(r.lauf) do if not e.own and e.look then fremde[#fremde + 1] = e.look end end
+  end
+  local cols = {{0xf6, 0xdc, 0x4a}, {0xc8, 0xcc, 0xd2}, {0xd0, 0x8a, 0x4a}}       -- Gold, Silber, Bronze
+  for platz = 1, 3 do
+    local p = PODEST[platz]
+    rectfill(p.x - 34, p.top, p.x + 33, 160, col(cols[platz]))
+    line(p.x - 34, p.top, p.x + 33, p.top, C.text)
+    local num = tostring(platz)
+    print(num, p.x - textw(num) // 2, p.top + 3, mix(cols[platz], {0, 0, 0}, 0.35))   -- wie dunkel durchscheinend
+    local own = platz == r.rank
+    local d = own and r.d
+    if not d then n = n + 1 d = fremde[n] end
+    local body = K.rasse(d.rasse).koerper
+    G.draw_scaled(d.farbe, body, "side", p.x, p.top, 2, platz == 3, own and d.schmuck or nil)
+    if own then
+      local _, h = G.size(d.farbe, body, "side")
+      local nm = d.name
+      rectfill(p.x - textw(nm) // 2 - 3, p.top - h * 2 - 13, p.x + (textw(nm) + 1) // 2 + 2, p.top - h * 2 - 3, TURNIER.dark)
+      print(nm, p.x - textw(nm) // 2, p.top - h * 2 - 11, TURNIER.yellow)
+    end
+  end
+end
+
 function Screens.turnier(ctx)
   local Turniere = require("game.turniere")
+  local U = require("lib.util")
   local stage, sel, sel_k, sel_w, result, msg, msg_t = "klasse", 1, nil, nil, nil, nil, 0
+  local wait, armed, lock = 0, true, 0
+  local chancen = {}               -- Chancen je Pferd, solange Klasse und Wettbewerb gleich bleiben
   local day = ctx.clock.day
-  local s = {full = true}
+    local s = {full = true}
   local function lists()
     if stage == "klasse" then return Turniere.klassen(ctx) end
     if stage == "wb" then return K.turniere.wettbewerbe end
@@ -630,113 +702,335 @@ function Screens.turnier(ctx)
     for _, d in ipairs(ctx.herd) do if d.alter >= 1 then out[#out + 1] = d end end
     return out
   end
+  local function aussicht(d)                -- 0–3 Hufeisen (Rennen: aus der Bestzeit gegen die Gegner)
+    if not chancen[d] then
+      local M = sel_w == "pferderennen" and "game.rennen" or sel_w == "springreiten" and "game.springen" or "game.vorfuehrung"
+      chancen[d] = require(M).aussicht(d, sel_k)
+    end
+    return chancen[d]
+  end
+  local function offen(k)
+    local n, st = 0, Turniere.state(ctx, day)
+    for _, w in ipairs(K.turniere.wettbewerbe) do if not st.weg[k .. ":" .. w.id] then n = n + 1 end end
+    return n
+  end
+  local function rest_text()
+    local rest = (Turniere.runde(day) + 1) * K.turniere.rotation_tage + 1 - day
+    return rest == 1 and "Neue Wettbewerbe morgen" or ("Neue Wettbewerbe in " .. rest .. " Tagen")
+  end
   function s.update(nav)
     local list = lists()
+    if msg_t > 0 then msg_t = msg_t - 1 end
     if stage == "ergebnis" then
-      if btnp(BTN_A) or btnp(BTN_B) then stage, sel, result = "klasse", 1, nil end
+      -- Erst nach der Sperrzeit und nach dem Loslassen: A vom Rennen/Springen schaltet sonst gleich weiter
+      if wait > 0 then wait = wait - 1 end
+      if not armed then armed = wait == 0 and not btn(BTN_A) and not btn(BTN_B) return end
+      if btnp(BTN_A) or btnp(BTN_B) then
+        SFX.ok() stage, sel, result = "klasse", 1, nil
+        lock, armed = 30, false            -- danach wieder erst nach Pause und Loslassen (kein neuer Start per Dauerdrücken)
+      end
+      return
+    end
+    if lock > 0 or not armed then
+      if lock > 0 then lock = lock - 1 end
+      armed = lock == 0 and not btn(BTN_A) and not btn(BTN_B)
       return
     end
     if btnp(BTN_UP) and #list > 0 then sel = (sel - 2) % #list + 1; SFX.select() end
     if btnp(BTN_DOWN) and #list > 0 then sel = sel % #list + 1; SFX.select() end
     if btnp(BTN_B) then
       SFX.back()
-      if stage == "klasse" then nav.pop() elseif stage == "wb" then stage, sel = "klasse", 1 else stage, sel = "wb", 1 end
+      if stage == "klasse" then nav.pop()
+      elseif stage == "wb" then
+        for i, c in ipairs(Turniere.klassen(ctx)) do if c.index == sel_k then sel = i end end
+        stage = "klasse"
+      else
+        for i, w in ipairs(K.turniere.wettbewerbe) do if w.id == sel_w then sel = i end end
+        stage = "wb"
+      end
     end
     if btnp(BTN_A) and list[sel] then
       if stage == "klasse" then sel_k, stage, sel = list[sel].index, "wb", 1 SFX.ok()
       elseif stage == "wb" then
         local st = Turniere.state(ctx, day)
-        if st.weg[sel_k .. ":" .. list[sel].id] then SFX.snort() msg, msg_t = "Dieser Wettbewerb ist bis zur nächsten Runde weg.", 150
-        else sel_w, stage, sel = list[sel].id, "pferd", 1 SFX.ok() end
+        if st.weg[sel_k .. ":" .. list[sel].id] then SFX.snort() msg, msg_t = "Schon gelaufen. " .. rest_text() .. ".", 150
+        else sel_w, stage, sel, chancen = list[sel].id, "pferd", 1, {} SFX.ok() end
       else
         local d = list[sel]
-        local function antreten(punkte, platz)
+        local function antreten(leistung, platz, lauf)  -- Leistung 0–1 aus dem Minispiel (Rennen: Platz, Zieleinlauf)
+          local punkte = Turniere.endwertung(d, sel_w, sel_k, leistung)
           local r, why = Turniere.teilnehmen(ctx, day, d, sel_k, sel_w, punkte, platz)
-          if r then result, stage = r, "ergebnis" if r.rank == 1 then SFX.tame() else SFX.ok() end
+          if r then
+            r.d, r.kidx, r.runde, r.lauf = d, sel_k, Turniere.state(ctx, day).runde, lauf
+            result, stage, wait, armed = r, "ergebnis", RESULT_WAIT, false
+            if r.rank == 1 then SFX.tame() else SFX.ok() end
           else SFX.snort() msg, msg_t = why == "Geld" and "Zu wenig Geld für die Startgebühr." or (why .. "."), 150 end
         end
-        if sel_w == "springreiten" then
-          if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
-          else nav.push(Screens.springreiten(ctx, d, antreten, sel_k)) end
+        if ctx.money < K.turniere.klassen[sel_k].gebuehr then
+          SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
+        elseif sel_w == "springreiten" then
+          nav.push(Screens.springreiten(ctx, d, antreten, sel_k, Turniere.gegner_pferde(ctx, sel_k, sel_w, Turniere.state(ctx, day).runde)))
         elseif sel_w == "pferderennen" then
-          if ctx.money < K.turniere.klassen[sel_k].gebuehr then SFX.snort() msg, msg_t = "Zu wenig Geld für die Startgebühr.", 150
-          else
-            local g = Turniere.gegner(ctx, sel_k, sel_w, Turniere.state(ctx, day).runde)
-            nav.push(Screens.rennen(ctx, d, g, antreten))
-          end
+          nav.push(Screens.rennen(ctx, d, {}, antreten, sel_k, Turniere.gegner_pferde(ctx, sel_k, sel_w, Turniere.state(ctx, day).runde)))
         else
-          antreten()
+          nav.push(Screens.vorfuehrung(ctx, d, antreten, sel_k, Turniere.gegner_pferde(ctx, sel_k, sel_w, Turniere.state(ctx, day).runde)))
         end
       end
     end
-    if msg_t > 0 then msg_t = msg_t - 1 end
   end
+
+  -- Untere Zeilen (Kasten y 194–224) zum gewählten Eintrag
+  local function detail()
+    local list = lists()
+    local e = list[sel]
+    local l1, l2
+    if stage == "klasse" and e then
+      local k = e.def
+      l1, l2 = {"Preise " .. k.preise[1] .. " / " .. k.preise[2] .. " / " .. k.preise[3] .. " G", TURNIER.yellow}, {rest_text(), TURNIER.dim}
+    elseif stage == "wb" and e then
+      local w = U.wrap(e.text, SCREEN_W - 24)
+      l1, l2 = {w[1], TURNIER.dim}, w[2] and {w[2], TURNIER.dim}
+    elseif stage == "pferd" and e then
+      local skill = sel_w == "schoenheitswettbewerb" and ("Auftritt " .. flr(Turniere.fach(e, sel_w)))
+        or sel_w == "springreiten" and ("Stärke " .. flr(Care.effective(e, "staerke")) .. "   Ausdauer " .. flr(Care.effective(e, "ausdauer")))
+        or ("Tempo " .. flr(Care.effective(e, "tempo")) .. "   Ausdauer " .. flr(Care.effective(e, "ausdauer")))
+      l1, l2 = {skill, C.text}, {"Bindung " .. flr(e.bindung), TURNIER.dim}
+    end
+    if msg and msg_t > 0 then l2 = {msg, C.red} end
+    tbox(3, 194, SCREEN_W - 4, 224, TURNIER.about)
+    if l1 then print(l1[1], 10, 198, l1[2]) end
+    if l2 then print(l2[1], 10, 210, l2[2]) end
+  end
+
   function s.draw()
-    cls(C.panel)
-    header("Turnierplatz   Runde " .. (Turniere.runde(day) + 1) .. ", neue alle " .. K.turniere.rotation_tage .. " Tage")
-    local money = ctx.money .. " G"
-    print(money, SCREEN_W - textw(money) - 6, 3, C.gold)
+    cls(TURNIER.bg)
+    S.draw("pokal", 6, 2)
+    font(1)
+    print("Turnierplatz", 26, 3, TURNIER.yellow)
+    font(0)
+    rprint(ctx.money .. " G", SCREEN_W - 6, 7, TURNIER.yellow)
+    local XR = SCREEN_W - 12           -- rechte Spalte, rechtsbündig
     if stage == "ergebnis" then
       local r = result
-      Stage.center("Platz " .. r.rank .. " von " .. (Turniere.GEGNER + 1), 60, r.rank == 1 and C.gold or C.text, 2)
-      Stage.center(r.klasse .. ": " .. K.turniere.wettbewerbe[1].name and (function() for _, w in ipairs(K.turniere.wettbewerbe) do if w.id == r.wb then return w.name end end end)(), 90, C.dim)
-      Stage.center("Wertung " .. flr(r.wertung), 104, C.dim)
-      Stage.center(r.preis > 0 and ("Preisgeld " .. r.preis .. " G (Gebühr " .. r.gebuehr .. " G)") or ("Kein Preis, Gebühr " .. r.gebuehr .. " G"), 124, r.preis > 0 and C.gold or C.red)
-      footer("A: weiter")
+      print(r.klasse .. " · " .. wb_name(r.wb), 6, 26, TURNIER.head)
+      podest(ctx, r)
+      Stage.center("Platz " .. r.rank .. " von " .. (Turniere.GEGNER + 1), 176, r.rank == 1 and TURNIER.yellow or C.text, 2)
+      local text = r.preis > 0 and ("Preisgeld " .. r.preis .. " G, nach Gebühr " .. (r.preis - r.gebuehr) .. " G")
+        or ("Kein Preisgeld, Startgebühr " .. r.gebuehr .. " G")
+      Stage.center(text, 202, r.preis > 0 and TURNIER.yellow or TURNIER.dim)
+      footer(armed and "A weiter" or "", TURNIER.dark, TURNIER.edge)
       return
     end
+    local where = stage == "klasse" and "Klasse wählen"
+      or stage == "wb" and (K.turniere.klassen[sel_k].name .. " · Wettbewerb wählen")
+      or (K.turniere.klassen[sel_k].name .. " · " .. wb_name(sel_w))
+    print(where, 6, 26, TURNIER.head)
+    tbox(3, 38, SCREEN_W - 4, 190, TURNIER.list)
     local list = lists()
-    local y = 24
-    if stage == "klasse" then print("Klasse wählen", 8, 16, C.dim) y = 30 end
-    for i, e in ipairs(list) do
-      if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 10, C.panel_light) end
+    local rh = stage == "pferd" and 20 or 13                       -- Zeilenhöhe (Pferde mit Bild)
+    local rows = (186 - 56) // rh + 1
+    if stage == "klasse" then rprint("Gebühr", XR - 70, 42, TURNIER.dim) rprint("offen", XR, 42, TURNIER.dim)
+    elseif stage == "wb" then rprint("Stand", XR, 42, TURNIER.dim)
+    else rprint("Aussicht", XR, 42, TURNIER.dim) end
+    local first = max(1, min(sel - rows // 2, #list - rows + 1))
+    local y = 56
+    for i = first, min(#list, first + rows - 1) do
+      local e, on = list[i], i == sel
+      local name_col = on and TURNIER.yellow or C.text
       if stage == "klasse" then
-        local k = e.def
-        print(k.name, 10, y, i == sel and C.gold or C.text)
-        print("Gebühr " .. k.gebuehr .. " G", 100, y, ctx.money >= k.gebuehr and C.text or C.dim)
-        print(k.preise[1] .. "/" .. k.preise[2] .. "/" .. k.preise[3], 200, y, C.gold)
+        if on then rectfill(6, y - 2, SCREEN_W - 7, y + 9, TURNIER.sel) end
+        local k, n = e.def, offen(e.index)
+        local ok = ctx.money >= k.gebuehr
+        print(k.name, 12, y, ok and name_col or TURNIER.dim)
+        rprint(k.gebuehr .. " G", XR - 70, y, ok and TURNIER.yellow or TURNIER.dim)
+        rprint(n .. "/" .. #K.turniere.wettbewerbe, XR, y, n > 0 and C.text or TURNIER.dim)
       elseif stage == "wb" then
+        if on then rectfill(6, y - 2, SCREEN_W - 7, y + 9, TURNIER.sel) end
         local weg = Turniere.state(ctx, day).weg[sel_k .. ":" .. e.id]
-        print(e.name, 10, y, weg and C.dim or (i == sel and C.gold or C.text))
-        print(weg and "weg" or "offen", 270, y, weg and C.dim or C.text)
+        print(wb_name(e.id), 12, y, weg and TURNIER.dim or name_col)
+        rprint(weg and "gelaufen" or "offen", XR, y, weg and TURNIER.dim or C.text)
       else
-        local win, top = Turniere.chancen(ctx, e, sel_k, sel_w, Turniere.state(ctx, day).runde)
-        print(e.name, 10, y, i == sel and C.gold or C.text)
-        print("Sieg " .. win .. " %", 130, y, C.text)
-        print("Podest " .. top .. " %", 210, y, C.text)
+        if on then rectfill(6, y - 3, SCREEN_W - 7, y + 15, TURNIER.sel) end
+        G.draw(e.farbe, K.rasse(e.rasse).koerper, "side", 28, y + 15, false, e.schmuck)
+        print(e.name, 50, y - 1, name_col)
+        print(K.rasse(e.rasse).name, 50, y + 8, TURNIER.dim)
+        local n = aussicht(e)
+        for k = 1, 3 do S.draw(k <= n and "ico_hufeisen_gold" or "ico_hufeisen_leer", XR - 38 + (k - 1) * 13, y + 2) end
       end
-      y = y + 13
-      if y > 190 then break end
+      y = y + rh
     end
-    if stage == "wb" then
-      local w = K.turniere.wettbewerbe[sel]
-      if w then for i, l in ipairs(require("lib.util").wrap(w.text, SCREEN_W - 20)) do print(l, 10, 192 + (i - 1) * 10, C.dim) end end
-    elseif stage == "pferd" then
-      print("Wertung = Stat × (0,5 + Bindung/200)", 10, 192, C.dim)
-      print("Podest = Platz 1 bis 3", 10, 202, C.dim)
-    end
-    if msg and msg_t > 0 then print(msg, 10, 214, C.red) end
-    footer((stage == "pferd" and "A: antreten" or "A: wählen") .. "   B: zurück")
+    if first > 1 then print("^", SCREEN_W // 2, 46, TURNIER.dim) end
+    if first + rows - 1 < #list then print("v", SCREEN_W // 2, 181, TURNIER.dim) end
+    if #list == 0 then print("Keine erwachsenen Pferde.", 12, 56, TURNIER.dim) end
+    detail()
+    footer((stage == "pferd" and "A antreten" or "A wählen") .. "   B zurück", TURNIER.dark, TURNIER.edge)
   end
   return s
 end
 
--- ---- Minispiel Springreiten (E2): A springt; am Ende A, dann done(punkte) ----
+-- Turnier-Zufall für die Gegner eines Minispiels (fest je Tag, Klasse und Wettbewerb).
+local function turnier_rng(ctx, klasse, n)
+  return require("lib.rng").new((ctx.seed or 1) * 7 + (ctx.clock and ctx.clock.day or 0) * 131 + (klasse or 0) * 17 + n)
+end
 
-function Screens.springreiten(ctx, d, done, klasse)
+-- Zieleinlauf fürs Podest: eigenes Pferd ({own = true}) und Gegner ({look}) nach better(a, b) sortiert.
+local function einlauf(own, gegner, looks, better)
+  own.own = true
+  local lauf = {own}
+  for _, g in ipairs(gegner) do g.look = looks and looks[g.nr] lauf[#lauf + 1] = g end
+  table.sort(lauf, better)
+  return lauf
+end
+
+-- Endtafel der Minispiele: A zählt erst nach RESULT_WAIT Frames und nachdem A einmal losgelassen war
+-- (Rückmeldung 1.3.5: gehämmertes oder gehaltenes A schaltete sonst sofort weiter).
+local function end_gate()
+  local g = {wait = RESULT_WAIT, armed = false}
+  function g.ready()
+    if g.wait > 0 then g.wait = g.wait - 1 end
+    if not g.armed then g.armed = g.wait == 0 and not btn(BTN_A) return false end
+    return btnp(BTN_A)
+  end
+  return g
+end
+
+-- ---- Minispiel Vorführung (Schönheitswettbewerb): Kommandos im Ring treffen; am Ende A, dann done(punkte) ----
+
+local VF_KEYS = {UP = BTN_UP, DOWN = BTN_DOWN, LEFT = BTN_LEFT, RIGHT = BTN_RIGHT, A = BTN_A}
+local VF_POSE = {UP = "up", DOWN = "down", LEFT = "side_walk", RIGHT = "side_walk", A = "graze"}
+local VF_FIGUR = {UP = "Steigen", DOWN = "Verneigen", LEFT = "Schritt links", RIGHT = "Schritt rechts", A = "Kompliment"}
+
+-- Kommando als Symbol (24 × 24) mit Mitte cx, cy
+local function vf_symbol(key, cx, cy, c)
+  if key == "A" then
+    circfill(cx, cy, 11, TURNIER.dark)
+    circfill(cx, cy, 9, c or TURNIER.yellow)
+    print("A", cx - textw("A", 2) // 2 + 1, cy - 6, TURNIER.dark, 2)
+    return
+  end
+  local name = (key == "UP" or key == "DOWN") and "pfeil_hoch" or "pfeil_rechts"
+  local r = S.rects[name]
+  sspr(r[5] or S.img, r[1], r[2], r[3], r[4], cx - 12, cy - 12, 24, 24, key == "LEFT", key == "DOWN")
+end
+
+function Screens.vorfuehrung(ctx, d, done, klasse, looks)
+  local Vf = require("game.vorfuehrung")
+  local Turniere = require("game.turniere")
+  local st = Vf.new(d, klasse, (ctx.seed or 1) + ctx.clock.day * 7 + (klasse or 1))
+  local gate, finished = end_gate(), false
+  local gegner = klasse and Vf.gegner(klasse, turnier_rng(ctx, klasse, 1))
+  local platz, note
+  local rasse = K.rasse(d.rasse)
+  local LANE_Y = 44                  -- Mitte der Kommandospur
+  local s = {full = true}
+  function s.update(nav)
+    if st.done then
+      if gegner and not platz then
+        note = Vf.note(Vf.grund(d), Vf.quote(st))
+        platz = Vf.platz(note, gegner)
+      end
+      if gate.ready() and not finished then
+        finished = true
+        nav.pop()
+        if gegner then
+          local lauf = einlauf({note = note}, gegner, looks, function(a, b) return a.note > b.note end)
+          done(Vf.leistung(st), platz, lauf)
+        else
+          done(Vf.leistung(st))
+        end
+      end
+      return
+    end
+    local press
+    for k, b in pairs(VF_KEYS) do if btnp(b) then press = k end end
+    Vf.update(st, press)
+    if st.last and st.last_t == 40 then                -- gerade gewertet
+      if st.last.score > 0 then SFX.ok() else SFX.snort() end
+    end
+  end
+  function s.draw()
+    cls(TURNIER.bg)
+    font(1)
+    print("Vorführung", 6, 3, TURNIER.yellow)
+    font(0)
+    local tr = 0
+    for _, c in ipairs(st.cmds) do if c.score and c.score > 0 then tr = tr + 1 end end
+    rprint(d.name, SCREEN_W - 6, 7, C.text)
+    -- Kommandospur
+    tbox(3, 23, SCREEN_W - 4, 66, TURNIER.about)
+    rect(4, 24, SCREEN_W - 5, 65, TURNIER.edge)
+    local w = flr(st.win)
+    rectfill(Vf.RING_X - w, 27, Vf.RING_X + w, 62, TURNIER.sel)          -- Trefferfenster (Bindung)
+    circ(Vf.RING_X, LANE_Y, 14, TURNIER.yellow)
+    clip(5, 25, SCREEN_W - 10, 40)
+    for _, c in ipairs(st.cmds) do
+      local x = flr(Vf.screen_x(st, c))
+      if not c.score and x > -20 and x < SCREEN_W + 20 then vf_symbol(c.key, x, LANE_Y) end
+    end
+    clip()
+    -- Arena: Sand, weißer Zaun, Pferd in der Mitte (doppelt groß), Pose nach dem letzten Kommando
+    rectfill(3, 70, SCREEN_W - 4, 196, rgb(0xd5, 0xbb, 0x82))
+    rectfill(3, 70, SCREEN_W - 4, 92, TURNIER.grass)
+    for x = 10, SCREEN_W - 10, 24 do rectfill(x, 84, x + 2, 100, C.text) end
+    line(3, 88, SCREEN_W - 4, 88, C.text) line(3, 95, SCREEN_W - 4, 95, C.text)
+    local L = st.last_t > 0 and st.last
+    local pose, flip = "side", false
+    if L and L.score and L.score > 0 then pose, flip = VF_POSE[L.key], L.key == "LEFT"
+    elseif (st.frame // 30) % 2 == 1 then pose = "side_walk" end
+    local hx = 160 + (L and L.score == 0 and ((st.frame // 2) % 2 * 4 - 2) or 0)
+    G.draw_scaled(d.farbe, rasse.koerper, pose, hx, 180, 2, flip, d.schmuck)
+    if L then
+      local t = L.score == Vf.PERFECT and "Perfekt!" or (L.score or 0) > 0 and "Gut" or "Daneben"
+      local c = L.score == Vf.PERFECT and TURNIER.yellow or (L.score or 0) > 0 and C.text or C.red
+      Stage.center(t, 106, c, 2)
+      if L.score and L.score > 0 then Stage.center(VF_FIGUR[L.key], 124, TURNIER.dark) end
+    end
+    -- Fortschritt: ein Feld je Kommando
+    for i, c in ipairs(st.cmds) do
+      local x = 160 - Vf.N * 7 + (i - 1) * 14
+      local col = not c.score and TURNIER.list or c.score == Vf.PERFECT and TURNIER.yellow or c.score > 0 and TURNIER.head or C.red
+      rectfill(x, 202, x + 10, 210, col)
+    end
+    if st.done then
+      tbox(60, 96, 259, 160, TURNIER.dark)
+      rect(61, 97, 258, 159, TURNIER.edge)
+      Stage.center(tr .. " von " .. Vf.N .. " Figuren", 106, TURNIER.yellow, 2)
+      local q = Vf.quote(st)
+      Stage.center(q >= 0.8 and "Die Richter sind begeistert." or q >= 0.5 and "Eine ordentliche Vorführung." or "Die Richter schauen streng.", 128, C.text)
+      footer(gate.armed and "A weiter" or "", TURNIER.dark, TURNIER.edge)
+    else
+      footer("Pfeile und A: Figur im Ring", TURNIER.dark, TURNIER.edge)
+    end
+  end
+  return s
+end
+
+-- ---- Minispiel Springreiten (E2): A springt; am Ende A, dann done(leistung 0–1) ----
+
+-- klasse: Turnier (Gegner nach game/springen.lua, done(leistung, platz, einlauf)); looks: Aussehen der Gegner.
+function Screens.springreiten(ctx, d, done, klasse, looks)
   local Sp = require("game.springen")
   local st = Sp.new(d, klasse)
+  local gegner = klasse and Sp.gegner(klasse, turnier_rng(ctx, klasse, 2))
+  local platz
   local s = {full = true}
-  local finished = false
+  local finished, gate = false, end_gate()
   local rasse = K.rasse(d.rasse)
   function s.update(nav)
     Sp.update(st, btnp(BTN_A) and not st.done)
     if st.done then
-      if btnp(BTN_A) then
+      if gegner and not platz then platz = Sp.platz(st.faults, Sp.leistung(st), gegner) end
+      if gate.ready() then
         if finished then return end
         finished = true
         nav.pop()
-        done(Sp.punkte(st))
+        if gegner then
+          local lauf = einlauf({fehler = st.faults, stil = Sp.leistung(st)}, gegner, looks,
+            function(a, b) if a.fehler ~= b.fehler then return a.fehler < b.fehler end return a.stil > b.stil end)
+          done(Sp.leistung(st), platz, lauf)
+        else
+          done(Sp.leistung(st))
+        end
       end
     elseif st.jump == 1 then SFX.jump() end
   end
@@ -767,10 +1061,9 @@ function Screens.springreiten(ctx, d, done, klasse)
     rectfill(10, 24, 309, 28, C.panel)
     rectfill(10, 24, 10 + flr(299 * min(1, st.x / Sp.END_X)), 28, C.gold)
     if st.done then
-      Stage.panel(60, 80, 259, 130)
-      Stage.center(st.clean .. " von " .. Sp.HURDLES .. " Stangen sauber", 90, C.gold)
-      Stage.center("Punkte " .. flr(Sp.punkte(st)), 104, C.text)
-      Stage.center("A: weiter", 116, C.dim)
+      Stage.panel(60, 80, 259, 130)                       -- der Platz kommt erst mit dem Podest
+      Stage.center(st.faults .. " Fehler, Stil " .. flr(Sp.leistung(st) * 100) .. " %", 90, C.gold)
+      if gate.armed then Stage.center("A: weiter", 112, C.dim) end
     else
       print("A: springen", 6, SCREEN_H - 10, C.dim)
     end
@@ -778,20 +1071,32 @@ function Screens.springreiten(ctx, d, done, klasse)
   return s
 end
 
--- ---- Minispiel Pferderennen (E3): A halten = Spurt; am Ende A, dann done(punkte, platz) ----
+-- ---- Minispiel Pferderennen (E3): A halten = Spurt; am Ende A, dann done(leistung, platz) (ohne klasse: punkte) ----
 
-function Screens.rennen(ctx, d, gegner, done)
+-- looks (optional): Aussehen der Gegner {rasse, farbe} (game/turniere.lua T.gegner_pferde), sonst braune Pferde
+-- derselben Rasse.
+function Screens.rennen(ctx, d, gegner, done, klasse, looks)
   local Rn = require("game.rennen")
-  local st = Rn.new(d, gegner, require("lib.rng").new(5))
+  local st = Rn.new(d, gegner, require("lib.rng").new(5 + (klasse or 0) + (ctx.clock and ctx.clock.day or 0)), klasse, true)
   local s = {full = true}
-  local finished = false
+  local finished, gate = false, end_gate()
   local rasse = K.rasse(d.rasse)
+  local a_frei = false             -- A vom Menü davor noch gedrückt: erst nach dem Loslassen zählt es (sonst Unruhe)
   function s.update(nav)
-    Rn.update(st, btn(BTN_A) and not st.done)
-    if st.done and btnp(BTN_A) and not finished then
+    local vorher, frueh = st.ampel, st.fehlstart
+    if not btn(BTN_A) then a_frei = true end
+    Rn.update(st, a_frei and btn(BTN_A) and not st.done)
+    if st.fehlstart and not frueh then SFX.snort() end
+    if vorher and not st.ampel then SFX.start() end
+    if st.ampel and (st.pre == Rn.ROT[1] or st.pre == Rn.ROT[2] or st.pre == Rn.ROT[3]) then SFX.select() end
+    if st.done and gate.ready() and not finished then
       finished = true
       nav.pop()
-      done(Rn.punkte(st), Rn.platz(st))
+      -- Zieleinlauf für das Podest: eigenes Pferd (own) oder Aussehen des Gegners, schnellste zuerst
+      local lauf = {{time = st.time, own = true}}
+      for _, r in ipairs(st.rivals) do lauf[#lauf + 1] = {time = r.time, look = looks and looks[r.nr]} end
+      table.sort(lauf, function(a, b) return a.time < b.time end)
+      done(klasse and Rn.leistung(st) or Rn.punkte(st), Rn.platz(st), lauf)
     end
   end
   function s.draw()
@@ -801,31 +1106,79 @@ function Screens.rennen(ctx, d, gegner, done)
     local lanes = #st.rivals + 1
     local lane_h = 24
     local y0 = 30
-    local cam = min(st.x, Rn.LENGTH) - 90
+    local cam = min(st.x, st.length) - 90
     for i = 1, lanes do
       local y = y0 + (i - 1) * lane_h
       rectfill(0, y + 20, SCREEN_W - 1, y + 21, rgb(0xb3, 0x8c, 0x57))
     end
     -- Ziellinie
-    local fx = flr(Rn.LENGTH - cam)
+    local fx = flr(st.length - cam)
     if fx < SCREEN_W then rectfill(fx, y0, fx + 3, y0 + lanes * lane_h, C.text) end
-    -- eigenes Pferd auf der letzten Bahn, Gegner darüber
-    local function horse_at(x, i, own)
-      local y = y0 + (i - 1) * lane_h + 20
-      local pose = ((st.frame // 5) % 2 == 0) and "gallop1" or "gallop2"
-      local col = own and d.farbe or "brauner"
-      G.draw(col, rasse.koerper, pose, flr(x - cam), y, false)
+    -- Startboxen (Weltposition 0): Rückwand, Dach, vorne die Klappe (zu bis Grün, dann nach oben geklappt)
+    local gx = flr(-cam)
+    local box_col, flap_col = rgb(0xe8, 0xe4, 0xd8), rgb(0xc8, 0x3a, 0x3a)
+    if gx > -40 then
+      for i = 1, lanes do
+        local y = y0 + (i - 1) * lane_h
+        rectfill(gx - 22, y + 1, gx - 20, y + 20, box_col)
+        rectfill(gx - 22, y + 1, gx + 22, y + 2, box_col)
+      end
     end
-    for i, r in ipairs(st.rivals) do horse_at(r.x, i, false) end
+    -- eigenes Pferd auf der letzten Bahn, Gegner darüber
+    local function horse_at(x, i, own, nr, delay)
+      local y = y0 + (i - 1) * lane_h + 20
+      -- unruhig (A vor dem letzten Rot) oder verrannt (Fehlstart): galoppiert auf der Stelle und zappelt
+      local zappelt = own and ((st.unruhe or 0) > 0 or (st.fehlstart and (st.ampel or (st.stall or 0) > 0)))
+      local t = st.ampel and st.pre or st.frame
+      local standing = not zappelt and (st.ampel or (own and st.started == false) or (delay and st.frame <= delay))
+      local pose = standing and "side" or (((t // 5) % 2 == 0) and "gallop1" or "gallop2")
+      if zappelt then x = x + (t // 3) % 2 * 2 - 1 end
+      local look = not own and looks and looks[nr or i]
+      local col = own and d.farbe or (look and look.farbe or "brauner")
+      local body = look and K.rasse(look.rasse).koerper or rasse.koerper
+      G.draw(col, body, pose, flr(x - cam), y, false)
+    end
+    for i, r in ipairs(st.rivals) do horse_at(r.x, i, false, r.nr, r.delay) end
     horse_at(st.x, lanes, true)
+    if gx > -40 then
+      for i = 1, lanes do
+        local y = y0 + (i - 1) * lane_h
+        if st.ampel then
+          rectfill(gx + 20, y + 3, gx + 22, y + 20, flap_col)
+          for yy = y + 6, y + 18, 6 do rectfill(gx + 20, yy, gx + 22, yy + 2, box_col) end
+        else
+          rectfill(gx + 20, y - 8, gx + 22, y + 2, flap_col)           -- aufgeklappt
+        end
+      end
+    end
+    -- Ampel mit Hinweis, bis kurz nach dem Start
+    if st.ampel or st.frame < 60 then
+      local bx0, by0, bx1, by1 = 128, 34, SCREEN_W - 8, 100
+      Stage.panel(bx0, by0, bx1, by1)
+      local cx = (bx0 + bx1) // 2
+      for k = 1, 3 do
+        local lx = cx - 26 + (k - 1) * 26
+        local c = rgb(0x40, 0x30, 0x2c)
+        if not st.ampel then c = rgb(0x5c, 0xd0, 0x5a)
+        elseif st.pre >= Rn.ROT[k] then c = C.red end
+        circfill(lx, by0 + 16, 9, C.panel_light)
+        circfill(lx, by0 + 16, 7, c)
+      end
+      local l1, l2, c1 = "A halten = Sprint", "Erst bei Grün loslaufen!", C.text
+      if st.fehlstart then l1, l2, c1 = "Zu früh!", "Das Pferd verrennt sich.", C.red
+      elseif not st.ampel then l1, l2, c1 = "Los!", "", C.gold end
+      print(l1, cx - textw(l1) // 2, by0 + 34, c1)
+      print(l2, cx - textw(l2) // 2, by0 + 46, st.fehlstart and C.red or C.dim)
+    end
     -- Ausdauer
     rectfill(10, 216, 129, 224, C.panel)
     rectfill(11, 217, 11 + flr(117 * st.stamina / st.cap), 223, st.stamina > 0 and C.gold or C.red)
     print("Ausdauer", 136, 216, C.text)
     if st.done then
       Stage.panel(70, 90, 249, 140)
-      Stage.center("Platz " .. Rn.platz(st) .. " von " .. lanes, 100, C.gold, 2)
-      Stage.center("Punkte " .. flr(Rn.punkte(st)) .. "   A: weiter", 124, C.dim)
+      Stage.center("Im Ziel!", 100, C.gold, 2)                -- der Platz kommt erst mit dem Podest
+      local l = klasse and ("Leistung " .. flr(Rn.leistung(st) * 100) .. " %") or ("Punkte " .. flr(Rn.punkte(st)))
+      Stage.center(l .. (gate.armed and "   A: weiter" or ""), 124, C.dim)
     else
       print("A: Spurt", SCREEN_W - 70, 216, C.dim)
     end

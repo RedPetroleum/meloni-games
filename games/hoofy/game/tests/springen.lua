@@ -31,9 +31,13 @@ local function run(d, press)
 end
 
 return {
-  {"Stangenhöhe 8 bis 30; Sprunghöhe wächst mit der Stärke, schwindet mit Ermüdung (Ausdauer)", function()
+  {"Stangenhöhe 8 bis zur Höhe des besten Gegners; Sprunghöhe wächst mit der Stärke, schwindet mit Ermüdung", function()
     C.near(Springen.hurdle_height(1), 8, 0.01)
-    C.near(Springen.hurdle_height(10), 30, 0.01)
+    local K4 = Springen.KLASSE
+    C.near(Springen.hurdle_height(10), Springen.reach_wert(Springen.TOP_STAERKE[K4], Springen.TOP_AUSDAUER[K4],
+      Springen.hurdle_x(10) / Springen.END_X), 0.01)
+    C.eq(Springen.fehler(Springen.TOP_STAERKE[K4], Springen.TOP_AUSDAUER[K4], K4), 0, "bester Gegner fehlerfrei")
+    C.ok(Springen.fehler(Springen.TOP_STAERKE[K4] - 1, Springen.TOP_AUSDAUER[K4], K4) > 0, "eins schwächer: Fehler")
     local strong, weak = horse(90, 50), horse(10, 50)
     C.ok(Springen.reach(strong, 0) > Springen.reach(weak, 0))
     local lazy, fit = horse(60, 0), horse(60, 100)

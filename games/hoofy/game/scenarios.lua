@@ -126,6 +126,13 @@ function Scenarios.turnier(save)
   return "world", {ort = "turnier", hof = true, geld = save.geld or 1000, screen = "turnier", fahrzeug = save.fahrzeug or "fahrrad"}
 end
 
+-- Turniere mit sechs Testpferden (Renner, Springer, Hüpfer, Prinzessin, Bella, Siebzig; Bindung 100),
+-- Flugzeug (alle Klassen offen), viel Geld. save.screen = "none": am Platz statt im Menü.
+function Scenarios.turnierpferde(save)
+  return "world", {ort = "turnier", turnierpferde = true, geld = save.geld or 100000, screen = save.screen or "turnier",
+    fahrzeug = save.fahrzeug or "flugzeug"}
+end
+
 -- Springreiten-Minispiel (E2): Drehbuch per INPUT (A springt), save.staerke setzt die Stärke des Pferds.
 function Scenarios.springreiten(save)
   return "world", {ort = "start", hof = true, screen = "springen", staerke = save.staerke}

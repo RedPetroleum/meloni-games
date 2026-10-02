@@ -95,13 +95,45 @@ return {
     local old = btnp
     local function key(k) btnp = function(b) return b == k end; s.update(nav) s.draw() end
     s.draw()
-    key(BTN_A) key(BTN_A) key(BTN_A)          -- Dorf, Schönheit, Pferd
+    key(BTN_A) key(BTN_A) key(BTN_A)          -- Dorf, Schönheit, Pferd → Vorführung
+    C.eq(#nav.stack, 2, "Vorführung offen")
+    local vf = nav.stack[2]
+    btnp = function() return false end
+    for _ = 1, 3000 do if nav.stack[2] then vf.update(nav) vf.draw() end end   -- alles verpasst, Endtafel
+    C.eq(#nav.stack, 2, "Endtafel wartet auf A")
+    btnp = function(b) return b == BTN_A end
+    for _ = 1, 50 do if nav.stack[2] then vf.update(nav) end end   -- erst nach der Sperre
+    C.eq(#nav.stack, 1, "Vorführung zu")
     C.ok(Turniere.state(ctx, 1).weg["1:schoenheitswettbewerb"], "angetreten")
-    key(BTN_A)                                -- Ergebnis schließen
+    s.draw()
+    key(BTN_A)                                -- sofortiges A: Ergebnis bleibt (Sperre)
+    key(BTN_A) key(BTN_A)
+    C.ok(Turniere.state(ctx, 1).weg["1:schoenheitswettbewerb"])
+    for _ = 1, 50 do key(BTN_A) end           -- nach der Sperre schließt A das Ergebnis
+    key(BTN_A) key(BTN_A)                     -- gleich danach: gesperrt, kein neuer Start
+    C.eq(#nav.stack, 1)
+    for _ = 1, 35 do key(nil) end             -- Sperre abwarten
     key(BTN_A) key(BTN_A)                     -- Dorf, Schönheit ist weg
     C.eq(#nav.stack, 1)
     key(BTN_B) key(BTN_B)
     btnp = old
     C.eq(#nav.stack, 0)
+  end},
+  {"Spiel zählt: unpassendes Pferd mit perfektem Spiel nicht Letzter, überlegenes mit schwachem Spiel kein Podest", function()
+    local ctx = setup()
+    local podest, letzter, n = 0, 0, 0
+    for klasse = 1, 6 do
+      for runde = 0, 9 do
+        local g = Turniere.gegner(ctx, klasse, "springreiten", runde)
+        table.sort(g)
+        local a, b = Turniere.anteile(8, klasse)          -- unpassendes Pferd (Wertung 8), perfekte Leistung
+        if a + b < g[1] then letzter = letzter + 1 end
+        a, b = Turniere.anteile(100, klasse)              -- überlegenes Pferd, Leistung 0,2
+        if a + b * 0.2 > g[#g - 2] then podest = podest + 1 end
+        n = n + 1
+      end
+    end
+    C.ok(letzter <= 1, "unpassendes Pferd, perfektes Spiel: Letzter in " .. letzter .. " von " .. n)
+    C.ok(podest <= n // 10, "überlegenes Pferd, schwaches Spiel: Podest in " .. podest .. " von " .. n)
   end},
 }

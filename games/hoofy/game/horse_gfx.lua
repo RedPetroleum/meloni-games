@@ -75,6 +75,24 @@ function G.draw(coat, body, pose, x, y, flip, schmuck)
   end
 end
 
+-- Wie G.draw, aber f-fach vergrößert (ganzzahlig), z. B. auf dem Siegerpodest.
+function G.draw_scaled(coat, body, pose, x, y, f, flip, schmuck)
+  local n = names(coat, body, pose)
+  local dx, dy = flr(x - n[3] * f / 2), flr(y - n[4] * f)
+  local function put(name, ox, oy)
+    local r = S.rects[name]
+    sspr(r[5] or S.img, r[1], r[2], r[3], r[4], dx + ox * f, dy + oy * f, r[3] * f, r[4] * f, flip)
+  end
+  put(n[1], 0, 0)
+  if n[2] then put(n[2], 0, 0) end
+  if schmuck and next(schmuck) then
+    for _, id in ipairs(G.SCHMUCK) do
+      local j = schmuck[id] and jewel(id, body, pose)
+      if j then put(j[1], flip and (n[3] - j[2] - j[4]) or j[2], j[3]) end
+    end
+  end
+end
+
 function G.size(coat, body, pose)
   local n = names(coat, body, pose)
   return n[3], n[4]

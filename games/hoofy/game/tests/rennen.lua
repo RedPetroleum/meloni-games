@@ -69,10 +69,14 @@ return {
     local nav = {stack = {s}}
     function nav.pop() nav.stack[#nav.stack] = nil end
     local old = btn
+    btn = function() return false end
+    s.update(nav)                               -- A erst losgelassen, dann gehalten
     btn = function(b) return b == BTN_A end
     local oldp = btnp
-    for _ = 1, 700 do s.update(nav) end
+    for _ = 1, 900 do s.update(nav) end
     s.draw()
+    btn = old                                   -- A loslassen, Sperre der Endtafel abwarten
+    for _ = 1, 50 do s.update(nav) end
     btnp = function(b) return b == BTN_A end
     s.update(nav)
     btn, btnp = old, oldp

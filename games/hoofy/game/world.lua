@@ -189,6 +189,30 @@ function WorldScene.enter(arg)
     wild:attach(c)
     if arg.staerke then a.data.gen.staerke, a.data.pot.staerke = arg.staerke, 100 end
     a.data.train.staerke, a.data.train.tempo = 12, 8           -- etwas Training (Info-Balken zeigt den Anteil)
+  elseif arg and arg.turnierpferde then
+    -- Pferde mit verschiedenen Stärken für die Turniere (Szenario turnierpferde): eins an der Leine,
+    -- die anderen folgen. Werte: {tempo, staerke, ausdauer}, Bindung, Sauberkeit, Farbe, Schmuck/Sattel.
+    wild.count = 0
+    local profile = {
+      {"Renner", "araber", "m", {100, 40, 100}, 100, 60, "fuchs"},                 -- Rennen bis Klasse 6
+      {"Springer", "noriker", "m", {30, 100, 100}, 100, 60, "rappe"},              -- Springen bis Klasse 6
+      {"Hüpfer", "haflinger", "w", {40, 70, 85}, 100, 60, "fuchs"},                -- Springen Klasse 2–3
+      {"Prinzessin", "einhorn", "w", {30, 30, 30}, 100, 100, "regenbogen",         -- Schönheit bis Klasse 6
+        {"blumenkranz", "maehnenschleife", "glitzerdecke", "goldhufeisen"}},
+      {"Bella", "andalusier", "w", {50, 50, 50}, 100, 90, "palomino",              -- Schönheit Klasse 2–3
+        {"blumenkranz", "maehnenschleife"}},
+      {"Siebzig", "mustang", "m", {70, 70, 70}, 100, 70, "brauner"},               -- Allrounder
+    }
+    for i, p in ipairs(profile) do
+      local h = wild:add_own({rasse = p[2], bindung = p[5], name = p[1], sattel = p[9]})
+      local d = h.data
+      d.sex, d.alter, d.sauberkeit, d.farbe = p[3], 4, p[6], p[7]
+      for j, key in ipairs({"tempo", "staerke", "ausdauer"}) do
+        d.gen[key], d.train[key], d.pot[key] = p[4][j], 0, 100
+      end
+      if p[8] then d.schmuck = {} for _, s in ipairs(p[8]) do d.schmuck[s] = true end end
+      wild:attach(h)
+    end
   elseif arg and arg.stall then
     -- Stall arg.stall (stall_s … stall_xl) mit so vielen Pferden, wie hineinpassen, minus eins; Ansicht offen
     local pl = ctx.area.plot
