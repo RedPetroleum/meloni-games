@@ -57,7 +57,7 @@ return {
     require("game.days").horse_day(d)
     C.eq(d.heute_train, nil, "neuer Tag")
     d.boost = 1
-    C.near(Care.daily_cap(d, 0, 40), 20 + 10 / 3, 1e-6, "Drachenfrucht: 20 / 30")
+    C.near(Care.daily_cap(d, 0, 40), 20 + 20 / 3, 1e-6, "Drachenfrucht: 20 / 30")
   end},
   {"Futter nach Katalog: Heu, Hafer, Karotte, Premium", function()
     local d = horse("faul", {hunger = 80, energie = 50})
