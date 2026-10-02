@@ -12,7 +12,8 @@
 #   make pferde              Hoofy: Pferdekörper und Fellmuster in games/hoofy/sprites.txt (vor sprites)
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
-#   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly)
+#   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly),
+#                            plus build/web/spiel/<id>/index.html: one game only (focus page, controls below)
 RUNNER_DIR := runner
 RUNNER := $(RUNNER_DIR)/build/meloni-run
 GAMES := $(patsubst games/%/main.lua,%,$(wildcard games/*/main.lua))
@@ -101,6 +102,7 @@ build/web/meloni.wasm: $(WASM_SRCS) engine/meloni/meloni.h | $(WASI_SYSROOT) $(W
 
 web: build/web/meloni.wasm dist
 	python3 web/build.py build/web/meloni.wasm dist build/web/meloni-konsole.html
+	@for g in $(GAMES); do python3 web/build.py build/web/meloni.wasm dist build/web/spiel/$$g/index.html --only $$g; done
 
 clean:
 	rm -rf build dist $(RUNNER_DIR)/build

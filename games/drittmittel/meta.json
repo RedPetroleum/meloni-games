@@ -3,5 +3,11 @@
   "name": "Drittmittel-Fischen",
   "version": "0.1.0",
   "api": 3,
-  "description": "Über den Campus flattern Forschungsanträge: mit dem Kescher einfangen und im Antragsbriefkasten einreichen, bevor die Frist abläuft. Skizzen, flinke Vollanträge, Verbundanträge (zweimal erwischen), goldene Bewilligungen und rote Ablehnungen, die unter Strom stehen. Kaffee macht schnell."
+  "description": "Über den Campus flattern Forschungsanträge: mit dem Kescher einfangen und im Antragsbriefkasten einreichen, bevor die Frist abläuft. Skizzen, flinke Vollanträge, Verbundanträge (zweimal erwischen), goldene Bewilligungen und rote Ablehnungen, die unter Strom stehen. Kaffee macht schnell.",
+  "controls": [
+    ["dpad", "laufen"],
+    ["A", "Kescher schwingen"],
+    ["B", "rennen (halten)"],
+    ["START", "los / Pause"]
+  ]
 }
