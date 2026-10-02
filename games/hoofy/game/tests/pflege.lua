@@ -108,4 +108,29 @@ return {
     d.gewicht = 20
     C.near(Care.weight_factor(d), 0.85, 1e-6)
   end},
+  {"Füttern im Pferdemenü: Menü bleibt offen, Anzahl sinkt, Auswahl bleibt, mehrmals hintereinander", function()
+    local Stage = require("game.stage")
+    local Wild = require("game.wild")
+    local HorseMenu = require("game.horse_menu")
+    local ctx = Stage.build(1)
+    local w = Wild.new(ctx, 3)
+    w.count = 0
+    local h = w:add_own({rasse = "haflinger", bindung = 50, name = "Moppel"})
+    ctx.inv.heu, ctx.inv.karotte = 2, 1
+    local menu = HorseMenu.open({ctx = ctx, wild = w, nav = {push = function() end}, say = function() end}, h)
+    menu:act("feed")
+    C.eq(menu.stage, "food")
+    local function sel_id() return menu.m.items[menu.m.sel].id end
+    for i, it in ipairs(menu.m.items) do if it.id == "heu" then menu.m.sel = i end end
+    menu:act("heu")
+    C.ok(not menu.closed, "Menü bleibt offen")
+    C.eq(menu.stage, "food")
+    C.eq(ctx.inv.heu, 1)
+    C.eq(sel_id(), "heu", "Auswahl bleibt")
+    menu:act("heu")
+    C.eq(ctx.inv.heu, 0, "zweimal hintereinander")
+    C.ok(menu.m.items[menu.m.sel].dim, "kein Heu mehr: ausgegraut")
+    menu:act("close")
+    C.eq(menu.stage, "main", "B/zurück führt ins Pferdemenü")
+  end},
 }

@@ -69,8 +69,8 @@ return {
       gebiet = 1,
       w = 1,
       h = 1,
-      reif = 1,
-      dann = 1,
+      reif = 3,
+      dann = 3,
       ertrag = 1,
       text = "Hunger −30",
       wirkung = {

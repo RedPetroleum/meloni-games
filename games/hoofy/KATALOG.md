@@ -158,7 +158,7 @@ Samen kaufen (beliebig oft) oder finden: Jedes Pflanzen verbraucht einen Samen, 
 
 | Pflanze | Samen | ab Gebiet | Platz | reif nach / dann alle | Ertrag | Wirkung je Stück |
 |---|---|---|---|---|---|---|
-| Gras (Heu) | 10 | 1 | 1 Kachel | 1 / 1 Tag | 1 Heu | Hunger −30 |
+| Gras (Heu) | 10 | 1 | 1 Kachel | 3 / 3 Tage | 1 Heu | Hunger −30 |
 | Karotte | 15 | 1 | 1 Kachel | 2 / 2 Tage | 1 | Hunger −5, Bindung +3 |
 | Apfelbaum | 40 | 1 | 2×2 | 4 / 3 Tage | 3 | Hunger −8, Bindung +4 |
 | Hafer | 25 | 2 | 1 Kachel | 3 / 3 Tage | 2 | Hunger −40, Energie +15 |

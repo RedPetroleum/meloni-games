@@ -89,7 +89,7 @@ return {
     C.ok(Farm.plant(ctx, "karotte", p.x + 14, p.y + 8))
     C.eq(ctx.inv.samen_karotte, 0)
   end},
-  {"Wachstum über Tage nach Katalog: Karotte reif nach 2, dann alle 2; Gras täglich; Apfelbaum 4 / 3", function()
+  {"Wachstum über Tage nach Katalog: Karotte reif nach 2, dann alle 2; Gras 3 / 3; Apfelbaum 4 / 3", function()
     local ctx, p = setup()
     beds(ctx, p.x + 13, p.y + 5, 4, 3)
     Farm.plant(ctx, "karotte", p.x + 13, p.y + 5, 1)
@@ -99,11 +99,13 @@ return {
       Farm.plant_at(ctx.area.farm, p.x + 15, p.y + 5)
     C.eq(karotte.stufe, 1)
     day(ctx, 2)
-    C.eq(gras.stufe, 3, "Gras reif nach 1 Tag")
+    C.ok(gras.stufe < 3, "Gras nach 1 Tag noch nicht reif")
     C.eq(karotte.stufe, 2, "Karotte halbreif")
     day(ctx, 3)
     C.eq(karotte.stufe, 3, "Karotte reif nach 2 Tagen")
     C.eq(apfel.stufe, 2, "Apfelbaum nach 2 von 4 Tagen")
+    day(ctx, 4)
+    C.eq(gras.stufe, 3, "Gras reif nach 3 Tagen")
     day(ctx, 5)
     C.eq(apfel.stufe, 3, "Apfelbaum reif nach 4 Tagen")
     -- Ernte: Karotte 1, Gras 1 Heu, Apfelbaum 3 Äpfel
@@ -120,7 +122,7 @@ return {
     C.eq(apfel.stufe, 1, "nach der Ernte von vorn")
     C.eq(apfel.bereit, 8, "dann alle 3 Tage")
     C.eq(karotte.bereit, 7, "Karotte alle 2 Tage")
-    C.eq(gras.bereit, 6)
+    C.eq(gras.bereit, 8, "Gras alle 3 Tage")
     local no, why = Farm.harvest(ctx, apfel, 6)
     C.ok(no == nil and why == "noch nicht reif")
     day(ctx, 6); day(ctx, 7); day(ctx, 8)
@@ -135,6 +137,8 @@ return {
     ctx.player.x, ctx.player.y = (p.x + 10) * 16 + 8, (p.y + 9) * 16 + 4
     C.eq(Farm.ripe_near(ctx), nil, "noch nichts reif")
     day(ctx, 2)
+    C.eq(Farm.ripe_near(ctx), nil, "Gras braucht 3 Tage")
+    day(ctx, 3); day(ctx, 4)
     local r = Farm.ripe_near(ctx)
     C.ok(r and r.id == "gras", "Gras reif und nah")
     ctx.player.x = (p.x + 3) * 16
@@ -225,9 +229,9 @@ return {
     C.eq(k.stufe, 2)
     local found = false
     for b = 1, ctx2.map.bw * ctx2.map.bh do
-      for _, o in ipairs(ctx2.map.blocks[b] or {}) do if o[1] == "pflanze_gras_3" then found = true end end
+      for _, o in ipairs(ctx2.map.blocks[b] or {}) do if o[1] == "pflanze_gras_1" then found = true end end
     end
-    C.ok(found, "reifes Gras wieder sichtbar")
+    C.ok(found, "wachsendes Gras wieder sichtbar")
     log("ANBAU Spielstand mit 2 Pflanzen und 3 Beeten: " .. #text .. " Bytes")
   end},
   {"Alter Spielstand mit Feldern (bis 1.3.1): werden beim Laden zu Beeten, bepflanzt bleibt bepflanzt", function()

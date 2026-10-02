@@ -212,7 +212,11 @@ function HM:act(id)
     local _, bond = Care.feed(d, id)
     ctx.sfx.eat()
     h:react(bond > 0 and "emo_heart" or "emo_apple", 120)
-    return self:close()
+    -- Menü bleibt offen (Rückmeldung 1.3.4): neu aufbauen (Anzahlen), Auswahl bleibt
+    local sel = self.m.sel
+    self:food()
+    self.m.sel = min(sel, #self.m.items)
+    return
   end
   if id == "close" then return self:close() end
   if id == "stroke" then

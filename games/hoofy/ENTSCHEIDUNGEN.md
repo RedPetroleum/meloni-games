@@ -555,3 +555,5 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Tor: weißes Gatter mit Schräge und goldenen Pfostenkappen, hebt sich vom braunen Zaun ab. In einer senkrechten
   Zaun- oder Heckenlinie (Nachbar oben/unten, keiner links/rechts) steht es gedreht (gate_v). Szenario `hecken`.
 - Zähmen (Rückmeldung nach 1.3.4): Fortschrittsbalken grün statt rot; gleich nach dem Zähmen zeigt das Pferd 2,5 s ein Herz.
+- Füttern (Rückmeldung nach 1.3.4): Das Futtermenü bleibt nach dem Füttern offen (Anzahlen aktualisiert, Auswahl bleibt),
+  B führt zurück ins Pferdemenü. Gras im KATALOG §7 auf Wunsch des Menschen 3 / 3 Tage statt 1 / 1 Tag.
