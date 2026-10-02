@@ -28,6 +28,13 @@ body {
   font-family: var(--font-body);
   font-size: 15px;
 }
+/* Handy: kein Doppeltipp-Zoom (touch-action gilt für alle Kinder mit), kein Markieren von Text,
+   kein Lupen-/Kopiermenü bei langem Druck, kein grauer Tipp-Blitz */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+body {
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+}
 .wrap {
   max-width: 560px; margin: 0 auto;
   padding-inline: 16px; padding-block: 18px 32px;
@@ -188,6 +195,15 @@ const toB64 = (u8) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) 
 
 let current = GAMES.find(g => g.id === (store.get("meloni-last") || "kuschelwiese")) || GAMES[0];
 let meloni = null, on = false, muted = false, audioCtx = null;
+// iOS-Safari zoomt bei schnellem Doppeltipp manchmal trotz touch-action, also den zweiten Tipp abfangen.
+// Die Konsolentasten hängen an pointerdown und sind davon nicht betroffen.
+let lastTouchEnd = 0;
+document.addEventListener("touchend", e => {
+  const now = Date.now();
+  if (now - lastTouchEnd < 350) e.preventDefault();
+  lastTouchEnd = now;
+}, { passive: false });
+document.addEventListener("gesturestart", e => e.preventDefault());
 let touchBits = 0, keyBits = 0, padBits = 0;
 let latch = 0;  // kurz angetippte Tasten zählen mindestens ein Bild lang
 

@@ -41,7 +41,7 @@ def main():
     page = page.replace("__WASM__", b64(wasm))
     # Eigenständige Datei: zum Öffnen im Browser braucht sie ein vollständiges Gerüst
     html = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n'
-            '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n'
             # Vom iOS-Home-Bildschirm als eigene Web-App starten (Vollbild, eigener Speicher ohne 7-Tage-Löschung)
             '<meta name="apple-mobile-web-app-capable" content="yes">\n'
             '<meta name="mobile-web-app-capable" content="yes">\n'
