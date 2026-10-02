@@ -7,7 +7,7 @@ local Ride = require("game.ride")
 local Player = {}
 Player.__index = Player
 
-local WALK, RUN = 1.2, 2.1
+local WALK, RUN = 0.8, 1.3   -- deutlich langsamer (Rückmeldung 1.3.3)
 local SPRITES = {
   down = {"player_down", "player_down_walk"},
   up = {"player_up", "player_up_walk"},
@@ -47,7 +47,7 @@ function Player:update()
   self.dir = U.facing(dx, dy, self.dir)
   self.moving = (ok_x and dx ~= 0) or (ok_y and dy ~= 0)
   if self.moving then
-    self.anim = self.anim + (self.running and 0.18 or 0.12)
+    self.anim = self.anim + (self.running and 0.12 or 0.08)
     self.ctx.trail:push(self.x, self.y)
     if self.running then
       self.dust_t = self.dust_t - 1

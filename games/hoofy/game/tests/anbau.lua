@@ -20,7 +20,7 @@ local function setup()
   ctx.wild = Wild.new(ctx, 3)
   ctx.wild.count = 0
   ctx.clock = {day = 1}
-  for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 1 end
+  for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 20 end
   ctx.inv.hacke = 1
   return ctx, p
 end
@@ -79,11 +79,15 @@ return {
     ok, why = Farm.plant(ctx, "apfelbaum", p.x + 8, p.y + 3)
     C.ok(not ok, "nicht im Stall")
     C.ok(not Farm.plant(ctx, "apfelbaum", p.x + p.w - 1, p.y + 5), "nicht über das Grundstück hinaus")
-    -- unbegrenzt viele pro Samen
+    -- jedes Pflanzen verbraucht einen Samen
+    C.eq(ctx.inv.samen_karotte, 0, "Samen verbraucht")
     beds(ctx, p.x + 13, p.y + 8, 3, 1)
+    ok, why = Farm.plant(ctx, "karotte", p.x + 13, p.y + 8)
+    C.ok(not ok and why == "kein Samen", "zweites Feld braucht einen neuen Samen")
+    ctx.inv.samen_karotte = 2
     C.ok(Farm.plant(ctx, "karotte", p.x + 13, p.y + 8))
     C.ok(Farm.plant(ctx, "karotte", p.x + 14, p.y + 8))
-    C.eq(ctx.inv.samen_karotte, 1, "Samen bleibt")
+    C.eq(ctx.inv.samen_karotte, 0)
   end},
   {"Wachstum über Tage nach Katalog: Karotte reif nach 2, dann alle 2; Gras täglich; Apfelbaum 4 / 3", function()
     local ctx, p = setup()
@@ -187,7 +191,7 @@ return {
     Days.new_day(ctx, 2)
     C.eq(h.data.boost, 0, "nach dem Tageswechsel zu Ende")
   end},
-  {"Sonnenblume ist Deko: Schönheit +2 je Pflanze; Abreißen einer Pflanze lässt Beet und Samen", function()
+  {"Sonnenblume ist Deko: Schönheit +2 je Pflanze; Abreißen einer Pflanze lässt das Beet", function()
     local ctx, p = setup()
     beds(ctx, p.x + 13, p.y + 5, 3, 1)
     local m = ctx.money
@@ -198,7 +202,7 @@ return {
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 0, "Pflanze weg, kein Geld zurück")
     C.eq(ctx.map:code(p.x + 13, p.y + 5), "b", "Beet bleibt")
     C.eq(Farm.schoenheit(ctx.area.farm), 2)
-    C.eq(ctx.inv.samen_sonnenblume, 1, "Samen bleibt")
+    C.eq(ctx.inv.samen_sonnenblume, 18, "kein Samen zurück")
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 5), 0, "zweiter Abriss: das Beet (kostenlos)")
     C.eq(ctx.money, m)
   end},

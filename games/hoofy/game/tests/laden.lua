@@ -48,7 +48,7 @@ return {
     local ok3, why3 = Economy.buy(ctx_new(10), "einfacher_sattel")
     C.ok(not ok3 and why3 == "Geld", "Sattel 150")
   end},
-  {"Einmalige Waren: Bürste und Samen nur einmal", function()
+  {"Einmalige Waren: Bürste nur einmal, Samen beliebig oft", function()
     local ctx = ctx_new(1000)
     C.ok(Economy.buy(ctx, "buerste"), "Bürste gibt es nicht zum Start")
     local ok, why = Economy.buy(ctx, "buerste")
@@ -56,8 +56,8 @@ return {
     C.ok(Economy.buy(ctx, "samen_karotte"))
     C.eq(ctx.money, 1000 - 20 - 15)
     C.ok(Economy.has_seed(ctx, "karotte"))
-    local ok2, why2 = Economy.buy(ctx, "samen_karotte")
-    C.ok(not ok2 and why2 == "schon da")
+    C.ok(Economy.buy(ctx, "samen_karotte"), "Samen mehrmals kaufen")
+    C.eq(ctx.inv.samen_karotte, 2)
     C.ok(not Economy.has_seed(ctx, "apfelbaum"))
   end},
   {"Hafersteuer: Futter +50 %, andere Waren nicht", function()

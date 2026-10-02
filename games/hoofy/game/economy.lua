@@ -63,7 +63,7 @@ function E.catalog(maxgebiet)
   for _, p in ipairs(K.futter.anbau) do
     if p.gebiet <= (maxgebiet or 1) then
       list[#list + 1] = {id = "samen_" .. p.id, name = "Samen: " .. p.name, preis = p.samen, text = p.text,
-        kat = "samen", einmalig = true, pflanze = p.id}
+        kat = "samen", pflanze = p.id}
     end
   end
   -- Fahrzeuge (D1): Zugfahrzeuge brauchen Schuppen/Garage/Hangar, Anhänger nicht
@@ -147,7 +147,7 @@ function E.buy(ctx, id)
   return true
 end
 
--- Hat der Spieler die Pflanze schon (Samen einmal gekauft oder gefunden)?
+-- Hat der Spieler noch einen Samen der Pflanze (jedes Pflanzen verbraucht einen)?
 function E.has_seed(ctx, pflanze)
   return E.owned(ctx, "samen_" .. pflanze) > 0
 end

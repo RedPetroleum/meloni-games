@@ -1246,7 +1246,7 @@ end
 
 -- Name, Preis (oder nil) eines Bauteils
 local function build_name(ctx, cat, id)
-  if cat == "pflanzen" then return Farm.crop(id).name, nil end
+  if cat == "pflanzen" then return Farm.crop(id).name .. " x" .. (ctx.inv["samen_" .. id] or 0), nil end
   local b = K.bauteil(id)
   return b.name, b.preis
 end
@@ -1450,7 +1450,7 @@ function Screens.build(ctx)
     if c.id == "abriss" then
       local it, refund, ok, why = Farm.demolish_target(ctx, cx, cy)
       local pf = Farm.plant_at(farm, cx, cy)
-      line = pf and ("Abreißen: " .. Farm.crop(pf.id).name .. " (Samen bleibt)")
+      line = pf and ("Abreißen: " .. Farm.crop(pf.id).name .. " (Samen weg)")
         or it and ("Abreißen: " .. K.bauteil(it.id).name .. (ok and ("  +" .. refund .. " G") or (": " .. why)))
         or "Abreißen: hier steht nichts"
     elseif c.id == "land" then
@@ -1459,7 +1459,7 @@ function Screens.build(ctx)
     elseif c.id == "pflanzen" then
       if id then
         local crop = Farm.crop(id)
-        line = crop.name .. ": reif nach " .. crop.reif .. " T, dann alle " .. crop.dann .. " T, " .. crop.ertrag .. "x"
+        line = crop.name .. " x" .. (ctx.inv["samen_" .. id] or 0) .. ": reif nach " .. crop.reif .. " T, dann alle " .. crop.dann .. " T, " .. crop.ertrag .. "x"
       else
         line = "Keine Samen im Vorrat"
       end

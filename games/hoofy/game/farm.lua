@@ -729,7 +729,7 @@ local function pkind(p)
   return "pflanze_" .. p.id .. "_" .. p.stufe
 end
 
--- Kategorien des Baumodus: wie Farm.CATEGORIES, „Pflanzen“ enthält die gekauften Samen (einmalig gekauft = unbegrenzt pflanzbar).
+-- Kategorien des Baumodus: wie Farm.CATEGORIES, „Pflanzen“ enthält die Samen im Vorrat (jedes Pflanzen verbraucht einen).
 function Farm.categories(ctx)
   local out = {}
   for _, c in ipairs(Farm.CATEGORIES) do
@@ -756,7 +756,7 @@ end
 -- Pflanzen, die ohne Beet direkt auf dem Gras wachsen (Rückmeldung 1.2.1).
 Farm.OHNE_BEET = {apfelbaum = true}
 
--- Darf id an (cx, cy) gepflanzt werden? Braucht den Samen im Vorrat (einmal gekauft), Beet auf allen Kacheln
+-- Darf id an (cx, cy) gepflanzt werden? Braucht einen Samen im Vorrat, Beet auf allen Kacheln
 -- (Apfelbaum: freies Gras auf dem Grundstück), nichts darauf.
 function Farm.can_plant(ctx, id, cx, cy)
   local farm, map = ctx.area.farm, ctx.map
@@ -790,7 +790,7 @@ local function put_plant(map, p)
   map:add_object(pkind(p), p.cx, p.cy)
 end
 
--- Pflanzt (kostenlos, der Samen bleibt: die Pflanze trägt danach unbegrenzt). day: heutiger Tag.
+-- Pflanzt und verbraucht einen Samen (die Pflanze trägt danach unbegrenzt). day: heutiger Tag.
 function Farm.plant(ctx, id, cx, cy, day)
   local ok, why = Farm.can_plant(ctx, id, cx, cy)
   if not ok then return false, why end
@@ -801,6 +801,7 @@ function Farm.plant(ctx, id, cx, cy, day)
   p.stufe = stage_of(p, day)
   farm.pflanzen = farm.pflanzen or {}
   farm.pflanzen[#farm.pflanzen + 1] = p
+  ctx.inv["samen_" .. id] = ctx.inv["samen_" .. id] - 1
   put_plant(ctx.map, p)
   return true
 end
@@ -853,7 +854,7 @@ function Farm.grow(ctx, day)
   return ripe
 end
 
--- Pflanze entfernen (Abreißen): kein Geld zurück, der Samen bleibt.
+-- Pflanze entfernen (Abreißen): kein Geld und kein Samen zurück.
 function Farm.remove_plant(ctx, p)
   local farm = ctx.area.farm
   for i, e in ipairs(farm.pflanzen) do if e == p then table.remove(farm.pflanzen, i) break end end

@@ -90,19 +90,15 @@ function S.target(ctx, h)
   for _, t in ipairs(ctx.schaetze) do if t == h.schatz then return t end end
 end
 
--- Wert eines Funds im Haus: Münzen; Samen schalten die Pflanze frei, sonst halber Preis.
+-- Wert eines Funds im Haus: Münzen; ein Samen kommt in den Vorrat.
 function S.verkaufen(ctx, fund, rng)
   local info
   for _, f in ipairs(K.schaetze.funde) do if f.id == fund then info = f end end
   if info.samen then
     local list = K.futter.anbau
     local p = list[(rng and rng:int(1, #list)) or 1]
-    if (ctx.inv["samen_" .. p.id] or 0) == 0 then
-      ctx.inv["samen_" .. p.id] = 1
-      return "Samen: " .. p.name, 0
-    end
-    ctx.money = ctx.money + p.samen // 2
-    return "Samen (doppelt)", p.samen // 2
+    ctx.inv["samen_" .. p.id] = (ctx.inv["samen_" .. p.id] or 0) + 1
+    return "Samen: " .. p.name, 0
   end
   ctx.money = ctx.money + info.wert
   return info.name, info.wert

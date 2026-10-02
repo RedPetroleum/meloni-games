@@ -139,7 +139,7 @@ Schönes Haus, Stall, Deko usw. erhöhen die Bindung und teilweise die Trainings
 - [ ] Beete, Felder und Obstbäume für Futter (siehe Futteranbau)
 
 ### Futteranbau
-- [ ] Samen einmal kaufen oder finden: Die Pflanze trägt danach unbegrenzt
+- [ ] Samen kaufen (beliebig oft) oder finden: Jedes Pflanzen verbraucht einen Samen, die Pflanze trägt danach unbegrenzt
 - [ ] Ertrag je Pflanze verschieden: Karotte 1, Apfelbaum 3 usw.
 - [ ] Seltene Pflanzen mit besonderer Wirkung erst in weiter entfernten Gebieten
 - [ ] Geerntetes kommt ins Hausinventar

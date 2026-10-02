@@ -154,7 +154,7 @@ Pro Tag kommt ein zufälliger Käufer vorbei, der Pferdemarkt im Ort ist immer o
 | Hacke | 100 (einmalig) | Beete anlegen |
 
 ### Anbau
-Samen einmal kaufen oder finden: Die Pflanze trägt danach unbegrenzt. Beete kosten 0 je Kachel (Baumodus), anlegen braucht eine Hacke. Der Apfelbaum wächst ohne Beet auf Gras. Geerntetes kommt ins Hausinventar.
+Samen kaufen (beliebig oft) oder finden: Jedes Pflanzen verbraucht einen Samen, die Pflanze trägt danach unbegrenzt. Beete kosten 0 je Kachel (Baumodus), anlegen braucht eine Hacke. Der Apfelbaum wächst ohne Beet auf Gras. Geerntetes kommt ins Hausinventar.
 
 | Pflanze | Samen | ab Gebiet | Platz | reif nach / dann alle | Ertrag | Wirkung je Stück |
 |---|---|---|---|---|---|---|

@@ -72,7 +72,7 @@ function WorldScene.enter(arg)
     local pl = ctx.area.plot
     ctx.money = 1000
     ctx.player.x, ctx.player.y = (pl.x + 10) * 16, (pl.y + 8) * 16 + 12
-    for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 1 end
+    for _, pf in ipairs(K.futter.anbau) do ctx.inv["samen_" .. pf.id] = 20 end
     ctx.inv.hacke = 1
     for x = 13, 19 do for y = 5, 6 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
     for x = 13, 14 do for y = 7, 8 do Farm.place(ctx, "beet", pl.x + x, pl.y + y) end end
