@@ -398,6 +398,10 @@ bool mel_init(const char *game_path, const char *save_path)
     }
     lua_atpanic(L, l_panic);
     mel_profile_start(L);
+    // Garbage collection in small steps (512 bytes instead of 8 KB of work each), and a new cycle at 1.5
+    // instead of 2 times the memory in use: on the device a default step took ~45 ms, a stutter
+    // every ~30 frames; this way the work is spread over the frames and memory stays lower
+    lua_gc(L, LUA_GCINC, 150, 0, 9);
 
     static const luaL_Reg libs[] = {
         {LUA_GNAME, luaopen_base},        {LUA_COLIBNAME, luaopen_coroutine}, {LUA_TABLIBNAME, luaopen_table},
@@ -459,11 +463,7 @@ bool mel_update(uint32_t buttons)
     // The frame counter moves on here, not after _draw: _draw sees the same frame() as the _update
     // before it, also when the platform skips drawing
     if (eng.started)
-    {
         eng.frame++;
-        if ((eng.frame & 63) == 0)
-            lua_gc(eng.L, LUA_GCSTEP, 0);
-    }
     eng.started = true;
 
     eng.prev_buttons = eng.buttons;
