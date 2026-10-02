@@ -32,19 +32,19 @@ return {
     keys(kb, nav, {BTN_A, BTN_RIGHT, BTN_A})
     for _ = 1, 2 do keys(kb, nav, {BTN_DOWN}) end
     for _ = 1, 5 do keys(kb, nav, {BTN_RIGHT}) end   -- von B (x=2) auf Ä (x=7)
-    keys(kb, nav, {BTN_A})
-    keys(kb, nav, {BTN_B})                            -- löscht das Ä
-    keys(kb, nav, {BTN_A, BTN_A, BTN_A, BTN_A})       -- Ä viermal: Länge begrenzt auf 5
-    -- zur Reihe FERTIG (letzte Zeile), zweite Taste
+    keys(kb, nav, {BTN_A, BTN_A, BTN_A, BTN_A, BTN_A}) -- Ä fünfmal: Länge begrenzt auf 5
+    -- zur letzten Zeile: LÖSCHEN nimmt ein Ä weg, dann FERTIG
     for _ = 1, 4 do keys(kb, nav, {BTN_DOWN}) end
+    keys(kb, nav, {BTN_A})
     keys(kb, nav, {BTN_RIGHT, BTN_A})
-    C.eq(result, "ABÄÄÄ", "Text")
+    C.eq(result, "ABÄÄ", "Text")
     C.eq(#nav.stack, 0, "Tastatur geschlossen")
   end},
-  {"Tastatur: B bei leerem Text schließt ohne Ergebnis", function()
+  {"Tastatur: B bricht ab, auch mit Text, ohne Ergebnis (Rückmeldung 1.3.4)", function()
     local nav, called = nav_new(), false
-    local kb = Screens.keyboard("Name", "", 5, function() called = true end)
+    local kb = Screens.keyboard("Name", "Hilde", 12, function() called = true end)
     nav.push(kb)
+    keys(kb, nav, {BTN_A})                            -- ein Zeichen dazu
     keys(kb, nav, {BTN_B})
     C.eq(#nav.stack, 0)
     C.ok(not called, "kein Ergebnis")
@@ -59,11 +59,17 @@ return {
     keys(info, nav, {BTN_A})
     C.eq(#nav.stack, 2, "Tastatur oben")
     local kb = nav.stack[2]
-    keys(kb, nav, {BTN_B, BTN_B, BTN_B, BTN_B, BTN_B})       -- "Hilde" löschen
-    keys(kb, nav, {BTN_A})                                     -- "A"
+    keys(kb, nav, {BTN_A})                                     -- "A" anhängen
     for _ = 1, 6 do keys(kb, nav, {BTN_DOWN}) end              -- FERTIG-Zeile
     keys(kb, nav, {BTN_RIGHT, BTN_A})
-    C.eq(h.data.name, "A")
+    C.eq(h.data.name, "HildeA")
+    C.eq(#nav.stack, 1)
+    -- noch einmal: tippen, dann B bricht ab, der Name bleibt
+    keys(info, nav, {BTN_A})
+    kb = nav.stack[2]
+    keys(kb, nav, {BTN_A})
+    keys(kb, nav, {BTN_B})
+    C.eq(h.data.name, "HildeA", "B übernimmt nichts")
     C.eq(#nav.stack, 1)
     keys(info, nav, {BTN_B})
     C.eq(#nav.stack, 0)

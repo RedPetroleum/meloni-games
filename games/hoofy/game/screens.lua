@@ -85,7 +85,8 @@ function Screens.keyboard(title, text, max, on_done, rows)
     row = chars[cy]
     cx = (cx - 1) % #row + 1
     if btnp(BTN_B) then
-      if len(text) > 0 then text = text:sub(1, utf8.offset(text, -1) - 1) else nav.pop() end
+      SFX.back()
+      nav.pop()                                   -- B bricht ab, nichts wird übernommen (Rückmeldung 1.3.4)
     elseif btnp(BTN_A) then
       SFX.key()
       local key = row[cx]
@@ -123,7 +124,7 @@ function Screens.keyboard(title, text, max, on_done, rows)
         end
       end
     end
-    footer("A: Zeichen   B: zurück/löschen")
+    footer("A: Zeichen   B: abbrechen")
   end
   s.full = true
   return s
