@@ -128,6 +128,23 @@ canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; 
   .dpad { transform: scale(.86); transform-origin: left center; }
   .ab { transform: scale(.86); transform-origin: right center; }
 }
+/* Fokus-Modus (build.py --only): ein Spiel, keine Auswahl, nur Konsole und Steuerung */
+.legend { display: grid; grid-template-columns: auto auto 1fr; gap: 9px 12px; align-items: center;
+  font-size: 14px; color: var(--ink); padding-inline: 4px; }
+.legend .chip { justify-self: center; display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px;
+  border-radius: 15px; background: var(--seed); color: var(--ink); font: 700 11px var(--font-pixel); letter-spacing: .04em; }
+.legend .chip.round { width: 30px; padding: 0; background: radial-gradient(circle at 35% 30%, #ff9aa8, var(--flesh) 55%, var(--flesh-dark));
+  color: #fff3f0; font-size: 13px; }
+.legend .chip.pad { border-radius: 6px; font-size: 15px; }
+.legend .keys { color: var(--ink-dim); font-size: 12px; white-space: nowrap; }
+.legend .keys kbd { font: 400 10px var(--font-pixel); background: var(--room-2); border: 1px solid #3a463d; border-bottom-width: 2px;
+  border-radius: 4px; padding: 1px 4px; color: var(--ink); }
+.focus-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.focus-foot .tool { padding: 5px 10px; font-size: 12px; }
+body.focus header, body.focus .games, body.focus .bar, body.focus .help { display: none; }
+body.focus .wrap { min-height: 100dvh; box-sizing: border-box; justify-content: center;
+  padding-block: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-bottom)); }
+body:not(.focus) .legend, body:not(.focus) .focus-foot { display: none; }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .btn.on, .pill.on { transform: none; } }
 </style>
@@ -166,6 +183,12 @@ canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; 
     </div>
   </section>
 
+  <div class="legend" id="legend" aria-label="Steuerung"></div>
+  <div class="focus-foot">
+    <span class="note">Spielstände bleiben in diesem Browser.</span>
+    <button class="tool" id="mute2" type="button">Ton aus</button>
+  </div>
+
   <div class="bar">
     <button class="tool" id="restart" type="button">Neu starten</button>
     <button class="tool" id="mute" type="button">Ton aus</button>
@@ -181,6 +204,7 @@ __CORE__
 </script>
 <script>
 const GAMES = __GAMES__;
+const FOCUS = __FOCUS__;
 const WASM_B64 = "__WASM__";
 
 const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -193,7 +217,7 @@ const store = {
 };
 const toB64 = (u8) => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
 
-let current = GAMES.find(g => g.id === (store.get("meloni-last") || "kuschelwiese")) || GAMES[0];
+let current = FOCUS ? GAMES[0] : (GAMES.find(g => g.id === (store.get("meloni-last") || "kuschelwiese")) || GAMES[0]);
 let meloni = null, on = false, muted = false, audioCtx = null;
 // iOS-Safari zoomt bei schnellem Doppeltipp manchmal trotz touch-action, also den zweiten Tipp abfangen.
 // Die Konsolentasten hängen an pointerdown und sind davon nicht betroffen.
@@ -218,7 +242,7 @@ function boot() {
 }
 function launch(game) {
   current = game;
-  store.set("meloni-last", game.id);
+  if (!FOCUS) store.set("meloni-last", game.id);
   document.querySelectorAll(".game").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.id === game.id)));
   $("gameLabel").textContent = game.name.toUpperCase();
   $("startName").textContent = game.name;
@@ -236,8 +260,24 @@ function drawCover() {
   }
 }
 
+// Fokus-Modus: Steuerung für genau dieses Spiel (meta.json "controls"), sonst die allgemeine Belegung
+if (FOCUS) {
+  document.body.classList.add("focus");
+  const CHIP = {
+    dpad: ['<span class="chip pad">✚</span>', "<kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd>"],
+    A: ['<span class="chip round">A</span>', "<kbd>X</kbd> / <kbd>Leer</kbd>"],
+    B: ['<span class="chip round">B</span>', "<kbd>Z</kbd> / <kbd>Y</kbd>"],
+    START: ['<span class="chip">START</span>', "<kbd>Enter</kbd>"],
+    SELECT: ['<span class="chip">SELECT</span>', "<kbd>Shift</kbd>"],
+  };
+  const esc = (t) => String(t).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+  const rows = current.controls || [["dpad", "Steuerkreuz"], ["A", "A"], ["B", "B"], ["START", "Start"], ["SELECT", "Select"]];
+  $("legend").innerHTML = rows.filter(r => CHIP[r[0]])
+    .map(([k, what]) => `${CHIP[k][0]}<span class="keys">${CHIP[k][1]}</span><span>${esc(what)}</span>`).join("");
+}
+
 // Spielauswahl
-for (const g of GAMES) {
+for (const g of (FOCUS ? [] : GAMES)) {
   const b = document.createElement("button");
   b.className = "game"; b.type = "button"; b.dataset.id = g.id;
   b.innerHTML = (g.cover ? `<img alt="" src="data:image/png;base64,${g.cover}">` : `<span class="ph">${g.name.slice(0, 2)}</span>`) +
@@ -279,7 +319,12 @@ $("startBtn").addEventListener("click", () => {
   launch(current);
 });
 $("restart").addEventListener("click", () => { if (on) launch(current); });
-$("mute").addEventListener("click", () => { muted = !muted; $("mute").textContent = muted ? "Ton an" : "Ton aus"; });
+for (const id of ["mute", "mute2"]) {
+  $(id).addEventListener("click", () => {
+    muted = !muted;
+    $("mute").textContent = $("mute2").textContent = muted ? "Ton an" : "Ton aus";
+  });
+}
 
 // Tasten am Bildschirm
 function holdButton(el, bit) {

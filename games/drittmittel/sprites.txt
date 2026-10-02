@@ -1,0 +1,266 @@
+# Grafik von Drittmittel-Fischen: ein Zeichen pro Pixel, "." ist durchsichtig.
+# Die Forscherin heißt "pl_", beim Stromschlag gibt es sie per recolor als "zap_".
+# Alle Anträge sind ein Blatt ("blatt_"), per recolor in Blau (Vollantrag), Gold (Bewilligung)
+# und Rot (Ablehnung). Das "x" ist der Stempel: beim weißen Blatt so weiß wie das Papier.
+
+palette
+k 2a2433   Umriss
+W ffffff   Weiß, Kittel, Papier
+w d9dde6   Papier/Kittel Schatten
+t 8a93a6   Textzeilen
+x ffffff   Stempel (unsichtbar auf weißem Papier)
+H 6a3f26   Haar
+h 47291a   Haar dunkel
+S f2c29b   Haut
+s d89a74   Haut Schatten
+B 3f6fb5   Hemd
+J 3c4a78   Jeans
+j 2b3558   Jeans dunkel
+Z 4a3226   Schuhe
+V f7a6c8   Verbund rosa
+v d97aa6   Verbund Schatten
+E 6d737a   Klammer
+O d8dde2   Klammer hell
+A 3f6fb5   Briefkasten
+a 2c4f8f   Briefkasten dunkel
+Q 6b4226   Kaffee
+R d8343c   Becher rot
+D 6ea350   Schatten im Gras
+
+recolor blatt antrag W=a8d0ff w=6a9ee0 t=2f5fa8 x=a8d0ff
+recolor blatt bescheid W=ffe27a w=e0a82e t=a8701a x=ffe27a k=7a4a10
+recolor blatt nein W=f6a8a0 w=d0605c t=b03a34 x=b0101c k=5a0c14
+recolor pl zap W=fff27a w=f7d65a H=ffffff h=fff7c0 S=fff7c0 s=f7d65a B=ffffff J=f7d65a j=e0b030 Z=fff27a k=8a2aa8
+
+sprite pl_down1
+....kkkkkk....
+...kHHHHHHk...
+..kHHHHHHHHk..
+..kHhSSSShHk..
+..kSkkSSkkSk..
+..kSSSSSSSSk..
+..ksSSkkSSsk..
+...kSSSSSSk...
+..kWWkBBkWWk..
+.kWWWWBBWWWWk.
+kWWwWWBBWWwWWk
+kWWwWWWWWWwWWk
+kSkwWWWWWWwkSk
+.kkwWWWWWWwkk.
+..kwWWWWWWwk..
+..kkJJkkJJkk..
+...kJJkkJJk...
+...kjJkkJjk...
+...kZZkkZZk...
+...kkkk.kkkk..
+
+sprite pl_down2
+....kkkkkk....
+...kHHHHHHk...
+..kHHHHHHHHk..
+..kHhSSSShHk..
+..kSkkSSkkSk..
+..kSSSSSSSSk..
+..ksSSkkSSsk..
+...kSSSSSSk...
+..kWWkBBkWWk..
+.kWWWWBBWWWWk.
+kWWwWWBBWWwWWk
+kWWwWWWWWWwWWk
+kSkwWWWWWWwkSk
+.kkwWWWWWWwkk.
+..kwWWWWWWwk..
+..kkJJkkJJkk..
+...kJJkkJJk...
+...kZZkkJjk...
+...kkkkkZZk...
+........kkk...
+
+sprite pl_up1
+....kkkkkk....
+...kHHHHHHk...
+..kHHHHHHHHk..
+..kHHHHHHHHk..
+..kHHhhhhHHk..
+..kHhhhhhhHk..
+..kShhhhhhSk..
+...kSSSSSSk...
+..kWWWWWWWWk..
+.kWWWWWWWWWWk.
+kWWwWWWWWWwWWk
+kWWwWWwwWWwWWk
+kSkwWWwwWWwkSk
+.kkwWWWWWWwkk.
+..kwWWWWWWwk..
+..kkJJkkJJkk..
+...kJJkkJJk...
+...kjJkkJjk...
+...kZZkkZZk...
+...kkkk.kkkk..
+
+sprite pl_up2
+....kkkkkk....
+...kHHHHHHk...
+..kHHHHHHHHk..
+..kHHHHHHHHk..
+..kHHhhhhHHk..
+..kHhhhhhhHk..
+..kShhhhhhSk..
+...kSSSSSSk...
+..kWWWWWWWWk..
+.kWWWWWWWWWWk.
+kWWwWWWWWWwWWk
+kWWwWWwwWWwWWk
+kSkwWWwwWWwkSk
+.kkwWWWWWWwkk.
+..kwWWWWWWwk..
+..kkJJkkJJkk..
+...kJJkkJJk...
+...kjJkkZZk...
+...kZZkkkkk...
+...kkk........
+
+sprite pl_side1
+.....kkkkk....
+....kHHHHHk...
+...kHHHHHHHk..
+...kHHHHSSSk..
+...kHhSSkkSk..
+...kHhSSSSSSk.
+...khSSSSkSk..
+....kSSSSSk...
+...kWWWWBBk...
+..kWWWWWWBBk..
+..kWWwWWWWWk..
+..kWWwWWWWWk..
+..kWWwkSSkWk..
+..kWWWkkWWWk..
+..kwWWWWWWwk..
+...kkJJJJkk...
+....kJJJJk....
+....kJjjJk....
+....kZZZZZk...
+....kkkkkkk...
+
+sprite pl_side2
+.....kkkkk....
+....kHHHHHk...
+...kHHHHHHHk..
+...kHHHHSSSk..
+...kHhSSkkSk..
+...kHhSSSSSSk.
+...khSSSSkSk..
+....kSSSSSk...
+...kWWWWBBk...
+..kWWWWWWBBk..
+..kWWwWWWWWk..
+..kWWwWWWWWk..
+..kWWwkSSkWk..
+..kWWWkkWWWk..
+..kwWWWWWWwk..
+...kkJJJJkk...
+...kJJkkJJk...
+..kJjk..kJjk..
+.kZZZk..kZZZk.
+.kkkkk..kkkkk.
+
+sprite blatt_1
+..kkkkkkkkkk..
+.kWWWWWWWWWWk.
+kWtttttttttWwk
+kWWxxWWWWxxWwk
+kWttxxttxxtWwk
+kWWWWxxxxWWWwk
+kWtttxxxxttWwk
+kWWWxxWWxxWWwk
+kWtxxttttxxWwk
+kWtttttWWWWWwk
+kwwwwwwwwwwwwk
+.kkkkkkkkkkkk.
+
+sprite blatt_2
+...kkkkkkkk...
+..kWWWWWWWWk..
+.kwtttttttttk.
+kWWxxWWWWxxWwk
+kWttxxttxxtWwk
+kWWWWxxxxWWWwk
+kWtttxxxxttWwk
+kWWWxxWWxxWWwk
+kWtxxttttxxWwk
+kWtttttWWWWWwk
+.kwwwwwwwwwwk.
+..kkkkkkkkkk..
+
+sprite verbund
+.......kkkkkk.......
+.......kOOOOk.......
+.kkkkkkkEEEEkkkkk...
+.kVVVVVkkkkkkVVVk...
+.kVttttttttttttVkkk.
+.kVVVVVVVVVVVVVVkvk.
+.kVttttttttttVVVkvk.
+.kVVVVVVVVVVVVVVkvk.
+.kVttttttttttttVkvk.
+.kVVVVVVVVVVVVVVkvk.
+.kVttttttttVVVVVkvk.
+.kVVVVVVVVVVVVVVkvk.
+.kVVVVVVVVVVttVVkvk.
+.kvvvvvvvvvvvvvvkvk.
+.kkkkkkkkkkkkkkkkvk.
+...kvvvvvvvvvvvvvvk.
+...kkkkkkkkkkkkkkkk.
+
+sprite box
+...kkkkkkkkkkkkkkkkkk...
+..kAAAAAAAAAAAAAAAAAAk..
+.kAAAAAAAAAAAAAAAAAAAAk.
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAkkkkkkkkkkkkkkkkAAAak
+kAAkWWWWWWWWWWWWWWkAAAak
+kAAkkkkkkkkkkkkkkkkAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAWWWWWWWWWAAAAAAak
+kAAAAAAWttttttWWAAAAAAak
+kAAAAAAWWWWWWWWWAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kAAAAAAAAAAAAAAAAAAAAAak
+kaaaaaaaaaaaaaaaaaaaaaak
+kkkkkkkkkkkkkkkkkkkkkkkk
+......kEEk....kEEk......
+......kEEk....kEEk......
+......kkkk....kkkk......
+
+sprite coffee
+.kkkkkkk...
+kQQQQQQQk..
+kWWWWWWWkkk
+kWRRRRRWk.k
+kWRRRRRWk.k
+kWWWWWWWkkk
+kwWWWWWwk..
+.kwwwwwk...
+..kkkkk....
+
+sprite shadow
+..DDDDDDDD..
+.DDDDDDDDDD.
+.DDDDDDDDDD.
+..DDDDDDDD..
+
+sprite shadow_big
+...DDDDDDDDDDDD...
+.DDDDDDDDDDDDDDDD.
+DDDDDDDDDDDDDDDDDD
+.DDDDDDDDDDDDDDDD.
+...DDDDDDDDDDDD...

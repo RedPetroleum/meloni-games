@@ -49,6 +49,8 @@ jobs:
         run: |
           mkdir -p build/pages
           cp build/web/meloni-konsole.html build/pages/index.html
+          # Fokus-Seiten: ein Spiel ohne Auswahl unter .../meloni-games/<id>/
+          if [ -d build/web/spiel ]; then cp -R build/web/spiel/. build/pages/; fi
           touch build/pages/.nojekyll
 
       - name: Upload GitHub Pages artifact
