@@ -187,6 +187,11 @@ function Scenarios.markt(save)
 end
 
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
+-- Hecken und Tore: Heckenreihe mit Tor, Heckenspalte mit senkrechtem Tor, Koppel mit Tor links.
+function Scenarios.hecken()
+  return "world", {ort = "start", hecken = true}
+end
+
 function Scenarios.hof_start()
   return "world", {ort = "start", hof = true}
 end

@@ -184,4 +184,36 @@ return {
     for _ = 1, 60 do h:step(0, -1) end
     C.ok(h.y <= g[2] * 16, "aus der vollen Weide heraus")
   end},
+  {"Hecken verbinden sich wie Zäune, Tor dreht sich in senkrechten Linien, Hecke + Tor begrenzt eine Weide", function()
+    local ctx, p = setup()
+    local map, Tiles = ctx.map, require("game.tiles")
+    local function mask(x, y) return string.byte(map.coll[p.y + y + 1], p.x + x + 1) - Tiles.HEDGE_BASE end
+    for x = 14, 16 do C.ok(Farm.place(ctx, "hecke", p.x + x, p.y + 2), "Hecke " .. x) end
+    C.ok(Farm.place(ctx, "hecke", p.x + 16, p.y + 3))
+    C.eq(mask(14, 2), 2, "links offen, rechts Hecke")
+    C.eq(mask(15, 2), 3)
+    C.eq(mask(16, 2), 1 + 8, "Ecke: links und unten")
+    C.eq(mask(16, 3), 4)
+    local function gate_sprite(x, y)
+      local part = map.props.gate.build(map, p.x + x, p.y + y)[1]
+      for name, r in pairs(ctx.S.rects) do
+        if (name == "gate" or name == "gate_v") and r[1] == part[1] and r[2] == part[2] then return name end
+      end
+    end
+    C.ok(Farm.place(ctx, "tor", p.x + 16, p.y + 4))
+    C.eq(gate_sprite(16, 4), "gate_v", "unter einer Hecke: senkrecht")
+    C.eq(mask(16, 3), 0 + 4, "Hecke schließt zum Tor mit Rand ab")
+    C.ok(Farm.place(ctx, "zaun", p.x + 12, p.y + 4))
+    C.ok(Farm.place(ctx, "tor", p.x + 13, p.y + 4))
+    C.eq(gate_sprite(13, 4), "gate", "zwischen Zaun links: quer")
+    Farm.remove(ctx, p.x + 14, p.y + 2)
+    C.eq(mask(15, 2), 2, "nach dem Abreißen links wieder zu")
+    -- Weide ganz aus Hecke mit Tor: 3 × 3 innen
+    local ctx2, q = setup()
+    for x = 13, 17 do for _, y in ipairs({1, 5}) do Farm.place(ctx2, (x == 15 and y == 1) and "tor" or "hecke", q.x + x, q.y + y) end end
+    for y = 2, 4 do for _, x in ipairs({13, 17}) do Farm.place(ctx2, "hecke", q.x + x, q.y + y) end end
+    local n9 = false
+    for _, w in ipairs(Farm.pastures(ctx2.map, ctx2.area.farm)) do if w.n == 9 then n9 = true end end
+    C.ok(n9, "Heckenweide mit 9 Kacheln")
+  end},
 }

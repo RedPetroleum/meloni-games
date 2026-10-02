@@ -76,14 +76,31 @@ for mask = 0, 15 do
   T.SHAPES[string.char(T.FENCE_BASE + mask)] = list
 end
 
+-- Hecke (Rückmeldung 1.3.4): "0" + Maske der Nachbarn wie beim Zaun; mit Nachbar oben reicht sie bis zur Kachelkante.
+T.HEDGE_BASE = string.byte("0")
+for mask = 0, 15 do
+  T.SHAPES[string.char(T.HEDGE_BASE + mask)] = {{0, (mask & 4 ~= 0) and 0 or 6, 16, 16}}
+end
+
 -- Höhe der Hindernisse in Pixeln: wer höher springt, kommt drüber (Bäume und Häuser nie).
 T.HEIGHTS = {u = 12, o = 16, Y = 14, B = 10, H = 14, K = 10}
-for mask = 0, 15 do T.HEIGHTS[string.char(T.FENCE_BASE + mask)] = 18 end
+for mask = 0, 15 do
+  T.HEIGHTS[string.char(T.FENCE_BASE + mask)] = 18
+  T.HEIGHTS[string.char(T.HEDGE_BASE + mask)] = 14
+end
 
-local function fence_mask(map, cx, cy)
+local function mask_at(map, cx, cy, base)
   if cx < 0 or cy < 0 or cx >= map.w or cy >= map.h then return 0 end
-  local c = string.byte(map.coll[cy + 1], cx + 1) - T.FENCE_BASE
+  local c = string.byte(map.coll[cy + 1], cx + 1) - base
   return (c >= 0 and c < 16) and c or -1
+end
+local function fence_mask(map, cx, cy) return mask_at(map, cx, cy, T.FENCE_BASE) end
+
+function T.hedge_at(map, cx, cy) return mask_at(map, cx, cy, T.HEDGE_BASE) >= 0 end
+
+-- Ist die Kachel ein Zaun- oder Heckenstück?
+function T.barrier_at(map, cx, cy)
+  return mask_at(map, cx, cy, T.FENCE_BASE) >= 0 or mask_at(map, cx, cy, T.HEDGE_BASE) >= 0
 end
 
 local fence = {
@@ -96,6 +113,24 @@ local fence = {
     if mask & 4 ~= 0 then parts[#parts + 1] = Map.part(S, "fence_rail_v", x + 6, y - 1) end
     parts[#parts + 1] = Map.part(S, "fence_post", x + 6, y + 3)
     return parts
+  end,
+}
+
+local hedge = {
+  build = function(map, cx, cy)
+    return {Map.part(map.S, "hecke_" .. max(0, mask_at(map, cx, cy, T.HEDGE_BASE)), cx * Map.TILE, cy * Map.TILE)}
+  end,
+}
+
+-- Tor: quer wie gewohnt, in einer senkrechten Zaun- oder Heckenlinie (Nachbar oben oder unten, keiner
+-- links oder rechts) als Gatter von der Seite (Rückmeldung 1.3.4).
+local gate = {
+  build = function(map, cx, cy)
+    local x, y = cx * Map.TILE, cy * Map.TILE
+    local v = (T.barrier_at(map, cx, cy - 1) or T.barrier_at(map, cx, cy + 1))
+      and not (T.barrier_at(map, cx - 1, cy) or T.barrier_at(map, cx + 1, cy))
+    if v then return {Map.part(map.S, "gate_v", x + 4, y - 6)} end
+    return {Map.part(map.S, "gate", x, y)}
   end,
 }
 
@@ -114,11 +149,11 @@ T.PROPS = {
   fence = fence,
   wohnwagen = {sprite = "wohnwagen", w = 3, h = 2, coll = "X", map = rgb(0xfb, 0xf8, 0xef)},
   stall_s = {sprite = "stable", w = 4, h = 3, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
-  gate = {sprite = "gate", map = rgb(0x7b, 0x4c, 0x2b)},
+  gate = gate,
   bank = {sprite = "bank", coll = "B", map = rgb(0xb0, 0x7a, 0x44)},
   lampe = {sprite = "lampe", coll = "L", map = rgb(0xf7, 0xd6, 0x5a)},
   blumenkuebel = {sprite = "blumenkuebel", coll = "K", map = rgb(0xe0, 0x47, 0x5a)},
-  hecke = {sprite = "hecke", coll = "H", map = rgb(0x37, 0x68, 0x2d)},
+  hecke = hedge,
   brunnen = {sprite = "brunnen", w = 2, h = 2, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
   teich = {sprite = "teich", w = 2, h = 2, coll = "X", dy = 4, map = rgb(0x4a, 0x8c, 0xc0)},
   statue = {sprite = "statue", coll = "L", map = rgb(0xc8, 0xcd, 0xd1)},
@@ -133,6 +168,7 @@ T.PROPS = {
   hangar = {sprite = "hangar", w = 6, h = 4, coll = "X", map = rgb(0x6d, 0x73, 0x7a)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
+gate.map, hedge.map = rgb(0x7b, 0x4c, 0x2b), rgb(0x37, 0x68, 0x2d)
 for _, id in ipairs(T.PLANT_IDS) do
   for stufe = 1, 3 do
     T.PROPS["pflanze_" .. id .. "_" .. stufe] = {sprite = "pflanze_" .. id .. "_" .. stufe, w = id == "apfelbaum" and 2 or 1,

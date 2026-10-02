@@ -129,6 +129,19 @@ function WorldScene.enter(arg)
     Farm.fence_rect(ctx, pl.x + 14, pl.y + 10, pl.x + 19, pl.y + 15, {pl.x + 16, pl.y + 10})
     Farm.fence_rect(ctx, pl.x + 14, pl.y + 2, pl.x + 18, pl.y + 6, nil)
     wild.count = 0
+  elseif arg and arg.hecken then
+    -- Hecken und Tore (Rückmeldung 1.3.4): Heckenreihe mit Tor quer, Heckenspalte mit Tor senkrecht,
+    -- kleine Koppel mit Tor in der linken (senkrechten) Seite, ein großer Apfelbaum
+    local pl = ctx.area.plot
+    ctx.money = 100000
+    for x = 13, 19 do Farm.place(ctx, x == 16 and "tor" or "hecke", pl.x + x, pl.y + 1) end
+    for y = 2, 6 do Farm.place(ctx, y == 4 and "tor" or "hecke", pl.x + 19, pl.y + y) end
+    Farm.fence_rect(ctx, pl.x + 13, pl.y + 3, pl.x + 17, pl.y + 7, {pl.x + 13, pl.y + 5})
+    Farm.place(ctx, "hecke", pl.x + 0, pl.y + 2)
+    ctx.player.x, ctx.player.y = (pl.x + 15) * 16 + 8, (pl.y + 9) * 16 + 12
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 40)
+    wild.count = 0
   elseif arg and arg.stammbaum then
     -- Vier Generationen: 8 wilde Urgroßeltern → Großeltern → Eltern → Fohlen C
     wild.count = 0

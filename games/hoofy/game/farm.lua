@@ -327,7 +327,7 @@ end
 -- id → Bild (prop), Größe in Kacheln; Boden-Ersatz bei Wegen.
 Farm.ITEMS = {
   bank = {prop = "bank"}, lampe = {prop = "lampe"}, blumenkuebel = {prop = "blumenkuebel"},
-  busch = {prop = "bush"}, hecke = {prop = "hecke"}, stein = {prop = "rock"}, baum = {prop = "tree"},
+  busch = {prop = "bush"}, hecke = {prop = "hecke", fence = true, hedge = true}, stein = {prop = "rock"}, baum = {prop = "tree"},
   brunnen = {prop = "brunnen", w = 2, h = 2}, teich = {prop = "teich", w = 2, h = 2}, statue = {prop = "statue"},
   weg = {ground = ":"}, boden = {ground = "s"},
   beet = {ground = "b"},
@@ -479,25 +479,31 @@ local function in_plot(farm, cx, cy, w, h)
   return true
 end
 
--- Gehört die Kachel zu einem Zaunstück (Zaun-Kollision A..P, Tor, Weidentor)?
+-- Gehört die Kachel zu einem Zaun- oder Heckenstück (Kollision A..P bzw. 0..?, Tor, Weidentor)?
 local function is_fence(map, farm, cx, cy)
   if cx < 0 or cy < 0 or cx >= map.w or cy >= map.h then return false end
-  local c = byte(map.coll[cy + 1], cx + 1) - Tiles.FENCE_BASE
-  if c >= 0 and c < 16 then return true end
+  if Tiles.barrier_at(map, cx, cy) then return true end
   local it = Farm.item_at(farm, cx, cy)
   if it and it.id == "tor" then return true end
   local g = start_gate(farm)
   return g ~= nil and g[1] == cx and g[2] == cy
 end
 
--- Zaunform einer Kachel aus den Nachbarn neu setzen (nur Zaunstücke mit Kollision, keine Tore).
+-- Zaun- oder Heckenform einer Kachel aus den Nachbarn neu setzen.
+-- Tore haben keine Kollision, ihr Bild hängt aber an den Nachbarn: neu zeichnen lassen.
 local function refit_fence(map, farm, cx, cy)
   if cx < 0 or cy < 0 or cx >= map.w or cy >= map.h then return end
-  local c = byte(map.coll[cy + 1], cx + 1) - Tiles.FENCE_BASE
-  if c < 0 or c >= 16 then return end
-  local m = (is_fence(map, farm, cx - 1, cy) and 1 or 0) + (is_fence(map, farm, cx + 1, cy) and 2 or 0) +
-    (is_fence(map, farm, cx, cy - 1) and 4 or 0) + (is_fence(map, farm, cx, cy + 1) and 8 or 0)
-  map:set("coll", cx, cy, string.char(Tiles.FENCE_BASE + m), true)
+  local ch = byte(map.coll[cy + 1], cx + 1)
+  local base = Tiles.FENCE_BASE
+  if ch - base < 0 or ch - base >= 16 then base = Tiles.HEDGE_BASE end
+  if ch - base >= 0 and ch - base < 16 then
+    -- Zäune verbinden sich mit Zaun, Hecke und Tor; Hecken nur mit Hecken (am Tor und Zaun schließen sie mit Rand ab)
+    local link = base == Tiles.HEDGE_BASE and function(x, y) return Tiles.hedge_at(map, x, y) end
+      or function(x, y) return is_fence(map, farm, x, y) end
+    local m = (link(cx - 1, cy) and 1 or 0) + (link(cx + 1, cy) and 2 or 0) + (link(cx, cy - 1) and 4 or 0) +
+      (link(cx, cy + 1) and 8 or 0)
+    map:set("coll", cx, cy, string.char(base + m), true)
+  end
   map:refresh_block_at(cx, cy)
 end
 
@@ -547,7 +553,7 @@ local function put(map, farm, it)
   if d.gate then
     -- Tor: begehbar, verbindet die Nachbarzäune
   elseif d.fence then
-    map:set("coll", it.cx, it.cy, string.char(Tiles.FENCE_BASE), true)
+    map:set("coll", it.cx, it.cy, string.char(d.hedge and Tiles.HEDGE_BASE or Tiles.FENCE_BASE), true)
   else
     for dy = 0, h - 1 do
       for dx = 0, w - 1 do map:set("coll", it.cx + dx, it.cy + dy, P.coll, true) end

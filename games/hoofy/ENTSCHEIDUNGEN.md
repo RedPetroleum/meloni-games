@@ -545,4 +545,12 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 ## E82 Tagesanzeige (Rückmeldung nach 1.3.4)
 - „Tag N“ steht nicht mehr oben links (Sonne/Mond und Balken rücken nach links). Beginnt ein Tag (nach dem Schlafen
   oder durchgemacht), steht „Tag N“ 2,5 s groß in der Mitte (Schrift 12×24); die Meldungen „Tag N beginnt.“ entfallen
-  dafür. Im Pausenmenü steht „Tag N“ rechts in der Titelzeile neben „Pause“, dezent im Braun des Kachelrands.
+  dafür. Im Pausenmenü steht „Tag N“ rechts in der Titelzeile neben „Pause“, dezent in hellem, blassem Braun.
+
+## E83 Apfelbaum, Hecken, Tor (Rückmeldung nach 1.3.4)
+- Apfelbaum (groß, leer, grün, jung): runde Krone aus Blättertuffs mit geschlossenem Umriss statt Kasten mit Lücke oben.
+- Hecken verbinden sich wie Zäune: 16 Formen hecke_<Maske> (Kollision "0".."?" statt "H"), mit Nachbar oben reicht
+  die Hecke bis zur Kachelkante. Hecken verbinden sich nur mit Hecken; an Tor und Zaun schließen sie mit Rand ab,
+  Zäune führen ihre Latten dagegen bis an die Hecke. Alte Spielstände: Hecken bekommen beim Laden ihre Form.
+- Tor: weißes Gatter mit Schräge und goldenen Pfostenkappen, hebt sich vom braunen Zaun ab. In einer senkrechten
+  Zaun- oder Heckenlinie (Nachbar oben/unten, keiner links/rechts) steht es gedreht (gate_v). Szenario `hecken`.
