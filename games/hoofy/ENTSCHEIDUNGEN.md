@@ -561,7 +561,8 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Pferdemenü: ab 100 „Folgen“ (Folgen lassen) und „Bleib“ (Hierbleiben) statt „Leine“ und „Lösen“. Pfiff bleibt bei 90,
   Pferde unter 100 kommen dann an die Leine. Das Herz über dem Pferd bleibt ab Bindung 70 (B.HEART, eigene Wahl).
 - Füttern/Striegeln (Rückmeldung nach 1.3.4): danach 2 s ein Balken über dem Pferd (über der Sprechblase), orange =
-  Sättigung (100 − Hunger), hellblau = Sauberkeit; füllt sich kurz vom alten auf den neuen Wert. Auch im Stall.
+  Sättigung (100 − Hunger), kräftiges Hellblau (#3fb0ee, passend zum Orange) = Sauberkeit; Zähmen grün. Füllt sich
+  kurz vom alten auf den neuen Wert. Auch im Stall. Info-Seite unverändert.
 - geändert (E16/E28, Rückmeldung nach 1.3.4): Kein Weg-/Hinschauen mehr. In der Zone (110 px) bleibt das Wildpferd
   grasend stehen; es flieht nur, wenn es dich hört (Lärmpegel, E81) oder du sprintest. A geht jederzeit, dann still
   halten. Die Bindung wirkt nur noch auf die Haltezeit (Wild.tame_frames).

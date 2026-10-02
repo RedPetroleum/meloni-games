@@ -366,7 +366,7 @@ end
 -- Wertbalken nach Füttern und Striegeln (Rückmeldung 1.3.4): kind "satt" (100 − Hunger) oder "sauber",
 -- füllt sich in BAR_FILL Frames von from auf to und steht BAR_SHOW Frames.
 local BAR_SHOW, BAR_FILL = 120, 20
-local BAR_COLOR = {satt = rgb(0xee, 0x7a, 0x26), sauber = rgb(0x8f, 0xc8, 0xe6)}
+local BAR_COLOR = {satt = rgb(0xee, 0x7a, 0x26), sauber = rgb(0x3f, 0xb0, 0xee)}   -- Hellblau als Gegenstück zum Orange
 
 function Horse:show_bar(kind, from, to)
   self.bar = {kind = kind, from = from, to = to, t0 = frame()}
