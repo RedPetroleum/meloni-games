@@ -85,6 +85,7 @@ return {
     C.eq(#ctx.herd, 1, "im Bestand")
     C.eq(ctx.herd[1].wild, nil)
     C.ok(h.state == "led" or h.state == "follow", "kommt an die Leine (A8)")
+    C.eq(require("game.bubbles").choose(h, frame()), "emo_heart", "zeigt ein Herz")
   end},
   {"Frisch gezähmt: erst nach 3× Heu, Striegeln und Streicheln reitbar (E71)", function()
     local ctx, w, h = setup(35)

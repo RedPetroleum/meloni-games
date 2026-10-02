@@ -361,7 +361,7 @@ function Horse:draw_shadow()
 end
 
 local BEAM, BEAM_DARK = rgb(0xb0, 0x7a, 0x44), rgb(0x55, 0x33, 0x20)
-local TAME_BG, TAME_FG = rgb(0x2b, 0x1f, 0x1d), rgb(0xe0, 0x47, 0x5a)
+local TAME_BG, TAME_FG = rgb(0x2b, 0x1f, 0x1d), rgb(0x6c, 0xc8, 0x4a)   -- Balken grün (Rückmeldung 1.3.4)
 
 function Horse:draw()
   if self.hidden then return end
@@ -467,6 +467,7 @@ function Wild:tame(h)
   self.ctx.herd[#self.ctx.herd + 1] = h.data
   self.ctx.herd_horses[#self.ctx.herd_horses + 1] = h
   self:attach(h)
+  h:react("emo_heart", 150)                      -- gezähmt: Herz (Rückmeldung 1.3.4)
   return h
 end
 
