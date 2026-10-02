@@ -81,6 +81,7 @@ local function draw_box(look, i, d, h, sel, now)
     G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", cx, y1 - 5, i % 2 == 0, d.schmuck)
     local b = h and Bubbles.choose(h, now)
     if b then Bubbles.draw(S, b, cx + (i % 2 == 0 and -8 or 8), y1 - 50, now) end
+    if h and h.draw_bar then h:draw_bar(cx, y1 - 68) end           -- Füttern/Striegeln (Rückmeldung 1.3.4)
     local name = d.name
     while textw(name) > x1 - x0 - 8 do name = name:sub(1, #name - 1) end
     local nw = textw(name)

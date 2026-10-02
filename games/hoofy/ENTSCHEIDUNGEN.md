@@ -560,3 +560,5 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Folgen (Rückmeldung nach 1.3.4): frei folgen erst ab Bindung 100 (KATALOG §2 auf Wunsch des Menschen, vorher 70).
   Pferdemenü: ab 100 „Folgen“ (Folgen lassen) und „Bleib“ (Hierbleiben) statt „Leine“ und „Lösen“. Pfiff bleibt bei 90,
   Pferde unter 100 kommen dann an die Leine. Das Herz über dem Pferd bleibt ab Bindung 70 (B.HEART, eigene Wahl).
+- Füttern/Striegeln (Rückmeldung nach 1.3.4): danach 2 s ein Balken über dem Pferd (über der Sprechblase), orange =
+  Sättigung (100 − Hunger), hellblau = Sauberkeit; füllt sich kurz vom alten auf den neuen Wert. Auch im Stall.

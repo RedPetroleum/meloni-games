@@ -383,6 +383,29 @@ function Horse:draw()
   end
 end
 
+-- Wertbalken nach Füttern und Striegeln (Rückmeldung 1.3.4): kind "satt" (100 − Hunger) oder "sauber",
+-- füllt sich in BAR_FILL Frames von from auf to und steht BAR_SHOW Frames.
+local BAR_SHOW, BAR_FILL = 120, 20
+local BAR_COLOR = {satt = rgb(0xee, 0x7a, 0x26), sauber = rgb(0x8f, 0xc8, 0xe6)}
+
+function Horse:show_bar(kind, from, to)
+  self.bar = {kind = kind, from = from, to = to, t0 = frame()}
+end
+
+-- Zeichnet den Wertbalken mittig über x, y (Bildschirm- oder Weltkoordinaten), solange er steht.
+function Horse:draw_bar(x, y)
+  local b = self.bar
+  if not b then return end
+  local age = frame() - b.t0
+  if age > BAR_SHOW then self.bar = nil return end
+  local v = b.from + (b.to - b.from) * min(1, age / BAR_FILL)
+  local w = 24
+  local x0, y0 = flr(x) - w // 2, flr(y)
+  rectfill(x0 - 1, y0 - 1, x0 + w, y0 + 3, TAME_BG)
+  local fill = flr(w * mid(0, v, 100) / 100)
+  if fill > 0 then rectfill(x0, y0, x0 + fill - 1, y0 + 2, BAR_COLOR[b.kind]) end
+end
+
 -- Blase über dem Kopf (E10). Wildpferde, die fliehen, haben Angst.
 function Horse:draw_over()
   if self.hidden then return end
@@ -394,6 +417,7 @@ function Horse:draw_over()
     rectfill(x0, y0, x0 + flr(w * self.taming / self.tame_need), y0 + 2, TAME_FG)
     return
   end
+  self:draw_bar(self.x, self.y - 46)                      -- über der Sprechblase
   local b = (self.state == "warn" or self.alarm) and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end

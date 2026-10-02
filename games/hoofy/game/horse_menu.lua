@@ -217,7 +217,9 @@ function HM:act(id)
   if self.stage == "food" then
     if id == "close" then return self:main() end
     ctx.inv[id] = ctx.inv[id] - 1
+    local satt = 100 - d.hunger
     local _, bond = Care.feed(d, id)
+    h:show_bar("satt", satt, 100 - d.hunger)
     ctx.sfx.eat()
     h:react(bond > 0 and "emo_heart" or "emo_apple", 120)
     -- Menü bleibt offen (Rückmeldung 1.3.4): neu aufbauen (Anzahlen), Auswahl bleibt
@@ -241,7 +243,9 @@ function HM:act(id)
   elseif id == "breed" then
     self:breed()
   elseif id == "brush" then
+    local sauber = d.sauberkeit
     Care.brush(d)
+    h:show_bar("sauber", sauber, d.sauberkeit)
     ctx.sfx.brush()
     h:react("emo_sparkle", 120)
     self:close()
@@ -293,6 +297,7 @@ end
 -- Raster unten mittig; Listen neben dem Pferd (sx, sy: Bildschirmlage des Pferds).
 function HM:draw(sx, sy)
   if self.m.grid then self.m:draw() else self.m:draw(sx + 24, sy - 50) end
+  if sx and not self.env.in_stall then self.horse:draw_bar(sx, sy - 46) end   -- Balken über dem Menü sichtbar
 end
 
 return HM
