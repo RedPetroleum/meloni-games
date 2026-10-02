@@ -109,7 +109,7 @@ function Horse:step(dx, dy)
   return ok_x or ok_y
 end
 
--- Gezähmtes Pferd: "led" an der Leine, "follow" frei hinterher (Bindung ≥ 70), "free" lose,
+-- Gezähmtes Pferd: "led" an der Leine, "follow" frei hinterher (Bindung 100), "free" lose,
 -- "stand" bleibt stehen.
 function Horse:update_tamed()
   if self.hidden then return end          -- im Stall oder im Anhänger
@@ -526,7 +526,7 @@ function Wild:spawn()
   return h
 end
 
--- Nimmt ein gezähmtes Pferd mit: an die Leine (höchstens Leash.MAX_LED), ab Bindung 70 frei folgend
+-- Nimmt ein gezähmtes Pferd mit: an die Leine (höchstens Leash.MAX_LED), ab Bindung 100 frei folgend
 -- (zusammen höchstens Leash.MAX_LEAD). Geht das nicht, steht es lose: false.
 function Wild:can_lead(h)
   if #self.ctx.lead >= Leash.MAX_LEAD then return false end

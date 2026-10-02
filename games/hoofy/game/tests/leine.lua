@@ -78,8 +78,8 @@ return {
     C.ok(w:try_leash() == h, "wieder anleinen")
     C.eq(#ctx.lead, 1)
   end},
-  {"Bindung ≥ 70 folgt ohne Leine und reißt nie aus, ≥ 90 kommt auf Pfiff", function()
-    local ctx, w, h = setup(70)
+  {"Bindung 100 folgt ohne Leine und reißt nie aus, ≥ 90 kommt auf Pfiff (an die Leine)", function()
+    local ctx, w, h = setup(100)
     C.eq(h.state, "follow")
     for _ = 1, 3000 do ctx.world:update() end
     C.eq(h.state, "follow", "reißt nicht aus")
@@ -88,7 +88,9 @@ return {
     for _ = 1, 200 do ctx2.world:update() end
     C.ok(h2.state == "free", "lose")
     C.eq(w2:whistle(), 1, "Pfiff holt es")
-    C.eq(h2.state, "follow")
+    C.eq(h2.state, "led", "unter 100 an die Leine")
+    local _, _, h4 = setup(99)
+    C.eq(h4.state, "led", "Bindung 99 folgt noch nicht frei")
     local ctx3, w3, h3 = setup(75)
     w3:escape(h3)
     for _ = 1, 200 do ctx3.world:update() end
@@ -101,12 +103,28 @@ return {
     local a = w:add_own({rasse = "haflinger", name = "A", bindung = 40})
     local b = w:add_own({rasse = "haflinger", name = "B", bindung = 40})
     local c = w:add_own({rasse = "haflinger", name = "C", bindung = 40})
-    local f = w:add_own({rasse = "haflinger", name = "F", bindung = 80})
+    local f = w:add_own({rasse = "haflinger", name = "F", bindung = 100})
     C.ok(w:attach(a) and a.state == "led")
     C.ok(w:attach(b) and b.state == "led", "zweites am Strick")
     C.ok(not w:attach(c), "drittes passt nicht")
     C.eq(c.state, "free")
     C.ok(w:attach(f) and f.state == "follow", "frei folgendes geht trotzdem")
     C.eq(w:led_count(), 2)
+  end},
+  {"Pferdemenü: Leine/Lösen unter Bindung 100, Folgen/Bleib ab 100", function()
+    local HorseMenu = require("game.horse_menu")
+    local function short(bond, attach)
+      local ctx = Stage.build(1)
+      local w = Wild.new(ctx, 3)
+      w.count = 0
+      local h = w:add_own({rasse = "haflinger", name = "X", bindung = bond})
+      if attach then w:attach(h) end
+      local m = HorseMenu.open({ctx = ctx, wild = w, nav = {push = function() end}, say = function() end}, h)
+      for _, it in ipairs(m.m.items) do if it.id == "leash" then return it.short end end
+    end
+    C.eq(short(99, false), "Leine")
+    C.eq(short(99, true), "Lösen")
+    C.eq(short(100, false), "Folgen")
+    C.eq(short(100, true), "Bleib")
   end},
 }

@@ -557,3 +557,6 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Zähmen (Rückmeldung nach 1.3.4): Fortschrittsbalken grün statt rot; gleich nach dem Zähmen zeigt das Pferd 2,5 s ein Herz.
 - Füttern (Rückmeldung nach 1.3.4): Das Futtermenü bleibt nach dem Füttern offen (Anzahlen aktualisiert, Auswahl bleibt),
   B führt zurück ins Pferdemenü. Gras im KATALOG §7 auf Wunsch des Menschen 3 / 3 Tage statt 1 / 1 Tag.
+- Folgen (Rückmeldung nach 1.3.4): frei folgen erst ab Bindung 100 (KATALOG §2 auf Wunsch des Menschen, vorher 70).
+  Pferdemenü: ab 100 „Folgen“ (Folgen lassen) und „Bleib“ (Hierbleiben) statt „Leine“ und „Lösen“. Pfiff bleibt bei 90,
+  Pferde unter 100 kommen dann an die Leine. Das Herz über dem Pferd bleibt ab Bindung 70 (B.HEART, eigene Wahl).

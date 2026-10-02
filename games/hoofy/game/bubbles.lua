@@ -15,6 +15,7 @@ local TRAIT = {
 B.HUNGER = K.stats.bindung.hunger_grenze - 10      -- 60
 B.DIRTY = K.stats.sauberkeit.schmutzig + 10        -- 40
 B.TIRED = 15
+B.HEART = 70                    -- Herz ab dieser Bindung (war die Folgen-Schwelle, die ist jetzt 100)
 
 -- Charakter-Blase: alle 12 s für 2 s, je Pferd um einen festen Wert verschoben.
 local function trait_phase(h, now)
@@ -34,7 +35,7 @@ function B.choose(h, now)
   if d.sauberkeit < B.DIRTY then return "emo_dirty" end
   if d.energie < B.TIRED then return "emo_zzz" end
   if (h.force_trait or trait_phase(h, now)) and TRAIT[d.zug] then return TRAIT[d.zug] end
-  if (h.heart_t or 0) > 0 and d.bindung >= K.stats.bindung.folgt then return "emo_heart" end
+  if (h.heart_t or 0) > 0 and d.bindung >= B.HEART then return "emo_heart" end
   return nil
 end
 

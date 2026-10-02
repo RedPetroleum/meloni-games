@@ -31,7 +31,7 @@ Ausdauer wird durch lange Ritte und Jobs trainiert und legt die tägliche Energi
 
 | Wert | Start | Pro Tag | Wirkung |
 |---|---|---|---|
-| Bindung | Rasse ± Charakter | +2 Streicheln, +1 je Fütterung, +1 je Min. Reiten; −3 bei Hunger > 70, −2 bei Sauberkeit < 30 | < 20 zickig (verweigert Reiten zu 50 %), ≥ 40 reitbar, ≥ 70 folgt ohne Leine, ≥ 90 kommt auf Pfiff |
+| Bindung | Rasse ± Charakter | +2 Streicheln, +1 je Fütterung, +1 je Min. Reiten; −3 bei Hunger > 70, −2 bei Sauberkeit < 30 | < 20 zickig (verweigert Reiten zu 50 %), ≥ 40 reitbar, ≥ 100 folgt ohne Leine, ≥ 90 kommt auf Pfiff |
 | Hunger | 30 | +25 (verfressen +35) | > 70: Bindung sinkt; < 10 über 2 Tage: überfüttert |
 | Gewicht | 50 | überfüttert +3, Hunger > 70 −3 | Abweichung > 15 von 50 senkt Tempo und Stärke um 1 % je Punkt darüber |
 | Sauberkeit | 60 | Stall −5, Weide −10, frei −20, Regen −15 | < 30: Bindung sinkt |

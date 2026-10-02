@@ -20,7 +20,7 @@ return {
     zickig = 20,
     zickig_verweigert = 50,
     reitbar = 40,
-    folgt = 70,
+    folgt = 100,
     pfiff = 90,
   },
   hunger = {

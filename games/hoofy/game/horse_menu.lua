@@ -12,6 +12,7 @@ local Breeding = require("game.breeding")
 local Screens = require("game.screens")
 local K = require("game.katalog")
 local H = require("game.horse_model")
+local Leash = require("game.leash")
 
 local HM = {}
 HM.__index = HM
@@ -70,7 +71,14 @@ function HM:main()
     items[#items + 1] = {label = partners and "Zucht" or ("Zucht: " .. why), id = "breed", dim = not partners,
       icon = "ico_zucht", short = "Zucht"}
   else
-    items[#items + 1] = {label = led and "Leine lösen" or "Anleinen", id = "leash", icon = "ico_leine", short = led and "Lösen" or "Leine"}
+    -- Ab Bindung 100 (KATALOG §2) folgt es ohne Leine: dann „Folgen“ und „Bleib“ statt „Leine“ und „Lösen“
+    local free = h.state == "follow" or (not led and h.data.bindung >= Leash.FOLLOW)
+    local label, short
+    if h.state == "follow" then label, short = "Hierbleiben", "Bleib"
+    elseif free then label, short = "Folgen lassen", "Folgen"
+    elseif led then label, short = "Leine lösen", "Lösen"
+    else label, short = "Anleinen", "Leine" end
+    items[#items + 1] = {label = label, id = "leash", icon = "ico_leine", short = short}
     items[#items + 1] = {label = "Aufsitzen", id = "mount", icon = "ico_reiten", short = "Reiten"}
   end
   items[#items + 1] = {label = "Ausrüsten", id = "gear", icon = "ico_hufeisen", short = "Zubehör"}
@@ -248,7 +256,9 @@ function HM:act(id)
     self:close()
   elseif id == "leash" then
     if h.state == "led" or h.state == "follow" then
-      if wild:release(h) then say(d.name .. " bleibt auf der Weide.") else say(d.name .. " ist frei.") end
+      local following = h.state == "follow"
+      if wild:release(h) then say(d.name .. " bleibt auf der Weide.")
+      else say(d.name .. (following and " bleibt hier." or " ist frei.")) end
     elseif wild:attach(h) then
       say(d.name .. (h.state == "follow" and " folgt dir." or " ist an der Leine."))
     else
