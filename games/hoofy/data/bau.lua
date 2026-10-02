@@ -95,7 +95,7 @@ return {
       name = "Schuppen",
       text = "Fahrrad + Mofa",
       wirkung = {},
-      preis = 600,
+      preis = 1000,
       fahrzeuge = {"fahrrad", "mofa"},
     },
     {

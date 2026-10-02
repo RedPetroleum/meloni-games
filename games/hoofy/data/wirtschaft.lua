@@ -7,7 +7,7 @@ return {
     {
       nr = 1,
       ziel = "Fahrrad + Schuppen + Anhänger 1",
-      kosten = 3600,
+      kosten = 3000,
       einnahmen = 310,
       tage = 12,
     },

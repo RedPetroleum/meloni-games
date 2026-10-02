@@ -196,7 +196,7 @@ Abreißen bringt 100 % des Preises zurück.
 | Häuschen / Villa | 1 000 / 8 000 | schlafen, Schönheit +20 / +100 |
 | Stall S / M / L / XL | 300 / 900 / 2 500 / 6 000 | 2 / 4 / 8 / 12 Plätze, 1 / 2 / 3 / 4 Bindung pro Tag |
 | Zaun (je Kachel) / Tor | 5 / 30 | Weide |
-| Schuppen / Garage / Hangar | 600 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
+| Schuppen / Garage / Hangar | 1 000 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
 | Göpel-Generator | 1 500 | 40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie) |
 | Beet (je Kachel) | 0 | Pflanzen anbauen (siehe Anbau), braucht eine Hacke |
 | Bank / Lampe / Blumenkübel | 40 / 60 / 20 | Schönheit +3 / +4 / +2 |
@@ -209,7 +209,7 @@ Abreißen bringt 100 % des Preises zurück.
 | Zugfahrzeug | Preis | Gebiete bis | Fahrtkosten je Gebiet Entfernung |
 |---|---|---|---|
 | zu Fuß | – | 1 | – |
-| Fahrrad | 1 800 | 2 | 0 |
+| Fahrrad | 800 | 2 | 0 |
 | Mofa | 10 000 | 3 | 5 |
 | Kleinwagen | 25 000 | 4 | 10 |
 | SUV | 80 000 | 5 | 20 |
@@ -300,7 +300,7 @@ Startgeld **300**, Start mit Wohnwagen, Stall S und Weide, ohne Pferd, ohne Satt
 
 | Phase | Ziel | Kosten | Einnahmen/Tag (netto) | Tage | Spielzeit |
 |---|---|---|---|---|---|
-| 1 | Fahrrad + Schuppen + Anhänger 1 | 3 600 (3 300 nach Startgeld) | ~310: Jobs, ab Tag 5 ein Wildpferd am Tag an den Käufer | 12 | 0:55 h |
+| 1 | Fahrrad + Schuppen + Anhänger 1 | 3 000 (2 700 nach Startgeld) | ~310: Jobs, ab Tag 5 ein Wildpferd am Tag an den Käufer | 12 | 0:55 h |
 | 2 | Mofa + Anhänger 2 + Stall M | 14 400 | ~880: Wildpferde aus dem Birkenwald, Kreis-Turniere | 18 | 1:20 h |
 | 3 | Kleinwagen + Garage + Anhänger 3 | 41 000 | ~2 400: Pferde aus den Flussauen, Bezirk-Turniere | 20 | 1:30 h |
 | 4 | SUV + Anhänger 4 | 92 000 | ~3 600: Steppenpferde, Land-Turniere | 27 | 2:00 h |

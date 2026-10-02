@@ -11,7 +11,7 @@ return {
     {
       id = "fahrrad",
       name = "Fahrrad",
-      preis = 1800,
+      preis = 800,
       gebiete = 2,
       fahrtkosten = 0,
     },
