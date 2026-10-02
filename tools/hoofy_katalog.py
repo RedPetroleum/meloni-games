@@ -202,6 +202,11 @@ def stats(s):
         "fohlen_sigma": s.find(r"σ = (\d+)", gen["Gen-Stat (Fohlen)"]),
         "training_tempo": s.find(r"Trainingstempo (\d+(?:,\d+)?)", gen["Trainingszuwachs"]),
         "training_bonus_max": s.find(r"bis ×(\d+(?:,\d+)?)", gen["Trainingszuwachs"]),
+        "training_tag": {
+            "weich": s.find(r"bis (\d+) voll", gen["Trainingsgrenze"]),
+            "teiler": 3 if "ein Drittel" in gen["Trainingsgrenze"] else s.find(r"ein (\d+)tel", gen["Trainingsgrenze"]),
+            "hart": s.find(r"höchstens (\d+)", gen["Trainingsgrenze"]),
+        },
         "bindung": {
             "streicheln": s.find(r"\+(\d+) Streicheln", b["Pro Tag"]),
             "fuettern": s.find(r"\+(\d+) je Fütterung", b["Pro Tag"]),

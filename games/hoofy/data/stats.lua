@@ -10,6 +10,11 @@ return {
   fohlen_sigma = 6,
   training_tempo = 3,
   training_bonus_max = 1.5,
+  training_tag = {
+    weich = 10,
+    teiler = 3,
+    hart = 15,
+  },
   bindung = {
     streicheln = 2,
     fuettern = 1,

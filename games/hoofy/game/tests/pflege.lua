@@ -45,6 +45,20 @@ return {
     local e = horse("eitel")
     C.near(Care.training_bonus(e), 1 + 0.25 * 0.6 * 2 + 0.125, 1e-6)
   end},
+  {"Tagesgrenze je Stat: bis 10 voll, dann ein Drittel, höchstens 15; Drachenfrucht doppelt; neuer Tag", function()
+    local d = horse("nachteule", {sauberkeit = 0, bindung = 0})   -- Bonus 1: Zuwachs = 3 × Basis
+    d.pot.tempo = 100
+    C.near(Care.train(d, "tempo", 3), 9, 1e-6)
+    C.near(Care.train(d, "tempo", 3), 1 + 8 / 3, 1e-6, "1 voll, Rest ein Drittel")
+    C.near(Care.train(d, "tempo", 3), 15 - 9 - 1 - 8 / 3, 1e-6, "ein Drittel, bis zur harten Grenze")
+    C.eq(Care.train(d, "tempo", 3), 0, "über 15 nichts mehr")
+    C.near(d.heute_train.tempo, 15, 1e-6)
+    C.near(Care.train(d, "staerke", 1), 3, 1e-6, "andere Stats eigene Grenze")
+    require("game.days").horse_day(d)
+    C.eq(d.heute_train, nil, "neuer Tag")
+    d.boost = 1
+    C.near(Care.daily_cap(d, 0, 40), 20 + 10 / 3, 1e-6, "Drachenfrucht: 20 / 30")
+  end},
   {"Futter nach Katalog: Heu, Hafer, Karotte, Premium", function()
     local d = horse("faul", {hunger = 80, energie = 50})
     d.gen.ausdauer, d.pot.ausdauer = 90, 100

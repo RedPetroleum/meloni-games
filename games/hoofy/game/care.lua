@@ -38,12 +38,26 @@ function Care.training_gain(data, key, base)
   return gain
 end
 
--- Trainiert: erhöht data.train[key], begrenzt durch das Max-Potenzial. Gibt den Zuwachs zurück.
+-- Tagesgrenze je Stat (KATALOG §2): bis "weich" voll, darüber nur 1/teiler, bei "hart" Schluss; Drachenfrucht
+-- verdoppelt beide Grenzen. done = heute schon trainiert. Gibt den Zuwachs nach der Grenze zurück.
+function Care.daily_cap(data, done, gain)
+  local t = K.stats.training_tag
+  local f = (data.boost or 0) > 0 and 2 or 1
+  local soft, hard = t.weich * f, t.hart * f
+  local full = min(gain, max(0, soft - done))
+  return full + min((gain - full) / t.teiler, max(0, hard - max(done, soft)))
+end
+
+-- Trainiert: erhöht data.train[key], begrenzt durch Tagesgrenze und Max-Potenzial. Gibt den Zuwachs zurück.
+-- data.heute_train[key] zählt den Zuwachs des Tages, A12 (days.lua) setzt ihn zurück.
 function Care.train(data, key, base)
-  local gain = Care.training_gain(data, key, base)
+  data.heute_train = data.heute_train or {}
+  local done = data.heute_train[key] or 0
+  local gain = Care.daily_cap(data, done, Care.training_gain(data, key, base))
   local room = data.pot[key] - H.stat(data, key)
   gain = min(gain, max(0, room))
   data.train[key] = data.train[key] + gain
+  data.heute_train[key] = done + gain
   return gain
 end
 

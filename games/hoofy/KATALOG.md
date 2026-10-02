@@ -24,6 +24,7 @@ Gilt für **Geschwindigkeit, Stärke, Aufspürung, Ausdauer**. Alle anderen Wert
 | Max-Potenzial | Gen-Stat + Rassen-Spanne ± Zufall (σ = 5), höchstens 100 |
 | Gen-Stat (Fohlen) | Mittel der Eltern ± Zufall (σ = 6), dann Inzucht-Malus |
 | Trainingszuwachs | Basis × Trainingstempo 3 × Bonus aus Sauberkeit und Bindung (bis ×1,5), gleichmäßig bis zum Max-Potenzial (Bindung zählt nicht dazu) |
+| Trainingsgrenze | je Stat und Tag bis 10 voll, darüber ein Drittel, höchstens 15 (Drachenfrucht: Grenzen doppelt) |
 
 Ausdauer wird durch lange Ritte und Jobs trainiert und legt die tägliche Energie fest.
 
