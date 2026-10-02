@@ -200,6 +200,7 @@ def stats(s):
         "potenzial_sigma": s.find(r"σ = (\d+)", gen["Max-Potenzial"]),
         "potenzial_max": s.find(r"höchstens (\d+)", gen["Max-Potenzial"]),
         "fohlen_sigma": s.find(r"σ = (\d+)", gen["Gen-Stat (Fohlen)"]),
+        "training_tempo": s.find(r"Trainingstempo (\d+(?:,\d+)?)", gen["Trainingszuwachs"]),
         "training_bonus_max": s.find(r"bis ×(\d+(?:,\d+)?)", gen["Trainingszuwachs"]),
         "bindung": {
             "streicheln": s.find(r"\+(\d+) Streicheln", b["Pro Tag"]),

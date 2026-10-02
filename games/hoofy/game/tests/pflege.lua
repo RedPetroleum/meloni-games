@@ -14,15 +14,16 @@ local function horse(zug, extra)
 end
 
 return {
-  {"Trainingsformel: Basis × Bonus, gleichmäßig bis zum Potenzial", function()
+  {"Trainingsformel: Basis × Trainingstempo × Bonus, gleichmäßig bis zum Potenzial", function()
     local d = horse("nachteule")
     -- Bonus: 1 + 0,25 × 0,6 + 0,25 × 0,5 = 1,275
     C.near(Care.training_bonus(d), 1.275, 1e-6)
-    C.near(Care.training_gain(d, "tempo", 3), 3 * 1.275, 1e-6)
+    -- Trainingstempo 3
+    C.near(Care.training_gain(d, "tempo", 1), 3 * 1.275, 1e-6)
     d.train.tempo = 10                                -- Gesamt 50: gleicher Zuwachs
-    C.near(Care.training_gain(d, "tempo", 3), 3 * 1.275, 1e-6)
-    C.near(Care.train(d, "tempo", 5), 5 * 1.275, 1e-6)
-    C.near(Care.train(d, "tempo", 5), 20 - 10 - 5 * 1.275, 1e-6, "kurz vor dem Potenzial nur der Rest")
+    C.near(Care.training_gain(d, "tempo", 1), 3 * 1.275, 1e-6)
+    C.near(Care.train(d, "tempo", 1), 3 * 1.275, 1e-6)
+    C.near(Care.train(d, "tempo", 5), 20 - 10 - 3 * 1.275, 1e-6, "kurz vor dem Potenzial nur der Rest")
     d.train.tempo = 20                                -- am Potenzial: nichts mehr
     C.eq(Care.training_gain(d, "tempo", 3), 0)
     local g = Care.train(d, "tempo", 5)
@@ -40,7 +41,7 @@ return {
     local a, b = horse("nachteule"), horse("faul")
     C.near(Care.training_gain(b, "staerke", 2), Care.training_gain(a, "staerke", 2) * 0.8, 1e-6)
     a.boost = 1
-    C.near(Care.training_gain(a, "staerke", 2), 2 * 2 * 1.275, 1e-6)
+    C.near(Care.training_gain(a, "staerke", 2), 3 * 2 * 2 * 1.275, 1e-6)
     local e = horse("eitel")
     C.near(Care.training_bonus(e), 1 + 0.25 * 0.6 * 2 + 0.125, 1e-6)
   end},

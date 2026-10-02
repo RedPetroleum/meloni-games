@@ -23,7 +23,7 @@ Gilt für **Geschwindigkeit, Stärke, Aufspürung, Ausdauer**. Alle anderen Wert
 | Gen-Stat (Wildpferd) | Rassen-Basis ± Zufall (Normalverteilung, σ = 8), 1–100 (Ausdauer 50–100) |
 | Max-Potenzial | Gen-Stat + Rassen-Spanne ± Zufall (σ = 5), höchstens 100 |
 | Gen-Stat (Fohlen) | Mittel der Eltern ± Zufall (σ = 6), dann Inzucht-Malus |
-| Trainingszuwachs | Basis × Bonus aus Sauberkeit und Bindung (bis ×1,5), gleichmäßig bis zum Max-Potenzial |
+| Trainingszuwachs | Basis × Trainingstempo 3 × Bonus aus Sauberkeit und Bindung (bis ×1,5), gleichmäßig bis zum Max-Potenzial (Bindung zählt nicht dazu) |
 
 Ausdauer wird durch lange Ritte und Jobs trainiert und legt die tägliche Energie fest.
 
@@ -261,9 +261,9 @@ Aufspürung +1 je Fund (mit Trainingsformel).
 
 | Job | ab | Lohn | Training | Energie |
 |---|---|---|---|---|
-| Postritt | Bindung 40 | 15 + Tempo / 2 | Tempo +2, Ausdauer +1 | 30 |
-| Kutschtaxi | Stärke 30 | 15 + Stärke / 2 | Stärke +2, Ausdauer +1 | 30 |
-| Pflügen | Stärke 50 | 25 + Stärke / 3 | Stärke +3, Ausdauer +1 | 40 |
+| Postritt | Bindung 40 | 25 + Tempo / 2 | Tempo +2, Ausdauer +1 | 30 |
+| Kutschtaxi | Stärke 30 | 25 + Stärke / 2 | Stärke +2, Ausdauer +1 | 30 |
+| Pflügen | Stärke 50 | 40 + Stärke / 3 | Stärke +3, Ausdauer +1 | 40 |
 
 Je Pferd ein Job pro Tag, jeden Job gibt es einmal pro Tag.
 

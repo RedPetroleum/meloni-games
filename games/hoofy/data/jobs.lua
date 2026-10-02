@@ -6,7 +6,7 @@ return {
       name = "Postritt",
       braucht = "bindung",
       braucht_wert = 40,
-      lohn_basis = 15,
+      lohn_basis = 25,
       lohn_stat = "tempo",
       lohn_teiler = 2,
       training = {
@@ -20,7 +20,7 @@ return {
       name = "Kutschtaxi",
       braucht = "staerke",
       braucht_wert = 30,
-      lohn_basis = 15,
+      lohn_basis = 25,
       lohn_stat = "staerke",
       lohn_teiler = 2,
       training = {
@@ -34,7 +34,7 @@ return {
       name = "Pflügen",
       braucht = "staerke",
       braucht_wert = 50,
-      lohn_basis = 25,
+      lohn_basis = 40,
       lohn_stat = "staerke",
       lohn_teiler = 3,
       training = {

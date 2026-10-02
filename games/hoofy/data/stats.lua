@@ -8,6 +8,7 @@ return {
   potenzial_sigma = 5,
   potenzial_max = 100,
   fohlen_sigma = 6,
+  training_tempo = 3,
   training_bonus_max = 1.5,
   bindung = {
     streicheln = 2,

@@ -28,13 +28,13 @@ return {
     C.eq(job("kutschtaxi").energie, 30)
     C.eq(job("pfluegen").energie, 40)
   end},
-  {"Lohn: Postritt 15 + Tempo/2, Kutschtaxi 15 + Stärke/2, Pflügen 25 + Stärke/3", function()
+  {"Lohn: Postritt 25 + Tempo/2, Kutschtaxi 25 + Stärke/2, Pflügen 40 + Stärke/3", function()
     local d = horse()
-    C.eq(Jobs.lohn(d, job("postritt")), 15 + 20)
-    C.eq(Jobs.lohn(d, job("kutschtaxi")), 15 + 30)
-    C.eq(Jobs.lohn(d, job("pfluegen")), 25 + 20)
+    C.eq(Jobs.lohn(d, job("postritt")), 25 + 20)
+    C.eq(Jobs.lohn(d, job("kutschtaxi")), 25 + 30)
+    C.eq(Jobs.lohn(d, job("pfluegen")), 40 + 20)
     d.train.staerke = 7
-    C.eq(Jobs.lohn(d, job("pfluegen")), 25 + 22, "Training zählt")
+    C.eq(Jobs.lohn(d, job("pfluegen")), 40 + 22, "Training zählt")
   end},
   {"Voraussetzungen: Postritt ab Bindung 40, Kutschtaxi ab Stärke 30, Pflügen ab Stärke 50", function()
     local d = horse({bindung = 39})
@@ -56,15 +56,15 @@ return {
     local d = horse()
     local before = {tempo = d.train.tempo, ausdauer = d.train.ausdauer}
     local sum = Jobs.run(ctx, job("postritt"), d, 3)
-    C.eq(sum, 35)
-    C.eq(ctx.money, 45)
+    C.eq(sum, 45)
+    C.eq(ctx.money, 55)
     C.eq(d.energie, 45, "75 − 30")
-    -- Tempo +2 × Bonus (1 + 0,25 × 0,6 + 0,25 × 0,5 = 1,275), Ausdauer +1 × 1,275
-    C.near(d.train.tempo - before.tempo, 2 * 1.275, 1e-4)
-    C.near(d.train.ausdauer - before.ausdauer, 1 * 1.275, 1e-4)
+    -- Trainingstempo 3 × Tempo +2 × Bonus (1 + 0,25 × 0,6 + 0,25 × 0,5 = 1,275), Ausdauer +1 × 1,275
+    C.near(d.train.tempo - before.tempo, 3 * 2 * 1.275, 1e-4)
+    C.near(d.train.ausdauer - before.ausdauer, 3 * 1 * 1.275, 1e-4)
     local again, why = Jobs.run(ctx, job("kutschtaxi"), d, 3)
     C.ok(again == nil and why:find("schon gearbeitet"), "zweiter Job am selben Tag")
-    C.eq(ctx.money, 45)
+    C.eq(ctx.money, 55)
     local nextday = Jobs.run(ctx, job("kutschtaxi"), d, 4)
     C.ok(nextday, "am nächsten Tag wieder")
     C.eq(d.energie, 15)
@@ -78,7 +78,7 @@ return {
     d.energie = 40
     C.ok(Jobs.run(ctx, job("pfluegen"), d, 1))
     C.eq(d.energie, 0)
-    C.near(d.train.staerke, 3 * 1.275, 1e-4, "Stärke +3")
+    C.near(d.train.staerke, 3 * 3 * 1.275, 1e-4, "Stärke +3")
   end},
   {"Training begrenzt durch das Potenzial, Bildschirme", function()
     local ctx = Stage.build(1)
