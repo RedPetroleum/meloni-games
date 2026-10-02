@@ -454,6 +454,22 @@ function Farm.is_gate(farm, cx, cy)
   return it ~= nil and it.id == "tor"
 end
 
+-- Tor zu einer vollen Weide (Rückmeldung 1.3.4): Darf das Pferd (data) vom Fußpunkt fx, fy auf x, y? Nein, wenn x, y
+-- ein Tor ist, das Pferd noch nicht darauf oder in der Weide dahinter steht und die Weide voll ist. Gibt false zurück.
+function Farm.gate_open(ctx, data, fx, fy, x, y)
+  local farm = ctx.area.farm
+  local cx, cy = flr(x / 16), flr((y - 1) / 16)
+  if not farm or not Farm.is_gate(farm, cx, cy) then return true end
+  if flr(fx / 16) == cx and flr((fy - 1) / 16) == cy then return true end
+  for _, w in ipairs(Farm.pastures(ctx.map, farm)) do
+    local next_to = false
+    for _, d in ipairs(DIRS4) do if w.tiles[(cx + d[1]) * 4096 + cy + d[2]] then next_to = true end end
+    if next_to and not Farm.in_pasture(w, fx, fy) and not (data.ort == "weide" and data.weide_id == w.id)
+      and Farm.count_pasture(ctx.herd, w.id) >= w.plaetze then return false end
+  end
+  return true
+end
+
 local function in_plot(farm, cx, cy, w, h)
   for dy = 0, h - 1 do
     for dx = 0, w - 1 do

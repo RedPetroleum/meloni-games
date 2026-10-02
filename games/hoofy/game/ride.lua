@@ -107,7 +107,12 @@ function R.update(p)
   if dx ~= 0 and dy ~= 0 then speed = speed * 0.7071 end
   if dx ~= 0 or dy ~= 0 then
     p.clear = p.jump_t > 0 and p.clear or nil
-    local ok_x, ok_y = Body.move(p, dx * speed, dy * speed, ctx.map)
+    local ok_x, ok_y = Body.move(p, dx * speed, dy * speed, ctx.map, ctx.area.farm and function(x, y)
+      -- geritten nicht durchs Tor in eine volle Weide (Rückmeldung 1.3.4)
+      if require("game.farm").gate_open(ctx, d, p.x, p.y, x, y) then return true end
+      require("game.wild").weide_voll(ctx)
+      return false
+    end)
     p.dir = U.facing(dx, dy, p.dir)
     p.moving = (ok_x and dx ~= 0) or (ok_y and dy ~= 0)
     if p.moving then

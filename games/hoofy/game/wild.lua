@@ -71,11 +71,32 @@ local function gate_allow(self)
   end
 end
 
+-- Mit dem Menschen: nicht durchs Tor in eine volle Weide (Rückmeldung 1.3.4), mit Hinweis.
+local function full_gate_allow(self)
+  return function(x, y)
+    if self.allow and not self.allow(x, y) then return false end
+    if Farm.gate_open(self.ctx, self.data, self.x, self.y, x, y) then return true end
+    Wild.weide_voll(self.ctx)
+    return false
+  end
+end
+
+function Wild.weide_voll(ctx)
+  local f = frame()
+  if ctx.toast and f - (ctx.voll_hinweis or -999) > 150 then ctx.toast("Weide ist voll.") end
+  ctx.voll_hinweis = f
+end
+
 function Horse:step(dx, dy)
   local allow = self.allow
-  if self.ctx.area.farm and not WITH_PLAYER[self.state] then
-    self.alone_allow = self.alone_allow or gate_allow(self)
-    allow = self.alone_allow
+  if self.ctx.area.farm then
+    if WITH_PLAYER[self.state] then
+      self.with_allow = self.with_allow or full_gate_allow(self)
+      allow = self.with_allow
+    else
+      self.alone_allow = self.alone_allow or gate_allow(self)
+      allow = self.alone_allow
+    end
   end
   local ok_x, ok_y = Body.move(self, dx, dy, self.ctx.map, allow)
   if dx ~= 0 then self.dir = dx > 0 and "right" or "left" end

@@ -162,4 +162,26 @@ return {
     for _ = 1, 60 do h:step(0, -1) end
     C.ok(h.y < g[2] * 16, "an der Leine durchs Tor")
   end},
+  {"Volle Weide: an der Leine nicht durchs Tor hinein, mit Hinweis; heraus geht es (Rückmeldung 1.3.4)", function()
+    local ctx = setup()
+    local g = ctx.area.farm.weide.gate
+    local said
+    ctx.toast = function(t) said = t end
+    local hs = {}
+    for i = 1, 4 do hs[i] = ctx.wild:add_own({name = "P" .. i}); C.ok(ctx.wild:house(hs[i], "weide")) end
+    local h = ctx.wild:add_own({name = "Neu", bindung = 40})
+    h.state = "led"
+    h.x, h.y = g[1] * 16 + 8, (g[2] - 1) * 16 + 14          -- vor dem Tor
+    for _ = 1, 60 do h:step(0, 1) end
+    C.ok(h.y <= g[2] * 16, "bleibt vor dem Tor")
+    C.eq(said, "Weide ist voll.")
+    -- ein Platz frei: jetzt geht es hinein
+    ctx.wild:take_out(hs[4])
+    for _ = 1, 60 do h:step(0, 1) end
+    C.ok(h.y > (g[2] + 1) * 16, "Platz frei: durchs Tor")
+    -- wieder voll: das Pferd drinnen kommt trotzdem heraus
+    ctx.wild:house(hs[4], "weide")
+    for _ = 1, 60 do h:step(0, -1) end
+    C.ok(h.y <= g[2] * 16, "aus der vollen Weide heraus")
+  end},
 }
