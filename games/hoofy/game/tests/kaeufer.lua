@@ -17,43 +17,55 @@ local function horse(extra)
   d.gen = {tempo = 30, staerke = 40, spuer = 35, ausdauer = 75}
   d.train = {tempo = 0, staerke = 0, spuer = 0, ausdauer = 0}
   d.pot = {tempo = 100, staerke = 100, spuer = 100, ausdauer = 100}
-  d.bindung, d.sauberkeit, d.gewicht = 50, 70, 50
+  d.bindung, d.sauberkeit, d.gewicht, d.hunger = 75, 95, 55, 20
   for k, v in pairs(extra or {}) do d[k] = v end
   return d
 end
 
 return {
-  {"Preise nach Katalog-Formel (Haflinger/Fuchs 30/40/35/75, Bindung 50, Gewicht 50)", function()
+  {"Preise nach Katalog-Formel (Haflinger 30/40/35/75, Bindung 75, Sauberkeit 95, Gewicht 55)", function()
     local d = horse()
-    -- Leistung (30 + 40 + 35 + 25 × 2) / 400 = 0,3875; Wert 250 × 1 × 0,8875... (0,5 + 0,3875) = 221,875
-    C.near(Value.wert_roh(d), 221.875, 0.05)
-    -- Sammlerin: Wert × (1 + Farbfaktor × 0,1) (nur ab Sauberkeit 70)
-    C.eq(Buyers.offer("sammlerin", d), flr(221.875 * 1.1 + 0.5))
-    -- Reithof: Wert × 0,7 × (0,5 + Bindung/100) = 221,875 × 0,7 × 1,0
-    C.eq(Buyers.offer("reithof", d), flr(221.875 * 0.7 + 0.5))
-    -- Züchter: Wert × (0,8 + (30 + 40 + 25 × 2)/600) = 221,875 × 1,0
-    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (0.8 + 120 / 600) + 0.5))
-    -- Hengst ×1,25
+    local w, wn = Value.wert_roh(d), Value.wert_neutral(d)
+    C.near(wn, 250, 1e-6, "neutral = Durchschnittspferd der Rasse")
+    -- Reithof: Wert × (0,6 + (75 − 70)/100)
+    C.eq(Buyers.offer("reithof", d), flr(w * 0.65 + 0.5))
+    -- Züchter: Wert × (1 + Stammbaum) × 1,05 Stute / 0,95 Hengst
+    C.eq(Buyers.offer("zuechter", d), flr(w * 1.05 + 0.5))
     d.sex = "m"
-    C.eq(Buyers.offer("zuechter", d), flr(221.875 * (0.8 + 120 / 600) * 1.25 + 0.5))
-    -- Schlachter: Wert × 0,9 × 50 / 50
-    C.eq(Buyers.offer("schlachter", d), flr(221.875 * 0.9 + 0.5))
+    C.eq(Buyers.offer("zuechter", d), flr(w * 0.95 + 0.5))
+    d.ahnen = {v = {id = "V"}, m = {id = "M"}}
+    C.eq(Buyers.offer("zuechter", d), flr(Value.wert_roh(d) * 1.1 * 0.95 + 0.5), "Stammbaum zählt doppelt")
+    d.ahnen = nil
+    -- Schlachter: Wert (neutral) × (1 + 5/20) × (0,9 + 40/400)
+    C.eq(Buyers.offer("schlachter", d), flr(250 * 1.25 * 1.0 + 0.5))
+    -- Sammlerin: Wert (neutral) × (1 + (1,5 − 1) × 0,15) × Laune
+    d.farbe = "palomino"
+    local l = Buyers.laune(4)
+    C.ok(l >= 0.9 and l <= 1.1, "Laune 0,9–1,1")
+    C.eq(Buyers.laune(4), l, "gleicher Tag, gleiche Laune")
+    C.eq(Buyers.offer("sammlerin", d, 4), flr(Value.wert_neutral(d) * 1.075 * l + 0.5))
   end},
-  {"Bedingungen und Gewichtung: Sammlerin nur ab Sauberkeit 70, Reithof mag Bindung, Schlachter Gewicht", function()
-    local d = horse({sauberkeit = 69})
-    local p, why = Buyers.offer("sammlerin", d)
-    C.ok(p == nil and why:find("schmutzig"), "zu schmutzig")
-    d.sauberkeit = 70
-    C.ok(Buyers.offer("sammlerin", d))
-    local lo, hi = horse({bindung = 0}), horse({bindung = 100})
-    C.ok(Buyers.offer("reithof", hi) > Buyers.offer("reithof", lo) * 2, "hohe Bindung zahlt viel mehr")
-    local duenn, dick = horse({gewicht = 30}), horse({gewicht = 80})
-    C.ok(Buyers.offer("schlachter", dick) > Buyers.offer("schlachter", duenn) * 2, "Gewicht zählt")
-    local rare = horse({farbe = "palomino", farbe2 = "palomino"})       -- selten ×2
-    C.ok(Buyers.offer("sammlerin", rare) > Buyers.offer("sammlerin", horse()) * 2, "Seltenheit zählt mehr")
+  {"Bedingungen: Sauberkeit, Bindung, Hunger, Farbe, Gewicht", function()
+    local function no(typ, extra, text)
+      local p, why = Buyers.offer(typ, horse(extra))
+      C.ok(p == nil and why:find(text), typ .. ": " .. text)
+    end
+    no("sammlerin", {farbe = "palomino", sauberkeit = 90}, "schmutzig")
+    no("sammlerin", {farbe = "fuchs"}, "Farbe")
+    C.ok(Buyers.offer("sammlerin", horse({farbe = "falbe"})), "gewöhnlich reicht")
+    no("reithof", {bindung = 70}, "Bindung")
+    no("reithof", {sauberkeit = 50}, "schmutzig")
+    no("reithof", {hunger = 30}, "hungrig")
+    no("zuechter", {bindung = 50}, "Bindung")
+    no("zuechter", {sauberkeit = 50}, "schmutzig")
+    no("schlachter", {gewicht = 50}, "leicht")
+    C.ok(Buyers.offer("reithof", horse({bindung = 100})) > Buyers.offer("reithof", horse({bindung = 71})) * 1.4,
+      "Reithof: Bindung zählt stark")
+    C.eq(Buyers.offer("schlachter", horse({bindung = 100})), Buyers.offer("schlachter", horse()), "Schlachter: Bindung egal")
+    C.ok(Buyers.offer("schlachter", horse({gewicht = 70})) > Buyers.offer("schlachter", horse()) * 1.5, "Gewicht zählt")
   end},
-  {"Verkauf: Geld, Pferd weg, Folgen für die übrigen (+5 Reithof, −5 Züchter, −10 Schlachter, 0 Sammlerin)", function()
-    for _, case in ipairs({{"reithof", 5}, {"zuechter", -5}, {"schlachter", -20}, {"sammlerin", 0}}) do
+  {"Verkauf: Geld, Pferd weg, Folgen für die übrigen (nur Schlachter −20)", function()
+    for _, case in ipairs({{"reithof", 0}, {"zuechter", 0}, {"schlachter", -20}, {"sammlerin", 0}}) do
       local ctx = Stage.build(1)
       local w = Wild.new(ctx, 3)
       w.count = 0
@@ -62,9 +74,10 @@ return {
         h.data.bindung, h.data.sauberkeit = 50, 80
         for _, k in ipairs(H.STATS) do h.data.gen[k] = 40 end
       end
+      a.data.bindung, a.data.sauberkeit, a.data.hunger, a.data.gewicht, a.data.farbe = 80, 95, 10, 60, "falbe"
       ctx.buyer = {typ = case[1], tag = 1, verkauft = false}
       ctx.money = 10
-      local price = Buyers.offer(case[1], a.data)
+      local price = Buyers.offer(case[1], a.data, ctx.clock and ctx.clock.day)
       local got = Buyers.sell(ctx, case[1], a.data)
       C.eq(got, price, case[1] .. ": Preis")
       C.eq(ctx.money, 10 + price)
@@ -79,7 +92,7 @@ return {
     local w = Wild.new(ctx, 3)
     w.count = 0
     local a = w:add_own()
-    a.data.sauberkeit = 80
+    a.data.sauberkeit, a.data.bindung, a.data.hunger = 80, 80, 10
     a.data.sattel, a.data.taschen, a.data.lampe = "einfacher_sattel", "satteltaschen_s", true
     a.data.schmuck = {blumenkranz = true, goldhufeisen = true}
     C.ok(Buyers.sell(ctx, "reithof", a.data))
@@ -99,8 +112,8 @@ return {
     local w = Wild.new(ctx, 3)
     w.count = 0
     local a, b = w:add_own(), w:add_own()
-    b.data.bindung = 3
-    Buyers.sell(ctx, "schlachter", a.data)
+    b.data.bindung, a.data.gewicht = 3, 60
+    C.ok(Buyers.sell(ctx, "schlachter", a.data))
     C.eq(b.data.bindung, 0)
   end},
   {"Kein Verkauf eines Pferds, das nicht im Bestand ist oder geritten wird", function()
@@ -114,6 +127,7 @@ return {
     local Ride = require("game.ride")
     w:attach(a)
     Ride.mount(ctx, a)
+    a.data.bindung, a.data.sauberkeit, a.data.hunger = 80, 80, 10
     local p2, why2 = Buyers.sell(ctx, "reithof", a.data)
     C.ok(p2 == nil and why2 == "wird geritten")
     C.eq(#ctx.herd, 1)
@@ -126,6 +140,7 @@ return {
         {bindung = 90}, {bindung = 10}, {gewicht = 80}, {gewicht = 20}}) do
         local d = horse(extra)
         d.gen.tempo, d.gen.staerke = extra.sex == "m" and 70 or 30, 40
+        d.bindung = extra.bindung or 50
         local text, cat = Buyers.spruch(typ, d, 5)
         C.ok(#text > 10, "Spruch")
         C.ok(not text:find("[{|}]"), "Geschlechtsform aufgelöst: " .. text)

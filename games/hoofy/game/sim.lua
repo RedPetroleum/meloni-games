@@ -134,7 +134,7 @@ function Sim.run(seed, days)
     if kaeufer and Buyers.folge(kaeufer.typ) > -20 then
       local best_i, best_p
       for i = Sim.KEEP + 1, #ctx.herd do
-        local p = Buyers.offer(kaeufer.typ, ctx.herd[i])
+        local p = Buyers.offer(kaeufer.typ, ctx.herd[i], day)
         if p and (not best_p or p > best_p) then best_i, best_p = i, p end
       end
       if best_i then

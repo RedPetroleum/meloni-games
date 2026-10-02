@@ -21,26 +21,37 @@ B.INFO = {
 
 local function clamp(v, lo, hi) return mid(lo, v, hi) end
 
--- Preis, den der Käufer für das Pferd d zahlt, oder nil und der Grund (Text), wenn er es nicht nimmt.
-function B.offer(typ, d)
+-- Laune der Sammlerin am Tag day (einmal pro Tag gewürfelt).
+function B.laune(day)
+  local c = K.wert.kaeufer.sammlerin
+  return c.laune_min + (c.laune_max - c.laune_min) * U.hash(day or 1, 7, 31)
+end
+
+-- Preis, den der Käufer am Tag day für das Pferd d zahlt, oder nil und der Grund (Text), wenn er es nicht nimmt.
+function B.offer(typ, d, day)
   local W = K.wert.kaeufer
-  local wert = V.wert_roh(d)
   if typ == "sammlerin" then
     local c = W.sammlerin
-    if d.sauberkeit < c.min_sauberkeit then return nil, "zu schmutzig (ab " .. c.min_sauberkeit .. ")" end
-    return flr(wert * (c.basis + V.farbfaktor(d) * c.farbe) + 0.5)
+    if d.sauberkeit <= c.min_sauberkeit then return nil, "zu schmutzig (über " .. c.min_sauberkeit .. ")" end
+    if K.farbe(d.farbe).stufe < c.min_stufe then return nil, "Farbe zu gewöhnlich" end
+    return flr(V.wert_neutral(d) * (1 + (V.farbfaktor(d) - 1) * c.farbe) * B.laune(day) + 0.5)
   elseif typ == "reithof" then
     local c = W.reithof
-    return flr(wert * c.faktor * (c.basis + d.bindung / c.teiler) + 0.5)
+    if d.bindung <= c.min_bindung then return nil, "zu wenig Bindung (über " .. c.min_bindung .. ")" end
+    if d.sauberkeit <= c.min_sauberkeit then return nil, "zu schmutzig (über " .. c.min_sauberkeit .. ")" end
+    if d.hunger >= c.max_hunger then return nil, "zu hungrig (Hunger unter " .. c.max_hunger .. ")" end
+    return flr(V.wert_roh(d) * (c.basis + (d.bindung - c.bindung_ab) / c.teiler) + 0.5)
   elseif typ == "zuechter" then
     local c = W.zuechter
-    local t, s, a = H.stat(d, "tempo"), H.stat(d, "staerke"), H.stat(d, "ausdauer")
-    local p = wert * (c.basis + (t + s + (a - K.wert.ausdauer_basis) * K.wert.ausdauer_faktor) / c.teiler)
-    if d.sex == "m" then p = p * c.hengst end
-    return flr(p + 0.5)
+    if d.bindung <= c.min_bindung then return nil, "zu wenig Bindung (über " .. c.min_bindung .. ")" end
+    if d.sauberkeit <= c.min_sauberkeit then return nil, "zu schmutzig (über " .. c.min_sauberkeit .. ")" end
+    local sex = d.sex == "m" and c.hengst or c.stute
+    return flr(V.wert_roh(d) * (1 + V.stammbaum(d) / 100) * sex + 0.5)
   elseif typ == "schlachter" then
     local c = W.schlachter
-    return flr(wert * c.faktor * d.gewicht / c.teiler + 0.5)
+    if d.gewicht <= c.min_gewicht then return nil, "zu leicht (über " .. c.min_gewicht .. ")" end
+    return flr(V.wert_neutral(d) * (1 + (d.gewicht - c.gewicht_basis) / c.gewicht_teiler)
+      * (c.staerke_basis + H.stat(d, "staerke") / c.staerke_teiler) + 0.5)
   end
   error("unbekannter Käufer " .. tostring(typ))
 end
@@ -53,10 +64,7 @@ end
 
 -- Bindungsänderung für die übrigen Pferde nach einem Verkauf an diesen Käufer.
 function B.folge(typ)
-  local W = K.wert.kaeufer
-  if typ == "reithof" then return W.reithof.bindung_andere end
-  if typ == "zuechter" then return W.zuechter.bindung_andere end
-  if typ == "schlachter" then return W.schlachter.bindung_andere end
+  if typ == "schlachter" then return K.wert.kaeufer.schlachter.bindung_andere end
   return 0
 end
 
@@ -146,7 +154,7 @@ end
 
 -- Verkauf von Pferd d (Daten) an den Käufer: entfernt das Pferd und zahlt. Gibt Preis oder nil, Grund.
 function B.sell(ctx, typ, d)
-  local price, why = B.offer(typ, d)
+  local price, why = B.offer(typ, d, ctx.clock and ctx.clock.day)
   if not price then return nil, why end
   local idx
   for i, e in ipairs(ctx.herd) do if e == d then idx = i end end

@@ -12,7 +12,7 @@ return {
       ausdauer = 70,
       bindung = 30,
       spanne = 20,
-      grundwert = 150,
+      grundwert = 200,
     },
     {
       id = "haflinger",
@@ -38,7 +38,7 @@ return {
       ausdauer = 70,
       bindung = 35,
       spanne = 25,
-      grundwert = 300,
+      grundwert = 275,
     },
     {
       id = "mustang",
@@ -103,7 +103,7 @@ return {
       ausdauer = 85,
       bindung = 40,
       spanne = 30,
-      grundwert = 900,
+      grundwert = 1000,
     },
     {
       id = "andalusier",

@@ -10,35 +10,56 @@ local H = require("game.horse_model")
 local Rng = require("lib.rng")
 local C = require("game.tests.check")
 
-local function horse(rasse, farbe, t, s, sp, a, alter)
+local function horse(rasse, farbe, t, s, sp, a, alter, bindung)
   local d = H.wild({rng = Rng.new(2), rasse = rasse})
   d.farbe, d.farbe2, d.alter = farbe, farbe, alter or 1
   d.gen = {tempo = t, staerke = s, spuer = sp, ausdauer = a}
   d.train = {tempo = 0, staerke = 0, spuer = 0, ausdauer = 0}
   d.pot = {tempo = 100, staerke = 100, spuer = 100, ausdauer = 100}
+  d.bindung = bindung or K.rasse(rasse).bindung
   return d
 end
 
 return {
-  {"Wert nach Formel: Shetlandpony/Brauner Basiswerte = 126 G, Kauf 163 G", function()
-    -- Leistung (15 + 35 + 45 + 20 × 2) / 400 = 0,3375; 150 × 1 × 0,8375 = 125,625
+  {"Wert nach Formel: Durchschnitts-Shetlandpony = Grundwert 200 G, Kauf 300 G", function()
     local d = horse("shetlandpony", "brauner", 15, 35, 45, 70)
-    C.near(Value.leistung(d), 0.3375, 1e-6)
-    C.near(Value.wert_roh(d), 125.625, 1e-3)
-    C.eq(Value.wert(d), 126)
-    C.eq(Value.kaufpreis(d), 188, "125,625 × 1,5 = 188,4")
+    C.near(Value.leistungsfaktor(d), 1, 1e-9)
+    C.eq(Value.wert(d), 200)
+    C.eq(Value.kaufpreis(d), 300)
+  end},
+  {"Haflinger: L als Potenzmittel, gut und voll trainiert ≈ 3 × schlecht und untrainiert", function()
+    local d = horse("haflinger", "fuchs", 30, 40, 35, 75)
+    -- ((0,3^1,5 + 0,4^1,5 + 0,35^1,5 + 0,75^1,5 + 0,5 × 0,35^1,5) / 4,5)^(2/3)
+    C.near(Value.leistung(d), 0.4543, 1e-3)
+    local schlecht = horse("haflinger", "fuchs", 22, 32, 27, 67)
+    local gut = horse("haflinger", "fuchs", 63, 73, 68, 100, 1, 100)
+    C.eq(Value.wert(schlecht), 187)
+    C.eq(Value.wert(gut), 561)
+    local mies = horse("haflinger", "fuchs", 1, 1, 1, 50, 1, 0)
+    C.near(Value.leistungsfaktor(mies), 0.3, 1e-9, "Untergrenze")
   end},
   {"Farbfaktor, Fohlen ×0,6, Training zählt, Einhorn Gold", function()
     local a = horse("haflinger", "fuchs", 30, 40, 35, 75)           -- häufig ×1
-    local b = horse("haflinger", "palomino", 30, 40, 35, 75)        -- selten ×2
-    C.near(Value.wert_roh(b), Value.wert_roh(a) * 2, 1e-6, "selten ×2")
+    local b = horse("haflinger", "palomino", 30, 40, 35, 75)        -- selten ×1,5
+    C.near(Value.wert_roh(b), Value.wert_roh(a) * 1.5, 1e-6, "selten ×1,5")
     local c = horse("haflinger", "fuchs", 30, 40, 35, 75, 0.5)
     C.near(Value.wert_roh(c), Value.wert_roh(a) * 0.6, 1e-6, "Fohlen")
     a.train.tempo = 20
     C.ok(Value.wert_roh(a) > Value.wert_roh(c) / 0.6, "Training erhöht den Wert")
-    local e = horse("einhorn", "gold", 80, 50, 70, 90)              -- legendär ×10
-    -- Leistung 280/400 = 0,7; 10000 × 10 × 1,2
-    C.near(Value.wert_roh(e), 120000, 1)
+    local e = horse("einhorn", "gold", 80, 50, 70, 90)              -- legendär ×3
+    C.near(Value.wert_roh(e), 30000, 1e-6)
+  end},
+  {"Stammbaum: +5 % je Elternteil, +3 % je Großelternteil, +2 % je Urgroßelternteil", function()
+    local d = horse("haflinger", "fuchs", 30, 40, 35, 75)
+    local base = Value.wert_roh(d)
+    d.ahnen = {v = {id = "V"}, m = {id = "M"}}
+    C.eq(Value.stammbaum(d), 10)
+    local function full(n) return n > 0 and {id = "x", v = full(n - 1), m = full(n - 1)} or nil end
+    d.ahnen = {v = full(3), m = full(3)}
+    C.eq(Value.stammbaum(d), 38)
+    C.near(Value.wert_roh(d), base * 1.38, 1e-6)
+    d.ahnen = {v = full(5), m = full(5)}
+    C.eq(Value.stammbaum(d), 38, "nur drei Generationen zählen")
   end},
   {"Markt: 4 Pferde, gleicher Seed und Zyklus = gleiche Auswahl, neue Auswahl alle 3 Tage", function()
     local a, b = Market.stock(5, 0, 1), Market.stock(5, 0, 1)

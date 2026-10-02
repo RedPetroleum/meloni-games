@@ -59,9 +59,9 @@ return {
     C.eq(sum, 35)
     C.eq(ctx.money, 45)
     C.eq(d.energie, 45, "75 − 30")
-    -- Tempo +2 × (1 − 40/80) × Bonus (1 + 0,25 × 0,6 + 0,25 × 0,5 = 1,275), Ausdauer +1 × (1 − 75/100) × 1,275
-    C.near(d.train.tempo - before.tempo, 2 * 0.5 * 1.275, 1e-4)
-    C.near(d.train.ausdauer - before.ausdauer, 1 * 0.25 * 1.275, 1e-4)
+    -- Tempo +2 × Bonus (1 + 0,25 × 0,6 + 0,25 × 0,5 = 1,275), Ausdauer +1 × 1,275
+    C.near(d.train.tempo - before.tempo, 2 * 1.275, 1e-4)
+    C.near(d.train.ausdauer - before.ausdauer, 1 * 1.275, 1e-4)
     local again, why = Jobs.run(ctx, job("kutschtaxi"), d, 3)
     C.ok(again == nil and why:find("schon gearbeitet"), "zweiter Job am selben Tag")
     C.eq(ctx.money, 45)
@@ -78,7 +78,7 @@ return {
     d.energie = 40
     C.ok(Jobs.run(ctx, job("pfluegen"), d, 1))
     C.eq(d.energie, 0)
-    C.near(d.train.staerke, 3 * (1 - 60 / 80) * 1.275, 1e-4, "Stärke +3")
+    C.near(d.train.staerke, 3 * 1.275, 1e-4, "Stärke +3")
   end},
   {"Training begrenzt durch das Potenzial, Bildschirme", function()
     local ctx = Stage.build(1)

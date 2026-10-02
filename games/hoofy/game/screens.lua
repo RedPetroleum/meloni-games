@@ -607,8 +607,8 @@ function Screens.market(ctx)
         stat_bar(8, 120 + (k - 1) * 12, e[2], d, e[1])
       end
       print("Bindung " .. d.bindung .. ", " .. K.charakter[d.zug].name, 8, 171, C.text)
-      print("Leistung " .. flr(Value.leistung(d) * 100) .. " %, Wert " .. Value.wert(d) .. " G", 8, 182, C.dim)
-      print("Farbfaktor x" .. Value.farbfaktor(d) .. ", Kauf = Wert x1,3", 8, 193, C.dim)
+      print("Leistung x" .. flr(Value.leistungsfaktor(d) * 100 + 0.5) / 100 .. ", Wert " .. Value.wert(d) .. " G", 8, 182, C.dim)
+      print("Farbfaktor x" .. Value.farbfaktor(d) .. ", Kauf = Wert x1,5", 8, 193, C.dim)
     end
     if msg and msg_t > 0 then print(msg, 8, 218, C.gold) end
     footer("A: kaufen   B: zurück")
@@ -902,7 +902,7 @@ function Screens.buyer(ctx, nav_done)
     if btnp(BTN_A) and l[sel] then
       local d = l[sel]
       local name = d.name
-      local offer, why = Buyers.offer(typ, d)
+      local offer, why = Buyers.offer(typ, d, ctx.clock and ctx.clock.day)
       if not offer then
         SFX.snort()
         msg = H.gtext(d, Buyers.pronoun(typ, true) .. " nimmt {sie|ihn|es} nicht: ") .. tostring(why)
@@ -937,7 +937,7 @@ function Screens.buyer(ctx, nav_done)
     for i = first, min(#l, first + 5) do
       local d = l[i]
       local y = 20 + (i - first) * 22
-      local price, why = Buyers.offer(typ, d)
+      local price, why = Buyers.offer(typ, d, ctx.clock and ctx.clock.day)
       if i == sel then rectfill(4, y - 2, SCREEN_W - 5, y + 19, C.panel_light) end
       G.draw(d.farbe, K.rasse(d.rasse).koerper, "side", 26, y + 19, false)
       print(d.name, 50, y, i == sel and C.gold or C.text)
@@ -951,7 +951,7 @@ function Screens.buyer(ctx, nav_done)
       local spruch = Buyers.spruch(typ, d, ctx.clock and ctx.clock.day or 1)
       local lines = require("lib.util").wrap("\"" .. spruch .. "\"", SCREEN_W - 16)
       for i, line in ipairs(lines) do if i <= 3 then print(line, 8, 156 + (i - 1) * 10, C.text) end end
-      local price, why = Buyers.offer(typ, d)
+      local price, why = Buyers.offer(typ, d, ctx.clock and ctx.clock.day)
       if price then
         print(Buyers.pronoun(typ, true) .. " zahlt " .. price .. " G (Wert " .. Value.wert(d) .. " G).", 8, 190, C.gold)
         local f = Buyers.folge(typ)

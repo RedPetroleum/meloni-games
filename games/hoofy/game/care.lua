@@ -29,11 +29,10 @@ function Care.training_bonus(data)
   return min(K.stats.training_bonus_max, 1 + c + data.bindung / 100 * 0.25)
 end
 
--- Trainingszuwachs = Basis × (1 − Gesamt / Max-Potenzial) × Bonus (faul −20 %, Drachenfrucht ×2).
+-- Trainingszuwachs = Basis × Bonus (faul −20 %, Drachenfrucht ×2), gleichmäßig bis zum Max-Potenzial.
 function Care.training_gain(data, key, base)
-  local total, pot = H.stat(data, key), data.pot[key]
-  if pot <= 0 then return 0 end
-  local gain = base * max(0, 1 - total / pot) * Care.training_bonus(data)
+  if H.stat(data, key) >= data.pot[key] then return 0 end
+  local gain = base * Care.training_bonus(data)
   if data.zug == "faul" then gain = gain * (1 - K.charakter.faul.training_malus / 100) end
   if (data.boost or 0) > 0 then gain = gain * 2 end
   return gain

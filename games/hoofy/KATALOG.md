@@ -23,7 +23,7 @@ Gilt für **Geschwindigkeit, Stärke, Aufspürung, Ausdauer**. Alle anderen Wert
 | Gen-Stat (Wildpferd) | Rassen-Basis ± Zufall (Normalverteilung, σ = 8), 1–100 (Ausdauer 50–100) |
 | Max-Potenzial | Gen-Stat + Rassen-Spanne ± Zufall (σ = 5), höchstens 100 |
 | Gen-Stat (Fohlen) | Mittel der Eltern ± Zufall (σ = 6), dann Inzucht-Malus |
-| Trainingszuwachs | Basis × (1 − Gesamt / Max-Potenzial) × Bonus aus Sauberkeit und Bindung (bis ×1,5) |
+| Trainingszuwachs | Basis × Bonus aus Sauberkeit und Bindung (bis ×1,5), gleichmäßig bis zum Max-Potenzial |
 
 Ausdauer wird durch lange Ritte und Jobs trainiert und legt die tägliche Energie fest.
 
@@ -54,14 +54,14 @@ Vier Körperformen (Pony, Warmblut, Kaltblut, Einhorn), Farben per Recolor. Jede
 
 | Rasse | Körper | ab Gebiet | Tempo | Stärke | Spür | Ausdauer | Bindung Start | Spanne | Grundwert |
 |---|---|---|---|---|---|---|---|---|---|
-| Shetlandpony | Pony | 1 | 15 | 35 | 45 | 70 | 30 | +20 | 150 |
+| Shetlandpony | Pony | 1 | 15 | 35 | 45 | 70 | 30 | +20 | 200 |
 | Haflinger | Pony | 1 | 30 | 40 | 35 | 75 | 35 | +25 | 250 |
-| Noriker | Kaltblut | 1 | 20 | 55 | 25 | 70 | 35 | +25 | 300 |
+| Noriker | Kaltblut | 1 | 20 | 55 | 25 | 70 | 35 | +25 | 275 |
 | Mustang | Warmblut | 2 | 40 | 35 | 40 | 85 | 10 | +30 | 400 |
 | Schwarzwälder Fuchs | Kaltblut | 2 | 30 | 60 | 30 | 75 | 30 | +30 | 500 |
 | Quarter Horse | Warmblut | 3 | 55 | 40 | 30 | 65 | 25 | +30 | 800 |
 | Friese | Warmblut | 3 | 45 | 50 | 30 | 70 | 25 | +35 | 1 200 |
-| Fjordpferd | Pony | 3 | 40 | 50 | 45 | 85 | 40 | +30 | 900 |
+| Fjordpferd | Pony | 3 | 40 | 50 | 45 | 85 | 40 | +30 | 1 000 |
 | Andalusier | Warmblut | 4 | 60 | 45 | 35 | 75 | 35 | +40 | 2 500 |
 | Achal-Tekkiner | Warmblut | 4 | 65 | 40 | 40 | 90 | 15 | +40 | 3 000 |
 | Araber | Warmblut | 5 | 75 | 35 | 50 | 95 | 15 | +40 | 5 000 |
@@ -75,10 +75,10 @@ Fell- und Mähnenfarbe per Recolor, Muster (Schecke, Tupfen, Streifen) als Overl
 | Stufe | Anteil (Gebiet 1) | Wertfaktor | Farben |
 |---|---|---|---|
 | häufig | 40 % | ×1 | Brauner, Fuchs, Dunkelbrauner, Hellfuchs, Rappe, Grauschimmel |
-| gewöhnlich | 30 % | ×1,3 | Falbe, Isabell, Schimmel, Dunkelfuchs, Mausfalbe, Rotschimmel, Braunschecke |
-| selten | 18 % | ×2 | Palomino, Rappschecke, Fuchsschecke, Apfelschimmel, Fliegenschimmel, Silberrappe, Windfarben |
-| sehr selten | 9 % | ×4 | Tigerschecke, Cremello, Perlino, Champagner, Rosa, Mintgrün |
-| legendär | 3 % | ×10 | Gold, Regenbogen, Lila, Zebra |
+| gewöhnlich | 30 % | ×1,2 | Falbe, Isabell, Schimmel, Dunkelfuchs, Mausfalbe, Rotschimmel, Braunschecke |
+| selten | 18 % | ×1,5 | Palomino, Rappschecke, Fuchsschecke, Apfelschimmel, Fliegenschimmel, Silberrappe, Windfarben |
+| sehr selten | 9 % | ×2 | Tigerschecke, Cremello, Perlino, Champagner, Rosa, Mintgrün |
+| legendär | 3 % | ×3 | Gold, Regenbogen, Lila, Zebra |
 
 Pro Gebietsstufe verschieben sich 3 Prozentpunkte von „häufig“ zu den seltenen Stufen.
 
@@ -126,18 +126,21 @@ Hauptsächlich Emojis, dazu je ein kleiner Effekt.
 | Nachteule | 🦉🌙 | nachts +20 Energie, morgens −10 |
 
 ## 6. Pferdewert
-**Leistung** = (Tempo + Stärke + Spür + (Ausdauer − 50) × 2) / 400
-**Wert** = Grundwert × Farbfaktor × (0,5 + Leistung) × Alter (Fohlen ×0,6)
+**Leistung L** = (((Tempo/100)^1,5 + (Stärke/100)^1,5 + (Spür/100)^1,5 + (Ausdauer/100)^1,5 + 0,5 × (Bindung/100)^1,5) / 4,5)^(1/1,5)
+**Leistungsfaktor** = max(0,3; 1 + 1,66 × (L / L_Rasse − 1)), L_Rasse = L eines wilden Durchschnittspferds der Rasse (Stats und Bindung wie in §3). Gut und voll trainiert ≈ 3 × schlecht und untrainiert.
+**Stammbaum** = +5 % je bekanntem Elternteil, +3 % je Großelternteil, +2 % je Urgroßelternteil (höchstens +38 %)
+**Wert** = Grundwert × Farbfaktor × Leistungsfaktor × Alter (Fohlen ×0,6) × (1 + Stammbaum)
 Kaufen beim Händler: Wert × 1,5.
 
 | Käufer | Zahlt | Bedingung / Folge |
 |---|---|---|
-| Reiche Sammlerin | Wert × (1 + Farbfaktor × 0,1) | nur ab Sauberkeit 70 |
-| Netter Reithof | Wert × 0,7 × (0,5 + Bindung/100) | übrige Pferde +5 Bindung |
-| Züchter | Wert × (0,8 + (Tempo + Stärke + (Ausdauer − 50) × 2)/600), Hengst ×1,25 | übrige Pferde −5 Bindung |
-| Schlachter | Wert × 0,9 × Gewicht / 50 | übrige Pferde −20 Bindung |
+| Reiche Sammlerin | Wert (neutral) × (1 + (Farbfaktor − 1) × 0,15) × Laune 0,9–1,1 (einmal pro Tag gewürfelt) | Sauberkeit über 90, Farbe ab gewöhnlich |
+| Netter Reithof | Wert × (0,6 + (Bindung − 70)/100) | Bindung über 70, Sauberkeit über 50, Hunger unter 30 |
+| Züchter | Wert × (1 + Stammbaum %/100), Stute ×1,05, Hengst ×0,95 | Bindung über 50, Sauberkeit über 50 |
+| Schlachter | Wert (neutral) × (1 + (Gewicht − 50)/20) × (0,9 + Stärke/400) | Gewicht über 50; übrige Pferde −20 Bindung |
 | Bestellung | Wert × 1,5 | alle 3 Tage eine, Frist 5–10 Tage |
 
+Wert (neutral): Wert mit der Start-Bindung der Rasse statt der eigenen Bindung. Tendenz: Reithof zahlt zu wenig, Züchter etwa den Wert, Sammlerin je nach Farbe zu wenig oder zu viel, Schlachter zu viel.
 Pro Tag kommt ein zufälliger Käufer vorbei, der Pferdemarkt im Ort ist immer offen.
 
 ## 7. Futter und Anbau
