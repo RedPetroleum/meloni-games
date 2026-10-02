@@ -6,3 +6,4 @@ Brauchen noch Zeit, bevor sie umgesetzt werden.
 - [ ] Bürsten effektiver machen
 - [ ] Turniere (Seite und Ende und Inhalt)
 - [ ] Startgrundstück verkleinern
+- [ ] Goldene Bürste hinzufügen
