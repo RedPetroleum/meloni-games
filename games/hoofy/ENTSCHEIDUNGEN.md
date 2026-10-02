@@ -545,4 +545,4 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 ## E82 Tagesanzeige (Rückmeldung nach 1.3.4)
 - „Tag N“ steht nicht mehr oben links (Sonne/Mond und Balken rücken nach links). Beginnt ein Tag (nach dem Schlafen
   oder durchgemacht), steht „Tag N“ 2,5 s groß in der Mitte (Schrift 12×24); die Meldungen „Tag N beginnt.“ entfallen
-  dafür. Das Pausenmenü heißt „Tag N“ statt „Pause“ (eigene Wahl).
+  dafür. Im Pausenmenü steht „Tag N“ rechts in der Titelzeile neben „Pause“, dezent in hellem Braun.
