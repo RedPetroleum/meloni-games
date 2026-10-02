@@ -48,11 +48,16 @@ function Care.train(data, key, base)
   return gain
 end
 
--- Streicheln: Bindung +2, aber nur einmal pro Tag (data.gestreichelt, A12 setzt es zurück).
+-- Bindung durch Pflege (Rückmeldung 1.3.4): Streicheln +2, ein zweites Mal am Tag noch STROKE_AGAIN, danach
+-- nichts; Füttern +1 je Futter (egal welches, kein Futterbonus), höchstens FEED_MAX am Tag; Striegeln +1, solange
+-- die Sauberkeit noch nicht 100 ist. Tageszähler data.gestreichelt / data.gefuettert setzt A12 (days.lua) zurück.
+Care.STROKE_AGAIN = 1
+Care.FEED_MAX = 5
+
 function Care.stroke(data)
-  if data.gestreichelt then return 0 end
-  data.gestreichelt = true
-  local add = K.stats.bindung.streicheln
+  local n = data.gestreichelt == true and 1 or (data.gestreichelt or 0)   -- bis 1.3.3: true = einmal
+  local add = n == 0 and K.stats.bindung.streicheln or n == 1 and Care.STROKE_AGAIN or 0
+  data.gestreichelt = n + 1
   data.bindung = clamp(data.bindung + add, 0, 100)
   return add
 end
@@ -86,9 +91,9 @@ function Care.feed(data, id)
   local item, crop = Care.food(id)
   local src = item or crop
   local w = src.wirkung
-  local bond = K.stats.bindung.fuettern + (w.bindung or 0)
-  -- Minze: Bindung ×2 bei eitel
-  if crop and crop.eitel_faktor and data.zug == "eitel" then bond = K.stats.bindung.fuettern + (w.bindung or 0) * crop.eitel_faktor end
+  local today = data.gefuettert or 0
+  local bond = min(K.stats.bindung.fuettern, max(0, Care.FEED_MAX - today))
+  data.gefuettert = today + bond
   data.hunger = clamp(data.hunger + (w.hunger or 0), 0, 100)
   if w.energie then data.energie = min(H.stat(data, "ausdauer"), data.energie + w.energie) end
   if w.sauberkeit then data.sauberkeit = clamp(data.sauberkeit + w.sauberkeit, 0, 100) end
@@ -112,9 +117,10 @@ end
 -- Striegeln (braucht die Bürste): Sauberkeit +40, Bindung +1.
 function Care.brush(data)
   local add = K.futter.kaufen[5].wirkung.sauberkeit
+  local bond = data.sauberkeit < 100 and 1 or 0
   data.sauberkeit = clamp(data.sauberkeit + add, 0, 100)
-  data.bindung = clamp(data.bindung + 1, 0, 100)
-  return add
+  data.bindung = clamp(data.bindung + bond, 0, 100)
+  return add, bond
 end
 
 -- Bindungsänderung eines Tages aus Zuständen (KATALOG §2): −3 bei Hunger > 70, −2 bei

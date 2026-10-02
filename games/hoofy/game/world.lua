@@ -129,6 +129,19 @@ function WorldScene.enter(arg)
     Farm.fence_rect(ctx, pl.x + 14, pl.y + 10, pl.x + 19, pl.y + 15, {pl.x + 16, pl.y + 10})
     Farm.fence_rect(ctx, pl.x + 14, pl.y + 2, pl.x + 18, pl.y + 6, nil)
     wild.count = 0
+  elseif arg and arg.balken then
+    -- Balken über dem Pferd: hungriges, schmutziges Pferd an der Leine, Bürste im Vorrat;
+    -- arg.wild: stattdessen ein Wildpferd direkt daneben (Zähmen)
+    wild.count = 0
+    if arg.wild then
+      local p = ctx.player
+      wild:spawn_at(p.x + 22, p.y, {rasse = "haflinger", rng = wild.rng}).data.bindung = 35
+    else
+      local c = wild:add_own({rasse = "haflinger", bindung = 50, name = "Keks"})
+      c.data.hunger, c.data.sauberkeit = 70, 20
+      wild:attach(c)
+      ctx.inv.buerste = 1
+    end
   elseif arg and arg.hecken then
     -- Hecken und Tore (Rückmeldung 1.3.4): Heckenreihe mit Tor quer, Heckenspalte mit Tor senkrecht,
     -- kleine Koppel mit Tor in der linken (senkrechten) Seite, ein großer Apfelbaum

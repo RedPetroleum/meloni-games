@@ -144,7 +144,7 @@ return {
     ctx.player.x = (p.x + 3) * 16
     C.eq(Farm.ripe_near(ctx), nil, "zu weit weg")
   end},
-  {"Ernte als Futter: Wirkung nach Katalog, Minze bei eitel doppelt, Drachenfrucht Training ×2, goldene Karotte Fohlen-Potenzial", function()
+  {"Ernte als Futter: Wirkung nach Katalog, kein Bindungsbonus (auch Minze nicht), Drachenfrucht Training ×2, goldene Karotte Fohlen-Potenzial", function()
     local function horse(zug, alter)
       local d = H.wild({rng = Rng.new(2), rasse = "haflinger", zug = zug})
       for _, k in ipairs(H.STATS) do d.gen[k], d.train[k], d.pot[k] = 40, 0, 60 end
@@ -153,17 +153,17 @@ return {
       return d
     end
     local d = horse("faul")
-    Care.feed(d, "apfel")                       -- Hunger −8, Bindung +4
+    Care.feed(d, "apfel")                       -- Hunger −8; Bindung nur +1 wie jedes Futter (Rückmeldung 1.3.4)
     C.eq(d.hunger, 72)
-    C.eq(d.bindung, 50 + 1 + 4)
+    C.eq(d.bindung, 50 + 1)
     d = horse("faul")
     Care.feed(d, "sonnenblumenkerne")           -- Hunger −10, Sauberkeit +10
     C.eq(d.hunger, 70)
     C.eq(d.sauberkeit, 60)
-    d = horse("faul"); Care.feed(d, "minze")    -- Bindung +2
-    C.eq(d.bindung, 53)
-    d = horse("eitel"); Care.feed(d, "minze")   -- Bindung +2 × 2
-    C.eq(d.bindung, 55)
+    d = horse("faul"); Care.feed(d, "minze")    -- kein Futterbonus mehr, auch nicht bei eitel
+    C.eq(d.bindung, 51)
+    d = horse("eitel"); Care.feed(d, "minze")
+    C.eq(d.bindung, 51)
     d = horse("faul"); Care.feed(d, "zuckerruebe")   -- Hunger −20, Energie +25
     C.eq(d.hunger, 60)
     C.eq(d.energie, 55)

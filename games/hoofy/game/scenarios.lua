@@ -187,6 +187,11 @@ function Scenarios.markt(save)
 end
 
 -- Hof: Startausstattung, drei eigene Pferde (Weide, Stall, Leine).
+-- Balken über dem Pferd: Füttern, Striegeln (Pferd an der Leine), save.wild = true: Wildpferd zum Zähmen daneben.
+function Scenarios.balken(save)
+  return "world", {ort = "start", balken = true, wild = save.wild}
+end
+
 -- Hecken und Tore: Heckenreihe mit Tor, Heckenspalte mit senkrechtem Tor, Koppel mit Tor links.
 function Scenarios.hecken()
   return "world", {ort = "start", hecken = true}

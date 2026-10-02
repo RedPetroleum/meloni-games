@@ -33,7 +33,7 @@ function Days.horse_day(d)
   -- Alter: Fohlen wachsen in 4 Tagen aus
   if d.alter < 1 then d.alter = min(1, d.alter + 1 / K.zeit.fohlen_tage) end
   if (d.boost or 0) > 0 then d.boost = d.boost - 1 end
-  d.gestreichelt = nil
+  d.gestreichelt, d.gefuettert = nil, nil
   return r
 end
 

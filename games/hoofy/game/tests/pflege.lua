@@ -52,7 +52,7 @@ return {
     C.eq(d.hunger, 10, "Hafer −40")
     C.eq(d.energie, 65, "Hafer Energie +15")
     local _, bond = Care.feed(d, "karotte")
-    C.eq(bond, 4, "Karotte +3 und Fütterung +1")
+    C.eq(bond, 1, "Karotte wie jedes Futter +1, kein Bonus")
     C.eq(d.hunger, 5, "Karotte Hunger −5")
     Care.feed(d, "heu")
     C.eq(d.hunger, 0, "Hunger nicht unter 0")
@@ -74,19 +74,37 @@ return {
     Care.feed(g, "premiumfutter")
     C.eq(g.pot.tempo, 100, "höchstens 100")
   end},
-  {"Streicheln +2 einmal am Tag, Striegeln Sauberkeit +40 und Bindung +1", function()
+  {"Streicheln +2, zweites Mal am Tag +1, dann nichts; Striegeln +1 Bindung nur unter Sauberkeit 100", function()
     local d = horse("faul")
     C.eq(Care.stroke(d), 2)
     C.eq(d.bindung, 52)
-    C.eq(Care.stroke(d), 0, "zweites Mal am selben Tag")
+    C.eq(Care.stroke(d), 1, "zweites Mal am selben Tag")
+    C.eq(Care.stroke(d), 0, "drittes Mal")
+    C.eq(d.bindung, 53)
     d.gestreichelt = nil
     C.eq(Care.stroke(d), 2, "nach dem Tageswechsel wieder")
-    d.sauberkeit = 70
-    Care.brush(d)
-    C.eq(d.sauberkeit, 100, "höchstens 100")
-    d.sauberkeit = 10
-    Care.brush(d)
-    C.eq(d.sauberkeit, 50)
+    d.gestreichelt = true                             -- alter Spielstand: einmal gestreichelt
+    C.eq(Care.stroke(d), 1, "alter Spielstand zählt als einmal")
+    local e = horse("faul", {sauberkeit = 20, bindung = 50})
+    C.eq(select(2, Care.brush(e)), 1)
+    C.eq(e.sauberkeit, 60)
+    C.eq(select(2, Care.brush(e)), 1, "60 → 100")
+    C.eq(e.sauberkeit, 100, "höchstens 100")
+    C.eq(select(2, Care.brush(e)), 0, "bei 100 keine Bindung mehr")
+    C.eq(e.bindung, 52)
+  end},
+  {"Füttern: +1 je Futter, höchstens +5 am Tag, Tageswechsel setzt zurück", function()
+    local d = horse("faul", {bindung = 50})
+    local Days = require("game.days")
+    for _ = 1, 7 do Care.feed(d, "karotte") end
+    C.eq(d.bindung, 55, "7 Karotten, aber nur +5")
+    local _, bond = Care.feed(d, "apfel")
+    C.eq(bond, 0)
+    Days.horse_day(d)
+    C.eq(d.gefuettert, nil)
+    local b0 = d.bindung
+    Care.feed(d, "heu")
+    C.eq(d.bindung, b0 + 1, "neuer Tag")
   end},
   {"Bindungsregeln pro Tag: Hunger > 70 −3, Sauberkeit < 30 −2 (eitel −4)", function()
     local d = horse("faul", {hunger = 71, sauberkeit = 29, bindung = 50})
