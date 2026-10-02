@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages: ${{ steps.pages_prep.outcome }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,6 +40,22 @@ jobs:
             { sudo apt-get update -q && sudo apt-get install -y -q clang lld; }
           make web
           cp build/web/meloni-konsole.html dist/
+
+      # Browser-Version für GitHub Pages: feste HTTPS-Adresse, damit Spielstände (localStorage)
+      # erhalten bleiben, auch als Web-App auf dem iOS-Home-Bildschirm.
+      - name: Prepare GitHub Pages
+        id: pages_prep
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && hashFiles('build/web/meloni-konsole.html') != ''
+        run: |
+          mkdir -p build/pages
+          cp build/web/meloni-konsole.html build/pages/index.html
+          touch build/pages/.nojekyll
+
+      - name: Upload GitHub Pages artifact
+        if: steps.pages_prep.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/pages
 
       - uses: actions/upload-artifact@v4
         with:
@@ -64,3 +82,20 @@ jobs:
           for asset in $(gh release view latest --json assets --jq '.assets[].name'); do
             [ -e "dist/$asset" ] || gh release delete-asset latest "$asset" --yes
           done
+
+  # Veröffentlicht die Browser-Version unter https://redpetroleum.github.io/meloni-games/
+  # Einmalig nötig: Settings → Pages → Source: "GitHub Actions".
+  pages:
+    needs: build
+    if: needs.build.outputs.pages == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

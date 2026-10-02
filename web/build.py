@@ -42,6 +42,11 @@ def main():
     # Eigenständige Datei: zum Öffnen im Browser braucht sie ein vollständiges Gerüst
     html = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+            # Vom iOS-Home-Bildschirm als eigene Web-App starten (Vollbild, eigener Speicher ohne 7-Tage-Löschung)
+            '<meta name="apple-mobile-web-app-capable" content="yes">\n'
+            '<meta name="mobile-web-app-capable" content="yes">\n'
+            '<meta name="apple-mobile-web-app-title" content="Meloni">\n'
+            '<meta name="apple-mobile-web-app-status-bar-style" content="black">\n'
             '<style>body{margin:0}</style>\n</head>\n<body>\n' + page + '\n</body>\n</html>\n')
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:

@@ -25,7 +25,10 @@ C-Quellen wie auf der Konsole, als WebAssembly) und allen Spielen. Im Browser ö
 Steuerkreuz und Tasten zum Antippen, am Rechner Pfeiltasten, X/Leertaste (A), Z/Y (B),
 Enter (START), Shift (SELECT), Gamepads gehen auch. Spielstände bleiben im Browser.
 Die GitHub-Action hängt die Datei bei jedem Push auf `main` ans Release `latest` an
-(`meloni-konsole.html`). Braucht `clang` mit WebAssembly-Ziel und `wasm-ld`
+(`meloni-konsole.html`). Außerdem steht sie unter **https://redpetroleum.github.io/meloni-games/**
+(GitHub Pages, einmalig in den Repo-Einstellungen unter Pages die Quelle „GitHub Actions“ wählen).
+Auf dem iPhone in Safari öffnen, Teilen → „Zum Home-Bildschirm“ und immer über das Icon starten:
+so bleiben die Spielstände dauerhaft (im normalen Safari-Tab löscht iOS sie nach 7 Tagen ohne Besuch). Braucht `clang` mit WebAssembly-Ziel und `wasm-ld`
 (Linux: `apt install clang lld`, macOS: `brew install llvm lld`), den WASI-Sysroot lädt `make web`
 beim ersten Mal selbst. Quellen in [web/](web/).
 
