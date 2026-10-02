@@ -126,7 +126,7 @@ return {
     for _ = 1, 20 do Body.move(f, 1, 0, ctx.map) end
     C.ok(f.x > x0 + 10, "Weg ist begehbar")
   end},
-  {"Baumodus-Bildschirm: START öffnet die Auswahl (Art, dann Bauteil), A baut, B schließt, Pausenmenü nur auf dem Grundstück", function()
+  {"Baumodus-Bildschirm: öffnet mit der Auswahl (Art, dann Bauteil), A baut, B schließt, Pausenmenü nur auf dem Grundstück", function()
     local Screens = require("game.screens")
     local ctx, p = setup()
     ctx.player.x, ctx.player.y = (p.x + 12) * 16 + 8, (p.y + 7) * 16 + 8
@@ -142,8 +142,8 @@ return {
       b.update(nav)
       btn, btnp = ob, obtn
     end
-    press({}, {})
-    press({}, {[BTN_START] = true})                         -- Auswahl auf
+    b.draw()
+    press({}, {[BTN_START] = true})                         -- START ohne Wahl: Auswahl bleibt offen
     b.draw()
     press({}, {[BTN_RIGHT] = true})                         -- Art: Wege
     press({}, {[BTN_A] = true})                             -- Bauteile der Wege
@@ -159,6 +159,11 @@ return {
     press({}, {[BTN_B] = true})                             -- B: Baumodus zu
     C.eq(#nav.stack, 0, "B schließt")
     b.draw()
+    -- B in „Was bauen?“, bevor etwas gewählt ist: Baumodus zu
+    b = Screens.build(ctx)
+    nav.push(b)
+    press({}, {[BTN_B] = true})
+    C.eq(#nav.stack, 0, "B ohne Wahl schließt den Baumodus")
     C.ok(ctx.on_plot == nil)
     -- Pausenmenü: Bauen nur auf dem Grundstück
     ctx.on_plot = function() return false end

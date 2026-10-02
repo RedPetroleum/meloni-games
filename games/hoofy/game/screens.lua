@@ -1263,6 +1263,7 @@ function Screens.build(ctx)
   local cy = mid(plot.y, flr((ctx.player.y - 2) / 16), plot.y + plot.h - 1)
   local msg, msg_t = "START: anderes Bauteil", 300
   local picker                 -- offenes Kachelmenü: {stage = "cat"|"item", m = Menu}
+  local chosen = false         -- erst nach der ersten Wahl gibt es Cursor und Bauteil (Rückmeldung 1.3.4)
   local s = {}
   local pastures = Farm.pastures(ctx.map, farm)
   -- Nach jedem Umbau: Weiden neu berechnen, Pferde umsetzen, Meldung
@@ -1334,19 +1335,25 @@ function Screens.build(ctx)
     end
   end
 
+  open_cats(1)                  -- gleich „Was bauen?“ (Rückmeldung 1.3.4)
+
   function s.update(nav)
     cur_item()
     if picker then
       local r = picker.m:update()
-      if btnp(BTN_START) and not btn(BTN_SELECT) then picker = nil
+      if btnp(BTN_START) and not btn(BTN_SELECT) then
+        if chosen then picker = nil end
       elseif r == "close" then
-        if picker.stage == "item" then open_cats(picker.cat) else picker = nil end
+        if picker.stage == "item" then open_cats(picker.cat)
+        elseif chosen then picker = nil
+        else nav.pop() return end                -- noch nichts gewählt: B verlässt den Baumodus
       elseif r and picker.stage == "cat" then
-        if cats[r].id == "abriss" then cat, item, picker = r, 1, nil  say("A reißt ab, was unter dem Cursor steht.")
-        elseif cats[r].id == "land" then cat, item, picker = r, 1, nil  say("Feld am Hof wählen, A kauft.")
+        if cats[r].id == "abriss" then cat, item, picker, chosen = r, 1, nil, true  say("A reißt ab, was unter dem Cursor steht.")
+        elseif cats[r].id == "land" then cat, item, picker, chosen = r, 1, nil, true  say("Feld am Hof wählen, A kauft.")
         else open_items(r) end
       elseif r and picker.stage == "item" then
-        cat, item, picker = picker.cat, r, nil
+        if not chosen then say("START: anderes Bauteil") end
+        cat, item, picker, chosen = picker.cat, r, nil, true
       end
     else
       if cats[cat].id == "land" then
@@ -1424,7 +1431,9 @@ function Screens.build(ctx)
       local t = pw.list[1]
       print("Weide " .. pw.plaetze .. " Plätze", t[1] * 16 + 2, t[2] * 16 + 2, C.gold)
     end
-    if c.id == "land" then
+    if not chosen then
+      -- noch kein Bauteil gewählt: kein Cursor
+    elseif c.id == "land" then
       -- gewähltes Feld grün (kaufbar) oder rot getönt
       local L = Farm.LAND
       local fx, fy = (cx // L) * L * 16 - cam.x, (cy // L) * L * 16 - cam.y
@@ -1443,6 +1452,10 @@ function Screens.build(ctx)
       end
     end
     camera()
+    if picker then                -- Auswahl offen: ohne Leiste unten (Rückmeldung 1.3.4)
+      picker.m:draw()
+      return
+    end
     -- Leiste unten: gewähltes Bauteil, Meldung, Tasten
     local y = SCREEN_H - 36
     Stage.panel(0, y, SCREEN_W - 1, SCREEN_H - 1)
@@ -1479,7 +1492,6 @@ function Screens.build(ctx)
       print("Schönheit " .. flr(score) .. (next_at and ("/" .. next_at) or "") .. "  Bindung +" .. bonus, 32, y + 16, C.dim)
     end
     Stage.center("A bauen   START Auswahl   B fertig", y + 27, C.gold)
-    if picker then picker.m:draw() end
   end
   return s
 end
