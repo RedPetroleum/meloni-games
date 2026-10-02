@@ -78,7 +78,7 @@ return {
     d.energie = 40
     C.ok(Jobs.run(ctx, job("pfluegen"), d, 1))
     C.eq(d.energie, 0)
-    C.near(d.train.staerke, 3 * 3 * 1.275, 1e-4, "Stärke +3")
+    C.near(d.train.staerke, 10 + (3 * 3 * 1.275 - 10) / 3, 1e-4, "Stärke +3, über 10 ein Drittel")
   end},
   {"Training begrenzt durch das Potenzial, Bildschirme", function()
     local ctx = Stage.build(1)
