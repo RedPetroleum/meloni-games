@@ -562,7 +562,10 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Pferde unter 100 kommen dann an die Leine. Das Herz über dem Pferd bleibt ab Bindung 70 (B.HEART, eigene Wahl).
 - Füttern/Striegeln (Rückmeldung nach 1.3.4): danach 2 s ein Balken über dem Pferd (über der Sprechblase), orange =
   Sättigung (100 − Hunger), kräftiges Hellblau (#3fb0ee, passend zum Orange) = Sauberkeit; Zähmen grün. Füllt sich
-  kurz vom alten auf den neuen Wert. Auch im Stall. Info-Seite unverändert.
+  kurz vom alten auf den neuen Wert. Auch im Stall. Info-Seite unverändert. Szenario `balken` (wild = true: Zähmen).
 - geändert (E16/E28, Rückmeldung nach 1.3.4): Kein Weg-/Hinschauen mehr. In der Zone (110 px) bleibt das Wildpferd
   grasend stehen; es flieht nur, wenn es dich hört (Lärmpegel, E81) oder du sprintest. A geht jederzeit, dann still
   halten. Die Bindung wirkt nur noch auf die Haltezeit (Wild.tame_frames).
+- Bindung durch Pflege (Rückmeldung nach 1.3.4, KATALOG §2 angepasst): Streicheln +2, zweites Mal am Tag +1, danach
+  nichts. Füttern +1 je Futter, egal welches, höchstens +5 am Tag; die Bindungs-Boni einzelner Futter (Karotte, Apfel,
+  Minze in §7) wirken nicht mehr. Striegeln +1, solange die Sauberkeit unter 100 ist.
