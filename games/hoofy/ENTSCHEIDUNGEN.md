@@ -541,3 +541,8 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   Pferd schneller (voll nach 1,7 s am Rand, knapp 1 s ganz nah), und sinkt im Stehen (voll → leer in 1,5 s). Ab 60 %
   ❗ mit Warnton, das ❗ bleibt bis unter 35 % (Hysterese). Voll = Flucht. Gilt in jedem Zustand außer der Flucht,
   zusätzlich zum Wegschauen/Hinschauen. Zahlen sind eigene Wahl (NOISE_* in game/wild.lua).
+
+## E82 Tagesanzeige (Rückmeldung nach 1.3.4)
+- „Tag N“ steht nicht mehr oben links (Sonne/Mond und Balken rücken nach links). Beginnt ein Tag (nach dem Schlafen
+  oder durchgemacht), steht „Tag N“ 2,5 s groß in der Mitte (Schrift 12×24); die Meldungen „Tag N beginnt.“ entfallen
+  dafür. Das Pausenmenü heißt „Tag N“ statt „Pause“ (eigene Wahl).

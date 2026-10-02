@@ -34,6 +34,8 @@ local WorldScene = {}
 local ctx, paused, anim_frame, t, wild, toast, a_hold, a_free, a_release, menu, clock, taming
 local stack, nav = {}, {}
 local idle_t = 0
+local day_banner = nil       -- bis zu diesem t steht „Tag N“ groß in der Mitte (neuer Tag)
+local DAY_BANNER = 150
 local saving, seed_now     -- saving: echtes Spiel (Neu/Weiter), Szenarien speichern nie
 
 -- arg (optional): {ort = Name aus area.places} oder {cx, cy}: dort starten statt am Hof.
@@ -60,7 +62,7 @@ function WorldScene.enter(arg)
     ctx.trail:reset(ctx.player.x, ctx.player.y)
     ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
   end
-  paused, anim_frame, t = false, 1, 0
+  paused, anim_frame, t, day_banner = false, 1, 0, nil
   stack = {}
   wild = Wild.new(ctx, ctx.area.seed, arg and arg.wild_nah)
   toast, a_hold, a_free, a_release, menu, taming = nil, 0, false, false, nil, nil
@@ -473,6 +475,7 @@ function WorldScene.update()
   elseif ev == "day" then
     ctx.sfx.dawn()
     ctx.sfx.music("day")
+    day_banner = t + DAY_BANNER
     Days.new_day(ctx, clock.day)
     if #ctx.geburten > 0 then say("Fohlen geboren: " .. ctx.geburten[1], 300) end
     Market.refresh(ctx, clock.day)
@@ -486,7 +489,7 @@ function WorldScene.update()
     if neu then say(neu, 240)
     elseif chaos then say(chaos, 200)
     elseif ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
-    elseif not toast then say("Tag " .. clock.day .. " beginnt.", 150) end
+    end
   end
   local p = ctx.player
   -- Schätze (D3): Frames ohne Steuern zählen, Pferd spürt auf und läuft los
@@ -568,6 +571,7 @@ function WorldScene.update()
         say("Geerntet: " .. n .. "x " .. Farm.CROP_NAME[item] .. ".", 120)
       elseif wild:at_bed_door() then
         if clock:sleep() then
+          day_banner = t + DAY_BANNER
           Days.new_day(ctx, clock.day)
           Market.refresh(ctx, clock.day)
           ctx.buyer = Buyers.visit(ctx.seed, clock.day)
@@ -577,7 +581,7 @@ function WorldScene.update()
           ctx.sfx.music("day")
           local saved = WorldScene.save()
           local fohlen = #ctx.geburten > 0 and (" Fohlen geboren: " .. ctx.geburten[1]) or ""
-          say("Gut geschlafen. Tag " .. clock.day .. " beginnt." .. fohlen .. (saved and " Gespeichert." or ""), 200)
+          say("Gut geschlafen." .. fohlen .. (saved and " Gespeichert." or ""), 200)
           local chaos = chaos_text()
           if chaos then say(chaos, 200) end
           local neu = Fortschritt.neu(clock.day)[1]
@@ -643,11 +647,11 @@ end
 local function draw_hud()
   local C = ctx.colors
   rectfill(0, 0, SCREEN_W - 1, Stage.HUD_H - 1, C.panel)
-  print("Tag " .. clock.day, 4, 3, C.text)
+  -- Der Tag steht nicht mehr hier (Rückmeldung 1.3.4): groß in der Mitte, wenn er beginnt, und im Pausenmenü
   local icon, f = clock:face()
-  ctx.S.draw(icon, 50, 3)
-  rectfill(62, 5, 101, 8, C.panel_light)
-  rectfill(62, 5, 62 + flr(39 * f), 8, icon == "icon_sun" and C.gold or C.dim)
+  ctx.S.draw(icon, 4, 3)
+  rectfill(16, 5, 55, 8, C.panel_light)
+  rectfill(16, 5, 16 + flr(39 * f), 8, icon == "icon_sun" and C.gold or C.dim)
   local money = ctx.money .. " G"
   print(money, SCREEN_W - textw(money) - 4, 3, C.gold)
   local name = (ctx.on_plot and ctx.on_plot()) and "Dein Hof" or ctx.area.name
@@ -663,6 +667,18 @@ local function draw_hud()
     rectfill(5, SCREEN_H - 11, 5 + flr(w * e / max_e), SCREEN_H - 6, e < 15 and C.red or C.gold)
     print("Energie", 80, SCREEN_H - 12, C.text)
   end
+end
+
+-- Neuer Tag: „Tag N“ groß in der Mitte, mit Schatten
+local function draw_day_banner()
+  if not day_banner or t >= day_banner or #stack > 0 then return end
+  local C = ctx.colors
+  local text = "Tag " .. clock.day
+  local old = font(2)
+  local x, y = (SCREEN_W - textw(text)) // 2, 84
+  for dx = -1, 1 do for dy = -1, 2 do print(text, x + dx, y + dy, C.panel) end end
+  print(text, x, y, C.gold)
+  font(old)
 end
 
 -- Seil von der Hand des Spielers zum Kopf jedes geführten Pferds (nicht bei freiem Folgen).
@@ -690,6 +706,7 @@ function WorldScene.draw()
   Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.light())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()
+  draw_day_banner()
   if menu then menu:draw(menu.horse.x - ctx.camera.x, menu.horse.y - ctx.camera.y) end
   if toast then
     -- Meldung: umgebrochen, der Kasten wächst mit; bei offenem Menü oben, damit es das Raster nicht verdeckt

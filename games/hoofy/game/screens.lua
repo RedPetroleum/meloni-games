@@ -1809,7 +1809,7 @@ function Screens.pause(ctx, nav)
   }
   local items = {}                 -- noch nicht freigeschaltete Einträge fehlen ganz (Fortschritt)
   for _, it in ipairs(all) do if not it.ab or F.offen(it.ab, day) then items[#items + 1] = it end end
-  local m = Menu.new(items, "Pause")
+  local m = Menu.new(items, "Tag " .. day)   -- der Tag steht hier statt oben links (Rückmeldung 1.3.4)
   local s = {}
   function s.update(n)
     if btnp(BTN_START) and not btn(BTN_SELECT) then return n.pop() end
