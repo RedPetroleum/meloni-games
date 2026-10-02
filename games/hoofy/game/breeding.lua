@@ -181,7 +181,7 @@ function B.foal(f, m, rng, inzucht)
   d.bindung = mid(0, rasse.bindung + H.TRAIT_BOND[d.zug] + flr((rng:next() * 2 - 1) * 5 + 0.5), 100)
   d.hunger, d.gewicht, d.sauberkeit = S.hunger.start, S.gewicht.start, S.sauberkeit.start
   d.energie = d.gen.ausdauer
-  d.name = H.fresh_name(rng)
+  d.name = H.fresh_name(rng, d.sex)
   d.ahnen = {v = ahn(f, B.DEPTH), m = ahn(m, B.DEPTH)}
   return d
 end

@@ -21,7 +21,7 @@ O.STATS = {
 }
 local STAT_LIST = {"tempo", "staerke", "spuer", "ausdauer"}
 
--- Farbe als Adjektiv für den Text: aus dem Katalognamen (Brauner → braune Stute).
+-- Farbe als Adjektiv für den Text: aus dem Katalognamen (Brauner → braune Stute, brauner Hengst).
 local ADJ = {
   Brauner = "braune", Fuchs = "Fuchs-", Dunkelbrauner = "dunkelbraune", Hellfuchs = "hellfuchsfarbene", Rappe = "schwarze",
   Grauschimmel = "graue", Falbe = "falbfarbene", Isabell = "isabellfarbene", Schimmel = "weiße", Dunkelfuchs = "dunkelfuchsfarbene",
@@ -36,6 +36,7 @@ function O.text(o)
   local f = K.farbe(o.farbe).name
   local adj = ADJ[f] or f
   local noun = o.sex == "m" and "Hengst" or "Stute"
+  if o.sex == "m" and adj:sub(-1) == "e" then adj = adj .. "r" end          -- braune Stute, brauner Hengst
   local prefix = adj:sub(-1) == "-" and (adj .. noun) or (adj .. " " .. noun)
   prefix = prefix:sub(1, 1):upper() .. prefix:sub(2)
   return string.format("%s, %s über %d, bis Tag %d", prefix, O.STATS[o.stat].name, o.min, o.frist)

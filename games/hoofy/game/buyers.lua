@@ -13,7 +13,7 @@ local B = {}
 B.TYPES = {"sammlerin", "reithof", "zuechter", "schlachter"}
 
 B.INFO = {
-  sammlerin = {name = "Reiche Sammlerin", kurz = "Sammlerin"},
+  sammlerin = {name = "Reiche Sammlerin", kurz = "Sammlerin", sie = true},
   reithof = {name = "Netter Reithof", kurz = "Reithof"},
   zuechter = {name = "Züchter", kurz = "Züchter"},
   schlachter = {name = "Schlachter", kurz = "Schlachter"},
@@ -45,6 +45,12 @@ function B.offer(typ, d)
   error("unbekannter Käufer " .. tostring(typ))
 end
 
+-- „sie“ oder „er“ für den Käufer (groß am Satzanfang: gross = true)
+function B.pronoun(typ, gross)
+  local p = B.INFO[typ].sie and "sie" or "er"
+  return gross and (p:sub(1, 1):upper() .. p:sub(2)) or p
+end
+
 -- Bindungsänderung für die übrigen Pferde nach einem Verkauf an diesen Käufer.
 function B.folge(typ)
   local W = K.wert.kaeufer
@@ -56,26 +62,27 @@ end
 
 -- ---- Sprüche (mehrere je Pferdetyp) ----
 
+-- {sie|er} bzw. {die Stute|der Hengst|das Fohlen}: Form passend zum Pferd (H.gtext).
 local SPRUECHE = {
   sammlerin = {
-    selten = {"Diese Farbe! Die fehlt mir noch in der Sammlung.", "Ach, wie außergewöhnlich. Das muss ich haben.", "Darling, dieses Fell ist ein Gedicht."},
-    schmutzig = {"Also bitte, das Tier ist ja völlig verdreckt.", "So kann ich das nicht mitnehmen. Striegeln Sie es erst!"},
-    fohlen = {"Ein Fohlen! Wie süß. Es wächst ja noch.", "Hach, so klein. Und trotzdem mit Stammbaum?"},
+    selten = {"Diese Farbe! Die fehlt mir noch in der Sammlung.", "Ach, wie außergewöhnlich. {Die|Den} muss ich haben.", "Darling, dieses Fell ist ein Gedicht."},
+    schmutzig = {"Also bitte, {die Stute|der Hengst|das Fohlen} ist ja völlig verdreckt.", "So kann ich {sie|ihn} nicht mitnehmen. Striegeln Sie {sie|ihn} erst!"},
+    fohlen = {"Ein Fohlen! Wie süß. {Sie|Er} wächst ja noch.", "Hach, so klein. Und trotzdem mit Stammbaum?"},
     hengst = {"Ein stattlicher Hengst. Er passt zu meinem Salon.", "Ein Hengst mit Haltung. Sehr schön."},
     stute = {"Eine elegante Dame. Ich bin entzückt.", "Die Stute hat Stil. Gut, gut."},
     normal = {"Nett. Nicht aufregend, aber nett.", "Hm, ich hatte mir etwas Bunteres vorgestellt."},
   },
   reithof = {
-    zahm = {"Ach, die ist ja richtig zutraulich. Das ist genau das, was unsere Kinder brauchen.", "So ein braves Pferd! Die nehmen wir."},
-    scheu = {"Die ist ein bisschen scheu, oder? Na, wir haben Geduld.", "Ein bisschen zickig, aber wir kriegen das hin."},
-    fohlen = {"Ein Fohlen? Das können die Kinder gleich mit aufziehen.", "Noch klein, aber sehr lieb. Wir kümmern uns."},
+    zahm = {"Ach, {die|der} ist ja richtig zutraulich. Das ist genau das, was unsere Kinder brauchen.", "So ein braves Pferd! {Die|Den} nehmen wir."},
+    scheu = {"{Die|Der} ist ein bisschen scheu, oder? Na, wir haben Geduld.", "Ein bisschen {zickig|bockig}, aber wir kriegen das hin."},
+    fohlen = {"Ein Fohlen? Das können die Kinder gleich mit aufziehen.", "Noch klein, aber sehr lieb. Wir kümmern uns um {sie|ihn}."},
     hengst = {"Ein Hengst? Na, wir haben einen Extra-Paddock.", "Hoffentlich ist er verträglich."},
     stute = {"Eine nette Stute, sie passt zu unserer Herde.", "Die Mädels im Stall freuen sich schon."},
     normal = {"Ordentliches Pferd, danke.", "Das nehmen wir gern für den Reitunterricht."},
   },
   zuechter = {
-    schnell = {"Was für Beine! Mit der Geschwindigkeit gewinnt man Rennen.", "Schnell. Sehr schnell. Interessant."},
-    stark = {"Kräftiges Tier. Die Linie lässt sich sehen.", "Die Muskeln! Damit züchte ich Zugpferde."},
+    schnell = {"Was für Beine! Mit der Geschwindigkeit gewinnt man Rennen.", "Schnell. Sehr schnell. {Die|Den} merke ich mir."},
+    stark = {"{Kräftige Stute|Kräftiger Hengst|Kräftiges Fohlen}. Die Linie lässt sich sehen.", "{Die|Der} hat Muskeln! Damit züchte ich Zugpferde."},
     fohlen = {"Ein Fohlen mit Potenzial, das schaue ich mir an.", "Jung, aber gute Anlagen."},
     hengst = {"Ein Hengst! Den brauche ich für meine Stuten.", "Endlich ein Deckhengst mit Qualität."},
     stute = {"Eine Stute mit guten Werten. Nicht schlecht.", "Die bringt solide Fohlen."},
@@ -83,7 +90,7 @@ local SPRUECHE = {
   },
   schlachter = {
     dick = {"Ordentlich Substanz! So ein Gewicht sieht man selten.", "Schwer, schwer. Das lohnt sich."},
-    duenn = {"Da ist ja nichts dran. Mager, mager.", "Das Tier ist ja ein Hungerhaken."},
+    duenn = {"Da ist ja nichts dran. Mager, mager.", "{Die|Der} ist ja ein Hungerhaken."},
     fohlen = {"Zu jung. Aber ich nehme es, wenn der Preis stimmt.", "Hm, klein. Naja, Kleinvieh macht auch Mist."},
     hengst = {"Ein Hengst, sehr kräftig. Mein Metzger freut sich.", "Kräftig gebaut. Abgemacht."},
     stute = {"Eine kräftige Stute. Ich nehme sie.", "Ordentlicher Körperbau, ja."},
@@ -121,7 +128,7 @@ end
 function B.spruch(typ, d, day)
   local list = SPRUECHE[typ][category(typ, d)]
   local i = 1 + flr(U.hash(#d.name, flr(H.stat(d, "tempo")) + flr(H.stat(d, "staerke")), (day or 1) + 17) * #list)
-  return list[i], category(typ, d)
+  return H.gtext(d, list[i]), category(typ, d)
 end
 
 -- ---- Besuch ----

@@ -553,8 +553,8 @@ function WorldScene.update()
     if r == "ok" then
       taming, a_release = nil, true
       local how = h.state == "follow" and "gezähmt, folgt dir." or h.state == "led" and "gezähmt, an der Leine."
-        or "gezähmt. Deine Leine ist belegt, es wartet hier."
-      toast = {text = h.data.name .. " ist " .. how .. " Bring es auf deinen Hof, sonst ist es wieder wild, wenn es sich losreißt.", t = 240}
+        or "gezähmt. Deine Leine ist belegt, {sie|er} wartet hier."
+      toast = {text = H.gtext(h.data, h.data.name .. " ist " .. how .. " Bring {sie|ihn} auf deinen Hof, sonst ist {sie|er} wieder wild, wenn {sie|er} sich losreißt."), t = 240}
       ctx.sfx.tame()
       log("ZAEHMEN " .. frame() .. " gezähmt: " .. h.data.name)
     elseif r == "weg" then

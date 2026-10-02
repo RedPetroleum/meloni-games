@@ -128,6 +128,7 @@ return {
         d.gen.tempo, d.gen.staerke = extra.sex == "m" and 70 or 30, 40
         local text, cat = Buyers.spruch(typ, d, 5)
         C.ok(#text > 10, "Spruch")
+        C.ok(not text:find("[{|}]"), "Geschlechtsform aufgelöst: " .. text)
         C.eq(Buyers.spruch(typ, d, 5), text, "stabil")
         cats[cat] = true
         seen[text] = true

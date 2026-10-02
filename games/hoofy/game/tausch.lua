@@ -123,7 +123,8 @@ end
 -- Frisches Pferd aus den dekodierten Daten (Tageszustand neu, Name aus der Kennung, ID eindeutig).
 function T.pferd(d)
   local S = K.stats
-  d.name = H.NAMES[d.kennung % #H.NAMES + 1]
+  local names = H.names_for(d.sex)
+  d.name = names[d.kennung % #names + 1]
   H.claim_name(d)                     -- schon vergeben: neuer Name
   d.id = string.format("%06d900", d.kennung * 15 % 1000000)
   d.hunger, d.gewicht, d.sauberkeit = S.hunger.start, S.gewicht.start, S.sauberkeit.start

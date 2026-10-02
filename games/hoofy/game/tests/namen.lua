@@ -10,18 +10,48 @@ local Rng = require("lib.rng")
 local C = require("game.tests.check")
 
 return {
-  {"Freie Namen: erst die Liste, dann zusammengesetzte, dann nummerierte; nie doppelt", function()
-    H.names_reset({})
-    local seen, rng = {}, Rng.new(5)
-    for i = 1, #H.NAMES + #H.NAMEN_VORN * #H.NAMEN_HINTEN + 30 do
-      local d = {name = nil}
-      local n = H.claim_name(d, rng)
-      C.ok(not seen[n], "doppelt: " .. n)
-      seen[n] = true
-      if i == #H.NAMES then C.ok(H.name_used("Blitz") and H.name_used("Tante Erna"), "Liste aufgebraucht") end
-      if i == #H.NAMES + 1 then C.ok(n:find("^%u%l+%l+$") and not n:find(" "), "zusammengesetzt: " .. n) end
+  {"Freie Namen: erst die Liste, dann zusammengesetzte, dann nummerierte; nie doppelt, immer passend zum Geschlecht", function()
+    for _, sex in ipairs({"w", "m"}) do
+      H.names_reset({})
+      local seen, rng = {}, Rng.new(5)
+      local list = H.names_for(sex)
+      local ends = sex == "w" and H.NAMEN_HINTEN_W or H.NAMEN_HINTEN_M
+      local other = {}
+      for _, n in ipairs(sex == "w" and H.NAMES_M or H.NAMES_W) do other[n] = true end
+      local in_list = {}
+      for _, n in ipairs(list) do in_list[n] = true end
+      for i = 1, #list + #H.NAMEN_VORN * #ends + 30 do
+        local n = H.claim_name({sex = sex}, rng)
+        C.ok(not seen[n], "doppelt: " .. n)
+        seen[n] = true
+        C.ok(not other[n:gsub(" [IVX]+$", "")], "falsches Geschlecht: " .. n)
+        if i == #list then C.ok(H.name_used(list[1]) and H.name_used(list[#list]), "Liste aufgebraucht") end
+        if i == #list + 1 then
+          local fits = false
+          for _, e in ipairs(ends) do if n:sub(-#e) == e then fits = true end end
+          C.ok(not n:find(" ") and not in_list[n] and fits, "zusammengesetzt: " .. n)
+        end
+      end
+      C.ok(seen[list[1] .. " II"] or next(seen), "nummeriert")
     end
-    C.ok(seen["Blitz II"] or seen["Luna II"] or next(seen), "nummeriert")
+    H.names_reset({})
+  end},
+  {"Wildpferde, Fohlen und Tauschpferde heißen passend zum Geschlecht; Texte passen sich an", function()
+    H.names_reset({})
+    local rng = Rng.new(3)
+    for i = 1, 200 do
+      local d = H.wild({rng = rng})
+      C.ok(H.name_fits(d.name, d.sex), d.sex .. ": " .. d.name)
+    end
+    C.ok(not H.name_fits("Luna", "m") and not H.name_fits("Horst", "w") and H.name_fits("Keks", "m") and H.name_fits("Keks", "w"))
+    -- Marktpferd aus älterem Spielstand mit unpassendem Namen bekommt beim Kauf einen passenden
+    local d = {name = "Luna", sex = "m"}
+    H.claim_name(d, rng)
+    C.ok(d.name ~= "Luna" and H.name_fits(d.name, "m"), d.name)
+    C.eq(H.gtext({sex = "w", alter = 1}, "{Die|Der} ist scheu, bring {sie|ihn} her."), "Die ist scheu, bring sie her.")
+    C.eq(H.gtext({sex = "m", alter = 1}, "{Die|Der} ist scheu, bring {sie|ihn} her."), "Der ist scheu, bring ihn her.")
+    C.eq(H.gtext({sex = "m", alter = 0.5}, "{die Stute|der Hengst|das Fohlen}, {sie|er}"), "das Fohlen, er")
+    C.eq(require("game.orders").text({farbe = "brauner", sex = "m", stat = "tempo", min = 50, frist = 20}):match("^%S+ %S+"), "Brauner Hengst,")
     H.names_reset({})
   end},
   {"Wildpferd heißt nie wie ein früheres, Zähmen belegt den Namen, Spielstand merkt sich die Liste", function()

@@ -905,7 +905,7 @@ function Screens.buyer(ctx, nav_done)
       local offer, why = Buyers.offer(typ, d)
       if not offer then
         SFX.snort()
-        msg = "Das nimmt er nicht: " .. tostring(why)
+        msg = H.gtext(d, Buyers.pronoun(typ, true) .. " nimmt {sie|ihn|es} nicht: ") .. tostring(why)
       else
         SFX.ok()
         local lines = {name .. " für " .. offer .. " G an " .. info.name .. " verkaufen?", "Das lässt sich nicht rückgängig machen."}
@@ -918,7 +918,7 @@ function Screens.buyer(ctx, nav_done)
             if nav_done then nav_done(name .. " verkauft für " .. price .. " G.") end
           else
             SFX.snort()
-            msg = "Das nimmt er nicht: " .. tostring(extra)
+            msg = H.gtext(d, Buyers.pronoun(typ, true) .. " nimmt {sie|ihn|es} nicht: ") .. tostring(extra)
           end
         end))
       end
@@ -953,11 +953,12 @@ function Screens.buyer(ctx, nav_done)
       for i, line in ipairs(lines) do if i <= 3 then print(line, 8, 156 + (i - 1) * 10, C.text) end end
       local price, why = Buyers.offer(typ, d)
       if price then
-        print("Er zahlt " .. price .. " G (Wert " .. Value.wert(d) .. " G).", 8, 190, C.gold)
+        print(Buyers.pronoun(typ, true) .. " zahlt " .. price .. " G (Wert " .. Value.wert(d) .. " G).", 8, 190, C.gold)
         local f = Buyers.folge(typ)
         if f ~= 0 then print("Die übrigen Pferde: Bindung " .. (f > 0 and "+" or "") .. f, 8, 201, f > 0 and C.text or C.red) end
       else
-        print("Er nimmt es nicht: " .. tostring(why), 8, 190, C.red)
+        local no = require("lib.util").wrap(H.gtext(d, Buyers.pronoun(typ, true) .. " nimmt {sie|ihn|es} nicht: ") .. tostring(why), SCREEN_W - 16)
+        for i, line in ipairs(no) do if i <= 2 then print(line, 8, 190 + (i - 1) * 11, C.red) end end
       end
       if msg then print(msg, 8, 214, C.red) end
     end

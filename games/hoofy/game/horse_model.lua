@@ -14,15 +14,56 @@ local H = {}
 
 H.STATS = {"tempo", "staerke", "spuer", "ausdauer"}
 
--- Namen für Wildpferde (E27), gemischt für Stuten und Hengste.
-H.NAMES = {
-  "Blitz", "Luna", "Karamell", "Sternchen", "Wolke", "Pünktchen", "Keks", "Nebel", "Toffee", "Zimt",
-  "Schoko", "Paule", "Lotte", "Klecks", "Dörte", "Günther", "Horst", "Bruno", "Rosi", "Ferdinand",
-  "Apfelstrudel", "Wuschel", "Donner", "Minze", "Pepper", "Gustav", "Kasimir", "Lilly", "Nala",
-  "Pixel", "Quark", "Rudi", "Tinka", "Uschi", "Vroni", "Willi", "Yuki", "Zottel", "Hafermotte",
-  "Brezel", "Mäxchen", "Frieda", "Socke", "Krümel", "Wirbel", "Honig", "Radieschen", "Fanta",
-  "Bolle", "Gräfin", "Kekskrümel", "Momo", "Nugget", "Olga", "Piet", "Sprotte", "Tante Erna",
+-- Namen für Wildpferde (E27), nach Geschlecht: Stuten bekommen NAMES_W oder NAMES_X, Hengste NAMES_M
+-- oder NAMES_X (passt zu beiden).
+H.NAMES_W = {
+  "Luna", "Lotte", "Dörte", "Rosi", "Minze", "Lilly", "Nala", "Tinka", "Uschi", "Vroni", "Frieda", "Olga",
+  "Gräfin", "Sprotte", "Tante Erna", "Bella", "Greta", "Hanni", "Ronja", "Pippa", "Mathilda", "Trude",
+  "Liesel", "Paula", "Resi", "Wilma", "Zora", "Cleo", "Mira", "Gundula", "Brunhilde", "Hermine", "Polly",
+  "Molly", "Lola", "Ida", "Fee", "Daisy", "Prinzessin", "Oma Gerda", "Elsa", "Biene", "Hummel", "Möhre",
 }
+H.NAMES_M = {
+  "Blitz", "Paule", "Günther", "Horst", "Bruno", "Ferdinand", "Donner", "Gustav", "Kasimir", "Rudi",
+  "Willi", "Mäxchen", "Piet", "Bolle", "Moritz", "Fritz", "Hugo", "Otto", "Theo", "Konrad", "Jupp",
+  "Kalle", "Sepp", "Balduin", "Herbert", "Egon", "Baron", "Graf Koks", "Rocky", "Sultan", "Hektor",
+  "Fridolin", "Leopold", "Elvis", "Django", "Hubert", "Waldemar", "Napoleon", "Amadeus", "Fips",
+  "Onkel Heinz", "Tornado", "Pfeffer", "Kaktus",
+}
+H.NAMES_X = {
+  "Karamell", "Sternchen", "Wolke", "Pünktchen", "Keks", "Nebel", "Toffee", "Zimt", "Schoko", "Klecks",
+  "Apfelstrudel", "Wuschel", "Pepper", "Pixel", "Quark", "Yuki", "Zottel", "Hafermotte", "Brezel",
+  "Socke", "Krümel", "Wirbel", "Honig", "Radieschen", "Fanta", "Kekskrümel", "Momo", "Nugget", "Sunny",
+  "Kiwi", "Mango", "Kakao", "Muffin", "Nougat", "Marzipan", "Bonbon", "Lakritz", "Popcorn", "Kiesel",
+  "Schnuffel", "Stups", "Erbse", "Bambi", "Toni", "Sahne",
+}
+-- Alle zusammen (Stuten, Hengste, beide)
+H.NAMES = {}
+for _, l in ipairs({H.NAMES_W, H.NAMES_M, H.NAMES_X}) do
+  for _, n in ipairs(l) do H.NAMES[#H.NAMES + 1] = n end
+end
+
+local by_sex = {}
+-- Namen, die zum Geschlecht passen ("w"/"m"; sonst alle).
+function H.names_for(sex)
+  if sex ~= "w" and sex ~= "m" then return H.NAMES end
+  if not by_sex[sex] then
+    local l = {}
+    for _, n in ipairs(sex == "w" and H.NAMES_W or H.NAMES_M) do l[#l + 1] = n end
+    for _, n in ipairs(H.NAMES_X) do l[#l + 1] = n end
+    by_sex[sex] = l
+  end
+  return by_sex[sex]
+end
+
+-- Text passend zum Pferd d: „{sie|er}“ wird für Stuten zum ersten, für Hengste zum zweiten Wort;
+-- „{die Stute|der Hengst|das Fohlen}“ nimmt für Fohlen das dritte.
+function H.gtext(d, s)
+  local m, foal = d and d.sex == "m", d and (d.alter or 1) < 1
+  return (s:gsub("{([^|}]*)|([^|}]*)|?([^}]*)}", function(w, mm, f)
+    if foal and f ~= "" then return f end
+    return m and mm or w
+  end))
+end
 
 -- Zufall: rng mit rng:next() (0 <= r < 1), sonst rnd().
 local function R(rng)
@@ -117,11 +158,14 @@ H.TRAIT_BOND = {schreckhaft = -10, faul = 5, verfressen = 5, eitel = 0, nachteul
 -- Vergeben ist ein Name, sobald ein Pferd mit ihm dir gehört hat (gezähmt, geboren, gekauft, getauscht,
 -- umbenannt); die Liste steht im Spielstand (namen). Wildpferde und Marktpferde bekommen beim Erzeugen nur
 -- einen noch freien Namen, belegt wird er erst, wenn das Pferd deins wird. Sind die Namen oben alle weg,
--- kommen zusammengesetzte (Sternentänzer …), danach nummerierte (Blitz II …).
+-- kommen zusammengesetzte (Sternentänzer …), danach nummerierte (Blitz II …), immer passend zum Geschlecht.
 H.NAMEN_VORN = {"Sternen", "Mond", "Sonnen", "Wind", "Silber", "Gold", "Feuer", "Schnee", "Sturm", "Morgen",
   "Abend", "Wiesen", "Wald", "Fluss", "Nebel", "Honig", "Kirsch", "Funken", "Wolken", "Moos"}
-H.NAMEN_HINTEN = {"tänzer", "läufer", "flocke", "glanz", "funke", "hauch", "traum", "blüte", "feder", "stern",
-  "zauber", "schweif"}
+-- Endungen nach Geschlecht (Sternentänzer, Sternentänzerin)
+H.NAMEN_HINTEN_M = {"tänzer", "läufer", "glanz", "funke", "hauch", "traum", "stern", "zauber", "schweif", "prinz",
+  "sprung", "falke"}
+H.NAMEN_HINTEN_W = {"tänzerin", "läuferin", "flocke", "blüte", "feder", "fee", "perle", "rose", "elfe", "prinzessin",
+  "schwalbe", "lilie"}
 local ROMAN = {"II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"}
 
 local used = {}                -- Name → true
@@ -143,7 +187,7 @@ function H.used_names()
   return out
 end
 
-local combos
+local combos = {}
 local function scan(list, r)
   local n = #list
   local start = flr(r * n)
@@ -153,30 +197,58 @@ local function scan(list, r)
   end
 end
 
--- Ein noch nie vergebener Name (belegt ihn nicht). Verbraucht genau einen Zufallswert.
-function H.fresh_name(rng)
-  local r = rng and rng:next() or rnd()
-  local name = scan(H.NAMES, r)
-  if name then return name end
-  if not combos then
-    combos = {}
-    for _, a in ipairs(H.NAMEN_VORN) do for _, b in ipairs(H.NAMEN_HINTEN) do combos[#combos + 1] = a .. b end end
+local function combo_list(sex)
+  local key = (sex == "w" or sex == "m") and sex or "x"
+  if not combos[key] then
+    local l = {}
+    local ends = key == "w" and H.NAMEN_HINTEN_W or key == "m" and H.NAMEN_HINTEN_M or nil
+    for _, a in ipairs(H.NAMEN_VORN) do
+      if ends then
+        for _, b in ipairs(ends) do l[#l + 1] = a .. b end
+      else
+        for _, b in ipairs(H.NAMEN_HINTEN_M) do l[#l + 1] = a .. b end
+        for _, b in ipairs(H.NAMEN_HINTEN_W) do l[#l + 1] = a .. b end
+      end
+    end
+    combos[key] = l
   end
-  name = scan(combos, r)
+  return combos[key]
+end
+
+-- Ein noch nie vergebener Name, passend zum Geschlecht sex ("w"/"m", sonst beliebig); belegt ihn nicht.
+-- Verbraucht genau einen Zufallswert.
+function H.fresh_name(rng, sex)
+  local r = rng and rng:next() or rnd()
+  local names = H.names_for(sex)
+  local name = scan(names, r)
+  if name then return name end
+  name = scan(combo_list(sex), r)
   if name then return name end
   for i = 1, 1000 do
     local suffix = ROMAN[i] or tostring(i + 1)
     local list = {}
-    for k, n in ipairs(H.NAMES) do list[k] = n .. " " .. suffix end
+    for k, n in ipairs(names) do list[k] = n .. " " .. suffix end
     name = scan(list, r)
     if name then return name end
   end
   return "Pferd " .. (#H.used_names() + 1)
 end
 
--- Das Pferd wird deins: hat es einen schon vergebenen Namen, bekommt es einen neuen; der Name ist dann belegt.
+-- Passt der Name zum Geschlecht? Nein nur bei einem Namen aus der Liste des anderen Geschlechts.
+local wrong
+function H.name_fits(name, sex)
+  if not wrong then
+    wrong = {w = {}, m = {}}
+    for _, n in ipairs(H.NAMES_M) do wrong.w[n] = true end
+    for _, n in ipairs(H.NAMES_W) do wrong.m[n] = true end
+  end
+  return not (wrong[sex] and wrong[sex][name])
+end
+
+-- Das Pferd wird deins: hat es einen schon vergebenen oder einen Namen des anderen Geschlechts (Marktpferd
+-- aus einem älteren Spielstand), bekommt es einen neuen; der Name ist dann belegt.
 function H.claim_name(d, rng)
-  if not d.name or used[d.name] then d.name = H.fresh_name(rng) end
+  if not d.name or used[d.name] or not H.name_fits(d.name, d.sex) then d.name = H.fresh_name(rng, d.sex) end
   used[d.name] = true
   return d.name
 end
@@ -209,7 +281,7 @@ function H.wild(opts)
   h.gewicht = S.gewicht.start
   h.sauberkeit = S.sauberkeit.start
   h.energie = H.stat(h, "ausdauer")
-  h.name = opts.name or H.fresh_name(rng)
+  h.name = opts.name or H.fresh_name(rng, h.sex)
   return h
 end
 
