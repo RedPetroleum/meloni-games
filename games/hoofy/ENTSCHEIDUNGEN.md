@@ -552,7 +552,7 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Hecken verbinden sich wie Zäune: 16 Formen hecke_<Maske> (Kollision "0".."?" statt "H"), mit Nachbar oben reicht
   die Hecke bis zur Kachelkante. Hecken verbinden sich nur mit Hecken; an Tor und Zaun schließen sie mit Rand ab,
   Zäune führen ihre Latten dagegen bis an die Hecke. Alte Spielstände: Hecken bekommen beim Laden ihre Form.
-- Tor: weißes Gatter mit Schräge und goldenen Pfostenkappen, hebt sich vom braunen Zaun ab. In einer senkrechten
+- Tor: hellbraunes Gatter (Farbe Weg) mit Schräge und goldenen Pfostenkappen (zuerst weiß, auf Wunsch hellbraun). In einer senkrechten
   Zaun- oder Heckenlinie (Nachbar oben/unten, keiner links/rechts) steht es gedreht (gate_v). Szenario `hecken`.
 - Zähmen (Rückmeldung nach 1.3.4): Fortschrittsbalken grün statt rot; gleich nach dem Zähmen zeigt das Pferd 2,5 s ein Herz.
 - Füttern (Rückmeldung nach 1.3.4): Das Futtermenü bleibt nach dem Füttern offen (Anzahlen aktualisiert, Auswahl bleibt),
