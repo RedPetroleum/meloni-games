@@ -150,4 +150,37 @@ return {
     C.eq(#ctx.herd, 1, "bleibt deins")
     C.eq(h.state, "escape")
   end},
+  {"Es hört: Durchgehen verscheucht es (vorher ❗), kurz gehen und stehen nicht; ❗ mit Hysterese", function()
+    local ctx, w, h = setup(100)
+    local p = ctx.player
+    -- Pferd schaut die ganze Zeit weg, nur das Hören zählt; Spieler steht 20 px daneben
+    local function step(moving)
+      h.state, h.timer = "away", 1000
+      p.x, p.y, p.moving, p.running = h.x - 20, h.y, moving, false
+      h:update()
+    end
+    local warned, n = nil, 0
+    repeat
+      n = n + 1
+      step(true)
+      if h.alarm and not warned then warned = n end
+    until h.state == "flee" or n > 300
+    C.eq(h.state, "flee", "durchgehen")
+    C.ok(warned and warned < n - 10, "❗ kommt vorher: " .. tostring(warned) .. " / " .. n)
+    log("ZAEHMEN Hören: ❗ nach " .. warned .. " Frames, Flucht nach " .. n)
+    ctx, w, h = setup(100)
+    p = ctx.player
+    for _ = 1, 10 do
+      for _ = 1, 15 do step(true) end
+      for _ = 1, 30 do step(false) end
+    end
+    C.eq(h.state, "away", "kurz gehen, stehen")
+    C.ok(not h.alarm, "kein ❗")
+    repeat step(true) until h.alarm
+    for _ = 1, 5 do step(false) end
+    C.ok(h.alarm, "❗ bleibt kurz nach dem Stehenbleiben")
+    for _ = 1, 40 do step(false) end
+    C.ok(not h.alarm, "❗ geht weg")
+    C.ok(h.noise < 0.35, "fast still")
+  end},
 }

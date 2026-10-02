@@ -20,6 +20,8 @@ Wild.Horse = nil
 -- Bindung), warnt 0,3 s (❗), schaut 1–2 s her. Bewegt sich der Spieler, während es hinschaut,
 -- flieht es. Schwerer gemacht (Rückmeldung 1.2.1): Wer in der Zone sprintet, verscheucht es; A muss man
 -- nah genug (TAME_DIST) drücken, während es wegschaut, und dann stillstehend halten (Wild.tame_frames).
+-- Es hört auch (Rückmeldung 1.3.4): Gehen in der Zone füllt einen verborgenen Lärmpegel (nah schneller),
+-- Stehen leert ihn. Ab NOISE_ON zeigt es ❗, bis er unter NOISE_OFF fällt; ist er voll, flieht es.
 local ZONE = 110
 local TAME_DIST = 26
 local WARN = 18          -- 0,3 s
@@ -27,6 +29,10 @@ local LEAVE = 140        -- so weit weg beruhigt sich das Pferd wieder
 local CALM_DIST = 110    -- nach der Flucht erst ab hier wieder grasen
 local FAR = 420          -- weiter weg: nur alle FAR_EVERY Frames bewegen
 local FAR_EVERY = 30
+local NOISE_ON, NOISE_OFF = 0.6, 0.35
+local NOISE_UP = 0.6 / 60       -- je Frame Gehen am Rand der Zone (voll nach 1,7 s) …
+local NOISE_NEAR = 0.6 / 60     -- … plus so viel ganz nah am Pferd (voll nach knapp 1 s)
+local NOISE_DOWN = 1 / 90       -- je Frame Stehen (von voll auf leer in 1,5 s)
 
 local Horse = {}
 Horse.__index = Horse
@@ -196,6 +202,7 @@ function Horse:update()
     self.tick = self.tick + 1
     if self.tick % FAR_EVERY ~= 0 then return end
     self.timer = self.timer - FAR_EVERY
+    self.noise, self.alarm = 0, false
     if self.timer <= 0 then set_state(self, "graze", 120 + flr(rnd(240))) end
     return
   end
@@ -203,6 +210,10 @@ function Horse:update()
   self.cool = max(0, (self.cool or 0) - 1)
   -- Sprinten (oder Galopp) in der Zone ist zu laut: es flieht sofort
   if d < ZONE and p.running and p.moving and self.state ~= "flee" then
+    self:flee(p)
+    return
+  end
+  if self.state ~= "flee" and self:listen(p, d) then
     self:flee(p)
     return
   end
@@ -285,6 +296,22 @@ function Horse:flee_dir(p, speed)
   return 0, 0                    -- eingekesselt: stehen bleiben
 end
 
+-- Lärmpegel für einen Frame nachführen (siehe oben). Gibt true zurück, wenn er voll ist.
+function Horse:listen(p, d)
+  local n = self.noise or 0
+  if d < ZONE and p.moving then n = n + NOISE_UP + NOISE_NEAR * (1 - d / ZONE) else n = n - NOISE_DOWN end
+  n = mid(0, n, 1)
+  if not self.alarm and n >= NOISE_ON then
+    self.alarm = true
+    SFX.warn()
+    if self.debug_log then log("ZAEHMEN " .. frame() .. " hört etwas") end
+  elseif self.alarm and n <= NOISE_OFF then
+    self.alarm = false
+  end
+  self.noise = n
+  return n >= 1
+end
+
 function Horse:face(p)
   self.dir = p.x >= self.x and "right" or "left"
 end
@@ -292,6 +319,7 @@ end
 function Horse:flee(p)
   SFX.whinny()
   set_state(self, "flee", 90)
+  self.noise, self.alarm = 0, false
   self.flee_side = nil
   self.vx, self.vy = self:flee_dir(p, 1.7)
   self.flee_t = 0
@@ -366,7 +394,7 @@ function Horse:draw_over()
     rectfill(x0, y0, x0 + flr(w * self.taming / self.tame_need), y0 + 2, TAME_FG)
     return
   end
-  local b = self.state == "warn" and "emo_bang" or Bubbles.choose(self, frame())
+  local b = (self.state == "warn" or self.alarm) and "emo_bang" or Bubbles.choose(self, frame())
   if b then Bubbles.draw(self.ctx.S, b, self.x + (self.dir == "right" and 10 or -10), self.y - 28, frame()) end
 end
 

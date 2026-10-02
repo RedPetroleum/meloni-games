@@ -535,3 +535,9 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   ≤ 210 min). Mit dieser Annahme: Phasen 58–115 min, bis zum Flugzeug etwa 7,2 h.
 - Baumodus: Die Welt steht dort schon still (Uhr, Pferde, Tiere; im Test bewegt sich zwischen Frame 10 und 400 nichts
   außer der Meldungszeile). Nichts geändert, Rückfrage an den Menschen, was sich noch bewegt.
+
+## E81 Zähmen: das Pferd hört (Rückmeldung nach 1.3.4)
+- Zu E16/E28: Ein verborgener Lärmpegel (0–1) steigt, solange du in der Zone (110 px) gehst oder reitest, nah am
+  Pferd schneller (voll nach 1,7 s am Rand, knapp 1 s ganz nah), und sinkt im Stehen (voll → leer in 1,5 s). Ab 60 %
+  ❗ mit Warnton, das ❗ bleibt bis unter 35 % (Hysterese). Voll = Flucht. Gilt in jedem Zustand außer der Flucht,
+  zusätzlich zum Wegschauen/Hinschauen. Zahlen sind eigene Wahl (NOISE_* in game/wild.lua).
