@@ -200,9 +200,9 @@ Abreißen bringt 100 % des Preises zurück.
 | Häuschen / Villa | 1 000 / 8 000 | schlafen, Schönheit +20 / +100 |
 | Stall S / M / L / XL | 300 / 900 / 2 500 / 6 000 | 2 / 4 / 8 / 12 Plätze, 1 / 2 / 3 / 4 Bindung pro Tag |
 | Zaun (je Kachel) / Tor | 5 / 30 | Weide |
-| Schuppen / Garage / Hangar | 1 000 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
+| Schuppen / Garage / Hangar | 300 / 3 000 / 15 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
 | Göpel-Generator | 1 500 | 40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie) |
-| Heuraufe | 600 | füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40 (Heu aus dem Haus, sonst zum Ladenpreis) |
+| Heuraufe | 600 | füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40, Vorrat 20 Heu (selbst befüllen) |
 | Kratzbürste | 400 | Sauberkeit +20 pro Tag für alle Pferde auf dem Hof |
 | Stallburschenhütte | 2 500 | Stallbursche streichelt und striegelt jeden Morgen alle Pferde auf dem Hof (Bindung +2, Sauberkeit +40), Lohn 15 pro Tag |
 | Beet (je Kachel) | 0 | Pflanzen anbauen (siehe Anbau), braucht eine Hacke |
@@ -216,15 +216,15 @@ Abreißen bringt 100 % des Preises zurück.
 | Zugfahrzeug | Preis | Gebiete bis | Fahrtkosten je Gebiet Entfernung |
 |---|---|---|---|
 | zu Fuß | – | 1 | – |
-| Fahrrad | 800 | 2 | 0 |
-| Mofa | 10 000 | 3 | 5 |
-| Kleinwagen | 25 000 | 4 | 10 |
-| SUV | 80 000 | 5 | 20 |
-| Flugzeug | 150 000 | 6 | 50 |
+| Fahrrad | 500 | 2 | 0 |
+| Mofa | 4 000 | 3 | 5 |
+| Kleinwagen | 12 000 | 4 | 10 |
+| SUV | 30 000 | 5 | 20 |
+| Flugzeug | 70 000 | 6 | 50 |
 
 | Anhänger | 1 Platz | 2 Plätze | 3 Plätze | 4 Plätze |
 |---|---|---|---|---|
-| Preis | 1 200 | 3 500 | 8 000 | 12 000 |
+| Preis | 400 | 1 500 | 4 000 | 8 000 |
 
 Das Fahrzeug fasst unbegrenzt viele Fundstücke.
 
@@ -307,14 +307,14 @@ Startgeld **300**, Start mit Wohnwagen, Stall S und Weide, ohne Pferd, ohne Satt
 
 | Phase | Ziel | Kosten | Einnahmen/Tag (netto) | Tage | Spielzeit |
 |---|---|---|---|---|---|
-| 1 | Fahrrad + Schuppen + Anhänger 1 | 3 000 (2 700 nach Startgeld) | ~310: Jobs, ab Tag 5 ein Wildpferd am Tag an den Käufer | 12 | 0:55 h |
-| 2 | Mofa + Anhänger 2 + Stall M | 14 400 | ~880: Wildpferde aus dem Birkenwald, Kreis-Turniere | 18 | 1:20 h |
-| 3 | Kleinwagen + Garage + Anhänger 3 | 41 000 | ~2 400: Pferde aus den Flussauen, Bezirk-Turniere | 20 | 1:30 h |
-| 4 | SUV + Anhänger 4 | 92 000 | ~3 600: Steppenpferde, Land-Turniere | 27 | 2:00 h |
-| 5 | Flugzeug + Hangar | 190 000 | ~5 500: Araber, National-Turniere | 36 | 2:40 h |
-| | **Summe** | | | **112** | **~8,5 h** |
+| 1 | Fahrrad + Schuppen + Anhänger 1 | 1 200 (900 nach Startgeld) | ~150: Jobs, ab Tag 5 ein Wildpferd am Tag an den Käufer | 8 | 0:35 h |
+| 2 | Mofa + Anhänger 2 + Stall M | 6 400 | ~560: Wildpferde aus dem Birkenwald, Kreis-Turniere | 12 | 0:55 h |
+| 3 | Kleinwagen + Garage + Anhänger 3 | 19 000 | ~1 500: Pferde aus den Flussauen, Bezirk-Turniere | 14 | 1:05 h |
+| 4 | SUV + Anhänger 4 | 38 000 | ~3 600: Steppenpferde, Land-Turniere | 11 | 0:50 h |
+| 5 | Flugzeug + Hangar | 85 000 | ~7 900: Araber, National-Turniere | 12 | 0:55 h |
+| | **Summe** | | | **57** | **~4,3 h** |
 
-Gerechnet mit `game/sim.lua` (Zeilen „WIRTSCHAFT“ im Selbsttest): jeden Tag ein Wildpferd aus dem neuesten Gebiet, drei Pferde behalten, Turniere ohne Minispiel. Ziel: pro Gebiet 1–3 h.
+Gerechnet mit `game/sim.lua` (Zeilen „WIRTSCHAFT“ im Selbsttest): jeden Tag ein Wildpferd aus dem neuesten Gebiet, drei Pferde behalten, Turniere ohne Minispiel. Die Simulation spielt sehr effizient, echtes Spielen dauert deutlich länger (Heimattal vorher: Simulation 1 h, gespielt 3–4 h). Ziel: pro Gebiet 1–3 h gespielt.
 Ausgaben für Sättel, Deko, Land und Anbau kommen dazu und verlängern das Spiel.
 
 ## Offene Fragen

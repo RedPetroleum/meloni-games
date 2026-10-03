@@ -141,3 +141,4 @@ Eine Zeile pro Durchlauf, nur anhängen: `JJJJ-MM-TT HH:MM | Aufgabe | begonnen/
 2026-10-02 00:05 | Rückmeldung Apfelbaum | fertig | bleibt nach der Ernte groß (ohne/grüne Äpfel), alte Spielstände erkannt; SELFTEST OK 257 | Hoofy 1.3.3 (nicht gepusht)
 2026-10-02 00:23 | Rückmeldung Startzaun/Schlachter/Baumodus | fertig | Startweide als abreißbare Bauteile (auch alte Spielstände), Schlachter −20, Sim meidet Schlachter; Baumodus steht schon still (geprüft); SELFTEST OK 259 | Hoofy 1.3.3 (nicht gepusht)
 2026-10-03 10:07 | Rückmeldung Gebiete/Automatik | fertig | Landschaft je Gebiet (E84), Hof-Automatik (E85); Heimattal-Prüfsummen gleich, 9 neue Selbsttests, SELFTEST OK 276, make test grün | Hoofy 1.6.0
+2026-10-03 10:41 | Rückmeldung Farben/Karten/Heuraufe/Preise | fertig | Laubfarben je Gebiet, Hof nur im Heimattal auf Karten, Heuraufe mit Vorrat 20, Preise nach E86; SELFTEST OK 276, make test grün | Hoofy 1.6.1

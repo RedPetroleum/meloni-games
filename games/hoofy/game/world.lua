@@ -627,6 +627,11 @@ function WorldScene.update()
         -- Vor dem Pferdemenü, sonst käme man mit einem Pferd an der Leine nicht hinein.
         nav.push(StallView.new(menu_env(), wild:at_stall_door()))
         ctx.sfx.select()
+      elseif Automatik.raufe_nah(ctx) then
+        -- Heuraufe befüllen (Rückmeldung nach 1.6.0): Heu aus dem Haus bis 20
+        local n, text = Automatik.befuellen(ctx, Automatik.raufe_nah(ctx))
+        if n > 0 then ctx.sfx.eat() else ctx.sfx.snort() end
+        say(text, 150)
       elseif own then
         open_menu(own)
         ctx.sfx.select()

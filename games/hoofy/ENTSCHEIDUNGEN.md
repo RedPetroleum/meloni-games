@@ -606,3 +606,16 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Der Stallbursche steht als Figur (gelbes Hemd, recolor des Spielers) an seiner Hütte (grünes Dach, recolor des
   Hauses) und schlendert im Umkreis von 5 Kacheln. Beim Wählen im Baumenü erklärt eine Meldung, was das Bauteil tut.
 - Szenario `pflege`. Die Wirtschaftssimulation (game/sim.lua) rechnet die Automatik nicht mit.
+
+## E86 Baumfarben, Karten, Heuraufe, Preise (Rückmeldung nach 1.6.0)
+- Laub von Bäumen, Büschen, Randbäumen und Blätterdach je Gebiet kräftig umgefärbt (recolor-Zeilen `land`, Kartenfarben
+  in game/tiles.lua): Birkenwald Smaragdgrün, Flussauen Türkis, Steppe Olivgelb, Canyon Herbstorange, Nebelinsel Violett.
+- Karten: „Hof“ und der goldene Rahmen nur im Heimattal (Übersicht und Karte im Pausenmenü).
+- geändert (E85): Die Heuraufe kauft nicht nach und nimmt nichts selbst aus dem Haus. Sie hat einen eigenen Vorrat
+  (bis 20 Heu, `it.vorrat`, wird mit dem Hof gespeichert), A davor füllt mit Heu aus dem Haus auf. Morgens Meldung mit
+  Restvorrat bzw. „bitte Heu nachfüllen“.
+- Preise auf Wunsch des Menschen: Fahrrad 500, Schuppen 300, Anhänger 1 Platz 400. Die übrigen nach Vorschlag (vom
+  Menschen bestätigt): Mofa 4 000, Kleinwagen 12 000, SUV 30 000, Flugzeug 70 000, Anhänger 2/3/4 Plätze
+  1 500 / 4 000 / 8 000, Garage 3 000, Hangar 15 000. Phasen damit 1 200 / 6 400 / 19 000 / 38 000 / 85 000, in der
+  Simulation 8 / 12 / 14 / 11 / 12 Tage (57 Tage ≈ 4,3 h statt 109). KATALOG §9, §10, §15 angepasst; der Selbsttest
+  erlaubt für Phase 1 jetzt ab 20 statt 45 Minuten.

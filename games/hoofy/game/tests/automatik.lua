@@ -43,23 +43,38 @@ return {
     C.eq(r.gefuettert + r.gebuerstet + r.gepflegt, 0)
     C.eq(Automatik.text(r), nil)
   end},
-  {"Heuraufe füttert hungrige Hofpferde, erst Heu aus dem Haus, dann gekauft; Anhänger zählt nicht", function()
+  {"Heuraufe: mit A aus dem Haus befüllen (höchstens 20), füttert hungrige Hofpferde, kauft nie nach", function()
     local ctx, p = setup()
+    C.eq(K.bauteil("heuraufe").vorrat_max, 20)
     C.ok(Farm.place(ctx, "heuraufe", p.x + 13, p.y + 5))
-    ctx.inv.heu = 1
+    local raufe = Automatik.raufen(ctx.area.farm)[1]
+    C.eq(raufe.vorrat, 0, "leer gebaut")
+    ctx.inv.heu = 25
+    local n = Automatik.befuellen(ctx, raufe)
+    C.eq(n, 20)
+    C.eq(raufe.vorrat, 20)
+    C.eq(ctx.inv.heu, 5, "Rest bleibt im Haus")
+    C.eq(Automatik.befuellen(ctx, raufe), 0, "voll")
+    -- vor der Raufe stehen: A befüllt
+    ctx.player.x, ctx.player.y = (p.x + 14) * 16, (p.y + 6) * 16 + 10
+    C.eq(Automatik.raufe_nah(ctx), raufe, "steht vor der Raufe")
+    ctx.player.x = ctx.player.x + 80
+    C.eq(Automatik.raufe_nah(ctx), nil, "zu weit weg")
     local a, b, weg = horse("stall"), horse("weide"), horse("anhaenger")
     a.hunger, b.hunger = 75, 30
     ctx.herd = {a, b, weg}
+    raufe.vorrat = 1
     local money = ctx.money
     local r = Automatik.tag(ctx)
-    C.ok(a.hunger <= 40, "satt genug: " .. a.hunger)
+    C.eq(a.hunger, 45, "ein Heu, dann leer")
     C.eq(b.hunger, 30, "nicht hungrig, kein Futter")
     C.eq(weg.hunger, 70, "im Anhänger nicht")
-    C.eq(ctx.inv.heu, 0, "Heu aus dem Haus zuerst")
+    C.eq(raufe.vorrat, 0)
     C.eq(r.gefuettert, 1)
-    C.eq(r.heu_gekauft, 1, "zweites Heu gekauft (Hunger 75 → 45 → 15)")
-    C.eq(ctx.money, money - 5)
-    C.ok(Automatik.text(r):find("Heuraufe"), "Meldung")
+    C.eq(r.kein_heu, 1, "leer")
+    C.eq(ctx.money, money, "kauft nichts nach")
+    C.eq(ctx.inv.heu, 5, "nimmt nichts aus dem Haus")
+    C.ok(Automatik.text(r):find("nachfüllen"), "Meldung")
   end},
   {"Kratzbürste und Stallbursche: Sauberkeit, Bindung, Lohn; ohne Geld kein Bursche", function()
     local ctx, p = setup()
@@ -86,6 +101,7 @@ return {
     local ctx, p = setup()
     C.ok(Farm.place(ctx, "heuraufe", p.x + 13, p.y + 5))
     C.ok(Farm.place(ctx, "stallburschenhuette", p.x + 15, p.y + 5))
+    Automatik.raufen(ctx.area.farm)[1].vorrat = 20
     local d = horse("stall")
     d.hunger = 50
     ctx.herd = {d}

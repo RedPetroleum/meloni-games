@@ -51,10 +51,11 @@ function Overview.draw()
     end
   end
   local p = area.plot
-  if area.farm then Farm.outline(area.farm, ox, oy, 2, C.gold)
-  else rect(ox + p.x * 2 - 1, oy + p.y * 2 - 1, ox + (p.x + p.w) * 2, oy + (p.y + p.h) * 2, C.gold) end
   local legend_y = oy + map.h * 2 + 6
-  print("Hof", ox + p.x * 2 + 2, oy + p.y * 2 + 2, C.gold)
+  if area.farm then                 -- einen Hof gibt es nur im Heimattal
+    Farm.outline(area.farm, ox, oy, 2, C.gold)
+    print("Hof", ox + p.x * 2 + 2, oy + p.y * 2 + 2, C.gold)
+  end
   for id in pairs(Area.LABELS) do
     local pl = area.places[id]
     if pl then pset(ox + pl[1] * 2, oy + pl[2] * 2, C.red) end

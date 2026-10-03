@@ -11,10 +11,11 @@ local U = require("lib.util")
 local A = {}
 
 A.MAX_HEU = 2              -- so oft füttert die Heuraufe ein Pferd höchstens am Morgen
+A.RAUFE_NAH = 22           -- so nah (Pixel, vor der Raufe) muss man stehen, um sie mit A zu befüllen
 
 -- Hinweis im Baumenü, wenn man ein Pflege-Bauteil wählt
 A.INFO = {
-  heuraufe = "Heuraufe: füttert jeden Morgen hungrige Pferde, mit Heu aus dem Haus oder gekauftem.",
+  heuraufe = "Heuraufe: füttert jeden Morgen hungrige Pferde. Fasst 20 Heu, befüllen mit A davor.",
   kratzbuerste = "Kratzbürste: alle Pferde auf dem Hof jeden Tag Sauberkeit +20.",
   stallburschenhuette = "Der Stallbursche streichelt und striegelt jeden Morgen alle Pferde. Lohn 15 G am Tag.",
 }
@@ -26,31 +27,68 @@ function A.anzahl(farm, id)
   return n
 end
 
+-- Heuraufen des Hofs (Bauteile mit it.vorrat = Heu darin).
+function A.raufen(farm)
+  local out = {}
+  for _, b in ipairs(Farm.all_buildings(farm)) do
+    if b.id == "heuraufe" then b.vorrat = b.vorrat or 0 out[#out + 1] = b end
+  end
+  return out
+end
+
+-- Heu in allen Raufen zusammen.
+function A.raufe_vorrat(farm)
+  local n = 0
+  for _, b in ipairs(A.raufen(farm)) do n = n + b.vorrat end
+  return n
+end
+
 local function auf_dem_hof(d)
   return d.ort ~= "anhaenger"
 end
 
--- Heu für die Raufe: erst aus dem Haus, sonst zum Ladenpreis (mit Hafersteuer). Gibt true, gekauft zurück.
-local function heu(ctx)
-  if (ctx.inv.heu or 0) > 0 then
-    ctx.inv.heu = ctx.inv.heu - 1
-    return true, false
+-- Ein Heu aus irgendeiner Raufe nehmen (Rückmeldung nach 1.6.0: kein Nachkaufen). Gibt true oder false zurück.
+local function heu(raufen)
+  for _, b in ipairs(raufen) do
+    if b.vorrat > 0 then
+      b.vorrat = b.vorrat - 1
+      return true
+    end
   end
-  local Economy = require("game.economy")
-  local p = Economy.price(ctx, Economy.find("heu"))
-  if ctx.money < p then return false end
-  ctx.money = ctx.money - p
-  return true, p
+  return false
+end
+
+-- Heuraufe, vor der der Spieler steht (Mitte der Unterkante, bis RAUFE_NAH Pixel), sonst nil.
+function A.raufe_nah(ctx)
+  local farm = ctx.area and ctx.area.farm
+  if not farm then return nil end
+  local p = ctx.player
+  for _, b in ipairs(A.raufen(farm)) do
+    local x, y = b.cx * 16 + 16, b.cy * 16 + 16
+    if abs(p.x - x) <= A.RAUFE_NAH and p.y >= y - 4 and p.y <= y + A.RAUFE_NAH then return b end
+  end
+end
+
+-- Befüllt die Raufe b mit Heu aus dem Haus bis zum Vorrat aus KATALOG §9. Gibt die Menge und den Text zurück.
+function A.befuellen(ctx, b)
+  local max_v = K.bauteil("heuraufe").vorrat_max
+  local n = min(max_v - b.vorrat, ctx.inv.heu or 0)
+  if b.vorrat >= max_v then return 0, "Die Heuraufe ist voll (" .. b.vorrat .. "/" .. max_v .. " Heu)." end
+  if n <= 0 then return 0, "Kein Heu im Vorrat (" .. b.vorrat .. "/" .. max_v .. "). Heu gibt es im Laden." end
+  ctx.inv.heu = ctx.inv.heu - n
+  b.vorrat = b.vorrat + n
+  return n, "Heuraufe befüllt: " .. b.vorrat .. "/" .. max_v .. " Heu."
 end
 
 -- Ein Morgen: wendet alle Automatik-Bauten an. Gibt einen Bericht zurück:
--- {gefuettert, heu_gekauft, heu_kosten, kein_heu, gebuerstet, gepflegt, lohn, kein_lohn}.
+-- {gefuettert, kein_heu, rest, gebuerstet, gepflegt, lohn, kein_lohn}.
 function A.tag(ctx)
   local farm = ctx.hof or (ctx.area and ctx.area.farm)
-  local r = {gefuettert = 0, heu_gekauft = 0, heu_kosten = 0, kein_heu = 0, gebuerstet = 0, gepflegt = 0, lohn = 0}
+  local r = {gefuettert = 0, kein_heu = 0, gebuerstet = 0, gepflegt = 0, lohn = 0}
   if not farm then return r end
-  local raufe, buerste, huette = A.anzahl(farm, "heuraufe"), A.anzahl(farm, "kratzbuerste"), A.anzahl(farm, "stallburschenhuette")
-  if raufe + buerste + huette == 0 then return r end
+  local raufen = A.raufen(farm)
+  local buerste, huette = A.anzahl(farm, "kratzbuerste"), A.anzahl(farm, "stallburschenhuette")
+  if #raufen + buerste + huette == 0 then return r end
   -- Stallbursche will zuerst seinen Lohn; ohne Geld bleibt er heute im Bett
   local bursche = false
   if huette > 0 then
@@ -66,12 +104,10 @@ function A.tag(ctx)
   local sauber = K.bauteil("kratzbuerste").wirkung.sauberkeit
   for _, d in ipairs(ctx.herd) do
     if auf_dem_hof(d) then
-      if raufe > 0 then
+      if #raufen > 0 then
         local n = 0
         while d.hunger > grenze and n < A.MAX_HEU do
-          local ok, gekauft = heu(ctx)
-          if not ok then r.kein_heu = r.kein_heu + 1 break end
-          if gekauft then r.heu_gekauft, r.heu_kosten = r.heu_gekauft + 1, r.heu_kosten + gekauft end
+          if not heu(raufen) then r.kein_heu = r.kein_heu + 1 break end
           Care.feed(d, "heu")
           n = n + 1
         end
@@ -88,6 +124,7 @@ function A.tag(ctx)
       end
     end
   end
+  if #raufen > 0 then r.rest = A.raufe_vorrat(farm) end
   return r
 end
 
@@ -96,9 +133,9 @@ function A.text(r)
   if not r then return nil end
   local t = {}
   if r.gefuettert > 0 then
-    t[#t + 1] = "Heuraufe: " .. r.gefuettert .. " gefüttert" .. (r.heu_kosten > 0 and (" (Heu " .. r.heu_kosten .. " G)") or "") .. "."
+    t[#t + 1] = "Heuraufe: " .. r.gefuettert .. " gefüttert, noch " .. (r.rest or 0) .. " Heu."
   end
-  if r.kein_heu > 0 then t[#t + 1] = "Die Heuraufe ist leer, kein Geld für Heu." end
+  if r.kein_heu > 0 then t[#t + 1] = "Die Heuraufe ist leer, bitte Heu nachfüllen." end
   if r.gepflegt > 0 then t[#t + 1] = "Stallbursche: " .. r.gepflegt .. " gepflegt (-" .. r.lohn .. " G)." end
   if r.kein_lohn then t[#t + 1] = "Der Stallbursche will Lohn sehen und bleibt heute liegen." end
   if #t == 0 then return nil end

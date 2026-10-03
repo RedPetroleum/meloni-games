@@ -31,7 +31,7 @@ return {
       total = total + K.bauteil(b[1]).preis
     end
     C.eq(ctx.money, 100000 - total)
-    C.eq(total, 67400, "Hangar 40 000 + Stall XL 6 000 + Garage 8 000 + Stall L 2 500 + Villa 8 000 + Schuppen 1 000 + Häuschen 1 000 + Stall M 900")
+    C.eq(total, 36700, "Hangar 15 000 + Stall XL 6 000 + Garage 3 000 + Stall L 2 500 + Villa 8 000 + Schuppen 300 + Häuschen 1 000 + Stall M 900")
     local second, why = Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     C.ok(not second and why == "schon belegt")
     local ok, why2 = Farm.place(ctx, "hangar", p.x + 17, p.y + 17)
@@ -172,7 +172,7 @@ return {
     ctx.inv.mofa = 1
     sum, why = Farm.remove(ctx, p.x + 13, p.y + 14)
     C.ok(not sum and why == "Mofa braucht sie", "Mofa: " .. tostring(why))
-    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), 8000, "Garage zurück")
+    C.eq(Farm.remove(ctx, p.x + 16, p.y + 5), K.bauteil("garage").preis, "Garage zurück")
     Farm.place(ctx, "garage", p.x + 16, p.y + 5)
     Farm.place(ctx, "schuppen", p.x + 0, p.y + 5)
     C.eq(Farm.remove(ctx, p.x + 13, p.y + 14), Farm.erstattung("schuppen"), "zweiter Schuppen nimmt das Mofa")

@@ -1955,12 +1955,9 @@ function Screens.map(ctx)
         end
       end
     end
-    -- Hof und Dorf, sobald etwas davon erkundet ist
+    -- Hof, sobald etwas davon erkundet ist; einen Hof gibt es nur im Heimattal
     local p = area.plot
-    if explored(p.x + p.w // 2, p.y + p.h // 2) then
-      if area.farm then Farm.outline(area.farm, ox, oy, PX, C.gold)
-      else rect(ox + p.x * PX - 1, oy + p.y * PX - 1, ox + (p.x + p.w) * PX, oy + (p.y + p.h) * PX, C.gold) end
-    end
+    if area.farm and explored(p.x + p.w // 2, p.y + p.h // 2) then Farm.outline(area.farm, ox, oy, PX, C.gold) end
     -- gezähmte Pferde (gelbe Punkte) und der Spieler mit Blickrichtung (roter Pfeil)
     for _, h in ipairs(ctx.herd_horses) do
       if not h.hidden then

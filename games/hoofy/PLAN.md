@@ -69,9 +69,15 @@ der nächsten Aufgabe und hakt es ab.
 - [x] zucht funktioniert noch nicht. wenn man darauf klickt, stürzt die app ab. wenn man ein Fohlen kriegt, spawnt es im stall. wenn kein stall platz frei ist, wird das billigste pferd, aber keinenfalls  mutter, von stall nach weide verschoben. wennn die weide bereits voll ist, wird von dort ein anderes pferd auf das grundstück verschoben. wenn das bereits voll ist, dann verschwindet das pferd mit dem geringsten wert. (1.3.0, E78: Absturz am Rechner nicht nachstellbar, Zucht neu im Stall-Menü; Fohlen im Stall mit Umzugsregeln)
 - [x] Gebiete sehen alle gleich aus: Birkenwald mehr Wald, Flussauen Furten, Inseln und mehr Wasser, Steppe Kakteen, die zurückschubsen, Canyon Schluchten, Nebelinsel Nebel und braucht eine Lampe. (1.6.0, E84)
 - [x] Lästige Pflege automatisieren können. (1.6.0, E85: Heuraufe, Kratzbürste, Stallbursche)
+- [x] Bäume, Büsche und Randbäume je Gebiet stärker einfärben; kein „Hof“ auf den Karten fremder Gebiete. (1.6.1, E86)
+- [x] Heuraufe kauft nicht nach, eigener Vorrat 20 Heu zum Befüllen. Fahrrad 500, Schuppen 300, Anhänger 1 Platz 400, übrige Preise nach Vorschlag. (1.6.1, E86)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 1.6.1** – Baumfarben, Heuraufe mit Vorrat, neue Preise, siehe E86
+- [ ] Heuraufe: A davor füllt auf (x/20 Heu)? Morgens gefüttert, Meldung bei leerer Raufe?
+- [ ] Neue Preise: Wie lange dauert jetzt das Heimattal und der Birkenwald gespielt?
 
 **Version 1.6.0** – Gebiete und Hof-Automatik, siehe E84/E85 (gleiche Firmware)
 - [ ] Birkenwald, Flussauen, Steppe, Canyon, Nebelinsel: sieht jedes Gebiet eigen aus? Läuft das Erzeugen beim Ankommen schnell genug?

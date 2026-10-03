@@ -474,6 +474,9 @@ def bau(s):
             m = re.search(r"Hunger über (\d+)", text)
             if m:
                 e["auto_hunger"] = int(m.group(1))
+            m = re.search(r"Vorrat (\d+) Heu", text)
+            if m:
+                e["vorrat_max"] = int(m.group(1))
             m = re.search(r"Lohn (\d+) pro Tag", text)
             if m:
                 e["lohn"] = int(m.group(1))

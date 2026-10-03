@@ -20,7 +20,8 @@ return {
         p.text, p.mittel or 0, tostring(p.min), tostring(p.max), p.verfehlt, p.minuten and string.format("%.0f", p.minuten) or "-",
         q.netto, q.verkauf, q.jobs, q.bestellung, q.turnier, q.futter))
       C.ok(p.mittel, "Phase " .. i .. " wird erreicht")
-      C.ok(p.minuten >= 45 and p.minuten <= 210, "Phase " .. i .. ": " .. string.format("%.0f", p.minuten) .. " min")
+      -- Phase 1 darf kürzer sein (Rückmeldung nach 1.6.0: Fahrrad, Schuppen, Anhänger billiger)
+      C.ok(p.minuten >= (i == 1 and 20 or 45) and p.minuten <= 210, "Phase " .. i .. ": " .. string.format("%.0f", p.minuten) .. " min")
     end
     log(string.format("WIRTSCHAFT bis zum Flugzeug %.0f Tage ≈ %.1f h", total, total * Sim.MIN_PER_DAY / 60))
     C.eq(#s.phasen, #K.wirtschaft.phasen)

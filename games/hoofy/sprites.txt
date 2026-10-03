@@ -89,11 +89,11 @@ recolor horse regenbogen h=f4f0f8 H=ffffff b=d8d0e8 u=ec5fb4 U=ffe8f4
 
 # Gebiete (KATALOG §10): land_… ist das Heimattal; jedes weitere Gebiet färbt Wiese (g G d), Laub (f F l),
 # Steine (o O p), Weg (e E j), Sand (s S) und Blüten (P Y V) um. Wiese und Kartenfarben stehen auch in game/tiles.lua (PALETTES).
-recolor land birke g=4f8a42 G=64a052 d=3c6e33 f=3e7a36 F=2a5a26 l=62a050 o=8c968a O=b6c0b4 p=5e685e e=b49a6c E=94784c j=ccb488 s=d8cc9c S=bcae7e P=a8b8f0 Y=f4f2e8 V=f7d65a
-recolor land aue g=4fa082 G=6cbc9c d=3a846a f=2f7c66 F=1f5c4c l=56a88a o=8a9cac O=b8c8d4 p=5e7080 e=c8b48a E=a8946a j=dccaa0 s=e4dcb4 S=c8bf94 P=5aa8e8 Y=f7e04a V=f39b4a
-recolor land steppe g=c9b858 G=ddd07a d=a89844 f=7f8c3a F=5c6a2a l=a4b056 o=b0a48c O=d4cab0 p=847a64 e=c49a62 E=a07a48 j=dab47e s=f0e0a8 S=d6c48a P=e04a3a Y=b07ad8 V=f7d65a
-recolor land canyon g=c47a4a G=d99a66 d=a25e36 f=6f7e44 F=4e5c30 l=93a462 o=b46a4e O=d48e70 p=86462e e=e2b484 E=c49264 j=f0caa0 s=f0cc96 S=d6ae74 P=f7d65a Y=fbf8ef V=e0475a
-recolor land nebel g=8f72b0 G=a890c8 d=725892 f=4c5c9a F=343f74 l=7488c4 o=a8a4b8 O=d0ccdc p=7a7690 e=c4b4cc E=a494b0 j=dccfe2 s=e6deea S=cabfd6 P=8ff0e8 Y=f0c8ff V=ffffff
+recolor land birke g=4f8a42 G=64a052 d=3c6e33 f=1f7a3e F=12522a l=3fa85a o=8c968a O=b6c0b4 p=5e685e e=b49a6c E=94784c j=ccb488 s=d8cc9c S=bcae7e P=a8b8f0 Y=f4f2e8 V=f7d65a
+recolor land aue g=4fa082 G=6cbc9c d=3a846a f=1f8c78 F=126050 l=4cc4a8 o=8a9cac O=b8c8d4 p=5e7080 e=c8b48a E=a8946a j=dccaa0 s=e4dcb4 S=c8bf94 P=5aa8e8 Y=f7e04a V=f39b4a
+recolor land steppe g=c9b858 G=ddd07a d=a89844 f=9a9a2c F=6e7020 l=c8c050 o=b0a48c O=d4cab0 p=847a64 e=c49a62 E=a07a48 j=dab47e s=f0e0a8 S=d6c48a P=e04a3a Y=b07ad8 V=f7d65a
+recolor land canyon g=c47a4a G=d99a66 d=a25e36 f=b8642c F=86401e l=e09a48 o=b46a4e O=d48e70 p=86462e e=e2b484 E=c49264 j=f0caa0 s=f0cc96 S=d6ae74 P=f7d65a Y=fbf8ef V=e0475a
+recolor land nebel g=8f72b0 G=a890c8 d=725892 f=6a58b8 F=48388a l=9a8ae0 o=a8a4b8 O=d0ccdc p=7a7690 e=c4b4cc E=a494b0 j=dccfe2 s=e6deea S=cabfd6 P=8ff0e8 Y=f0c8ff V=ffffff
 # Furt nur in den Flussauen, Schlucht nur im Canyon (E84): eigene Vorlagen statt land_, damit es keine ungenutzten Kopien gibt
 recolor furt aue o=8a9cac O=b8c8d4 p=5e7080 s=e4dcb4 S=c8bf94
 recolor schlucht canyon g=c47a4a G=d99a66 d=a25e36 o=b46a4e O=d48e70 p=86462e

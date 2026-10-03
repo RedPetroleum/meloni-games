@@ -95,7 +95,7 @@ return {
       name = "Schuppen",
       text = "Fahrrad + Mofa",
       wirkung = {},
-      preis = 1000,
+      preis = 300,
       fahrzeuge = {"fahrrad", "mofa"},
     },
     {
@@ -103,7 +103,7 @@ return {
       name = "Garage",
       text = "Kleinwagen + SUV",
       wirkung = {},
-      preis = 8000,
+      preis = 3000,
       fahrzeuge = {"kleinwagen", "suv"},
     },
     {
@@ -111,7 +111,7 @@ return {
       name = "Hangar",
       text = "Flugzeug",
       wirkung = {},
-      preis = 40000,
+      preis = 15000,
       fahrzeuge = {"flugzeug"},
     },
     {
@@ -127,10 +127,11 @@ return {
     {
       id = "heuraufe",
       name = "Heuraufe",
-      text = "füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40 (Heu aus dem Haus, sonst zum Ladenpreis)",
+      text = "füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40, Vorrat 20 Heu (selbst befüllen)",
       wirkung = {},
       preis = 600,
       auto_hunger = 40,
+      vorrat_max = 20,
     },
     {
       id = "kratzbuerste",
