@@ -569,3 +569,40 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
 - Bindung durch Pflege (Rückmeldung nach 1.3.4, KATALOG §2 angepasst): Streicheln +2, zweites Mal am Tag +1, danach
   nichts. Füttern +1 je Futter, egal welches, höchstens +5 am Tag; die Bindungs-Boni einzelner Futter (Karotte, Apfel,
   Minze in §7) wirken nicht mehr. Striegeln +1, solange die Sauberkeit unter 100 ist.
+
+## E84 Gebiete mit eigener Landschaft (Rückmeldung nach 1.5.2)
+- Wunsch: Gebiete sollen sich nicht nur in der Farbe unterscheiden. Profile in `Gen.PROFILES` (game/mapgen.lua), Zahlen
+  eigene Wahl. Das Heimattal hat kein Profil und bleibt Kachel für Kachel gleich (Selbsttest mit Prüfsummen), weil
+  gespeicherte Höfe nur Änderungen gegenüber dem Seed sind.
+- Birkenwald: viel mehr Wald (Schwelle 0,47 statt 0,64) mit Waldwegen dazwischen, schmaler Bach, Birken (eigenes
+  Sprite, weißer Stamm) auf den Lichtungen.
+- Flussauen: zwei Flüsse (2–4 breit) und Seen mit Inseln (eigenes Rauschen), Wege führen durch Furten statt über
+  Brücken. Furt = Boden `f`, begehbar, Tempo × 0,55 zu Fuß und beim Reiten (nicht im Sprung). Inseln sind über Furten
+  erreichbar (die Erreichbarkeitsprüfung legt sie an).
+- Steppe: kaum Wald, statt Fluss ein Trockenbett aus Sand, Kakteen (Kollision `C`). Kommt man einem Kaktus näher als
+  13 px (Fußpunkt zur Mitte), stößt er zurück (3,2 px/Frame, 16 Frames, bremst ab, ohne Steuerung), auch beim Reiten
+  (dann 1 Energie). Beim ersten Mal „Autsch! Kakteen pieksen.“, Ton `pieks`.
+- Canyon: drei Schluchten (zwei längs, eine quer, 2–5 Kacheln breit), Kakteen und viele Steine, kein Fluss. Schlucht =
+  Boden `c`, fest, mit Brücken an den Wegen. Im Sprung (Reiten) ist sie frei, solange das Pferd höher als 9 px ist; so
+  schafft man nur schmale Stellen. Endet der Sprung über der Schlucht, landet das Pferd wieder am Absprung („Zu breit!“).
+- Nebelinsel: Meer statt Waldrand (unregelmäßige Küste), Nebel über allem (`shade`, helles Lila, 86 % deckend) mit
+  Lichtkreis um den Spieler: Laterne 30/96 px, Sattellampe × 1,35, ohne Licht sehr klein. Die Laterne hängt dort auch
+  tagsüber an der Hand. Erkundet wird nur im Lichtkreis. Hinreisen geht nur mit Laterne oder einem eigenen Pferd mit
+  Sattellampe („im Nebel brauchst du eine Laterne“).
+- Furt- und Schlucht-Sprites nur für ihr Gebiet (eigene Vorlagen `furt_`/`schlucht_` mit recolor), damit keine
+  ungenutzten Kopien in allen Paletten entstehen. Die Sprites liegen jetzt auf sieben Bildern.
+- Szenario `gebiet` mit `blick = true` sucht jetzt auch Furten, Schluchten und Kakteen.
+
+## E85 Hof-Automatik (Rückmeldung nach 1.5.2)
+- Wunsch: Lästige Pflege später abgeben können. Drei Bauteile im Baumenü unter „Pflege“ (KATALOG §9 auf Wunsch des
+  Menschen ergänzt, Preise und Werte eigene Wahl):
+  Heuraufe 600 (füttert morgens jedes Pferd auf dem Hof mit Hunger über 40, höchstens zweimal, Heu aus dem Haus,
+  sonst zum Ladenpreis mit Hafersteuer), Kratzbürste 400 (Sauberkeit +20 am Tag), Stallburschenhütte 2 500
+  (Stallbursche streichelt und striegelt jeden Morgen alle Pferde, wie von Hand: Bindung +2 und +1, Sauberkeit +40;
+  Lohn 15 G am Tag, ohne Geld bleibt er liegen).
+- „Auf dem Hof“ = alle eigenen Pferde außer denen im Anhänger, auch wenn der Spieler verreist ist. Wirkt im
+  Tageswechsel nach Hunger, Regen und Stallbonus (game/automatik.lua, Days.new_day). Meldung am Morgen bzw. nach
+  dem Schlafen („Heuraufe: 2 gefüttert. Stallbursche: 2 gepflegt (-15 G).“).
+- Der Stallbursche steht als Figur (gelbes Hemd, recolor des Spielers) an seiner Hütte (grünes Dach, recolor des
+  Hauses) und schlendert im Umkreis von 5 Kacheln. Beim Wählen im Baumenü erklärt eine Meldung, was das Bauteil tut.
+- Szenario `pflege`. Die Wirtschaftssimulation (game/sim.lua) rechnet die Automatik nicht mit.

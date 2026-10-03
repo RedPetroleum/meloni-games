@@ -13,7 +13,33 @@ local Gen = {}
 local byte, char = string.byte, string.char
 local GRASS, FOREST, WATER = byte("."), byte("F"), byte("~")
 local BRIDGE, BRIDGE_V, PATH, SAND = byte("="), byte("I"), byte(":"), byte("s")
+local FORD, CHASM = byte("f"), byte("c")
 local DOT = byte(".")
+
+-- Landschaft je Gebiet (Rückmeldung 1.5.2, E84): jedes Gebiet sieht anders aus und spielt sich anders.
+-- Das Heimattal (1) hat kein Profil und bleibt Kachel für Kachel wie bisher (gespeicherte Höfe sind Änderungen
+-- gegenüber dem Seed).
+--   wald      Schwelle des Rauschens für Wald (niedriger = mehr Wald), Heimattal 0,64
+--   rand      Breite des dichten Waldrands, Heimattal 5
+--   fluss     Boden des Flusses: "wasser", "sand" (Trockenbett) oder false (keiner); breite = {schmal, breit}
+--   fluesse   so viele Flüsse (Flussauen 2)
+--   seen      Rauschen über diesem Wert wird See, darüber inseln wieder Land (Inseln im See)
+--   furten    Wege über Wasser werden Furten (begehbar, langsam) statt Brücken
+--   schluchten so viele Schluchten (Canyon), quer und längs
+--   insel     Meer statt Wald am Rand (Nebelinsel)
+--   objekte   Anteil der Wiesenkacheln mit Objekt und die Mischung {Art, Anteil bis}
+Gen.PROFILES = {
+  [2] = {wald = 0.47, rand = 4, fluss = "wasser", breite = {1, 2},
+    objekte = {0.07, {{"birke", 0.045}, {"bush", 0.06}, {"rock", 0.07}}}},
+  [3] = {wald = 0.70, fluss = "wasser", fluesse = 2, breite = {2, 4}, seen = 0.55, inseln = 0.67, furten = true,
+    objekte = {0.035, {{"tree", 0.012}, {"bush", 0.03}, {"rock", 0.035}}}},
+  [4] = {wald = 0.80, fluss = "sand", breite = {2, 3},
+    objekte = {0.06, {{"kaktus", 0.034}, {"rock", 0.048}, {"bush", 0.06}}}},
+  [5] = {wald = 0.76, fluss = false, schluchten = 3,
+    objekte = {0.055, {{"rock", 0.03}, {"kaktus", 0.04}, {"bush", 0.055}}}},
+  [6] = {wald = 0.60, fluss = "wasser", breite = {2, 3}, insel = true,
+    objekte = {0.04, {{"tree", 0.018}, {"bush", 0.03}, {"rock", 0.04}}}},
+}
 
 -- Dorf (E12): Zeichen siehe VILLAGE_LEGEND, Großbuchstaben sind Objekte mit Grundfläche ab dort,
 -- "x" gehört zu einer Grundfläche. Zeile 5 ist die Dorfstraße.
@@ -118,6 +144,7 @@ end
 -- area: Eintrag aus K.welt.gebiete (nr, w, h), seed: Zahl. Ein Dorf gibt es nur im Heimattal (nr 1).
 function Gen.generate(area, seed)
   local dorf = area.nr == 1
+  local prof = Gen.PROFILES[area.nr]
   local W, H = area.w, area.h
   local R = Rng.new(seed)
   local N = W * H
@@ -126,12 +153,22 @@ function Gen.generate(area, seed)
   local function idx(cx, cy) return cy * W + cx end
 
   -- 1. Wald aus Rauschen, dichter zum Rand hin
+  local wald, rand = prof and prof.wald or 0.64, prof and prof.rand or 5
   for cy = 0, H - 1 do
     for cx = 0, W - 1 do
       local d = min(min(cx, cy), min(W - 1 - cx, H - 1 - cy))
       local n = 0.65 * Rng.noise(cx, cy, 11, seed) + 0.35 * Rng.noise(cx, cy, 5, seed + 1)
-      if d < 5 then n = n + (5 - d) * 0.07 end
-      g[idx(cx, cy)] = (d < 2 or n > 0.64) and FOREST or GRASS
+      if d < rand then n = n + (rand - d) * 0.07 end
+      g[idx(cx, cy)] = (d < 2 or n > wald) and FOREST or GRASS
+      if prof then
+        -- Seen mit Inseln (Flussauen): eigenes Rauschen, die Mitte eines Sees wird wieder Land
+        if prof.seen then
+          local s = Rng.noise(cx, cy, 14, seed + 51)
+          if s > prof.seen and d >= 3 then g[idx(cx, cy)] = s > prof.inseln and GRASS or WATER end
+        end
+        -- Insel (Nebelinsel): Meer statt Waldrand, die Küste ist unregelmäßig
+        if prof.insel and d < 3 + Rng.noise(cx, cy, 6, seed + 61) * 5 then g[idx(cx, cy)] = WATER end
+      end
     end
   end
 
@@ -155,17 +192,46 @@ function Gen.generate(area, seed)
   clear(plot.x - 3, plot.y - 3, plot.x + plot.w + 2, plot.y + plot.h + 2, 3)
   if dorf then clear(vx - 2, vy - 2, vx + vw + 1, vy + vh + 1, 1) end
 
-  -- 3. Fluss von oben nach unten auf der anderen Seite des Hofs
-  local rx
-  if river_west then rx = R:int(12, plot.x - 14) else rx = R:int(plot.x + plot.w + 13, W - 14) end
-  local rlo = river_west and 4 or plot.x + plot.w + 6
-  local rhi = river_west and plot.x - 8 or W - 7
-  local drift = 0
-  for cy = 0, H - 1 do
-    local width = Rng.noise(0, cy, 9, seed + 5) > 0.5 and 3 or 2
-    for k = 0, width - 1 do g[idx(flr(rx) + k, cy)] = WATER end
-    drift = mid(-0.8, drift + (R:next() - 0.5) * 0.5, 0.8)
-    rx = mid(rlo, rx + drift, rhi)
+  -- 3. Fluss von oben nach unten auf der anderen Seite des Hofs (Gebiete: Trockenbett, mehrere Flüsse, Schluchten)
+  local function river(west, ground, wlo, whi, salt)
+    local rx
+    if west then rx = R:int(12, plot.x - 14) else rx = R:int(plot.x + plot.w + 13, W - 14) end
+    local rlo = west and 4 or plot.x + plot.w + 6
+    local rhi = west and plot.x - 8 or W - 7
+    local drift = 0
+    for cy = 0, H - 1 do
+      local nz = Rng.noise(0, cy, 9, seed + salt)
+      local width = prof and wlo + flr(nz * (whi - wlo + 0.999)) or (nz > 0.5 and 3 or 2)
+      for k = 0, width - 1 do g[idx(flr(rx) + k, cy)] = ground end
+      drift = mid(-0.8, drift + (R:next() - 0.5) * 0.5, 0.8)
+      rx = mid(rlo, rx + drift, rhi)
+    end
+  end
+  -- Schlucht quer (Canyon): oberhalb oder unterhalb des Ankunftsplatzes von links nach rechts
+  local function chasm_across(top)
+    local ry = top and R:int(8, plot.y - 12) or R:int(plot.y + plot.h + 10, H - 10)
+    local lo, hi = top and 5 or plot.y + plot.h + 7, top and plot.y - 9 or H - 6
+    local drift = 0
+    for cx = 0, W - 1 do
+      local width = 2 + flr(Rng.noise(cx, 0, 8, seed + 71) * 3.999)
+      for k = 0, width - 1 do g[idx(cx, flr(ry) + k)] = CHASM end
+      drift = mid(-0.7, drift + (R:next() - 0.5) * 0.45, 0.7)
+      ry = mid(lo, ry + drift, hi)
+    end
+  end
+  if not prof then
+    river(river_west, WATER, 2, 3, 5)
+  else
+    if prof.fluss then
+      local ground = prof.fluss == "sand" and SAND or WATER
+      river(river_west, ground, prof.breite[1], prof.breite[2], 5)
+      if (prof.fluesse or 1) > 1 then river(not river_west, ground, prof.breite[1], prof.breite[2], 15) end
+    end
+    if prof.schluchten then
+      river(river_west, CHASM, 2, 5, 25)
+      chasm_across(R:next() < 0.5)
+      if prof.schluchten > 2 then river(not river_west, CHASM, 2, 4, 35) end
+    end
   end
 
   -- 4. Dorf nach Vorlage
@@ -207,21 +273,23 @@ function Gen.generate(area, seed)
     if coll[i] or in_plot(cx, cy) then return nil end
     local b = g[i]
     if b == PATH or b == BRIDGE or b == BRIDGE_V then return 1 end
-    if b == SAND then return nil end
+    if b == SAND and (reserved[i] or not prof) then return nil end
     local c = 2 + U.hash(cx, cy, seed + 9) * 3
     if b == FOREST then c = c + 4 end
-    if b == WATER then c = c + 10 end
+    if b == WATER or b == CHASM then c = c + 10 end
     if reserved[i] then c = c + 6 end
     return c
   end
   local function carve(path)
     for n, i in ipairs(path) do
       local b = g[i]
-      if b == WATER or b == BRIDGE or b == BRIDGE_V then
+      if b == WATER and prof and prof.furten then
+        g[i] = FORD                -- Flussauen: durch die Furt statt über eine Brücke
+      elseif b == WATER or b == CHASM or b == BRIDGE or b == BRIDGE_V then
         local a, z = path[n - 1], path[n + 1]
         local horiz = (a and abs(a - i) == 1) or (z and abs(z - i) == 1)
         g[i] = horiz and BRIDGE or BRIDGE_V
-      elseif b ~= SAND then
+      elseif b ~= SAND and b ~= FORD then
         g[i] = PATH
       end
     end
@@ -246,14 +314,14 @@ function Gen.generate(area, seed)
   local edge_x = gate_side > 0 and 0 or W - 1
   local river_path = route(wx, mid_y + R:int(-6, 6), function(i) return i % W == edge_x end, edge_x, mid_y)
   for _, i in ipairs(river_path or {}) do
-    if g[i] == BRIDGE or g[i] == BRIDGE_V then places.bruecke = {i % W, i // W} break end
+    if g[i] == BRIDGE or g[i] == BRIDGE_V or g[i] == FORD then places.bruecke = {i % W, i // W} break end
   end
   places.start = {plot.x + plot.w // 2, plot.y + plot.h // 2}
 
   -- 6. Erreichbarkeit: jede begehbare Fläche muss vom Hof aus erreichbar sein
   local function walkable(i)
     local b = g[i]
-    return b ~= FOREST and b ~= WATER and not coll[i]
+    return b ~= FOREST and b ~= WATER and b ~= CHASM and not coll[i]
   end
   local function flood(from)
     local seen, stack, count = {[from] = true}, {from}, 1
@@ -275,7 +343,7 @@ function Gen.generate(area, seed)
     return seen, count
   end
   local home = idx(places.start[1], places.start[2])
-  for _ = 1, 40 do
+  for _ = 1, prof and 70 or 40 do
     local seen = flood(home)
     local lost
     for i = 0, N - 1 do
@@ -289,7 +357,7 @@ function Gen.generate(area, seed)
       local p = astar(W, H, lost, function(i) return seen[i] end, function(i)
         local cx, cy = i % W, i // W
         if coll[i] or in_plot(cx, cy) then return nil end
-        return g[i] == FOREST and 3 or g[i] == WATER and 6 or 1
+        return g[i] == FOREST and 3 or (g[i] == WATER or g[i] == CHASM) and 6 or 1
       end)
       if p then carve(p) else for i in pairs(comp) do g[i] = FOREST end end
     end
@@ -307,7 +375,7 @@ function Gen.generate(area, seed)
         local open = false
         for _, d in ipairs({{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) do
           local b = code(cx + d[1], cy + d[2])
-          if b ~= FOREST and b ~= WATER then open = true end
+          if b ~= FOREST and b ~= WATER and b ~= CHASM then open = true end
         end
         if open and U.hash(cx, cy, seed + 21) < 0.85 then obj[i] = "edge_tree" end
       end
@@ -327,7 +395,12 @@ function Gen.generate(area, seed)
           end
         end
         local r = U.hash(cx, cy, seed + 31)
-        if free and r < 0.035 then
+        if free and prof and r < prof.objekte[1] then
+          for _, o in ipairs(prof.objekte[2]) do
+            if r < o[2] then obj[i] = o[1] break end
+          end
+          stamp(i)
+        elseif free and not prof and r < 0.035 then
           obj[i] = r < 0.012 and "tree" or r < 0.025 and "bush" or "rock"
           stamp(i)
         elseif U.hash(cx, cy, seed + 37) < 0.2 then

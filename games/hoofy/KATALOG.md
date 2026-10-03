@@ -202,6 +202,9 @@ Abreißen bringt 100 % des Preises zurück.
 | Zaun (je Kachel) / Tor | 5 / 30 | Weide |
 | Schuppen / Garage / Hangar | 1 000 / 8 000 / 40 000 | Fahrrad + Mofa / Kleinwagen + SUV / Flugzeug |
 | Göpel-Generator | 1 500 | 40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie) |
+| Heuraufe | 600 | füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40 (Heu aus dem Haus, sonst zum Ladenpreis) |
+| Kratzbürste | 400 | Sauberkeit +20 pro Tag für alle Pferde auf dem Hof |
+| Stallburschenhütte | 2 500 | Stallbursche streichelt und striegelt jeden Morgen alle Pferde auf dem Hof (Bindung +2, Sauberkeit +40), Lohn 15 pro Tag |
 | Beet (je Kachel) | 0 | Pflanzen anbauen (siehe Anbau), braucht eine Hacke |
 | Bank / Lampe / Blumenkübel | 40 / 60 / 20 | Schönheit +3 / +4 / +2 |
 | Weg / Boden (je Kachel) | 5 | Schönheit +0,5 |

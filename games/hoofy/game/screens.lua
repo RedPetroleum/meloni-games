@@ -1589,7 +1589,7 @@ local BUILD_ICON = {
 }
 local CAT_ICON = {
   deko = "blumenkuebel", wege = "land_path1", anbau = "ground_beet", pflanzen = "pflanze_karotte_3",
-  zaun = "gate", gebaeude = "stable", land = "ico_karte", abriss = "cursor_bad",
+  zaun = "gate", gebaeude = "stable", pflege = "heuraufe", land = "ico_karte", abriss = "cursor_bad",
 }
 local function build_icon(cat, id)
   if cat == "pflanzen" then return "pflanze_" .. id .. "_3" end
@@ -1707,7 +1707,8 @@ function Screens.build(ctx)
         elseif cats[r].id == "land" then cat, item, picker, chosen = r, 1, nil, true  say("Feld am Hof wählen, A kauft.")
         else open_items(r) end
       elseif r and picker.stage == "item" then
-        if not chosen then say("START: anderes Bauteil") end
+        local info = cats[picker.cat].id == "pflege" and require("game.automatik").INFO[cats[picker.cat].items[r]]
+        if info then say(info) elseif not chosen then say("START: anderes Bauteil") end
         cat, item, picker, chosen = picker.cat, r, nil, true
       end
     else

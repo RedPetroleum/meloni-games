@@ -94,6 +94,9 @@ recolor land aue g=4fa082 G=6cbc9c d=3a846a f=2f7c66 F=1f5c4c l=56a88a o=8a9cac 
 recolor land steppe g=c9b858 G=ddd07a d=a89844 f=7f8c3a F=5c6a2a l=a4b056 o=b0a48c O=d4cab0 p=847a64 e=c49a62 E=a07a48 j=dab47e s=f0e0a8 S=d6c48a P=e04a3a Y=b07ad8 V=f7d65a
 recolor land canyon g=c47a4a G=d99a66 d=a25e36 f=6f7e44 F=4e5c30 l=93a462 o=b46a4e O=d48e70 p=86462e e=e2b484 E=c49264 j=f0caa0 s=f0cc96 S=d6ae74 P=f7d65a Y=fbf8ef V=e0475a
 recolor land nebel g=8f72b0 G=a890c8 d=725892 f=4c5c9a F=343f74 l=7488c4 o=a8a4b8 O=d0ccdc p=7a7690 e=c4b4cc E=a494b0 j=dccfe2 s=e6deea S=cabfd6 P=8ff0e8 Y=f0c8ff V=ffffff
+# Furt nur in den Flussauen, Schlucht nur im Canyon (E84): eigene Vorlagen statt land_, damit es keine ungenutzten Kopien gibt
+recolor furt aue o=8a9cac O=b8c8d4 p=5e7080 s=e4dcb4 S=c8bf94
+recolor schlucht canyon g=c47a4a G=d99a66 d=a25e36 o=b46a4e O=d48e70 p=86462e
 
 # Weg, zwei Varianten gegen Wiederholung
 sprite land_path1
@@ -168,6 +171,137 @@ ssSSssssssssSssj
 sssssssjjssssssS
 sssssssssssssssS
 sssssjssssssssss
+
+# Furt (Flussauen), Schlucht und Schluchtrand (Canyon), E84
+sprite furt_ford1
+qqQQQQQQVqqqQQQQ
+QQQQQQQQQQSQsSQQ
+QQQQqqqQQQsQQQQQ
+QQQQQQQQOOoSssQQ
+QQQQQQQQoppQVQQQ
+QQQqqqQQQQQQQQQQ
+QQQQQQQSssQQqqqQ
+qqqQQQQqsSsQQQQq
+QQQQQQOOoQsQQQqq
+QQQQQQoppQQQQQQQ
+QQQqqQQQQQQQQQQQ
+QQQQQQQQQQQQQQQQ
+QQSQQQQQQQQQQQQq
+QQsQSOVoQQQQqqQQ
+QQsQQoppQQQVQQQQ
+QQQqqqQQQQQQQQQQ
+
+sprite furt_ford2
+QqqqQQQQQQQQQQQQ
+QQQQQQVQQQQQQVQQ
+QqqQQQQQQQQQQQQQ
+QQQQQQQQQOOoQQQQ
+OOoVQQQQQoppQQQQ
+oppQQQQQQQQsqSsQ
+QQQQQQQQqqQQQssQ
+QQQQQQQqVQQQQQQQ
+QQQQQQQQQQQQQQQQ
+QQQQQQQQQQQSssSQ
+QQQQQqqQQOOosSqq
+QQQQqqQQQoppqssQ
+QQQQQqqqQQsQQsQQ
+QQQQQqqqQQQQQQqq
+QQQQQQQQQQQqqqQQ
+QQQQQQQQQQQQQQQQ
+
+sprite schlucht_chasm1
+kkvkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkvkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkvkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkv
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkvkkkv
+
+sprite schlucht_chasm2
+kkkkkkkkkkkkkkkk
+kkkkkkkkkvkkkkkk
+kkvkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkv
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkvkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+vkkvkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkk
+
+sprite schlucht_rim_n
+dgdgddddgggdgggg
+dddddddddddddddd
+OOOOOOOOOOOOOOOO
+oooopooooooooopo
+oooooooooooooooo
+opokpoooooooopkp
+OOpOOOppOOkOOOOO
+oopoookopooooooo
+ppkopppopppppkpp
+opoppopppkopoppp
+oooookoooooooooo
+kkppppppppppkppp
+ppppkpppkppppppp
+ppppkppppppppppk
+kkkkkkkkppkkpkkp
+
+sprite schlucht_rim_s
+pppppppppppppppp
+dgdddgddgdddgddd
+gggggggggggggggg
+
+sprite schlucht_rim_w
+gd.
+gdp
+gdp
+gdp
+gd.
+gdp
+gdp
+gdp
+gd.
+gdp
+gdp
+gdp
+gd.
+gdp
+gdp
+gdp
+
+sprite schlucht_rim_e
+.dg
+pdg
+pdg
+pdg
+.dg
+pdg
+pdg
+pdg
+.dg
+pdg
+pdg
+pdg
+.dg
+pdg
+pdg
+pdg
 
 # Wasser, zwei Bilder für leichtes Glitzern
 sprite ground_water1
@@ -1094,6 +1228,8 @@ DDDDDDD
 # Hoofy: Wald (Blätterdach, fest), Brücke längs, Dorf (Laden, Wohnhaus per recolor, Marktstand, Jobbrett, Hindernis)
 recolor house cottage r=5d7fb0 R=86a6d0 x=3f5a85
 # Laden in den Farben des Ladenmenüs (Rot, Dunkelrot, Rosa)
+# Hütte des Stallburschen (E85)
+recolor house huette r=4f8b3a R=7cb54b x=37682d
 recolor house laden r=8e2234 R=b8394c x=5c1422 c=f8d0dc C=e8a4b8
 
 sprite land_forest1
@@ -1311,6 +1447,7 @@ sprite jump
 # Käufer am Hof (B3): die Spielfigur in anderen Farben
 recolor player sammlerin B=8a3fb0 X=5e2a80 T=3a2a4a L=e8d090
 recolor player reithof B=4f9a4f X=37702f T=6b4a2a L=8a5a2b
+recolor player bursche B=d9b35a X=a88a30 T=4f4038 L=c46c30
 recolor player zuechter B=b8473a X=8a3129 T=3b2a24 L=2a1a14
 recolor player schlachter B=f0f0f0 X=c8c8c8 T=3a3a3a L=2a1a14
 
@@ -3873,6 +4010,122 @@ kqqQQqqqqqqqqqk.
 kqqqqqqqQQqqqqk.
 .kkqqqqqqqqqkk..
 ...kkkkkkkkk....
+
+
+
+# Gebiete (E84): Kaktus (Steppe, Canyon), Birke (Birkenwald). Hof-Automatik (E85): Heuraufe, Kratzbürste
+sprite kaktus
+......kkk......
+.....kPYPk.....
+.....klffk.....
+.....klVfk.....
+.kk..klffk.....
+klfk.klffk..kk.
+kVfk.klfVk.klfk
+klfk.klffk.klfk
+klfkkklffk.kVfk
+kllffflffkkkffk
+.kFFfffVffffFk.
+..kkkklffFFFk..
+.....klfFkkk...
+.....klVFk.....
+.....klfFk.....
+.....klfFk.....
+.....kVfFk.....
+.....klfFk.....
+....kklFFkk....
+....kkkkkkk....
+
+sprite birke
+.........kkkkkkk..........
+.......kkGllGlGllkk.......
+......kGGllllllllllk......
+.....klGlllGlllllllk......
+....kllGGllllllllllfk.....
+...kllllllGllllGllllkk....
+...klllllllllGllllffflk...
+..kllGGlllllGlllffffffk...
+..kllllllllGllfffffflfk...
+.klllllGlGGlffllflflffkk..
+..klllllllffllfffflfffflk.
+..klllllffffffffffffffffk.
+..kGGlffffffffffffffffffk.
+.kGlffffffffffffffffffFFk.
+.kffffflffffffffffffFFFk..
+.kfffffffffflfflffFFFFFkk.
+.kfflfffffffffffFFFFFFFFFk
+.kffffffflflffFFFFFFFFFFk.
+..kfffffffffFfFFfFFFfFFFk.
+..klflffffFFFFFFFffFFfFk..
+..kfflflFFFFFFFFFfFfFFFk..
+..kfkfFFFfFfFFFFFfFFFFk...
+...kkFFFFFFFFFFfFfFFFfk...
+....kFFkFFFFFFFFFFkkFk....
+.....kkkFFFFfFFFFk..k.....
+..........kVVVk...........
+..........kkVVk...........
+..........kVVVk...........
+..........kVVkk...........
+..........kVVVk...........
+..........kkVVk...........
+..........kVVVk...........
+..........kVVVk...........
+..........kVVkk...........
+..........kkVVk...........
+..........kVVVk...........
+..........kVVVk...........
+..........kVVVk...........
+..........kVVkk...........
+..........kVVVk...........
+..........kVVVk...........
+..........kVVVk...........
+..........kkkkk...........
+
+sprite heuraufe
+.......kkkkkkkkkkkkkkkk.......
+.....kkAAAaaaaAAAaaaAAAkk.....
+...kkaaaAaAaAaaaaaAAaaAaAkk...
+..kAaAaaAaAAaAAAaAAAaaaaaAak..
+.kaAaAaaaaaaAAAaAaaaaAaAAAaAk.
+.kAAAaaaaaAaAAaAAAaaAaaAaAaAk.
+kWWWWWWWWWWWWWWWWWWWWWWWWWWWWk
+kvAaAvaAavaaavAaAvaAAvAaavAaak
+kvaAAvAAavAaavaaavAaavAaavaAak
+kvAaavaaAvaAavAaavaaAvaaAvAaak
+kvaaavaaAvaAavAaavaAavAAavAaAk
+kvaAAvAAavAaavaAavaaavAaAvaaak
+kvAAavAaavaaAvaaavaaavaaAvaaak
+kvAaavaaAvaaavAaavaaAvaAavAaak
+kwwwwwwwwwwwwwwwwwwwwwwwwwwwwk
+kvvvvvvvvvvvvvvvvvvvvvvvvvvvvk
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+.kwvk....................kwvk.
+.kwvk....................kwvk.
+.kwvk....................kwvk.
+.kwvk....................kwvk.
+.kkkk....................kkkk.
+
+sprite kratzbuerste
+......kkk......
+.....kWWWk.....
+.....kwwvk.....
+..B.B.kwk.B.B..
+.BkkkkkwkkkkkB.
+BkXBXBXBXBXBXkB
+.kBXBXBXBXBXBk.
+BkXBXBXBXBXBXkB
+.kBXBXBXBXBXBk.
+BkXBXBXBXBXBXkB
+.kBXBXBXBXBXBk.
+BkXBXBXBXBXBXkB
+.BkkkkkwkkkkkB.
+..B.B.kwk.B.B..
+......kwk......
+......kwk......
+......kwk......
+......kwk......
+.....kkwkk.....
+....kkkkkkk....
 
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 

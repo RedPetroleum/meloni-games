@@ -471,6 +471,12 @@ def bau(s):
                 e["geld_pferd"] = s.find(r"(\d+) Geld pro Tag", text)
                 e["min_staerke"] = s.find(r"Stärke ≥ (\d+)", text)
                 e["energie"] = s.find(r"(\d+) Energie", text)
+            m = re.search(r"Hunger über (\d+)", text)
+            if m:
+                e["auto_hunger"] = int(m.group(1))
+            m = re.search(r"Lohn (\d+) pro Tag", text)
+            if m:
+                e["lohn"] = int(m.group(1))
             if e["id"] in ("schuppen", "garage", "hangar"):
                 e["fahrzeuge"] = [slug(f) for f in text.split("+")]
             out.append(e)

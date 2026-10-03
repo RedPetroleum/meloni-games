@@ -67,9 +67,18 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Jobs sind minispiele und verbrauchen energie (1.3.0, E78: Postritt, Kutschtaxi, Pflügen; Lohn nach Ergebnis)
 - [x] Göpel kann auch pferde unterbringen, man sieht sie auch bewegen. (1.3.0, E78: Ort „Göpel“, nur diese Pferde bringen Geld)
 - [x] zucht funktioniert noch nicht. wenn man darauf klickt, stürzt die app ab. wenn man ein Fohlen kriegt, spawnt es im stall. wenn kein stall platz frei ist, wird das billigste pferd, aber keinenfalls  mutter, von stall nach weide verschoben. wennn die weide bereits voll ist, wird von dort ein anderes pferd auf das grundstück verschoben. wenn das bereits voll ist, dann verschwindet das pferd mit dem geringsten wert. (1.3.0, E78: Absturz am Rechner nicht nachstellbar, Zucht neu im Stall-Menü; Fohlen im Stall mit Umzugsregeln)
+- [x] Gebiete sehen alle gleich aus: Birkenwald mehr Wald, Flussauen Furten, Inseln und mehr Wasser, Steppe Kakteen, die zurückschubsen, Canyon Schluchten, Nebelinsel Nebel und braucht eine Lampe. (1.6.0, E84)
+- [x] Lästige Pflege automatisieren können. (1.6.0, E85: Heuraufe, Kratzbürste, Stallbursche)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.
+
+**Version 1.6.0** – Gebiete und Hof-Automatik, siehe E84/E85 (gleiche Firmware)
+- [ ] Birkenwald, Flussauen, Steppe, Canyon, Nebelinsel: sieht jedes Gebiet eigen aus? Läuft das Erzeugen beim Ankommen schnell genug?
+- [ ] Furten: angenehm langsam oder nervig? Kaktus-Rückstoß: zu stark, zu schwach?
+- [ ] Canyon: über eine schmale Schluchtstelle springen (reiten, B + A), über breite nicht.
+- [ ] Nebelinsel: Nebel gut, Lichtkreis groß genug, läuft flüssig (zweites `shade` nachts)?
+- [ ] Heuraufe, Kratzbürste, Stallbursche bauen: Meldung am Morgen, Pferde gefüttert/sauber?
 
 **Version 1.3.0** – Rückmeldungen, siehe E78 (gleiche Firmware)
 - [ ] Zucht im Stall (Pferd → Zucht → Partner): stürzt es noch ab? Fohlen am nächsten Morgen im Stall?

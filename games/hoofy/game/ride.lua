@@ -7,6 +7,7 @@ local Care = require("game.care")
 local SFX = require("game.sfx")
 local Body = require("lib.body")
 local U = require("lib.util")
+local Gebiet = require("game.gebiet")
 
 local R = {}
 
@@ -89,6 +90,15 @@ function R.update(p)
   local ctx, h = p.ctx, p.riding
   local d = h.data
   p.moving = false
+  if p.knock_t > 0 then
+    -- weggestoßen (Kaktus, E84): kurz keine Steuerung
+    p.knock_t = p.knock_t - 1
+    Body.move(p, p.kvx, p.kvy, ctx.map)
+    p.kvx, p.kvy = p.kvx * 0.85, p.kvy * 0.85
+    ctx.trail:push(p.x, p.y)
+    return
+  end
+  if Gebiet.kaktus(p) then return end
   local dx, dy = 0, 0
   if btn(BTN_LEFT) then dx = dx - 1 end
   if btn(BTN_RIGHT) then dx = dx + 1 end
@@ -103,6 +113,7 @@ function R.update(p)
   p.running = btn(BTN_B) and not tired
   local speed = p.running and gallop or walk
   if tired then speed = walk * 0.7 end
+  if p.jump_t == 0 then speed = speed * Gebiet.tempo(ctx.map, p.x, p.y) end   -- Furt bremst (E84)
   if p.jump_t > 0 then speed = max(speed, walk * 1.4) end   -- in der Luft nicht bremsen
   if dx ~= 0 and dy ~= 0 then speed = speed * 0.7071 end
   if dx ~= 0 or dy ~= 0 then
@@ -152,7 +163,9 @@ function R.update(p)
       if Body.free(ctx.map, p.x, p.y, p.fw, p.fh) then
         SFX.land()
         p.jump_t, p.air, p.clear = 0, 0, nil
-      elseif p.jump_t > R.JUMP_FRAMES + 30 then
+      elseif Gebiet.ueber_schlucht(ctx.map, p.x, p.y) or p.jump_t > R.JUMP_FRAMES + 30 then
+        -- Schlucht zu breit (E84): das Pferd schafft es nicht und landet wieder am Absprung
+        if Gebiet.ueber_schlucht(ctx.map, p.x, p.y) and ctx.toast then ctx.toast("Zu breit! Nur schmale Stellen schafft ihr im Sprung.") end
         p.x, p.y = p.jump_x, p.jump_y
         p.jump_t, p.air, p.clear = 0, 0, nil
       else

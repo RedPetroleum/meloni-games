@@ -4,6 +4,7 @@ local K = require("game.katalog")
 local Economy = require("game.economy")
 local Farm = require("game.farm")
 local U = require("lib.util")
+local Gebiet = require("game.gebiet")
 
 local R = {}
 
@@ -186,7 +187,8 @@ function R.ziele(ctx)
       if ctx.player.riding then ok, why = false, "erst absteigen"
       elseif mit > Economy.plaetze(ctx) then ok, why = false, "Anhänger zu klein (" .. mit .. " Pferde)"
       elseif draussen then ok, why = false, draussen .. " ist nicht im Anhänger"
-      elseif ctx.money < kosten then ok, why = false, "zu wenig Geld" end
+      elseif ctx.money < kosten then ok, why = false, "zu wenig Geld"
+      elseif nr == Gebiet.NEBEL_GEBIET and not Gebiet.hat_licht(ctx) then ok, why = false, "im Nebel brauchst du eine Laterne" end
       out[#out + 1] = {nr = nr, name = K.welt.gebiete[nr].name, kosten = kosten, ok = ok, grund = why}
     end
   end

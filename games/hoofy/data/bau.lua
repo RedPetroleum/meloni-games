@@ -125,6 +125,34 @@ return {
       energie = 40,
     },
     {
+      id = "heuraufe",
+      name = "Heuraufe",
+      text = "füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40 (Heu aus dem Haus, sonst zum Ladenpreis)",
+      wirkung = {},
+      preis = 600,
+      auto_hunger = 40,
+    },
+    {
+      id = "kratzbuerste",
+      name = "Kratzbürste",
+      text = "Sauberkeit +20 pro Tag für alle Pferde auf dem Hof",
+      wirkung = {
+        sauberkeit = 20,
+      },
+      preis = 400,
+    },
+    {
+      id = "stallburschenhuette",
+      name = "Stallburschenhütte",
+      text = "Stallbursche streichelt und striegelt jeden Morgen alle Pferde auf dem Hof (Bindung +2, Sauberkeit +40), Lohn 15 pro Tag",
+      wirkung = {
+        bindung = 2,
+        sauberkeit = 40,
+      },
+      preis = 2500,
+      lohn = 15,
+    },
+    {
       id = "beet",
       name = "Beet",
       text = "Pflanzen anbauen (siehe Anbau), braucht eine Hacke",

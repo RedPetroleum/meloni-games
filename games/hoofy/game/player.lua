@@ -3,6 +3,7 @@
 local Body = require("lib.body")
 local U = require("lib.util")
 local Ride = require("game.ride")
+local Gebiet = require("game.gebiet")
 
 local Player = {}
 Player.__index = Player
@@ -34,6 +35,7 @@ function Player:update()
     self.ctx.trail:push(self.x, self.y)
     return
   end
+  if Gebiet.kaktus(self) then return end
   local dx, dy = 0, 0
   if btn(BTN_LEFT) then dx = dx - 1 end
   if btn(BTN_RIGHT) then dx = dx + 1 end
@@ -41,7 +43,7 @@ function Player:update()
   if btn(BTN_DOWN) then dy = dy + 1 end
   self.running = btn(BTN_B)
   if dx == 0 and dy == 0 then return end
-  local speed = self.running and RUN or WALK
+  local speed = (self.running and RUN or WALK) * Gebiet.tempo(self.ctx.map, self.x, self.y)   -- Furt bremst (E84)
   if dx ~= 0 and dy ~= 0 then speed = speed * 0.7071 end
   local ok_x, ok_y = Body.move(self, dx * speed, dy * speed, self.ctx.map)
   self.dir = U.facing(dx, dy, self.dir)
@@ -95,7 +97,8 @@ function Player:draw()
   local x, y = flr(self.x), flr(self.y)
   -- Laterne (wenn gekauft) hängt an der rechten Hand der Figur (Rückmeldung 0.5.5), nur wenn es dunkel ist, also
   -- ab da, wo der Lichtkreis beginnt (Stage.SIGHT_FROM); tagsüber und am frühen Abend nicht.
-  local lantern = (self.ctx.inv.laterne or 0) > 0 and self.ctx.clock and self.ctx.clock:darkness() >= LANTERN_DARK
+  local lantern = (self.ctx.inv.laterne or 0) > 0 and ((self.ctx.clock and self.ctx.clock:darkness() >= LANTERN_DARK)
+    or Gebiet.neblig(self.ctx))                           -- im Nebel immer (E84)
   if self.dir == "left" or self.dir == "right" then
     S.draw(names.side[step], x - 6, y - 19, self.dir == "left")
   else

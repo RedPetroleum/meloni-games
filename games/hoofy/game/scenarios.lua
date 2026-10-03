@@ -84,7 +84,8 @@ end
 -- (zum Ansehen der Gebietsfarben).
 function Scenarios.gebiet(save)
   local nr = save.gebiet or 2
-  local arg = {gebiet = nr, fahrzeug = save.fahrzeug or "suv", anhaenger = save.anhaenger or 2, pferde = save.pferde}
+  local arg = {gebiet = nr, fahrzeug = save.fahrzeug or "suv", anhaenger = save.anhaenger or 2, pferde = save.pferde,
+    laterne = save.laterne}
   if save.blick then
     local map = require("game.area").get(nr).map
     local best = -1
@@ -95,10 +96,11 @@ function Scenarios.gebiet(save)
           for x = cx - 10, cx + 9 do
             local c = map:code(x, y)
             n[c] = (n[c] or 0) + 1
+            if map.coll[y + 1] and map.coll[y + 1]:sub(x + 1, x + 1) == "C" then n.kaktus = (n.kaktus or 0) + 1 end
           end
         end
         local score = math.min(n.F or 0, 60) + 2 * math.min(n["~"] or 0, 25) + 2 * math.min(n[":"] or 0, 20)
-          + math.min(n["."] or 0, 80)
+          + math.min(n["."] or 0, 80) + 6 * math.min(n.f or 0, 8) + 2 * math.min(n.c or 0, 30) + 8 * math.min(n.kaktus or 0, 6)
         if score > best then best, arg.cx, arg.cy = score, cx, cy end
       end
     end
@@ -211,6 +213,11 @@ end
 -- Stall von innen: save.stall = stall_s, stall_m, stall_l oder stall_xl, fast voll belegt.
 function Scenarios.stall(save)
   return "world", {stall = save.stall or "stall_l"}
+end
+
+-- Pflege-Bauten (E85): Heuraufe, Kratzbürste, Stallburschenhütte mit Stallbursche am Hof.
+function Scenarios.pflege()
+  return "world", {pflege = true}
 end
 
 -- Göpel: ein Pferd zieht den Generator am Hof (läuft im Kreis).

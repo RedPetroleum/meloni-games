@@ -6,6 +6,7 @@ local Farm = require("game.farm")
 local Wetter = require("game.wetter")
 local Reformen = require("game.reformen")
 local Breeding = require("game.breeding")
+local Automatik = require("game.automatik")
 
 local Days = {}
 
@@ -74,6 +75,8 @@ function Days.new_day(ctx, day)
   if schoen > 0 then
     for _, d in ipairs(ctx.herd) do d.bindung = mid(0, d.bindung + schoen, 100) end
   end
+  -- Hof-Automatik (E85): Heuraufe, Kratzbürste, Stallbursche, nach Hunger, Regen und Stall
+  ctx.automatik = Automatik.tag(ctx)
   local reif = Farm.grow(ctx, day)
   ctx.reife = reif
   ctx.wild:new_day(day)

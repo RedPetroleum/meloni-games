@@ -1,5 +1,7 @@
 -- Die Welt-Szene: herumlaufen im aktuellen Gebiet. Pferde, Tag/Nacht, Menüs kommen mit den
 -- Aufgaben aus PLAN.md dazu.
+local Gebiet = require("game.gebiet")
+local Automatik = require("game.automatik")
 local Stage = require("game.stage")
 local Wild = require("game.wild")
 local Leash = require("game.leash")
@@ -248,6 +250,17 @@ function WorldScene.enter(arg)
     local h = wild:add_own({rasse = "noriker", bindung = 50, name = "Bruno"})
     h.data.gen.staerke = 60
     assert(wild:house(h, "goepel"))
+  elseif arg and arg.pflege then
+    -- Hof-Automatik (Szenario pflege, E85): Heuraufe, Kratzbürste und Stallburschenhütte neben dem Startpunkt
+    local pl = ctx.area.plot
+    ctx.money = 5000
+    assert(Farm.place(ctx, "heuraufe", pl.x + 12, pl.y + 6))
+    assert(Farm.place(ctx, "kratzbuerste", pl.x + 15, pl.y + 6))
+    assert(Farm.place(ctx, "stallburschenhuette", pl.x + 12, pl.y + 2))
+    ctx.player.x, ctx.player.y = (pl.x + 11) * 16 + 8, (pl.y + 8) * 16 + 14
+    ctx.trail:reset(ctx.player.x, ctx.player.y)
+    ctx.camera:snap(ctx.player.x, ctx.player.y - 10)
+    Automatik.sync(ctx)
   elseif arg and arg.zucht then
     -- Hengst und Stute im Stall, der Spieler steht vor der Stalltür (Szenario zucht)
     wild.count = 0
@@ -482,6 +495,7 @@ end
 function WorldScene.explore()
   local p, cam = ctx.player, ctx.camera
   local r = clock:sight(70, WorldScene.light())
+  if Gebiet.neblig(ctx) then r = min(r or 999, Gebiet.nebel_sicht(WorldScene.light())) end
   if r and r < 400 then
     Explore.reveal(ctx.explored, p.x - r, p.y - r, p.x + r, p.y + r)
   else
@@ -511,6 +525,7 @@ function WorldScene.update()
   end
   t = t + 1
   if t % 20 == 1 then WorldScene.explore() end
+  if t % 60 == 7 then Automatik.sync(ctx) end      -- Stallbursche an seiner Hütte (E85)
   if t % 30 == 5 then
     local neu = Album.sichten(ctx)
     if neu > 0 and not toast then say("Album: " .. neu .. " neu eingetragen.", 90) end
@@ -539,6 +554,7 @@ function WorldScene.update()
     if neu then say(neu, 240)
     elseif chaos then say(chaos, 200)
     elseif ctx.nasse > 0 then say("Es hat geregnet: " .. ctx.nasse .. " Pferd(e) draußen sind schmutzig.", 180)
+    elseif Automatik.text(ctx.automatik) then say(Automatik.text(ctx.automatik), 200)
     end
   end
   local p = ctx.player
@@ -630,7 +646,8 @@ function WorldScene.update()
           ctx.sfx.music("day")
           local saved = WorldScene.save()
           local fohlen = #ctx.geburten > 0 and (" Fohlen geboren: " .. ctx.geburten[1]) or ""
-          say("Gut geschlafen." .. fohlen .. (saved and " Gespeichert." or ""), 200)
+          local auto = Automatik.text(ctx.automatik)
+          say("Gut geschlafen." .. fohlen .. (saved and " Gespeichert." or "") .. (auto and (" " .. auto) or ""), 240)
           local chaos = chaos_text()
           if chaos then say(chaos, 200) end
           local neu = Fortschritt.neu(clock.day)[1]
@@ -752,6 +769,9 @@ function WorldScene.draw()
   if top and top.full then return top.draw() end   -- Vollbild: die Welt darunter bleibt ungezeichnet
   Stage.draw_world(ctx, draw_rope)
   local p = ctx.player
+  if Gebiet.neblig(ctx) then                -- Nebelinsel (E84): Sicht nur im Lichtkreis
+    Gebiet.draw_nebel(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), WorldScene.light(), t, Stage.HUD_H)
+  end
   Stage.draw_dark(flr(p.x - ctx.camera.x), flr(p.y - 10 - ctx.camera.y), clock:darkness(), WorldScene.light())
   if Wetter.regnet(ctx, clock.day) and not clock:is_night() then Wetter.draw(t) end
   draw_hud()

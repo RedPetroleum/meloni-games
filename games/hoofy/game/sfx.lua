@@ -26,6 +26,7 @@ function SFX.warn() tone(note("E6"), 0.08, "square", 0.15) end                  
 function SFX.tame() tune("G5:0.5 C6:0.5 E6:1", 700, "triangle", 0.25, false, JINGLE) end
 function SFX.snap() tone(note("C5"), 0.08, "noise", 0.3) tone(note("A4"), 0.12, "saw", 0.12) end  -- Leine reißt
 function SFX.jump() tone(note("C5"), 0.12, "triangle", 0.18) end
+function SFX.pieks() tone(note("B6"), 0.05, "square", 0.16) tone(note("E6"), 0.07, "saw", 0.12) end   -- Kaktus (E84)
 function SFX.land() tone(420, 0.09, "noise", 0.22) end
 function SFX.mount() tone(note("D5"), 0.05, "triangle", 0.2) tone(note("A5"), 0.07, "triangle", 0.2) end
 

@@ -31,7 +31,8 @@ T.PALETTES = {
 }
 
 -- Böden (Ebene ground). Kartenfarbe (map) für die Übersichtskarte.
-T.GROUND = {GRASS = ".", FOREST = "F", WATER = "~", BRIDGE = "=", BRIDGE_V = "I", PATH = ":", SAND = "s"}
+T.GROUND = {GRASS = ".", FOREST = "F", WATER = "~", BRIDGE = "=", BRIDGE_V = "I", PATH = ":", SAND = "s", FORD = "f",
+  CHASM = "c"}
 T.GROUNDS = {
   ["."] = {base = true, shadow = C.grass_shadow, map = rgb(0x7f, 0xb0, 0x4f)},
   F = {sprites = {"land_forest1", "land_forest2", "land_forest3", "land_forest4"}, solid = true, shadow = C.grass_shadow,
@@ -45,6 +46,12 @@ T.GROUNDS = {
   b = {sprites = {"ground_beet"}, edges = "land_fringe", shadow = C.path_shadow, map = rgb(0x8a, 0x5a, 0x36)},
   s = {sprites = {"land_sand1", "land_sand2"}, edges = "land_fringe", shadow = C.sand_shadow,
     map = rgb(0xea, 0xd7, 0xa0)},
+  -- Furt (Flussauen, E84): flaches Wasser, begehbar, aber langsam (slow = Faktor auf das Tempo)
+  f = {sprites = {"aue_ford1", "aue_ford2"}, edges = "aue_fringe", slow = 0.55, shadow = rgb(0x6a, 0xa8, 0xcc),
+    map = rgb(0x8f, 0xc8, 0xe6)},
+  -- Schlucht (Canyon, E84): fest; im Sprung kommt man drüber, wenn man höher als gap ist (schmale Stellen)
+  c = {sprites = {"canyon_chasm1", "canyon_chasm2"}, edges = "canyon_rim", solid = true, gap = 9, shadow = C.grass_shadow,
+    map = rgb(0x3a, 0x22, 0x1c)},
 }
 
 -- Pflanzen (C5): pflanze_<id>_<stufe> als Objekte, 1×1 (Apfelbaum 2×2), ohne Kollision
@@ -65,6 +72,7 @@ T.SHAPES = {
   H = {{0, 6, 16, 16}},     -- Hecke
   L = {{5, 10, 11, 16}},    -- Lampe, Statue
   K = {{2, 8, 14, 16}},     -- Blumenkübel
+  C = {{4, 9, 12, 16}},     -- Kaktus (stößt zurück, game/gebiet.lua)
 }
 -- Zaun: "A" + Maske der Nachbarn (1 links, 2 rechts, 4 oben, 8 unten), Pfosten + Latten.
 T.FENCE_BASE = string.byte("A")
@@ -139,6 +147,8 @@ local gate = {
 T.PROPS = {
   edge_tree = {variants = {"land_tree", "land_tree", "land_tree", "land_bush"}, jitter = 3, flip = true, map = rgb(0x2a, 0x55, 0x22)},
   tree = {sprite = "land_tree", coll = "T", map = rgb(0x2a, 0x55, 0x22)},
+  birke = {sprite = "birke", coll = "T", flip = true, map = rgb(0x7c, 0xb5, 0x4b)},
+  kaktus = {sprite = "kaktus", coll = "C", flip = true, map = rgb(0x4f, 0x8b, 0x3a)},
   bush = {sprite = "land_bush", coll = "u", map = rgb(0x4f, 0x8b, 0x3a)},
   rock = {sprite = "land_rock", coll = "o", map = rgb(0x9a, 0xa0, 0xa6)},
   shop = {sprite = "laden_a", w = 3, h = 2, coll = "X", map = rgb(0xb8, 0x39, 0x4c)},
@@ -166,6 +176,9 @@ T.PROPS = {
   garage = {sprite = "garage", w = 4, h = 3, coll = "X", map = rgb(0x9a, 0xa0, 0xa6)},
   goepel = {sprite = "goepel", w = 2, h = 2, coll = "X", map = rgb(0x8a, 0x5a, 0x36)},
   hangar = {sprite = "hangar", w = 6, h = 4, coll = "X", map = rgb(0x6d, 0x73, 0x7a)},
+  heuraufe = {sprite = "heuraufe", w = 2, coll = "X", map = rgb(0xd9, 0xb3, 0x5a)},
+  kratzbuerste = {sprite = "kratzbuerste", coll = "L", map = rgb(0x7b, 0x4c, 0x2b)},
+  huette = {sprite = "huette_a", w = 3, h = 2, coll = "X", map = rgb(0x4f, 0x8b, 0x3a)},
 }
 fence.map = rgb(0x7b, 0x4c, 0x2b)
 gate.map, hedge.map = rgb(0x7b, 0x4c, 0x2b), rgb(0x37, 0x68, 0x2d)
@@ -198,6 +211,7 @@ function T.set_palette(name)
     G[ch].sprites = list
   end
   G["~"].edges, G[":"].edges, G.s.edges, G.b.edges = n("bank"), n("fringe"), n("fringe"), n("fringe")
+  G.c.shadow = p.shadow
   G[":"].shadow, G.s.shadow = p.path_shadow, p.sand_shadow
   G.F.map, G[":"].map, G.s.map = p.forest, p.path, p.sand
   for ch, id in pairs(LAND_DECOS) do T.DECOS[ch] = n(id) end

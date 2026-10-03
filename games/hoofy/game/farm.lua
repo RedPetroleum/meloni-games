@@ -237,6 +237,7 @@ Farm.CATEGORIES = {
   {id = "pflanzen", name = "Pflanzen", items = {}},          -- Liste der Samen im Vorrat, siehe Farm.categories
   {id = "zaun", name = "Zaun", items = {"zaun", "tor"}},
   {id = "gebaeude", name = "Bauten", items = {"stall_s", "stall_m", "stall_l", "stall_xl", "haeuschen", "villa", "schuppen", "garage", "hangar", "goepel_generator"}},
+  {id = "pflege", name = "Pflege", items = {"heuraufe", "kratzbuerste", "stallburschenhuette"}},   -- Hof-Automatik (E85)
   {id = "land", name = "Land", items = {}},                    -- Feld mit dem Cursor wählen, siehe Farm.buy_land
   {id = "abriss", name = "Abreißen", items = {}},
 }
@@ -344,6 +345,10 @@ Farm.ITEMS = {
   garage = {prop = "garage", w = 4, h = 3, building = true},
   hangar = {prop = "hangar", w = 6, h = 4, building = true},
   goepel_generator = {prop = "goepel", w = 2, h = 2, building = true},
+  -- Hof-Automatik (E85, game/automatik.lua)
+  heuraufe = {prop = "heuraufe", w = 2, h = 1, building = true},
+  kratzbuerste = {prop = "kratzbuerste", building = true},
+  stallburschenhuette = {prop = "huette", w = 3, h = 2, building = true},
 }
 
 -- Alle Bauten des Hofs: Startbauten und gebaute Gebäude, {id, cx, cy}. Ohne Hof (unterwegs) keine.

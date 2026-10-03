@@ -152,7 +152,8 @@ function Map:blocked(x0, y0, x1, y1, clear)
   for cy = y0 // TILE, (y1 - 1) // TILE do
     local grow, crow = ground[cy + 1], coll and coll[cy + 1]
     for cx = x0 // TILE, (x1 - 1) // TILE do
-      if G[byte(grow, cx + 1)].solid then return true end
+      local gd = G[byte(grow, cx + 1)]
+      if gd.solid and not (clear and gd.gap and clear >= gd.gap) then return true end   -- gap: Schlucht, im Sprung frei
       if crow then
         local c = byte(crow, cx + 1)
         if c ~= DOT and not (clear and heights[c] and heights[c] <= clear) then
