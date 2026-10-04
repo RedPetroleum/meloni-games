@@ -32,6 +32,12 @@ so bleiben die Spielstände dauerhaft (im normalen Safari-Tab löscht iOS sie na
 (Linux: `apt install clang lld`, macOS: `brew install llvm lld`), den WASI-Sysroot lädt `make web`
 beim ersten Mal selbst. Quellen in [web/](web/).
 
+## Steam Deck
+
+Unter [steamdeck/](steamdeck/) liegen Spiele für das Steam Deck (Godot 4, nicht Teil des
+Konsolen-Releases): [Hoofy 3D](steamdeck/hoofy3d/README.md), Hoofy als realistisches
+3D-Reitspiel aus der Third-Person-Sicht.
+
 ## Spiele
 
 | Spiel | Details |

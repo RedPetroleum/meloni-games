@@ -1,0 +1,779 @@
+{
+ "rassen": {
+  "liste": [
+   {
+    "id": "shetlandpony",
+    "name": "Shetlandpony",
+    "koerper": "pony",
+    "gebiet": 1,
+    "tempo": 15,
+    "staerke": 35,
+    "spuer": 45,
+    "ausdauer": 70,
+    "bindung": 30,
+    "spanne": 20,
+    "grundwert": 200
+   },
+   {
+    "id": "haflinger",
+    "name": "Haflinger",
+    "koerper": "pony",
+    "gebiet": 1,
+    "tempo": 30,
+    "staerke": 40,
+    "spuer": 35,
+    "ausdauer": 75,
+    "bindung": 35,
+    "spanne": 25,
+    "grundwert": 250
+   },
+   {
+    "id": "noriker",
+    "name": "Noriker",
+    "koerper": "kaltblut",
+    "gebiet": 1,
+    "tempo": 20,
+    "staerke": 55,
+    "spuer": 25,
+    "ausdauer": 70,
+    "bindung": 35,
+    "spanne": 25,
+    "grundwert": 275
+   },
+   {
+    "id": "mustang",
+    "name": "Mustang",
+    "koerper": "warmblut",
+    "gebiet": 2,
+    "tempo": 40,
+    "staerke": 35,
+    "spuer": 40,
+    "ausdauer": 85,
+    "bindung": 10,
+    "spanne": 30,
+    "grundwert": 400
+   },
+   {
+    "id": "schwarzwaelder_fuchs",
+    "name": "Schwarzwälder Fuchs",
+    "koerper": "kaltblut",
+    "gebiet": 2,
+    "tempo": 30,
+    "staerke": 60,
+    "spuer": 30,
+    "ausdauer": 75,
+    "bindung": 30,
+    "spanne": 30,
+    "grundwert": 500
+   },
+   {
+    "id": "quarter_horse",
+    "name": "Quarter Horse",
+    "koerper": "warmblut",
+    "gebiet": 3,
+    "tempo": 55,
+    "staerke": 40,
+    "spuer": 30,
+    "ausdauer": 65,
+    "bindung": 25,
+    "spanne": 30,
+    "grundwert": 800
+   },
+   {
+    "id": "friese",
+    "name": "Friese",
+    "koerper": "warmblut",
+    "gebiet": 3,
+    "tempo": 45,
+    "staerke": 50,
+    "spuer": 30,
+    "ausdauer": 70,
+    "bindung": 25,
+    "spanne": 35,
+    "grundwert": 1200
+   },
+   {
+    "id": "fjordpferd",
+    "name": "Fjordpferd",
+    "koerper": "pony",
+    "gebiet": 3,
+    "tempo": 40,
+    "staerke": 50,
+    "spuer": 45,
+    "ausdauer": 85,
+    "bindung": 40,
+    "spanne": 30,
+    "grundwert": 1000
+   },
+   {
+    "id": "andalusier",
+    "name": "Andalusier",
+    "koerper": "warmblut",
+    "gebiet": 4,
+    "tempo": 60,
+    "staerke": 45,
+    "spuer": 35,
+    "ausdauer": 75,
+    "bindung": 35,
+    "spanne": 40,
+    "grundwert": 2500
+   },
+   {
+    "id": "achal_tekkiner",
+    "name": "Achal-Tekkiner",
+    "koerper": "warmblut",
+    "gebiet": 4,
+    "tempo": 65,
+    "staerke": 40,
+    "spuer": 40,
+    "ausdauer": 90,
+    "bindung": 15,
+    "spanne": 40,
+    "grundwert": 3000
+   },
+   {
+    "id": "araber",
+    "name": "Araber",
+    "koerper": "warmblut",
+    "gebiet": 5,
+    "tempo": 75,
+    "staerke": 35,
+    "spuer": 50,
+    "ausdauer": 95,
+    "bindung": 15,
+    "spanne": 40,
+    "grundwert": 5000
+   },
+   {
+    "id": "einhorn",
+    "name": "Einhorn",
+    "koerper": "einhorn",
+    "gebiet": 6,
+    "tempo": 80,
+    "staerke": 50,
+    "spuer": 70,
+    "ausdauer": 90,
+    "bindung": 10,
+    "spanne": 45,
+    "grundwert": 10000
+   }
+  ]
+ },
+ "farben": {
+  "stufen": [
+   {
+    "id": "haeufig",
+    "name": "häufig",
+    "anteil": 40,
+    "faktor": 1,
+    "farben": [
+     "brauner",
+     "fuchs",
+     "dunkelbrauner",
+     "hellfuchs",
+     "rappe",
+     "grauschimmel"
+    ]
+   },
+   {
+    "id": "gewoehnlich",
+    "name": "gewöhnlich",
+    "anteil": 30,
+    "faktor": 1.2,
+    "farben": [
+     "falbe",
+     "isabell",
+     "schimmel",
+     "dunkelfuchs",
+     "mausfalbe",
+     "rotschimmel",
+     "braunschecke"
+    ]
+   },
+   {
+    "id": "selten",
+    "name": "selten",
+    "anteil": 18,
+    "faktor": 1.5,
+    "farben": [
+     "palomino",
+     "rappschecke",
+     "fuchsschecke",
+     "apfelschimmel",
+     "fliegenschimmel",
+     "silberrappe",
+     "windfarben"
+    ]
+   },
+   {
+    "id": "sehr_selten",
+    "name": "sehr selten",
+    "anteil": 9,
+    "faktor": 2,
+    "farben": [
+     "tigerschecke",
+     "cremello",
+     "perlino",
+     "champagner",
+     "rosa",
+     "mintgruen"
+    ]
+   },
+   {
+    "id": "legendaer",
+    "name": "legendär",
+    "anteil": 3,
+    "faktor": 3,
+    "farben": [
+     "gold",
+     "regenbogen",
+     "lila",
+     "zebra"
+    ]
+   }
+  ],
+  "liste": [
+   {
+    "id": "brauner",
+    "name": "Brauner",
+    "stufe": 1
+   },
+   {
+    "id": "fuchs",
+    "name": "Fuchs",
+    "stufe": 1
+   },
+   {
+    "id": "dunkelbrauner",
+    "name": "Dunkelbrauner",
+    "stufe": 1
+   },
+   {
+    "id": "hellfuchs",
+    "name": "Hellfuchs",
+    "stufe": 1
+   },
+   {
+    "id": "rappe",
+    "name": "Rappe",
+    "stufe": 1
+   },
+   {
+    "id": "grauschimmel",
+    "name": "Grauschimmel",
+    "stufe": 1
+   },
+   {
+    "id": "falbe",
+    "name": "Falbe",
+    "stufe": 2
+   },
+   {
+    "id": "isabell",
+    "name": "Isabell",
+    "stufe": 2
+   },
+   {
+    "id": "schimmel",
+    "name": "Schimmel",
+    "stufe": 2
+   },
+   {
+    "id": "dunkelfuchs",
+    "name": "Dunkelfuchs",
+    "stufe": 2
+   },
+   {
+    "id": "mausfalbe",
+    "name": "Mausfalbe",
+    "stufe": 2
+   },
+   {
+    "id": "rotschimmel",
+    "name": "Rotschimmel",
+    "stufe": 2
+   },
+   {
+    "id": "braunschecke",
+    "name": "Braunschecke",
+    "stufe": 2
+   },
+   {
+    "id": "palomino",
+    "name": "Palomino",
+    "stufe": 3
+   },
+   {
+    "id": "rappschecke",
+    "name": "Rappschecke",
+    "stufe": 3
+   },
+   {
+    "id": "fuchsschecke",
+    "name": "Fuchsschecke",
+    "stufe": 3
+   },
+   {
+    "id": "apfelschimmel",
+    "name": "Apfelschimmel",
+    "stufe": 3
+   },
+   {
+    "id": "fliegenschimmel",
+    "name": "Fliegenschimmel",
+    "stufe": 3
+   },
+   {
+    "id": "silberrappe",
+    "name": "Silberrappe",
+    "stufe": 3
+   },
+   {
+    "id": "windfarben",
+    "name": "Windfarben",
+    "stufe": 3
+   },
+   {
+    "id": "tigerschecke",
+    "name": "Tigerschecke",
+    "stufe": 4
+   },
+   {
+    "id": "cremello",
+    "name": "Cremello",
+    "stufe": 4
+   },
+   {
+    "id": "perlino",
+    "name": "Perlino",
+    "stufe": 4
+   },
+   {
+    "id": "champagner",
+    "name": "Champagner",
+    "stufe": 4
+   },
+   {
+    "id": "rosa",
+    "name": "Rosa",
+    "stufe": 4
+   },
+   {
+    "id": "mintgruen",
+    "name": "Mintgrün",
+    "stufe": 4
+   },
+   {
+    "id": "gold",
+    "name": "Gold",
+    "stufe": 5
+   },
+   {
+    "id": "regenbogen",
+    "name": "Regenbogen",
+    "stufe": 5
+   },
+   {
+    "id": "lila",
+    "name": "Lila",
+    "stufe": 5
+   },
+   {
+    "id": "zebra",
+    "name": "Zebra",
+    "stufe": 5
+   }
+  ],
+  "matrix": {
+   "shetlandpony": [
+    [
+     "brauner",
+     "fuchs",
+     "dunkelbrauner",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "isabell",
+     "schimmel",
+     "rotschimmel",
+     "braunschecke"
+    ],
+    [
+     "palomino",
+     "rappschecke",
+     "fuchsschecke",
+     "silberrappe",
+     "windfarben"
+    ],
+    [
+     "cremello",
+     "rosa"
+    ],
+    [
+     "regenbogen"
+    ]
+   ],
+   "haflinger": [
+    [
+     "fuchs",
+     "hellfuchs"
+    ],
+    [
+     "dunkelfuchs"
+    ],
+    [],
+    [
+     "champagner"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "noriker": [
+    [
+     "brauner",
+     "dunkelbrauner",
+     "fuchs",
+     "rappe"
+    ],
+    [
+     "schimmel",
+     "rotschimmel",
+     "braunschecke"
+    ],
+    [
+     "rappschecke",
+     "apfelschimmel"
+    ],
+    [
+     "tigerschecke"
+    ],
+    [
+     "zebra"
+    ]
+   ],
+   "mustang": [
+    [
+     "brauner",
+     "fuchs",
+     "dunkelbrauner",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "falbe",
+     "isabell",
+     "mausfalbe",
+     "rotschimmel",
+     "braunschecke"
+    ],
+    [
+     "palomino",
+     "rappschecke",
+     "fuchsschecke"
+    ],
+    [
+     "tigerschecke",
+     "cremello",
+     "perlino"
+    ],
+    [
+     "zebra"
+    ]
+   ],
+   "schwarzwaelder_fuchs": [
+    [
+     "fuchs",
+     "hellfuchs"
+    ],
+    [
+     "dunkelfuchs"
+    ],
+    [
+     "windfarben"
+    ],
+    [
+     "champagner"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "quarter_horse": [
+    [
+     "brauner",
+     "fuchs",
+     "dunkelbrauner",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "falbe",
+     "isabell",
+     "mausfalbe",
+     "dunkelfuchs",
+     "rotschimmel"
+    ],
+    [
+     "palomino"
+    ],
+    [
+     "cremello",
+     "perlino",
+     "champagner"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "friese": [
+    [
+     "rappe"
+    ],
+    [],
+    [],
+    [
+     "mintgruen"
+    ],
+    [
+     "lila"
+    ]
+   ],
+   "fjordpferd": [
+    [],
+    [
+     "falbe",
+     "mausfalbe"
+    ],
+    [],
+    [
+     "cremello"
+    ],
+    [
+     "zebra"
+    ]
+   ],
+   "andalusier": [
+    [
+     "brauner",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "schimmel",
+     "isabell"
+    ],
+    [
+     "palomino",
+     "apfelschimmel"
+    ],
+    [
+     "cremello",
+     "perlino"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "achal_tekkiner": [
+    [
+     "brauner",
+     "fuchs",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "falbe",
+     "isabell",
+     "dunkelfuchs"
+    ],
+    [
+     "palomino"
+    ],
+    [
+     "cremello",
+     "perlino",
+     "champagner"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "araber": [
+    [
+     "brauner",
+     "fuchs",
+     "rappe",
+     "grauschimmel"
+    ],
+    [
+     "schimmel",
+     "dunkelfuchs",
+     "rotschimmel"
+    ],
+    [
+     "fliegenschimmel",
+     "apfelschimmel"
+    ],
+    [
+     "rosa"
+    ],
+    [
+     "gold"
+    ]
+   ],
+   "einhorn": [
+    [],
+    [
+     "schimmel"
+    ],
+    [
+     "apfelschimmel"
+    ],
+    [
+     "cremello",
+     "perlino",
+     "rosa",
+     "mintgruen"
+    ],
+    [
+     "gold",
+     "regenbogen",
+     "lila"
+    ]
+   ]
+  },
+  "gebiet_verschiebung": 3,
+  "vererbung": {
+   "vater_sichtbar": 35,
+   "vater_versteckt": 15,
+   "mutter_sichtbar": 35,
+   "mutter_versteckt": 15,
+   "sichtbar": 70,
+   "mutation": 1
+  },
+  "rasse_vater": 50,
+  "inzucht": {
+   "eltern": 15,
+   "halb": 8,
+   "cousins": 3
+  }
+ },
+ "charakter": {
+  "verfressen": {
+   "name": "verfressen",
+   "emoji": "🥕🍎",
+   "text": "Hunger +35 statt +25 pro Tag",
+   "hunger_pro_tag": 35
+  },
+  "schreckhaft": {
+   "name": "schreckhaft",
+   "emoji": "😱",
+   "text": "Ausreiß-Chance ×1,5, flieht vor Tieren",
+   "ausreiss_faktor": 1.5,
+   "flieht": true
+  },
+  "faul": {
+   "name": "faul",
+   "emoji": "😴",
+   "text": "Trainingszuwachs −20 %",
+   "training_malus": 20
+  },
+  "eitel": {
+   "name": "eitel",
+   "emoji": "💅✨",
+   "text": "Sauberkeit wirkt doppelt auf Bindung",
+   "sauberkeit_faktor": 2
+  },
+  "nachteule": {
+   "name": "Nachteule",
+   "emoji": "🦉🌙",
+   "text": "nachts +20 Energie, morgens −10",
+   "nacht_energie": 20,
+   "morgen_energie": -10
+  }
+ },
+ "stats": {
+  "gen_sigma": 8,
+  "gen_min": 1,
+  "gen_max": 100,
+  "ausdauer_min": 50,
+  "ausdauer_max": 100,
+  "potenzial_sigma": 5,
+  "potenzial_max": 100,
+  "fohlen_sigma": 6,
+  "training_tempo": 3,
+  "training_bonus_max": 1.5,
+  "training_tag": {
+   "weich": 10,
+   "teiler": 3,
+   "hart": 15
+  },
+  "bindung": {
+   "streicheln": 2,
+   "fuettern": 1,
+   "reiten_min": 1,
+   "hunger_malus": 3,
+   "hunger_grenze": 70,
+   "schmutz_malus": 2,
+   "schmutz_grenze": 30,
+   "zickig": 20,
+   "zickig_verweigert": 50,
+   "reitbar": 40,
+   "folgt": 100,
+   "pfiff": 90
+  },
+  "hunger": {
+   "start": 30,
+   "pro_tag": 25,
+   "pro_tag_verfressen": 35,
+   "zu_hoch": 70,
+   "satt": 10,
+   "satt_tage": 2
+  },
+  "gewicht": {
+   "start": 50,
+   "ueberfuettert": 3,
+   "hunger": -3,
+   "toleranz": 15,
+   "malus_prozent": 1
+  },
+  "sauberkeit": {
+   "start": 60,
+   "stall": -5,
+   "weide": -10,
+   "frei": -20,
+   "regen": -15,
+   "schmutzig": 30
+  },
+  "energie": {
+   "reiten": 1,
+   "reiten_sek": 10,
+   "sprung": 5,
+   "job": 30
+  },
+  "unterbringung": {
+   "stall": {
+    "verlust": 0,
+    "sauberkeit": -5
+   },
+   "weide": {
+    "verlust": 2,
+    "sauberkeit": -10
+   },
+   "frei": {
+    "verlust": 2,
+    "sauberkeit": -20,
+    "min_staerke": 60,
+    "min_bindung": 70
+   }
+  },
+  "leine": {
+   "teiler": 10,
+   "sek": 10,
+   "sprinten": 2,
+   "reiten": 3
+  }
+ }
+}

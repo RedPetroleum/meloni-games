@@ -1,0 +1,5 @@
+# Godot-Cache und Exporte
+.godot/
+export/
+# Von tools/assets.py geladen (zu groß fürs Git)
+assets/download/

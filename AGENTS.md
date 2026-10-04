@@ -12,6 +12,8 @@ Meloni-Engine**: Die vollständige API steht in [docs/API.md](docs/API.md). Vor 
 
 - `games/<id>/`: ein Spiel pro Ordner, `main.lua` + `meta.json` (+ `cover.png`, Grafiken, Sounds, Module).
   Ordner ohne `main.lua` (z. B. ein Konzept wie `games/hoofy/`) werden nicht getestet und nicht veröffentlicht.
+- `steamdeck/<id>/`: Spiele fürs Steam Deck in Godot 4 (eigene Anleitung im README des Spiels).
+  Gehören nicht zur Konsole: `make test` und das Release lassen sie aus.
 - `template/`: Vorlage für `make new GAME=<id>`
 - `engine/`: die Meloni-Engine (C, plattformunabhängig: `engine/meloni/`) und Lua 5.4 (`engine/lua/`).
   Dieselben Quellen laufen in der Firmware und im Runner.

@@ -1,0 +1,38 @@
+; Godot 4.7 – Hoofy 3D
+config_version=5
+
+[application]
+
+config/name="Hoofy 3D"
+config/description="Hoofy als realistisches 3D-Reitspiel für das Steam Deck"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+run/max_fps=60
+
+[autoload]
+
+Einstellungen="*res://scripts/einstellungen.gd"
+Testlauf="*res://scripts/testlauf.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=800
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/dpi/allow_hidpi=false
+window/vsync/vsync_mode=1
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+anti_aliasing/quality/screen_space_aa=1
+anti_aliasing/quality/use_debanding=true
+textures/default_filters/anisotropic_filtering_level=3
+lights_and_shadows/directional_shadow/size=4096
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+environment/defaults/default_clear_color=Color(0.55, 0.68, 0.82, 1)
+mesh_lod/lod_change/threshold_pixels=2.0
