@@ -193,7 +193,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 
 ## Lizenzen der Grafik
 
-- Hof und Dorf (Sketchfab, CC-BY): „Mobile Home“ (16c9bb27), „House Farm wood“ (a9732b6c), „General Store“ (9ddf3d74), „Medieval Market Stall Asset 4/4“ (cb20f7fb), „Show jumping“ (67ff46cf); Autoren auf der jeweiligen Sketchfab-Seite
+- Hof und Dorf von Sketchfab, alle CC-BY 4.0:
+  „Mobile Home“ von geevisual55, „House Farm wood“ von Mehdi Shahsavan, „General Store“ von
+  sixpence, „Medieval Market Stall Asset 4/4“ von Uğur Yakışık, „Show jumping“ von Every 3D
+  (Links: `SKETCHFAB` in tools/assets.py, https://sketchfab.com/3d-models/<id>)
 - Pferd: „Horse“ von henry_7, https://sketchfab.com/3d-models/horse-a6f860e43e364619bccb174a1ac7d0c9 (CC-BY 4.0)
 - Poly Haven (polyhaven.com): CC0
 - Ersatz-Pferd ohne Sketchfab-Token: three.js-Beispiel `Horse.glb` (aus „ROME“ von Mirada), nur privat
