@@ -141,7 +141,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [ ] Abendhimmel und Wasserspiegelungen verbessern
 - [ ] Geräusche: Hufe je Untergrund, Schnauben, Wind, Vögel, Musik
 - [ ] Spielfigur: zu Fuß laufen, auf- und absteigen, im Sattel sitzen
-- [ ] Hauptmenü, Pause, Speichern/Laden
+- [x] Pausenmenü (E34): Weiter, Pferde, Speichern; Inventar, Karte, Bauen, Album ausgegraut; Bestellungen, Zeitung, Tauschen erst ab ihrem Tag
+- [x] Pferdeliste, Info-Seite mit 3D-Bild, Balken und Wert (KATALOG §6), Umbenennen mit Bildschirmtastatur
+- [x] Speichern/Laden (E35): Geld, eigene Pferde, Namen, Tag; Wildpferde werden neu gewürfelt
+- [ ] Titelbild mit „Weiter“ / „Neues Spiel“, Speichern beim Schlafen und Beenden
 
 ### Das Pferd (Hoofy §2)
 - [ ] Werte: Gen- und Trainingsanteil, Max-Potenzial, Hunger, Gewicht, Sauberkeit, Bindung

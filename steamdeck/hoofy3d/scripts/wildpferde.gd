@@ -36,13 +36,13 @@ const FRISCH_FAKTOR := 3.0        # frisch: Ausreißen beim Rennen/Reiten ×3
 signal meldung(text: String, sekunden: float)
 
 var gelaende: Gelaende
+var siedlung: Siedlung
 var spieler: Node3D               # braucht bewegt(), rennt(), reitet(), spur_punkt(abstand)
 var himmel: Himmel
 var gebiet := 1
 var pferde: Array[WildPferd] = []        # wild
 var eigene: Array[WildPferd] = []        # gezähmt, in der Welt (geführt, folgend, lose)
 var fuehrung: Array[WildPferd] = []      # an der Leine oder folgend, in Reihenfolge
-var benutzte_namen: Array = []
 var zaehmen: WildPferd                   # läuft gerade
 var zaehm_fortschritt := 0.0             # 0–1
 var _rng := RandomNumberGenerator.new()
@@ -77,7 +77,7 @@ class WildPferd extends Node3D:
 		return "galopp" if tempo < 10.0 else "renngalopp"
 
 	func eigen() -> bool:
-		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen"]
+		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen", "weide"]
 
 	## Sprechblase über dem Kopf (E10), z. B. ❗ beim Lauschen, ♥ nach dem Zähmen
 	func zeige(text: String, farbe: Color, sekunden := 0.0) -> void:
@@ -93,6 +93,9 @@ func _ready() -> void:
 		_neues_pferd()
 	if himmel:
 		himmel.neuer_tag.connect(_tageswechsel)
+	# Geladene eigene Pferde stehen auf der Weide
+	for d in Spiel.herde:
+		_auf_die_weide(d)
 	_seil.mesh = _seil_netz
 	var seil_mat := StandardMaterial3D.new()
 	seil_mat.albedo_color = Color(0.55, 0.42, 0.28)
@@ -124,7 +127,7 @@ func _pferd_knoten(daten: Dictionary, p: Vector2) -> WildPferd:
 
 
 func _neues_pferd() -> void:
-	var belegt := benutzte_namen + pferde.map(func(x): return x.daten.name)
+	var belegt := Spiel.namen + pferde.map(func(x): return x.daten.name)
 	var daten := HoofyDaten.wildpferd(_rng, gebiet, "", belegt)
 	pferde.append(_pferd_knoten(daten, _weideplatz()))
 
@@ -310,7 +313,8 @@ func _gezaehmt(w: WildPferd) -> void:
 	w.daten.erase("wild")
 	w.daten.reit_ab = int(w.daten.bindung) + FRISCH_BINDUNG       # frisch: noch nicht reitbar
 	w.daten.neu = true                                            # bis es einmal auf dem Hof war
-	benutzte_namen.append(w.daten.name)
+	Spiel.namen.append(w.daten.name)
+	Spiel.herde.append(w.daten)
 	w.laerm = 0.0
 	w.alarm = false
 	w.zeige("♥", Color(1.0, 0.35, 0.45), 2.5)
@@ -327,15 +331,26 @@ func _anleinen(w: WildPferd) -> String:
 	var am_strick := fuehrung.filter(func(x): return x.zustand == "gefuehrt").size()
 	if fuehrung.size() >= MAX_FUEHREN or (not folgt and am_strick >= MAX_STRICK):
 		w.zustand = "lose"
+		w.daten.ort = "lose"
 		w.soll_tempo = 0.0
 		return "gezähmt. Deine Leine ist belegt, %s wartet hier." % ("sie" if sie else "er")
 	fuehrung.append(w)
+	w.daten.erase("ort")
 	w.zustand = "folgt" if folgt else "gefuehrt"
 	w.leine_uhr = 0.0
 	return "gezähmt, folgt dir." if folgt else "gezähmt, an der Leine."
 
 
 # --- Eigene Pferde ---
+
+func _auf_die_weide(d: Dictionary) -> void:
+	var r: Rect2 = siedlung.orte.weide.grow(-3.0)
+	var p := r.position + Vector2(_rng.randf() * r.size.x, _rng.randf() * r.size.y)
+	var w := _pferd_knoten(d, p)
+	w.zustand = "weide"
+	d.ort = "weide"
+	eigene.append(w)
+
 
 func _eigen(w: WildPferd, delta: float) -> void:
 	match w.zustand:
@@ -359,6 +374,16 @@ func _eigen(w: WildPferd, delta: float) -> void:
 				w.soll_tempo = 0.0
 		"lose":
 			w.soll_tempo = 0.0
+		"weide":
+			# grast und läuft innerhalb der Weide umher
+			w.uhr -= delta
+			if w.uhr <= 0.0:
+				var r: Rect2 = siedlung.orte.weide.grow(-2.0)
+				w.ziel = r.position + Vector2(randf() * r.size.x, randf() * r.size.y)
+				w.soll_tempo = 1.2 if randf() < 0.5 else 0.0
+				w.uhr = randf_range(3.0, 8.0)
+			if Vector2(w.position.x, w.position.z).distance_to(w.ziel) < 0.8:
+				w.soll_tempo = 0.0
 
 
 ## Einmal pro Sekunde würfeln, entspricht der Katalog-Chance je 10 s (Leash.escape_roll)
@@ -387,7 +412,8 @@ func _ausreissen(w: WildPferd) -> void:
 		# noch nie auf dem Hof: wieder wild, mit der Bindung von vor dem Zähmen (Wild:rewild)
 		eigene.erase(w)
 		pferde.append(w)
-		benutzte_namen.erase(w.daten.name)
+		Spiel.namen.erase(w.daten.name)
+		Spiel.herde.erase(w.daten)
 		w.daten.bindung = clampi(int(w.daten.reit_ab) - FRISCH_BINDUNG, 0, 100)
 		w.daten.erase("reit_ab")
 		w.daten.erase("neu")
@@ -397,6 +423,7 @@ func _ausreissen(w: WildPferd) -> void:
 		meldung.emit("%s hat sich losgerissen und ist wieder wild!" % w.daten.name, 2.5)
 		return
 	w.zustand = "ausgerissen"
+	w.daten.ort = "lose"
 	w.uhr = 1.2
 	var s := Vector2(spieler.global_position.x, spieler.global_position.z)
 	w.ziel = Vector2(w.position.x, w.position.z) + _fluchtrichtung(w, s) * 20.0

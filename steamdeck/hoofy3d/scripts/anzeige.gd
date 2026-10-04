@@ -13,7 +13,6 @@ var pferd: Pferd
 var himmel: Himmel
 var wildpferde: Wildpferde
 var siedlung: Siedlung
-var geld := 300
 var gebiet := "Heimattal"
 
 var _symbol := Symbol.new()
@@ -49,6 +48,7 @@ class Symbol extends Control:
 
 
 func _ready() -> void:
+	add_to_group("anzeige")
 	var leiste := PanelContainer.new()
 	leiste.add_theme_stylebox_override("panel", _stil(Color(0.08, 0.07, 0.06, 0.55), 0, Vector2(16, 6)))
 	leiste.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -144,7 +144,7 @@ func _process(delta: float) -> void:
 	_tagesbalken.add_theme_stylebox_override("fill", _stil(GOLD if sonne else BLASS, 3))
 	# Auf dem eigenen Grundstück steht „Dein Hof“ (wie im 2D-Hoofy)
 	_gebiet.text = "Dein Hof" if siedlung and pferd and siedlung.auf_grundstueck(pferd.global_position) else gebiet
-	_geld.text = "%d G" % geld
+	_geld.text = "%d G" % Spiel.geld
 
 	# Energie nur beim Reiten (später: nur wenn die Spielfigur im Sattel sitzt)
 	_energie_kasten.visible = pferd != null

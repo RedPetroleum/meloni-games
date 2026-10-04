@@ -208,6 +208,60 @@ static func reittempo(h: Dictionary) -> float:
 	return wirksam(h, "tempo") + bonus
 
 
+# --- Pferdewert (KATALOG §6, game/value.lua) ---
+
+static func _leistung(t: float, s: float, sp: float, a: float, b: float) -> float:
+	var w: Dictionary = daten().wert
+	var x: float = w.exponent
+	var summe: float = pow(t / 100.0, x) + pow(s / 100.0, x) + pow(sp / 100.0, x) + pow(a / 100.0, x) + w.bindung_gewicht * pow(b / 100.0, x)
+	return pow(summe / w.leistung_teiler, 1.0 / x)
+
+
+static func leistungsfaktor(h: Dictionary, bindung := -1.0) -> float:
+	var w: Dictionary = daten().wert
+	var r := rasse(h.rasse)
+	var l := _leistung(stat(h, "tempo"), stat(h, "staerke"), stat(h, "spuer"), stat(h, "ausdauer"), float(h.bindung) if bindung < 0.0 else bindung)
+	var l_rasse := _leistung(r.tempo, r.staerke, r.spuer, r.ausdauer, r.bindung)
+	return maxf(w.faktor_min, 1.0 + w.steigung * (l / l_rasse - 1.0))
+
+
+static func farbfaktor(h: Dictionary) -> float:
+	for f in daten().farben.liste:
+		if f.id == h.farbe:
+			return daten().farben.stufen[int(f.stufe) - 1].faktor
+	return 1.0
+
+
+## Stammbaum-Bonus in Prozent je bekanntem Vorfahren (Eltern, Großeltern, Urgroßeltern)
+static func stammbaum(h: Dictionary) -> float:
+	var ahnen = h.get("ahnen")
+	if not (ahnen is Dictionary):
+		return 0.0
+	return _ahnen_bonus(ahnen.get("v"), 0) + _ahnen_bonus(ahnen.get("m"), 0)
+
+
+static func _ahnen_bonus(knoten, gen: int) -> float:
+	var pro: Array = daten().wert.stammbaum
+	if not (knoten is Dictionary) or gen >= pro.size():
+		return 0.0
+	return float(pro[gen]) + _ahnen_bonus(knoten.get("v"), gen + 1) + _ahnen_bonus(knoten.get("m"), gen + 1)
+
+
+## Wert = Grundwert × Farbfaktor × Leistungsfaktor × Alter (Fohlen ×0,6) × (1 + Stammbaum)
+static func wert_roh(h: Dictionary, bindung := -1.0) -> float:
+	var w: Dictionary = daten().wert
+	var alter: float = w.fohlen_faktor if float(h.get("alter", 1)) < 1.0 else 1.0
+	return float(rasse(h.rasse).grundwert) * farbfaktor(h) * leistungsfaktor(h, bindung) * alter * (1.0 + stammbaum(h) / 100.0)
+
+
+static func wert(h: Dictionary) -> int:
+	return roundi(wert_roh(h))
+
+
+static func kaufpreis(h: Dictionary) -> int:
+	return roundi(wert_roh(h) * daten().wert.kauf_faktor)
+
+
 static func freier_name(rng: RandomNumberGenerator, sex: String, belegt: Array) -> String:
 	var n: Dictionary = daten().namen
 	var liste: Array = (n.w if sex == "w" else n.m) + n.x

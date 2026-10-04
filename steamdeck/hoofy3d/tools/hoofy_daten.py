@@ -11,7 +11,7 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOFY = ROOT.parent.parent / "games" / "hoofy" / "data"
-DATEIEN = ["rassen", "farben", "charakter", "stats", "ausruestung"]
+DATEIEN = sorted(p.stem for p in HOOFY.glob("*.lua"))
 
 TOKEN = re.compile(r'\s*(?:(--[^\n]*)|("(?:[^"\\]|\\.)*")|([A-Za-z_]\w*)|(-?\d+(?:\.\d+)?)|(.))')
 

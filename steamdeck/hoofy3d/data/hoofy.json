@@ -1,163 +1,444 @@
 {
- "rassen": {
+ "ausruestung": {
   "liste": [
    {
-    "id": "shetlandpony",
-    "name": "Shetlandpony",
-    "koerper": "pony",
-    "gebiet": 1,
-    "tempo": 15,
-    "staerke": 35,
-    "spuer": 45,
-    "ausdauer": 70,
-    "bindung": 30,
-    "spanne": 20,
-    "grundwert": 200
+    "id": "einfacher_sattel",
+    "name": "Einfacher Sattel",
+    "preis": 150,
+    "text": "Tempo +5, Satteltaschen möglich",
+    "wirkung": {
+     "tempo": 5
+    },
+    "sattel": true,
+    "taschen_moeglich": true
    },
    {
-    "id": "haflinger",
-    "name": "Haflinger",
-    "koerper": "pony",
-    "gebiet": 1,
-    "tempo": 30,
-    "staerke": 40,
-    "spuer": 35,
-    "ausdauer": 75,
-    "bindung": 35,
-    "spanne": 25,
-    "grundwert": 250
+    "id": "sportsattel",
+    "name": "Sportsattel",
+    "preis": 800,
+    "text": "Tempo +10",
+    "wirkung": {
+     "tempo": 10
+    },
+    "sattel": true
    },
    {
-    "id": "noriker",
-    "name": "Noriker",
-    "koerper": "kaltblut",
-    "gebiet": 1,
-    "tempo": 20,
-    "staerke": 55,
-    "spuer": 25,
-    "ausdauer": 70,
-    "bindung": 35,
-    "spanne": 25,
-    "grundwert": 275
+    "id": "rennsattel",
+    "name": "Rennsattel",
+    "preis": 3000,
+    "text": "Tempo +15",
+    "wirkung": {
+     "tempo": 15
+    },
+    "sattel": true
    },
    {
-    "id": "mustang",
-    "name": "Mustang",
-    "koerper": "warmblut",
-    "gebiet": 2,
-    "tempo": 40,
-    "staerke": 35,
-    "spuer": 40,
-    "ausdauer": 85,
-    "bindung": 10,
-    "spanne": 30,
-    "grundwert": 400
+    "id": "goldsattel",
+    "name": "Goldsattel",
+    "preis": 12000,
+    "text": "Tempo +20, Schönheit +20",
+    "wirkung": {
+     "tempo": 20,
+     "schoenheit": 20
+    },
+    "sattel": true
    },
    {
-    "id": "schwarzwaelder_fuchs",
-    "name": "Schwarzwälder Fuchs",
-    "koerper": "kaltblut",
-    "gebiet": 2,
-    "tempo": 30,
-    "staerke": 60,
-    "spuer": 30,
-    "ausdauer": 75,
-    "bindung": 30,
-    "spanne": 30,
-    "grundwert": 500
+    "id": "satteltaschen_s",
+    "name": "Satteltaschen S",
+    "preis": 100,
+    "text": "1 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 1
    },
    {
-    "id": "quarter_horse",
-    "name": "Quarter Horse",
-    "koerper": "warmblut",
-    "gebiet": 3,
-    "tempo": 55,
-    "staerke": 40,
-    "spuer": 30,
-    "ausdauer": 65,
-    "bindung": 25,
-    "spanne": 30,
-    "grundwert": 800
+    "id": "satteltaschen_m",
+    "name": "Satteltaschen M",
+    "preis": 400,
+    "text": "2 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 2
    },
    {
-    "id": "friese",
-    "name": "Friese",
-    "koerper": "warmblut",
-    "gebiet": 3,
-    "tempo": 45,
-    "staerke": 50,
-    "spuer": 30,
-    "ausdauer": 70,
-    "bindung": 25,
-    "spanne": 35,
-    "grundwert": 1200
+    "id": "satteltaschen_l",
+    "name": "Satteltaschen L",
+    "preis": 1200,
+    "text": "4 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 4
    },
    {
-    "id": "fjordpferd",
-    "name": "Fjordpferd",
-    "koerper": "pony",
-    "gebiet": 3,
-    "tempo": 40,
-    "staerke": 50,
-    "spuer": 45,
-    "ausdauer": 85,
-    "bindung": 40,
-    "spanne": 30,
-    "grundwert": 1000
+    "id": "sattellampe",
+    "name": "Sattellampe",
+    "preis": 150,
+    "text": "Sicht nachts",
+    "wirkung": [],
+    "licht": true
    },
    {
-    "id": "andalusier",
-    "name": "Andalusier",
-    "koerper": "warmblut",
-    "gebiet": 4,
-    "tempo": 60,
-    "staerke": 45,
-    "spuer": 35,
-    "ausdauer": 75,
-    "bindung": 35,
-    "spanne": 40,
-    "grundwert": 2500
+    "id": "maehnenschleife",
+    "name": "Mähnenschleife",
+    "preis": 150,
+    "text": "Schönheit +5",
+    "wirkung": {
+     "schoenheit": 5
+    }
    },
    {
-    "id": "achal_tekkiner",
-    "name": "Achal-Tekkiner",
-    "koerper": "warmblut",
-    "gebiet": 4,
-    "tempo": 65,
-    "staerke": 40,
-    "spuer": 40,
-    "ausdauer": 90,
-    "bindung": 15,
-    "spanne": 40,
-    "grundwert": 3000
+    "id": "blumenkranz",
+    "name": "Blumenkranz",
+    "preis": 300,
+    "text": "Schönheit +10",
+    "wirkung": {
+     "schoenheit": 10
+    }
    },
    {
-    "id": "araber",
-    "name": "Araber",
-    "koerper": "warmblut",
-    "gebiet": 5,
-    "tempo": 75,
-    "staerke": 35,
-    "spuer": 50,
-    "ausdauer": 95,
-    "bindung": 15,
-    "spanne": 40,
-    "grundwert": 5000
+    "id": "glitzerdecke",
+    "name": "Glitzerdecke",
+    "preis": 1200,
+    "text": "Schönheit +15",
+    "wirkung": {
+     "schoenheit": 15
+    }
    },
    {
-    "id": "einhorn",
-    "name": "Einhorn",
-    "koerper": "einhorn",
-    "gebiet": 6,
-    "tempo": 80,
-    "staerke": 50,
-    "spuer": 70,
-    "ausdauer": 90,
-    "bindung": 10,
-    "spanne": 45,
-    "grundwert": 10000
+    "id": "goldhufeisen",
+    "name": "Goldhufeisen",
+    "preis": 4000,
+    "text": "Schönheit +30",
+    "wirkung": {
+     "schoenheit": 30
+    }
    }
   ]
+ },
+ "bau": {
+  "liste": [
+   {
+    "id": "land",
+    "name": "Land",
+    "text": "Grundstück erweitern",
+    "wirkung": [],
+    "preis": 500,
+    "preis_plus": 250,
+    "groesse": 10
+   },
+   {
+    "id": "wohnwagen",
+    "name": "Wohnwagen",
+    "text": "schlafen",
+    "wirkung": [],
+    "preis": 0,
+    "start": true,
+    "schlafen": true
+   },
+   {
+    "id": "haeuschen",
+    "name": "Häuschen",
+    "text": "schlafen, Schönheit +20",
+    "wirkung": {
+     "schoenheit": 20
+    },
+    "preis": 1000,
+    "schlafen": true
+   },
+   {
+    "id": "villa",
+    "name": "Villa",
+    "text": "schlafen, Schönheit +100",
+    "wirkung": {
+     "schoenheit": 100
+    },
+    "preis": 8000,
+    "schlafen": true
+   },
+   {
+    "id": "stall_s",
+    "name": "Stall S",
+    "text": "2 Plätze, 1 Bindung pro Tag",
+    "wirkung": [],
+    "preis": 300,
+    "plaetze": 2,
+    "bindung_tag": 1
+   },
+   {
+    "id": "stall_m",
+    "name": "Stall M",
+    "text": "4 Plätze, 2 Bindung pro Tag",
+    "wirkung": [],
+    "preis": 900,
+    "plaetze": 4,
+    "bindung_tag": 2
+   },
+   {
+    "id": "stall_l",
+    "name": "Stall L",
+    "text": "8 Plätze, 3 Bindung pro Tag",
+    "wirkung": [],
+    "preis": 2500,
+    "plaetze": 8,
+    "bindung_tag": 3
+   },
+   {
+    "id": "stall_xl",
+    "name": "Stall XL",
+    "text": "12 Plätze, 4 Bindung pro Tag",
+    "wirkung": [],
+    "preis": 6000,
+    "plaetze": 12,
+    "bindung_tag": 4
+   },
+   {
+    "id": "zaun",
+    "name": "Zaun",
+    "text": "Weide",
+    "wirkung": [],
+    "je_kachel": true,
+    "preis": 5
+   },
+   {
+    "id": "tor",
+    "name": "Tor",
+    "text": "Weide",
+    "wirkung": [],
+    "preis": 30
+   },
+   {
+    "id": "schuppen",
+    "name": "Schuppen",
+    "text": "Fahrrad + Mofa",
+    "wirkung": [],
+    "preis": 300,
+    "fahrzeuge": [
+     "fahrrad",
+     "mofa"
+    ]
+   },
+   {
+    "id": "garage",
+    "name": "Garage",
+    "text": "Kleinwagen + SUV",
+    "wirkung": [],
+    "preis": 3000,
+    "fahrzeuge": [
+     "kleinwagen",
+     "suv"
+    ]
+   },
+   {
+    "id": "hangar",
+    "name": "Hangar",
+    "text": "Flugzeug",
+    "wirkung": [],
+    "preis": 15000,
+    "fahrzeuge": [
+     "flugzeug"
+    ]
+   },
+   {
+    "id": "goepel_generator",
+    "name": "Göpel-Generator",
+    "text": "40 Geld pro Tag und angeschirrtem Pferd (Stärke ≥ 40, 40 Energie)",
+    "wirkung": [],
+    "preis": 1500,
+    "geld_pferd": 40,
+    "min_staerke": 40,
+    "energie": 40
+   },
+   {
+    "id": "heuraufe",
+    "name": "Heuraufe",
+    "text": "füttert jeden Morgen alle Pferde auf dem Hof mit Hunger über 40, Vorrat 20 Heu (selbst befüllen)",
+    "wirkung": [],
+    "preis": 600,
+    "auto_hunger": 40,
+    "vorrat_max": 20
+   },
+   {
+    "id": "kratzbuerste",
+    "name": "Kratzbürste",
+    "text": "Sauberkeit +20 pro Tag für alle Pferde auf dem Hof",
+    "wirkung": {
+     "sauberkeit": 20
+    },
+    "preis": 400
+   },
+   {
+    "id": "stallburschenhuette",
+    "name": "Stallburschenhütte",
+    "text": "Stallbursche streichelt und striegelt jeden Morgen alle Pferde auf dem Hof (Bindung +2, Sauberkeit +40), Lohn 15 pro Tag",
+    "wirkung": {
+     "bindung": 2,
+     "sauberkeit": 40
+    },
+    "preis": 2500,
+    "lohn": 15
+   },
+   {
+    "id": "beet",
+    "name": "Beet",
+    "text": "Pflanzen anbauen (siehe Anbau), braucht eine Hacke",
+    "wirkung": [],
+    "je_kachel": true,
+    "preis": 0
+   },
+   {
+    "id": "bank",
+    "name": "Bank",
+    "text": "Schönheit +3",
+    "wirkung": {
+     "schoenheit": 3
+    },
+    "preis": 40
+   },
+   {
+    "id": "lampe",
+    "name": "Lampe",
+    "text": "Schönheit +4",
+    "wirkung": {
+     "schoenheit": 4
+    },
+    "preis": 60
+   },
+   {
+    "id": "blumenkuebel",
+    "name": "Blumenkübel",
+    "text": "Schönheit +2",
+    "wirkung": {
+     "schoenheit": 2
+    },
+    "preis": 20
+   },
+   {
+    "id": "weg",
+    "name": "Weg",
+    "text": "Schönheit +0,5",
+    "wirkung": {
+     "schoenheit": 0.5
+    },
+    "je_kachel": true,
+    "preis": 5
+   },
+   {
+    "id": "boden",
+    "name": "Boden",
+    "text": "Schönheit +0,5",
+    "wirkung": {
+     "schoenheit": 0.5
+    },
+    "je_kachel": true,
+    "preis": 5
+   },
+   {
+    "id": "brunnen",
+    "name": "Brunnen",
+    "text": "Schönheit +25",
+    "wirkung": {
+     "schoenheit": 25
+    },
+    "preis": 400
+   },
+   {
+    "id": "teich",
+    "name": "Teich",
+    "text": "Schönheit +35",
+    "wirkung": {
+     "schoenheit": 35
+    },
+    "preis": 600
+   },
+   {
+    "id": "statue",
+    "name": "Statue",
+    "text": "Schönheit +80",
+    "wirkung": {
+     "schoenheit": 80
+    },
+    "preis": 1500
+   },
+   {
+    "id": "baum",
+    "name": "Baum",
+    "text": "Schönheit +2",
+    "wirkung": {
+     "schoenheit": 2
+    },
+    "preis": 20
+   },
+   {
+    "id": "busch",
+    "name": "Busch",
+    "text": "Schönheit +0,5",
+    "wirkung": {
+     "schoenheit": 0.5
+    },
+    "preis": 5
+   },
+   {
+    "id": "hecke",
+    "name": "Hecke",
+    "text": "Schönheit +1",
+    "wirkung": {
+     "schoenheit": 1
+    },
+    "preis": 10
+   },
+   {
+    "id": "stein",
+    "name": "Stein",
+    "text": "Schönheit +0",
+    "wirkung": {
+     "schoenheit": 0
+    },
+    "preis": 5
+   }
+  ],
+  "schoenheit_stufen": [
+   50,
+   150,
+   400
+  ],
+  "schoenheit_bindung": [
+   1,
+   2,
+   3
+  ],
+  "abriss_prozent": 100
+ },
+ "charakter": {
+  "verfressen": {
+   "name": "verfressen",
+   "emoji": "🥕🍎",
+   "text": "Hunger +35 statt +25 pro Tag",
+   "hunger_pro_tag": 35
+  },
+  "schreckhaft": {
+   "name": "schreckhaft",
+   "emoji": "😱",
+   "text": "Ausreiß-Chance ×1,5, flieht vor Tieren",
+   "ausreiss_faktor": 1.5,
+   "flieht": true
+  },
+  "faul": {
+   "name": "faul",
+   "emoji": "😴",
+   "text": "Trainingszuwachs −20 %",
+   "training_malus": 20
+  },
+  "eitel": {
+   "name": "eitel",
+   "emoji": "💅✨",
+   "text": "Sauberkeit wirkt doppelt auf Bindung",
+   "sauberkeit_faktor": 2
+  },
+  "nachteule": {
+   "name": "Nachteule",
+   "emoji": "🦉🌙",
+   "text": "nachts +20 Energie, morgens −10",
+   "nacht_energie": 20,
+   "morgen_energie": -10
+  }
  },
  "farben": {
   "stufen": [
@@ -660,39 +941,550 @@
    "cousins": 3
   }
  },
- "charakter": {
-  "verfressen": {
-   "name": "verfressen",
-   "emoji": "🥕🍎",
-   "text": "Hunger +35 statt +25 pro Tag",
-   "hunger_pro_tag": 35
-  },
-  "schreckhaft": {
-   "name": "schreckhaft",
-   "emoji": "😱",
-   "text": "Ausreiß-Chance ×1,5, flieht vor Tieren",
-   "ausreiss_faktor": 1.5,
-   "flieht": true
-  },
-  "faul": {
-   "name": "faul",
-   "emoji": "😴",
-   "text": "Trainingszuwachs −20 %",
-   "training_malus": 20
-  },
-  "eitel": {
-   "name": "eitel",
-   "emoji": "💅✨",
-   "text": "Sauberkeit wirkt doppelt auf Bindung",
-   "sauberkeit_faktor": 2
-  },
-  "nachteule": {
-   "name": "Nachteule",
-   "emoji": "🦉🌙",
-   "text": "nachts +20 Energie, morgens −10",
-   "nacht_energie": 20,
-   "morgen_energie": -10
-  }
+ "futter": {
+  "kaufen": [
+   {
+    "id": "heu",
+    "name": "Heu",
+    "preis": 5,
+    "text": "Hunger −30",
+    "wirkung": {
+     "hunger": -30
+    }
+   },
+   {
+    "id": "hafer",
+    "name": "Hafer",
+    "preis": 12,
+    "text": "Hunger −40, Energie +15",
+    "wirkung": {
+     "hunger": -40,
+     "energie": 15
+    }
+   },
+   {
+    "id": "karotte",
+    "name": "Karotte",
+    "preis": 3,
+    "text": "Bindung +3, Hunger −5",
+    "wirkung": {
+     "bindung": 3,
+     "hunger": -5
+    }
+   },
+   {
+    "id": "premiumfutter",
+    "name": "Premiumfutter",
+    "preis": 60,
+    "text": "Hunger −40; Fohlen: Max-Potenzial +2 (bis +10 insgesamt)",
+    "wirkung": {
+     "hunger": -40
+    },
+    "fohlen_potenzial": 2,
+    "fohlen_potenzial_max": 10
+   },
+   {
+    "id": "buerste",
+    "name": "Bürste",
+    "preis": 20,
+    "text": "Striegeln: Sauberkeit +40",
+    "wirkung": {
+     "sauberkeit": 40
+    },
+    "einmalig": true
+   },
+   {
+    "id": "hacke",
+    "name": "Hacke",
+    "preis": 100,
+    "text": "Beete anlegen",
+    "wirkung": [],
+    "einmalig": true
+   }
+  ],
+  "anbau": [
+   {
+    "id": "gras",
+    "name": "Gras",
+    "ertrag_name": "Gras (Heu)",
+    "samen": 10,
+    "gebiet": 1,
+    "w": 1,
+    "h": 1,
+    "reif": 3,
+    "dann": 3,
+    "ertrag": 1,
+    "text": "Hunger −30",
+    "wirkung": {
+     "hunger": -30
+    }
+   },
+   {
+    "id": "karotte",
+    "name": "Karotte",
+    "ertrag_name": "Karotte",
+    "samen": 15,
+    "gebiet": 1,
+    "w": 1,
+    "h": 1,
+    "reif": 2,
+    "dann": 2,
+    "ertrag": 1,
+    "text": "Hunger −5, Bindung +3",
+    "wirkung": {
+     "hunger": -5,
+     "bindung": 3
+    }
+   },
+   {
+    "id": "apfelbaum",
+    "name": "Apfelbaum",
+    "ertrag_name": "Apfelbaum",
+    "samen": 40,
+    "gebiet": 1,
+    "w": 2,
+    "h": 2,
+    "reif": 4,
+    "dann": 3,
+    "ertrag": 3,
+    "text": "Hunger −8, Bindung +4",
+    "wirkung": {
+     "hunger": -8,
+     "bindung": 4
+    }
+   },
+   {
+    "id": "hafer",
+    "name": "Hafer",
+    "ertrag_name": "Hafer",
+    "samen": 25,
+    "gebiet": 2,
+    "w": 1,
+    "h": 1,
+    "reif": 3,
+    "dann": 3,
+    "ertrag": 2,
+    "text": "Hunger −40, Energie +15",
+    "wirkung": {
+     "hunger": -40,
+     "energie": 15
+    }
+   },
+   {
+    "id": "sonnenblume",
+    "name": "Sonnenblume",
+    "ertrag_name": "Sonnenblume",
+    "samen": 30,
+    "gebiet": 2,
+    "w": 1,
+    "h": 1,
+    "reif": 3,
+    "dann": 3,
+    "ertrag": 1,
+    "text": "Hunger −10, Sauberkeit +10 (Fellglanz); Deko, Schönheit +2",
+    "wirkung": {
+     "hunger": -10,
+     "sauberkeit": 10,
+     "schoenheit": 2
+    },
+    "deko": true
+   },
+   {
+    "id": "minze",
+    "name": "Minze",
+    "ertrag_name": "Minze",
+    "samen": 30,
+    "gebiet": 3,
+    "w": 1,
+    "h": 1,
+    "reif": 2,
+    "dann": 2,
+    "ertrag": 2,
+    "text": "Bindung +2 (eitel ×2)",
+    "wirkung": {
+     "bindung": 2
+    },
+    "eitel_faktor": 2
+   },
+   {
+    "id": "zuckerruebe",
+    "name": "Zuckerrübe",
+    "ertrag_name": "Zuckerrübe",
+    "samen": 40,
+    "gebiet": 3,
+    "w": 1,
+    "h": 1,
+    "reif": 4,
+    "dann": 4,
+    "ertrag": 1,
+    "text": "Hunger −20, Energie +25",
+    "wirkung": {
+     "hunger": -20,
+     "energie": 25
+    }
+   },
+   {
+    "id": "luzerne",
+    "name": "Luzerne",
+    "ertrag_name": "Luzerne",
+    "samen": 50,
+    "gebiet": 4,
+    "w": 1,
+    "h": 1,
+    "reif": 3,
+    "dann": 3,
+    "ertrag": 2,
+    "text": "Hunger −35, Gewicht +2 (gegen Untergewicht)",
+    "wirkung": {
+     "hunger": -35,
+     "gewicht": 2
+    }
+   },
+   {
+    "id": "drachenfrucht",
+    "name": "Drachenfrucht",
+    "ertrag_name": "Drachenfrucht",
+    "samen": 300,
+    "gebiet": 5,
+    "w": 1,
+    "h": 1,
+    "reif": 6,
+    "dann": 5,
+    "ertrag": 1,
+    "text": "Hunger −15, Training ×2 für einen Tag",
+    "wirkung": {
+     "hunger": -15
+    },
+    "training_faktor": 2
+   },
+   {
+    "id": "goldene_karotte",
+    "name": "Goldene Karotte",
+    "ertrag_name": "Goldene Karotte",
+    "samen": 1500,
+    "gebiet": 6,
+    "w": 1,
+    "h": 1,
+    "reif": 7,
+    "dann": 7,
+    "ertrag": 1,
+    "text": "Fohlen: Max-Potenzial +2 (wie Premiumfutter)",
+    "wirkung": [],
+    "fohlen_potenzial": 2
+   }
+  ],
+  "beet_preis": 0
+ },
+ "jobs": {
+  "liste": [
+   {
+    "id": "postritt",
+    "name": "Postritt",
+    "braucht": "bindung",
+    "braucht_wert": 40,
+    "lohn_basis": 25,
+    "lohn_stat": "tempo",
+    "lohn_teiler": 2,
+    "training": {
+     "tempo": 2,
+     "ausdauer": 1
+    },
+    "energie": 30
+   },
+   {
+    "id": "kutschtaxi",
+    "name": "Kutschtaxi",
+    "braucht": "staerke",
+    "braucht_wert": 30,
+    "lohn_basis": 25,
+    "lohn_stat": "staerke",
+    "lohn_teiler": 2,
+    "training": {
+     "staerke": 2,
+     "ausdauer": 1
+    },
+    "energie": 30
+   },
+   {
+    "id": "pfluegen",
+    "name": "Pflügen",
+    "braucht": "staerke",
+    "braucht_wert": 50,
+    "lohn_basis": 40,
+    "lohn_stat": "staerke",
+    "lohn_teiler": 3,
+    "training": {
+     "staerke": 3,
+     "ausdauer": 1
+    },
+    "energie": 40
+   }
+  ],
+  "pro_tag": 1,
+  "job_pro_tag": 1
+ },
+ "rassen": {
+  "liste": [
+   {
+    "id": "shetlandpony",
+    "name": "Shetlandpony",
+    "koerper": "pony",
+    "gebiet": 1,
+    "tempo": 15,
+    "staerke": 35,
+    "spuer": 45,
+    "ausdauer": 70,
+    "bindung": 30,
+    "spanne": 20,
+    "grundwert": 200
+   },
+   {
+    "id": "haflinger",
+    "name": "Haflinger",
+    "koerper": "pony",
+    "gebiet": 1,
+    "tempo": 30,
+    "staerke": 40,
+    "spuer": 35,
+    "ausdauer": 75,
+    "bindung": 35,
+    "spanne": 25,
+    "grundwert": 250
+   },
+   {
+    "id": "noriker",
+    "name": "Noriker",
+    "koerper": "kaltblut",
+    "gebiet": 1,
+    "tempo": 20,
+    "staerke": 55,
+    "spuer": 25,
+    "ausdauer": 70,
+    "bindung": 35,
+    "spanne": 25,
+    "grundwert": 275
+   },
+   {
+    "id": "mustang",
+    "name": "Mustang",
+    "koerper": "warmblut",
+    "gebiet": 2,
+    "tempo": 40,
+    "staerke": 35,
+    "spuer": 40,
+    "ausdauer": 85,
+    "bindung": 10,
+    "spanne": 30,
+    "grundwert": 400
+   },
+   {
+    "id": "schwarzwaelder_fuchs",
+    "name": "Schwarzwälder Fuchs",
+    "koerper": "kaltblut",
+    "gebiet": 2,
+    "tempo": 30,
+    "staerke": 60,
+    "spuer": 30,
+    "ausdauer": 75,
+    "bindung": 30,
+    "spanne": 30,
+    "grundwert": 500
+   },
+   {
+    "id": "quarter_horse",
+    "name": "Quarter Horse",
+    "koerper": "warmblut",
+    "gebiet": 3,
+    "tempo": 55,
+    "staerke": 40,
+    "spuer": 30,
+    "ausdauer": 65,
+    "bindung": 25,
+    "spanne": 30,
+    "grundwert": 800
+   },
+   {
+    "id": "friese",
+    "name": "Friese",
+    "koerper": "warmblut",
+    "gebiet": 3,
+    "tempo": 45,
+    "staerke": 50,
+    "spuer": 30,
+    "ausdauer": 70,
+    "bindung": 25,
+    "spanne": 35,
+    "grundwert": 1200
+   },
+   {
+    "id": "fjordpferd",
+    "name": "Fjordpferd",
+    "koerper": "pony",
+    "gebiet": 3,
+    "tempo": 40,
+    "staerke": 50,
+    "spuer": 45,
+    "ausdauer": 85,
+    "bindung": 40,
+    "spanne": 30,
+    "grundwert": 1000
+   },
+   {
+    "id": "andalusier",
+    "name": "Andalusier",
+    "koerper": "warmblut",
+    "gebiet": 4,
+    "tempo": 60,
+    "staerke": 45,
+    "spuer": 35,
+    "ausdauer": 75,
+    "bindung": 35,
+    "spanne": 40,
+    "grundwert": 2500
+   },
+   {
+    "id": "achal_tekkiner",
+    "name": "Achal-Tekkiner",
+    "koerper": "warmblut",
+    "gebiet": 4,
+    "tempo": 65,
+    "staerke": 40,
+    "spuer": 40,
+    "ausdauer": 90,
+    "bindung": 15,
+    "spanne": 40,
+    "grundwert": 3000
+   },
+   {
+    "id": "araber",
+    "name": "Araber",
+    "koerper": "warmblut",
+    "gebiet": 5,
+    "tempo": 75,
+    "staerke": 35,
+    "spuer": 50,
+    "ausdauer": 95,
+    "bindung": 15,
+    "spanne": 40,
+    "grundwert": 5000
+   },
+   {
+    "id": "einhorn",
+    "name": "Einhorn",
+    "koerper": "einhorn",
+    "gebiet": 6,
+    "tempo": 80,
+    "staerke": 50,
+    "spuer": 70,
+    "ausdauer": 90,
+    "bindung": 10,
+    "spanne": 45,
+    "grundwert": 10000
+   }
+  ]
+ },
+ "reformen": {
+  "liste": [
+   {
+    "id": "hunde_frei",
+    "name": "Hunde frei",
+    "text": "nachts Hunde, zerstören Deko; Pferde mit Stärke ≥ 40 wehren sie ab",
+    "abwehr_staerke": 40,
+    "tiere": true,
+    "tagsueber": false,
+    "zerstoert_deko": true
+   },
+   {
+    "id": "woelfe_frei",
+    "name": "Wölfe frei",
+    "text": "wie Hunde, Stärke ≥ 60",
+    "abwehr_staerke": 60,
+    "tiere": true,
+    "tagsueber": false,
+    "zerstoert_deko": true,
+    "tage_nach": 4,
+    "gebiet": 3
+   },
+   {
+    "id": "krokodile_frei",
+    "name": "Krokodile frei",
+    "text": "wie Hunde, Stärke ≥ 80, auch tagsüber",
+    "abwehr_staerke": 80,
+    "tiere": true,
+    "tagsueber": true,
+    "zerstoert_deko": true,
+    "tage_nach": 4,
+    "gebiet": 5
+   },
+   {
+    "id": "pferdesteuer",
+    "name": "Pferdesteuer",
+    "text": "0–10 pro Pferd und Tag, steigt im Spielverlauf",
+    "steuer_min": 0,
+    "steuer_max": 10
+   },
+   {
+    "id": "hafersteuer",
+    "name": "Hafersteuer",
+    "text": "Futter +50 %",
+    "futter_aufschlag": 50
+   },
+   {
+    "id": "stromsubvention",
+    "name": "Stromsubvention",
+    "text": "Generator ×2",
+    "generator_faktor": 2
+   }
+  ],
+  "alle_tage": 4,
+  "dauer_min": 3,
+  "dauer_max": 5
+ },
+ "schaetze": {
+  "radius_basis": 2,
+  "radius_teiler": 10,
+  "chance_teiler": 2,
+  "fund_training": 1,
+  "funde": [
+   {
+    "id": "blume",
+    "name": "Blume",
+    "wert": 5,
+    "haeufigkeit": "sehr häufig"
+   },
+   {
+    "id": "samen",
+    "name": "Samen",
+    "wert": 0,
+    "haeufigkeit": "häufig",
+    "samen": true
+   },
+   {
+    "id": "muenzbeutel",
+    "name": "Münzbeutel",
+    "wert": 30,
+    "haeufigkeit": "häufig"
+   },
+   {
+    "id": "goldhufeisen",
+    "name": "Goldhufeisen",
+    "wert": 200,
+    "haeufigkeit": "selten"
+   },
+   {
+    "id": "antiquitaet",
+    "name": "Antiquität",
+    "wert": 500,
+    "haeufigkeit": "sehr selten"
+   },
+   {
+    "id": "schatztruhe",
+    "name": "Schatztruhe",
+    "wert": 1500,
+    "haeufigkeit": "legendär",
+    "gebiet": 3
+   }
+  ]
  },
  "stats": {
   "gen_sigma": 8,
@@ -776,119 +1568,344 @@
    "reiten": 3
   }
  },
- "ausruestung": {
-  "liste": [
+ "turniere": {
+  "klassen": [
    {
-    "id": "einfacher_sattel",
-    "name": "Einfacher Sattel",
-    "preis": 150,
-    "text": "Tempo +5, Satteltaschen möglich",
-    "wirkung": {
-     "tempo": 5
-    },
-    "sattel": true,
-    "taschen_moeglich": true
+    "id": "dorf",
+    "name": "Dorf",
+    "fahrzeug": "",
+    "gebuehr": 10,
+    "preise": [
+     50,
+     25,
+     10
+    ]
    },
    {
-    "id": "sportsattel",
-    "name": "Sportsattel",
-    "preis": 800,
-    "text": "Tempo +10",
-    "wirkung": {
-     "tempo": 10
-    },
-    "sattel": true
+    "id": "kreis",
+    "name": "Kreis",
+    "fahrzeug": "fahrrad",
+    "gebuehr": 40,
+    "preise": [
+     200,
+     100,
+     50
+    ]
    },
    {
-    "id": "rennsattel",
-    "name": "Rennsattel",
-    "preis": 3000,
-    "text": "Tempo +15",
-    "wirkung": {
-     "tempo": 15
-    },
-    "sattel": true
+    "id": "bezirk",
+    "name": "Bezirk",
+    "fahrzeug": "mofa",
+    "gebuehr": 120,
+    "preise": [
+     750,
+     350,
+     180
+    ]
    },
    {
-    "id": "goldsattel",
-    "name": "Goldsattel",
-    "preis": 12000,
-    "text": "Tempo +20, Schönheit +20",
-    "wirkung": {
-     "tempo": 20,
-     "schoenheit": 20
-    },
-    "sattel": true
+    "id": "land",
+    "name": "Land",
+    "fahrzeug": "kleinwagen",
+    "gebuehr": 400,
+    "preise": [
+     2500,
+     1200,
+     600
+    ]
    },
    {
-    "id": "satteltaschen_s",
-    "name": "Satteltaschen S",
-    "preis": 100,
-    "text": "1 Plätze für Fundstücke",
-    "wirkung": [],
-    "plaetze": 1
+    "id": "national",
+    "name": "National",
+    "fahrzeug": "suv",
+    "gebuehr": 1200,
+    "preise": [
+     7500,
+     3500,
+     1800
+    ]
    },
    {
-    "id": "satteltaschen_m",
-    "name": "Satteltaschen M",
-    "preis": 400,
-    "text": "2 Plätze für Fundstücke",
-    "wirkung": [],
-    "plaetze": 2
+    "id": "international",
+    "name": "International",
+    "fahrzeug": "flugzeug",
+    "gebuehr": 4000,
+    "preise": [
+     25000,
+     12000,
+     6000
+    ]
+   }
+  ],
+  "wettbewerbe": [
+   {
+    "id": "schoenheitswettbewerb",
+    "name": "Schönheitswettbewerb",
+    "text": "Seltenheit Farbe + Rasse, Sauberkeit, Schmuck"
    },
    {
-    "id": "satteltaschen_l",
-    "name": "Satteltaschen L",
-    "preis": 1200,
-    "text": "4 Plätze für Fundstücke",
-    "wirkung": [],
-    "plaetze": 4
+    "id": "springreiten",
+    "name": "Springreiten (Minispiel)",
+    "text": "Stärke → Sprunghöhe, Ausdauer → Parcours ohne Leistungsabfall"
    },
    {
-    "id": "sattellampe",
-    "name": "Sattellampe",
-    "preis": 150,
-    "text": "Sicht nachts",
-    "wirkung": [],
-    "licht": true
+    "id": "pferderennen",
+    "name": "Pferderennen (Minispiel)",
+    "text": "Tempo → Höchstgeschwindigkeit, Ausdauer → wie lange sie hält"
+   }
+  ],
+  "rotation_tage": 3,
+  "wertung_basis": 0.5,
+  "wertung_teiler": 200,
+  "gegner_basis": 15,
+  "gegner_klasse": 12,
+  "gegner_streuung": 12,
+  "stange_basis": 18,
+  "stange_klasse": 3
+ },
+ "welt": {
+  "fahrzeuge": [
+   {
+    "id": "zu_fuss",
+    "name": "zu Fuß",
+    "preis": 0,
+    "gebiete": 1,
+    "fahrtkosten": 0
    },
    {
-    "id": "maehnenschleife",
-    "name": "Mähnenschleife",
-    "preis": 150,
-    "text": "Schönheit +5",
-    "wirkung": {
-     "schoenheit": 5
-    }
+    "id": "fahrrad",
+    "name": "Fahrrad",
+    "preis": 500,
+    "gebiete": 2,
+    "fahrtkosten": 0
    },
    {
-    "id": "blumenkranz",
-    "name": "Blumenkranz",
-    "preis": 300,
-    "text": "Schönheit +10",
-    "wirkung": {
-     "schoenheit": 10
-    }
-   },
-   {
-    "id": "glitzerdecke",
-    "name": "Glitzerdecke",
-    "preis": 1200,
-    "text": "Schönheit +15",
-    "wirkung": {
-     "schoenheit": 15
-    }
-   },
-   {
-    "id": "goldhufeisen",
-    "name": "Goldhufeisen",
+    "id": "mofa",
+    "name": "Mofa",
     "preis": 4000,
-    "text": "Schönheit +30",
-    "wirkung": {
-     "schoenheit": 30
-    }
+    "gebiete": 3,
+    "fahrtkosten": 5
+   },
+   {
+    "id": "kleinwagen",
+    "name": "Kleinwagen",
+    "preis": 12000,
+    "gebiete": 4,
+    "fahrtkosten": 10
+   },
+   {
+    "id": "suv",
+    "name": "SUV",
+    "preis": 30000,
+    "gebiete": 5,
+    "fahrtkosten": 20
+   },
+   {
+    "id": "flugzeug",
+    "name": "Flugzeug",
+    "preis": 70000,
+    "gebiete": 6,
+    "fahrtkosten": 50
+   }
+  ],
+  "anhaenger": [
+   {
+    "plaetze": 1,
+    "preis": 400
+   },
+   {
+    "plaetze": 2,
+    "preis": 1500
+   },
+   {
+    "plaetze": 3,
+    "preis": 4000
+   },
+   {
+    "plaetze": 4,
+    "preis": 8000
+   }
+  ],
+  "gebiete": [
+   {
+    "nr": 1,
+    "name": "Heimattal",
+    "palette": "sattgrün",
+    "w": 96,
+    "h": 80,
+    "wildpferde": 4,
+    "rassen": [
+     "shetlandpony",
+     "haflinger",
+     "noriker"
+    ]
+   },
+   {
+    "nr": 2,
+    "name": "Birkenwald",
+    "palette": "dunkelgrün",
+    "w": 112,
+    "h": 80,
+    "wildpferde": 5,
+    "rassen": [
+     "mustang",
+     "schwarzwaelder_fuchs"
+    ]
+   },
+   {
+    "nr": 3,
+    "name": "Flussauen",
+    "palette": "blaugrün",
+    "w": 112,
+    "h": 96,
+    "wildpferde": 6,
+    "rassen": [
+     "quarter_horse",
+     "friese",
+     "fjordpferd"
+    ]
+   },
+   {
+    "nr": 4,
+    "name": "Steppe",
+    "palette": "gelb",
+    "w": 128,
+    "h": 96,
+    "wildpferde": 6,
+    "rassen": [
+     "andalusier",
+     "achal_tekkiner"
+    ]
+   },
+   {
+    "nr": 5,
+    "name": "Canyon",
+    "palette": "rot-orange",
+    "w": 128,
+    "h": 112,
+    "wildpferde": 7,
+    "rassen": [
+     "araber"
+    ]
+   },
+   {
+    "nr": 6,
+    "name": "Nebelinsel",
+    "palette": "violett",
+    "w": 112,
+    "h": 96,
+    "wildpferde": 5,
+    "rassen": [
+     "einhorn"
+    ]
+   }
+  ],
+  "block": 16,
+  "kachel": 16
+ },
+ "wert": {
+  "exponent": 1.5,
+  "bindung_gewicht": 0.5,
+  "leistung_teiler": 4.5,
+  "steigung": 1.66,
+  "faktor_min": 0.3,
+  "stammbaum": [
+   5,
+   3,
+   2
+  ],
+  "fohlen_faktor": 0.6,
+  "kauf_faktor": 1.5,
+  "kaeufer": {
+   "sammlerin": {
+    "farbe": 0.15,
+    "laune_min": 0.9,
+    "laune_max": 1.1,
+    "min_sauberkeit": 90,
+    "min_stufe": 2
+   },
+   "reithof": {
+    "basis": 0.6,
+    "bindung_ab": 70,
+    "teiler": 100,
+    "min_bindung": 70,
+    "min_sauberkeit": 50,
+    "max_hunger": 30
+   },
+   "zuechter": {
+    "stute": 1.05,
+    "hengst": 0.95,
+    "min_bindung": 50,
+    "min_sauberkeit": 50
+   },
+   "schlachter": {
+    "gewicht_basis": 50,
+    "gewicht_teiler": 20,
+    "staerke_basis": 0.9,
+    "staerke_teiler": 400,
+    "min_gewicht": 50,
+    "bindung_andere": -20
+   },
+   "bestellung": {
+    "faktor": 1.5,
+    "alle_tage": 3,
+    "frist_min": 5,
+    "frist_max": 10
+   }
+  }
+ },
+ "wirtschaft": {
+  "startgeld": 300,
+  "kosten_pferd": 11,
+  "kosten_pferd_anbau": 5,
+  "phasen": [
+   {
+    "nr": 1,
+    "ziel": "Fahrrad + Schuppen + Anhänger 1",
+    "kosten": 1200,
+    "einnahmen": 150,
+    "tage": 8
+   },
+   {
+    "nr": 2,
+    "ziel": "Mofa + Anhänger 2 + Stall M",
+    "kosten": 6400,
+    "einnahmen": 560,
+    "tage": 12
+   },
+   {
+    "nr": 3,
+    "ziel": "Kleinwagen + Garage + Anhänger 3",
+    "kosten": 19000,
+    "einnahmen": 1500,
+    "tage": 14
+   },
+   {
+    "nr": 4,
+    "ziel": "SUV + Anhänger 4",
+    "kosten": 38000,
+    "einnahmen": 3600,
+    "tage": 11
+   },
+   {
+    "nr": 5,
+    "ziel": "Flugzeug + Hangar",
+    "kosten": 85000,
+    "einnahmen": 7900,
+    "tage": 12
    }
   ]
+ },
+ "zeit": {
+  "tag_min": 5,
+  "hell_min": 3,
+  "dunkel_min": 2,
+  "fohlen_tage": 4,
+  "traechtig_tage": 2,
+  "stute_pause_tage": 3,
+  "wild_wechsel_tage": 3,
+  "wild_wechsel_min": 1,
+  "wild_wechsel_max": 2
  },
  "namen": {
   "w": [

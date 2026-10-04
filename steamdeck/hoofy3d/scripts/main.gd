@@ -20,6 +20,10 @@ func _ready() -> void:
 	var bewuchs := Bewuchs.new()
 	bewuchs.gelaende = gelaende
 	add_child(bewuchs)
+	# Spielstand laden (E35); Testläufe beginnen immer neu
+	if not Testlauf.ist_aktiv() and Spiel.laden():
+		himmel.tag = Spiel.tag
+		himmel.uhrzeit = Spiel.uhrzeit
 	if Testlauf.optionen.has("zeit"):
 		himmel.uhrzeit = float(Testlauf.optionen.zeit)
 	var start := Gelaende.HOF
@@ -53,6 +57,7 @@ func _ready() -> void:
 	wild.gelaende = gelaende
 	wild.spieler = pferd
 	wild.himmel = himmel
+	wild.siedlung = siedlung
 	add_child(wild)
 	if Testlauf.optionen.has("am_wildpferd"):
 		# Test: 3 m neben das erste Wildpferd stellen, Kamera dahinter
@@ -66,6 +71,11 @@ func _ready() -> void:
 	anzeige.wildpferde = wild
 	anzeige.siedlung = siedlung
 	add_child(anzeige)
+	var menue := Menue.new()
+	menue.himmel = himmel
+	menue.siedlung = siedlung
+	menue.spieler = pferd
+	add_child(menue)
 	Einstellungen.anwenden(get_viewport(), himmel.env, himmel.sonne)
 	# Für Leistungsmessungen: --ohne=gras,bewuchs,schatten,ssao,nebel,wild
 	var ohne: PackedStringArray = Testlauf.optionen.get("ohne", "").split(",", false)

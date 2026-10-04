@@ -12,6 +12,7 @@ run/max_fps=60
 [autoload]
 
 Einstellungen="*res://scripts/einstellungen.gd"
+Spiel="*res://scripts/spiel.gd"
 Testlauf="*res://scripts/testlauf.gd"
 
 [display]

@@ -26,6 +26,7 @@ func _ready() -> void:
 			optionen[teile[0]] = teile[1]
 		elif arg.begins_with("--"):
 			optionen[arg.substr(2)] = "1"
+	process_mode = Node.PROCESS_MODE_ALWAYS     # läuft auch, wenn ein Menü die Welt anhält
 	if optionen.is_empty():
 		set_physics_process(false)
 		return
@@ -54,12 +55,15 @@ func _physics_process(_delta: float) -> void:
 		if f >= e[0] and f <= e[1]:
 			for a in e[2]:
 				jetzt[a] = true
-	# Jeden Frame drücken: verliert das Fenster den Fokus, lässt Godot alle Tasten los
+	# Neu gedrückt: als echtes Ereignis (Menüs reagieren nur darauf); danach jeden Frame halten,
+	# denn verliert das Fenster den Fokus, lässt Godot alle Tasten los
 	for a in jetzt:
+		if not _gedrueckt.has(a):
+			_ereignis(a, true)
 		Input.action_press(a)
 	for a in _gedrueckt:
 		if not jetzt.has(a):
-			Input.action_release(a)
+			_ereignis(a, false)
 	_gedrueckt = jetzt
 	if f > 90:
 		_fps_summe += Engine.get_frames_per_second()
@@ -73,6 +77,13 @@ func _physics_process(_delta: float) -> void:
 				Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
 				Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576])
 		get_tree().quit()
+
+
+func _ereignis(aktion: String, gedrueckt: bool) -> void:
+	var e := InputEventAction.new()
+	e.action = aktion
+	e.pressed = gedrueckt
+	Input.parse_input_event(e)
 
 
 func _foto(f: int) -> void:
