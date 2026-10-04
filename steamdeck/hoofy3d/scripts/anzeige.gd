@@ -11,6 +11,7 @@ const ROT := Color(0.9, 0.3, 0.25)
 
 var pferd: Pferd
 var himmel: Himmel
+var wildpferde: Wildpferde
 var geld := 300
 var gebiet := "Heimattal"
 
@@ -25,6 +26,9 @@ var _tag_zeit := 0.0
 var _hilfe := Label.new()
 var _hilfe_zeit := 14.0
 var _leistung := Label.new()
+var _meldung := Label.new()
+var _meldung_zeit := 0.0
+var _zaehmen := ProgressBar.new()
 
 
 ## Sonne oder Mond als kleines Symbol
@@ -92,8 +96,32 @@ func _ready() -> void:
 		_tag.text = "Tag %d" % n
 		_tag_zeit = 2.5)
 
+	# Meldungen unten in der Mitte (Hoofy: Toast)
+	_schrift(_meldung, 20, Color(1, 1, 1))
+	_meldung.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_meldung.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_meldung.custom_minimum_size = Vector2(760, 0)
+	_meldung.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_MINSIZE, 70)
+	_meldung.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_meldung.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_meldung.add_theme_stylebox_override("normal", _stil(Color(0.08, 0.07, 0.06, 0.6), 8, Vector2(14, 8)))
+	_meldung.visible = false
+	add_child(_meldung)
+	if wildpferde:
+		wildpferde.meldung.connect(meldung)
+	# Zähmen: Balken füllt sich, solange man die Taste hält und stillsteht
+	_zaehmen.custom_minimum_size = Vector2(260, 14)
+	_zaehmen.show_percentage = false
+	_zaehmen.max_value = 1.0
+	_zaehmen.add_theme_stylebox_override("background", _stil(Color(0, 0, 0, 0.5), 4))
+	_zaehmen.add_theme_stylebox_override("fill", _stil(Color(1.0, 0.45, 0.55), 4))
+	_zaehmen.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_zaehmen.position.y += 90
+	_zaehmen.visible = false
+	add_child(_zaehmen)
+
 	_schrift(_hilfe, 18, Color(1, 1, 1, 0.95))
-	_hilfe.text = "Linker Stick / WASD: reiten\nA / Shift: antreiben (tippen = schneller)\nB / Strg: zügeln\nX / Leertaste: springen\nRechter Stick / Maus: Kamera"
+	_hilfe.text = "Linker Stick / WASD: reiten\nA / Shift: antreiben (tippen = schneller)\nB / Strg: zügeln\nX / Leertaste: springen\nY / E halten: Wildpferd zähmen (nah dran, still stehen)\nRechter Stick / Maus: Kamera"
 	_hilfe.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 24)
 	_hilfe.position.y += 44
 	add_child(_hilfe)
@@ -123,6 +151,12 @@ func _process(delta: float) -> void:
 		_energie.value = pferd.energie
 		_energie.add_theme_stylebox_override("fill", _stil(ROT if pferd.energie < 15.0 else GOLD, 3))
 
+	_meldung_zeit -= delta
+	_meldung.visible = _meldung_zeit > 0.0
+	if wildpferde:
+		_zaehmen.visible = wildpferde.zaehmen != null
+		_zaehmen.value = wildpferde.zaehm_fortschritt
+
 	_tag_zeit -= delta
 	_tag.visible = _tag_zeit > 0.0
 	_tag.modulate.a = clampf(_tag_zeit / 0.5, 0.0, 1.0)
@@ -135,6 +169,11 @@ func _process(delta: float) -> void:
 		_leistung.text = "%d fps · %.1f Mio. Dreiecke · %d Draw Calls" % [Engine.get_frames_per_second(),
 			Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME) / 1e6,
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)]
+
+
+func meldung(text: String, sekunden: float) -> void:
+	_meldung.text = text
+	_meldung_zeit = sekunden
 
 
 func _schrift(l: Label, groesse: int, farbe: Color) -> void:

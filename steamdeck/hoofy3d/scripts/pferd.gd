@@ -82,6 +82,45 @@ func gang_name() -> String:
 	return GANG_NAMEN[gang]
 
 
+# --- Spieler-Schnittstelle (für Wildpferde, Leine; später auch die Spielfigur) ---
+
+var _spur := PackedVector3Array()      # zuletzt besuchte Punkte, neueste zuerst
+const SPUR_ABSTAND := 0.4
+const SPUR_LAENGE := 120
+
+
+func bewegt() -> bool:
+	return _tempo > 0.3
+
+
+func rennt() -> bool:
+	return gang >= Gang.GALOPP
+
+
+func reitet() -> bool:
+	return true
+
+
+## Punkt auf dem eigenen Weg, so viele Meter zurück (geführte Pferde laufen hinterher)
+func spur_punkt(abstand: float) -> Vector3:
+	var rest := abstand
+	var vorher := global_position
+	for p in _spur:
+		var d := vorher.distance_to(p)
+		if d >= rest:
+			return vorher.lerp(p, rest / d)
+		rest -= d
+		vorher = p
+	return vorher - global_basis.z * -rest
+
+
+func _spur_merken() -> void:
+	if _spur.is_empty() or _spur[0].distance_to(global_position) >= SPUR_ABSTAND:
+		_spur.insert(0, global_position)
+		if _spur.size() > SPUR_LAENGE:
+			_spur.resize(SPUR_LAENGE)
+
+
 ## Wie stark das Tempo-Stat die Gangart beschleunigt, im selben Verhältnis wie im 2D-Hoofy
 ## (dort Pixel je Frame), 1,0 bei Tempo 50
 func _tempo_faktor(g: int) -> float:
@@ -192,6 +231,7 @@ func _physics_process(delta: float) -> void:
 	velocity.y = vy
 	move_and_slide()
 	rotation.y = _richtung
+	_spur_merken()
 	# An Hindernissen bremsen statt dagegenzulaufen
 	var echt := Vector2(get_real_velocity().x, get_real_velocity().z).length()
 	if _tempo > 1.0 and echt < _tempo * 0.4:

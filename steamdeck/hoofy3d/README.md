@@ -60,6 +60,8 @@ Für 3D angepasst (entschieden 2026-10-05):
 | Steuerkreuz + B halten = Galopp, A = Sprung | wie Red Dead: A tippen = schneller, B = langsamer, X = Sprung | Wunsch |
 | Schritt, Galopp | Schritt, Trab, Galopp, Renngalopp | Wunsch |
 | Heimattal 96 × 80 Kacheln | 1 × 1 km, Berge ringsum | 3D-Maßstab |
+| Zähm-Zone 110 px (≈ 7 m), Zähmen ab 26 px | Zone 20 m, Zähmen ab 3,5 m | man sieht in 3D weiter |
+| Zähmen nur zu Fuß | vorerst auch vom Pferd aus (Y/E halten) | bis es die Spielfigur gibt |
 
 ## Aufs Steam Deck
 
@@ -150,9 +152,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [ ] Stammbaum
 
 ### Mit Pferden spielen (Hoofy §3)
-- [ ] Zähmen als Anschleich-Minispiel (bewegen, wenn es wegschaut; stehen bleiben, wenn es guckt)
-- [ ] Leine: führen zu Fuß und beim Reiten, Ausreißen bei niedriger Bindung
-- [ ] Folgen ohne Leine, Pfiff bei hoher Bindung
+- [x] Zähmen wie im 2D-Hoofy: Lärmpegel mit ❗, Flucht, Taste halten und stillstehen
+- [x] Leine: führen (2 am Strick, 4 insgesamt), Ausreißen je Sekunde gewürfelt, neue Pferde werden wieder wild
+- [x] Folgen ohne Leine ab Bindung 100
+- [ ] Pfiff ab Bindung 90, Aufsitzen auf eigene Pferde, frisch gezähmt nicht reitbar
 - [ ] Heimbringen auf Weide oder in den Stall
 - [ ] Füttern, Striegeln, Streicheln, Schmücken
 - [ ] Training durch Reiten und Springen

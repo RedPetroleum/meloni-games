@@ -51,9 +51,16 @@ func _ready() -> void:
 	wild.spieler = pferd
 	wild.himmel = himmel
 	add_child(wild)
+	if Testlauf.optionen.has("am_wildpferd"):
+		# Test: 3 m neben das erste Wildpferd stellen, Kamera dahinter
+		var w: Node3D = wild.pferde[0]
+		var neben := w.global_position + w.global_basis.x * 3.0
+		pferd.global_position = Vector3(neben.x, gelaende.hoehe(neben.x, neben.z) + 0.2, neben.z)
+		kamera.yaw = atan2(w.global_position.x - neben.x, w.global_position.z - neben.z) + PI
 	var anzeige := Anzeige.new()
 	anzeige.pferd = pferd
 	anzeige.himmel = himmel
+	anzeige.wildpferde = wild
 	add_child(anzeige)
 	Einstellungen.anwenden(get_viewport(), himmel.env, himmel.sonne)
 	# Für Leistungsmessungen: --ohne=gras,bewuchs,schatten,ssao,nebel,wild
