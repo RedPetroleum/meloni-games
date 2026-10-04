@@ -11,6 +11,7 @@ const HELL_SEKUNDEN := 360.0
 const DUNKEL_SEKUNDEN := 240.0
 
 signal neuer_tag(tag: int)
+signal abend
 
 @export var uhrzeit := 7.0  # Stunden, 0–24
 
@@ -92,6 +93,8 @@ func _process(delta: float) -> void:
 	if vorher < AUFGANG and uhrzeit >= AUFGANG:
 		tag += 1
 		neuer_tag.emit(tag)
+	if vorher < UNTERGANG and uhrzeit >= UNTERGANG:
+		abend.emit()
 	_aktualisieren()
 
 

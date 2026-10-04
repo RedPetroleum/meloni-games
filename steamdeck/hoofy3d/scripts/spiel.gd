@@ -9,6 +9,7 @@ const VERSION := 1
 var geld := 300                    # Startgeld (KATALOG §15)
 var herde: Array = []              # Daten der eigenen Pferde (Felder wie H.wild)
 var namen: Array = []              # jemals vergebene Namen (H.claim_name)
+var inv := {"heu": 3, "karotte": 2, "hafer": 0, "premiumfutter": 0, "buerste": 0}   # Start (stage.lua, E70)
 var tag := 1
 var uhrzeit := 7.0
 var geladen := false
@@ -23,7 +24,7 @@ func speichern(himmel: Himmel) -> void:
 		return                     # Test-Szenarien speichern nie (E35)
 	tag = himmel.tag
 	uhrzeit = himmel.uhrzeit
-	var stand := {"version": VERSION, "geld": geld, "herde": herde, "namen": namen, "tag": tag, "uhrzeit": uhrzeit}
+	var stand := {"version": VERSION, "geld": geld, "herde": herde, "namen": namen, "inv": inv, "tag": tag, "uhrzeit": uhrzeit}
 	var f := FileAccess.open(DATEI, FileAccess.WRITE)
 	f.store_string(JSON.stringify(stand, " "))
 
@@ -37,6 +38,8 @@ func laden() -> bool:
 	geld = int(stand.get("geld", 300))
 	herde = stand.get("herde", [])
 	namen = stand.get("namen", [])
+	for k in stand.get("inv", {}):
+		inv[k] = int(stand.inv[k])
 	tag = int(stand.get("tag", 1))
 	uhrzeit = float(stand.get("uhrzeit", 7.0))
 	# JSON kennt nur Gleitkommazahlen: ganze Werte wieder zu int

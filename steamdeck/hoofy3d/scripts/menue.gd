@@ -21,6 +21,7 @@ const TASTEN := ["ABCDEFGHIJ", "KLMNOPQRST", "UVWXYZÄÖÜß-", "abcdefghij", "k
 var himmel: Himmel
 var siedlung: Siedlung
 var spieler: Node3D
+var wildpferde: Wildpferde
 var _stapel: Array[Control] = []
 var _thema := Theme.new()
 
@@ -267,6 +268,122 @@ func _tastatur(titel: String, text: String, maximal: int, fertig: Callable) -> C
 			fertig.call(stand[0].strip_edges())))
 	_fuss(seite, "A: Taste   B: abbrechen")
 	return seite
+
+
+# --- Am eigenen Pferd (game/horse_menu.lua) ---
+
+const FUTTER := ["heu", "hafer", "karotte", "premiumfutter"]
+const ORT_NAME := {"stall": "Stall", "weide": "Weide", "frei": "Frei"}
+
+
+func aktionsmenue(w: Wildpferde.WildPferd) -> void:
+	if offen():
+		return
+	_oeffnen(_aktionen(w))
+
+
+func _aktionen(w: Wildpferde.WildPferd) -> Control:
+	var d := w.daten
+	var seite := _seite(d.name, HoofyDaten.beschreibung(d), Vector2(520, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	liste.add_child(_knopf("Streicheln", func():
+		var dazu := Pflege.streicheln(d)
+		w.zeige("♥" if dazu > 0 else "z", Color(1.0, 0.35, 0.45) if dazu > 0 else BLASS, 2.0)
+		_alle_zu()))
+	liste.add_child(_knopf("Füttern", func(): _oeffnen(_futter(w))))
+	var buerste := _knopf("Striegeln", func():
+		Pflege.striegeln(d)
+		w.zeige("✦", Color(0.7, 0.9, 1.0), 2.0)
+		_alle_zu())
+	buerste.disabled = int(Spiel.inv.get("buerste", 0)) < 1
+	liste.add_child(buerste)
+	var folgt := int(d.bindung) >= int(HoofyDaten.daten().stats.bindung.folgt)
+	var leine := "Hierbleiben" if w.zustand == "folgt" else ("Leine lösen" if w.zustand == "gefuehrt" else ("Folgen lassen" if folgt else "Anleinen"))
+	liste.add_child(_knopf(leine, func():
+		if w.zustand in ["gefuehrt", "folgt"]:
+			_sag(wildpferde.loslassen(w))
+		elif wildpferde.anleinen(w):
+			_sag("%s %s" % [d.name, "folgt dir." if w.zustand == "folgt" else "ist an der Leine."])
+		else:
+			_sag("Du führst schon zwei Pferde. Mehr passen nicht an die Leine.")
+		_alle_zu()))
+	var hof := siedlung.auf_grundstueck(spieler.global_position)
+	var unter := _knopf("Unterbringen", func(): _oeffnen(_unterbringen(w)))
+	unter.disabled = not hof
+	liste.add_child(unter)
+	liste.add_child(_knopf("Info", func(): _oeffnen(_info(d))))
+	_fuss(seite, "A: wählen   B: zurück")
+	return seite
+
+
+func _futter(w: Wildpferde.WildPferd) -> Control:
+	var seite := _seite("Füttern", w.daten.name, Vector2(560, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	for id in FUTTER:
+		var f := Pflege.futter(id)
+		var n := int(Spiel.inv.get(id, 0))
+		var hunger: int = f.get("wirkung", {}).get("hunger", 0)
+		var b := _knopf("%s: Hunger %s   (%d)" % [f.get("name", id), "±0" if hunger == 0 else str(hunger), n], func():
+			Spiel.inv[id] = int(Spiel.inv[id]) - 1
+			var dazu := Pflege.fuettern(w.daten, id)
+			w.zeige("♥" if dazu > 0 else "●", Color(1.0, 0.35, 0.45) if dazu > 0 else Color(0.95, 0.6, 0.3), 2.0)
+			# Menü bleibt offen (Rückmeldung 1.3.4), mit neuen Anzahlen
+			var alt: Control = _stapel.pop_back()
+			alt.queue_free()
+			_oeffnen(_futter(w)))
+		b.disabled = n < 1
+		liste.add_child(b)
+	_fuss(seite, "A: füttern   B: zurück")
+	return seite
+
+
+func _unterbringen(w: Wildpferde.WildPferd) -> Control:
+	var d := w.daten
+	var seite := _seite("Wohin mit %s?" % d.name, "", Vector2(520, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	for ort in ["stall", "weide", "frei"]:
+		var n := wildpferde.belegt(ort)
+		var platz := wildpferde.plaetze(ort)
+		var b := _knopf("%s %d/%d" % [ORT_NAME[ort], n, platz], func():
+			wildpferde.unterbringen(w, ort)
+			_sag("%s kommt in: %s." % [d.name, ORT_NAME[ort]])
+			_alle_zu())
+		b.disabled = (n >= platz and d.get("ort") != ort) or d.get("ort") == ort or (ort == "frei" and not Pflege.darf_frei(d))
+		liste.add_child(b)
+	_fuss(seite, "Frei: nur mit Stärke 60 und Bindung 70")
+	return seite
+
+
+## Vor dem Stall: wer drin steht, lässt sich herausholen
+func stall() -> void:
+	if offen():
+		return
+	var seite := _seite("Stall", "%d/%d" % [wildpferde.belegt("stall"), wildpferde.plaetze("stall")], Vector2(520, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	var drin := Spiel.herde.filter(func(d): return d.get("ort") == "stall")
+	if drin.is_empty():
+		liste.add_child(_label("Der Stall ist leer.", 20, BLASS))
+	for d in drin:
+		liste.add_child(_knopf("%s herausholen" % d.name, func():
+			var w := wildpferde.knoten_von(d)
+			if w and wildpferde.anleinen(w):
+				_sag("%s %s" % [d.name, "folgt dir." if w.zustand == "folgt" else "ist an der Leine."])
+			else:
+				_sag("Du führst schon zwei Pferde. %s bleibt im Stall." % d.name)
+			_alle_zu()))
+	_fuss(seite, "A: wählen   B: zurück")
+	_oeffnen(seite)
+
+
+func _alle_zu() -> void:
+	while offen():
+		_zurueck()
+
+
+func _sag(text: String) -> void:
+	var anzeige := get_tree().get_first_node_in_group("anzeige")
+	if anzeige:
+		anzeige.meldung(text, 2.5)
 
 
 # --- Bausteine ---

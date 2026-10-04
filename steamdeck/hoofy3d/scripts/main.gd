@@ -52,7 +52,10 @@ func _ready() -> void:
 	if Testlauf.optionen.has("yaw"):
 		kamera.yaw = deg_to_rad(float(Testlauf.optionen.yaw))
 	add_child(kamera)
-	himmel.neuer_tag.connect(func(_t: int) -> void: pferd.neuer_tag())
+	himmel.neuer_tag.connect(func(_t: int) -> void:
+		pferd.neuer_tag()
+		Tage.neuer_tag(Spiel.herde))
+	himmel.abend.connect(func() -> void: Tage.abend(Spiel.herde))
 	var wild := Wildpferde.new()
 	wild.gelaende = gelaende
 	wild.spieler = pferd
@@ -75,7 +78,10 @@ func _ready() -> void:
 	menue.himmel = himmel
 	menue.siedlung = siedlung
 	menue.spieler = pferd
+	menue.wildpferde = wild
 	add_child(menue)
+	wild.angesprochen.connect(menue.aktionsmenue)
+	wild.am_stall.connect(menue.stall)
 	Einstellungen.anwenden(get_viewport(), himmel.env, himmel.sonne)
 	# Für Leistungsmessungen: --ohne=gras,bewuchs,schatten,ssao,nebel,wild
 	var ohne: PackedStringArray = Testlauf.optionen.get("ohne", "").split(",", false)

@@ -34,6 +34,8 @@ const FRISCH_BINDUNG := 6         # reitbar erst bei Bindung + 6 (E71)
 const FRISCH_FAKTOR := 3.0        # frisch: Ausreißen beim Rennen/Reiten ×3
 
 signal meldung(text: String, sekunden: float)
+signal angesprochen(w: WildPferd)          # Aktionstaste bei einem eigenen Pferd: Aktionsmenü
+signal am_stall                            # Aktionstaste vor dem Stall: wer ist drin?
 
 var gelaende: Gelaende
 var siedlung: Siedlung
@@ -77,7 +79,7 @@ class WildPferd extends Node3D:
 		return "galopp" if tempo < 10.0 else "renngalopp"
 
 	func eigen() -> bool:
-		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen", "weide"]
+		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen", "weide", "frei", "stall"]
 
 	## Sprechblase über dem Kopf (E10), z. B. ❗ beim Lauschen, ♥ nach dem Zähmen
 	func zeige(text: String, farbe: Color, sekunden := 0.0) -> void:
@@ -279,6 +281,10 @@ func _zaehmen_steuern(delta: float) -> void:
 				zaehmen = w
 				# 1,5 s plus 1 Frame je fehlendem Bindungspunkt (Wild.tame_frames)
 				w.zaehm_noetig = (90.0 + (100.0 - float(w.daten.bindung))) / 60.0
+			elif _naechstes_eigenes():
+				angesprochen.emit(_naechstes_eigenes())
+			elif siedlung and spieler.global_position.distance_to(siedlung.orte.stall) < 9.0:
+				am_stall.emit()
 		return
 	var w := zaehmen
 	var d := Vector2(w.position.x, w.position.z).distance_to(Vector2(spieler.global_position.x, spieler.global_position.z))
@@ -344,18 +350,95 @@ func _anleinen(w: WildPferd) -> String:
 # --- Eigene Pferde ---
 
 func _auf_die_weide(d: Dictionary) -> void:
-	var r: Rect2 = siedlung.orte.weide.grow(-3.0)
-	var p := r.position + Vector2(_rng.randf() * r.size.x, _rng.randf() * r.size.y)
-	var w := _pferd_knoten(d, p)
-	w.zustand = "weide"
-	d.ort = "weide"
+	var w := _pferd_knoten(d, Vector2(siedlung.orte.weide.get_center()))
 	eigene.append(w)
+	unterbringen(w, d.get("ort", "weide") if d.get("ort", "weide") in ["stall", "weide", "frei"] else "weide")
+
+
+## Eigenes Pferd in der Nähe (Aktionsmenü), nicht im Stall
+func _naechstes_eigenes() -> WildPferd:
+	var s := spieler.global_position
+	for w in eigene:
+		if w.zustand != "stall" and w.global_position.distance_to(s) < 4.5:
+			return w
+	return null
+
+
+## Plätze je Ort (Farm.capacity): Stall S 2, Weide 1 je 10 Innenkacheln, frei 1 je 50 Kacheln
+func plaetze(ort: String) -> int:
+	match ort:
+		"stall": return 2
+		"weide": return int(8 * 5 / 10)
+		"frei": return int(Siedlung.GRUNDSTUECK * Siedlung.GRUNDSTUECK / 50)
+	return 0
+
+
+func belegt(ort: String) -> int:
+	return Spiel.herde.filter(func(d): return d.get("ort") == ort).size()
+
+
+## Bringt ein eigenes Pferd unter (Wild:house): Stall (unsichtbar drin), Weide, frei auf dem Hof
+func unterbringen(w: WildPferd, ort: String) -> void:
+	fuehrung.erase(w)
+	w.daten.ort = ort
+	w.daten.erase("neu")
+	w.zustand = ort
+	w.soll_tempo = 0.0
+	w.uhr = 0.0
+	w.visible = ort != "stall"
+	var r: Rect2 = siedlung.orte.weide.grow(-3.0) if ort == "weide" else siedlung.orte.grundstueck.grow(-6.0)
+	if ort == "stall":
+		w.position = siedlung.orte.stall
+	else:
+		var p := r.position + Vector2(_rng.randf() * r.size.x, _rng.randf() * r.size.y)
+		w.position = Vector3(p.x, gelaende.hoehe(p.x, p.y), p.y)
+		w.ziel = p
+
+
+## Pferd an die Leine nehmen (Anleinen, aus dem Stall holen). Gibt false zurück, wenn kein Platz ist.
+func anleinen(w: WildPferd) -> bool:
+	var folgt := int(w.daten.bindung) >= int(HoofyDaten.daten().stats.bindung.folgt)
+	var am_strick := fuehrung.filter(func(x): return x.zustand == "gefuehrt").size()
+	if fuehrung.size() >= MAX_FUEHREN or (not folgt and am_strick >= MAX_STRICK):
+		return false
+	if w.zustand == "stall":
+		var vor: Vector3 = siedlung.orte.stall + Vector3(0, 0, 9)
+		w.position = Vector3(vor.x, gelaende.hoehe(vor.x, vor.z), vor.z)
+		w.visible = true
+	fuehrung.append(w)
+	w.daten.erase("ort")
+	w.zustand = "folgt" if folgt else "gefuehrt"
+	w.leine_uhr = 0.0
+	return true
+
+
+## Leine lösen: auf der Weide (wenn man dort steht) oder lose an Ort und Stelle (Wild:release)
+func loslassen(w: WildPferd) -> String:
+	fuehrung.erase(w)
+	if siedlung.orte.weide.has_point(Vector2(w.position.x, w.position.z)):
+		unterbringen(w, "weide")
+		return "%s bleibt auf der Weide." % w.daten.name
+	var folgte := w.zustand == "folgt"
+	w.zustand = "lose"
+	w.daten.ort = "lose"
+	w.soll_tempo = 0.0
+	return "%s %s" % [w.daten.name, "bleibt hier." if folgte else "ist frei."]
+
+
+func knoten_von(d: Dictionary) -> WildPferd:
+	for w in eigene:
+		if w.daten == d:
+			return w
+	return null
 
 
 func _eigen(w: WildPferd, delta: float) -> void:
 	match w.zustand:
 		"gefuehrt", "folgt":
 			var p := Vector2(w.position.x, w.position.z)
+			# einmal auf dem eigenen Grundstück: nicht mehr neu; reißt es sich los, bleibt es deins
+			if w.daten.get("neu", false) and siedlung and siedlung.auf_grundstueck(w.global_position):
+				w.daten.erase("neu")
 			var i := fuehrung.find(w)
 			var z: Vector3 = spieler.spur_punkt(4.0 + i * 3.5)
 			w.ziel = Vector2(z.x, z.z)
@@ -374,11 +457,11 @@ func _eigen(w: WildPferd, delta: float) -> void:
 				w.soll_tempo = 0.0
 		"lose":
 			w.soll_tempo = 0.0
-		"weide":
-			# grast und läuft innerhalb der Weide umher
+		"weide", "frei":
+			# grast und läuft innerhalb der Weide (frei: des Grundstücks) umher
 			w.uhr -= delta
 			if w.uhr <= 0.0:
-				var r: Rect2 = siedlung.orte.weide.grow(-2.0)
+				var r: Rect2 = siedlung.orte.weide.grow(-2.0) if w.zustand == "weide" else siedlung.orte.grundstueck.grow(-4.0)
 				w.ziel = r.position + Vector2(randf() * r.size.x, randf() * r.size.y)
 				w.soll_tempo = 1.2 if randf() < 0.5 else 0.0
 				w.uhr = randf_range(3.0, 8.0)

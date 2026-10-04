@@ -160,10 +160,13 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [x] Folgen ohne Leine ab Bindung 100
 - [ ] Pfiff ab Bindung 90, Aufsitzen auf eigene Pferde, frisch gezähmt nicht reitbar
 - [ ] Heimbringen auf Weide oder in den Stall
-- [ ] Füttern, Striegeln, Streicheln, Schmücken
+- [x] Aktionsmenü am eigenen Pferd: Streicheln, Füttern (Vorrat), Striegeln (mit Bürste), Leine, Unterbringen, Info
+- [ ] Schmücken, Ausrüsten, Aufsitzen auf eigene Pferde
 - [ ] Training durch Reiten und Springen
 - [ ] Jobs: Kutschtaxi, Postritt, Pflügen
-- [ ] Unterbringung: Stall, Weide, frei auf dem Grundstück
+- [x] Unterbringung: Stall S (2 Plätze), Weide (4), frei (8, ab Stärke 60 und Bindung 70); Herausholen am Stall
+- [x] Tageswechsel wie days.lua: Bindung aus Hunger/Sauberkeit, Gewicht, Unterbringungs-Verlust, Hunger, Energie, Fohlenalter, Nachteule
+- [x] Heimgebracht: auf dem Grundstück gewesen = nicht mehr „neu“
 - [ ] Zucht: Gen-Vererbung, Farbgenetik (sichtbar/versteckt), Rassen mischen, Inzucht-Malus, Fohlen wachsen
 
 ### Geld (Hoofy §4)
