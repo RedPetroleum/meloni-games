@@ -132,8 +132,8 @@ func _streuen(rng: RandomNumberGenerator, abstand: float, dichte: Callable, setz
 			var h := gelaende.hoehe(px, pz)
 			var steil := 1.0 - gelaende.normale(px, pz).y
 			# Nichts auf Wege, Brücke, Hof und Dorf
-			var frei := gelaende.weg(px, pz) < 0.05 and Vector2(px, pz).distance_to(Gelaende.HOF) > 14.0 \
-					and Vector2(px, pz).distance_to(Gelaende.DORF) > 40.0 \
+			var frei := gelaende.weg(px, pz) < 0.05 and Vector2(px, pz).distance_to(Gelaende.HOF) > 38.0 \
+					and Vector2(px, pz).distance_to(Gelaende.DORF) > 48.0 \
 					and Vector2(px, pz).distance_to(Vector2(gelaende.bruecke.x, gelaende.bruecke.z)) > 16.0
 			if frei and gelaende.wassertiefe(px, pz) < -0.4 and rng.randf() < dichte.call(px, pz, h, steil):
 				setzen.call(px, pz, h)

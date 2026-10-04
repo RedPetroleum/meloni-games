@@ -12,6 +12,7 @@ const ROT := Color(0.9, 0.3, 0.25)
 var pferd: Pferd
 var himmel: Himmel
 var wildpferde: Wildpferde
+var siedlung: Siedlung
 var geld := 300
 var gebiet := "Heimattal"
 
@@ -141,7 +142,8 @@ func _process(delta: float) -> void:
 		_symbol.queue_redraw()
 	_tagesbalken.value = himmel.abschnitt()
 	_tagesbalken.add_theme_stylebox_override("fill", _stil(GOLD if sonne else BLASS, 3))
-	_gebiet.text = gebiet
+	# Auf dem eigenen Grundstück steht „Dein Hof“ (wie im 2D-Hoofy)
+	_gebiet.text = "Dein Hof" if siedlung and pferd and siedlung.auf_grundstueck(pferd.global_position) else gebiet
 	_geld.text = "%d G" % geld
 
 	# Energie nur beim Reiten (später: nur wenn die Spielfigur im Sattel sitzt)

@@ -134,7 +134,7 @@ func _weideplatz() -> Vector2:
 	var halb := Gelaende.GROESSE * 0.5 - 60.0
 	for versuch in 200:
 		var p := Vector2(_rng.randf_range(-halb, halb), _rng.randf_range(-halb, halb))
-		if p.distance_to(Gelaende.HOF) < MIN_ABSTAND_HOF or gelaende.wald(p.x, p.y) > 0.2:
+		if p.distance_to(Gelaende.HOF) < MIN_ABSTAND_HOF or p.distance_to(Gelaende.DORF) < 80.0 or gelaende.wald(p.x, p.y) > 0.2:
 			continue
 		if gelaende.wassertiefe(p.x, p.y) > -0.5 or gelaende.normale(p.x, p.y).y < 0.9:
 			continue

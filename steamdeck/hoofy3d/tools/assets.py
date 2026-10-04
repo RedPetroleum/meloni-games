@@ -38,6 +38,11 @@ MODELLE = [
 # Password & API). Ohne Token werden diese Modelle übersprungen.
 SKETCHFAB = {
     "pferd/horse_henry7.glb": "a6f860e43e364619bccb174a1ac7d0c9",  # „Horse“ von henry_7
+    "hof/wohnwagen.glb": "16c9bb2715e544d59f4e9a03e0a5745e",       # „Mobile Home“
+    "hof/stall_s.glb": "a9732b6c1c4249a08477de9fc53ee6ad",         # „House Farm wood“
+    "dorf/laden.glb": "9ddf3d7402c64543a820cecebcc639b2",          # „General Store“
+    "dorf/marktstand.glb": "cb20f7fb78f84347a1bb3b72403c9944",     # „Medieval Market Stall 4/4“
+    "dorf/hindernisse.glb": "67ff46cf20504428a1f7cf7c2e73ed3d",    # „Show jumping“
 }
 PFERD = "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Horse.glb"
 

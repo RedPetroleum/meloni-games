@@ -14,6 +14,9 @@ func _ready() -> void:
 	var wasser := Wasser.new()
 	wasser.gelaende = gelaende
 	add_child(wasser)
+	var siedlung := Siedlung.new()
+	siedlung.gelaende = gelaende
+	add_child(siedlung)
 	var bewuchs := Bewuchs.new()
 	bewuchs.gelaende = gelaende
 	add_child(bewuchs)
@@ -61,6 +64,7 @@ func _ready() -> void:
 	anzeige.pferd = pferd
 	anzeige.himmel = himmel
 	anzeige.wildpferde = wild
+	anzeige.siedlung = siedlung
 	add_child(anzeige)
 	Einstellungen.anwenden(get_viewport(), himmel.env, himmel.sonne)
 	# Für Leistungsmessungen: --ohne=gras,bewuchs,schatten,ssao,nebel,wild

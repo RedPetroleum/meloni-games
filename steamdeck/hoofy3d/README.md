@@ -168,6 +168,11 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [ ] Käufer: Sammlerin, Reithof, Züchter, Schlachter; Bestellungen
 - [ ] Turniere: Schönheitswettbewerb, Springreiten, Rennen, Siegerpodest
 
+### Hof und Dorf im Heimattal (E12, E20, E32)
+- [x] Grundstück 20 × 20 Kacheln (1 Kachel = 2,5 m), Wohnwagen und Stall S im Norden, Weide mit Tor im Süden
+- [x] Dorf: Laden, Pferdemarkt mit Koppel, Jobbrett, Turnierplatz mit Hindernissen, Namensschilder
+- [ ] Wohnhaus im Dorf
+
 ### Hof (Hoofy §5)
 - [ ] Baumodus: Haus, Stall, Weiden mit Zäunen und Tor, Garage, Deko
 - [ ] Maschinen: Göpel/Stromgenerator mit Pferd
@@ -188,6 +193,7 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 
 ## Lizenzen der Grafik
 
+- Hof und Dorf (Sketchfab, CC-BY): „Mobile Home“ (16c9bb27), „House Farm wood“ (a9732b6c), „General Store“ (9ddf3d74), „Medieval Market Stall Asset 4/4“ (cb20f7fb), „Show jumping“ (67ff46cf); Autoren auf der jeweiligen Sketchfab-Seite
 - Pferd: „Horse“ von henry_7, https://sketchfab.com/3d-models/horse-a6f860e43e364619bccb174a1ac7d0c9 (CC-BY 4.0)
 - Poly Haven (polyhaven.com): CC0
 - Ersatz-Pferd ohne Sketchfab-Token: three.js-Beispiel `Horse.glb` (aus „ROME“ von Mirada), nur privat

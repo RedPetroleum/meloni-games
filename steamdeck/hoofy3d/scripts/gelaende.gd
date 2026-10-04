@@ -29,7 +29,7 @@ const BRUECKE := Vector2(INF, INF)
 const WEGE := [
 	[Vector2(0, 40), Vector2(55, 25), Vector2(105, 35), Vector2(150, 30)],
 	[Vector2(0, 40), Vector2(15, -60), Vector2(-15, -170), Vector2(10, -300), Vector2(0, -430)],
-	[Vector2(0, 40), Vector2(-15, 150), Vector2(20, 280), Vector2(5, 430)],
+	[Vector2(0, 40), Vector2(18, 40), Vector2(20, 72), Vector2(-15, 150), Vector2(20, 280), Vector2(5, 430)],   # an der Weide vorbei
 	[Vector2(0, 40), Vector2(-80, 55), BRUECKE, Vector2(-330, 85), Vector2(-430, 70)],
 ]
 
