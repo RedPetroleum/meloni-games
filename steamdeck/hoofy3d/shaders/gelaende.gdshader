@@ -79,7 +79,7 @@ void fragment() {
 	float steil = 1.0 - welt_normale.y;
 	float w_wald = smoothstep(0.2, 0.6, mk.g + (m2 - 0.5) * 0.4);
 	float w_weg = smoothstep(0.35, 0.75, texture(wege, (welt.xz + groesse * 0.5) / groesse).r + (m2 - 0.5) * 0.5);
-	float w_ufer = smoothstep(1.4, 0.4, welt.y + (m2 - 0.5) * 0.8);
+	float w_ufer = smoothstep(0.05, 0.45, mk.r + (m2 - 0.5) * 0.3);
 	float w_fels = smoothstep(0.22, 0.36, steil + (m1 - 0.5) * 0.12);
 	// oben in den Bergen mehr Fels, auch auf flacheren Stellen
 	w_fels = max(w_fels, smoothstep(70.0, 110.0, welt.y + m1 * 25.0));
@@ -90,7 +90,7 @@ void fragment() {
 	c = mix(c, ec, w_erde); n = mix(n, en, w_erde); a = mix(a, ea, w_erde);
 	c = mix(c, fc, w_fels); n = mix(n, fn, w_fels); a = mix(a, fa, w_fels);
 	// Unter Wasser dunkel und nass
-	float nass = smoothstep(0.3, -0.5, welt.y);
+	float nass = smoothstep(0.55, 1.0, mk.r);
 	c *= mix(1.0, 0.55, nass);
 
 	ALBEDO = c;

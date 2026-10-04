@@ -54,9 +54,9 @@ func _physics_process(_delta: float) -> void:
 		if f >= e[0] and f <= e[1]:
 			for a in e[2]:
 				jetzt[a] = true
+	# Jeden Frame drücken: verliert das Fenster den Fokus, lässt Godot alle Tasten los
 	for a in jetzt:
-		if not _gedrueckt.has(a):
-			Input.action_press(a)
+		Input.action_press(a)
 	for a in _gedrueckt:
 		if not jetzt.has(a):
 			Input.action_release(a)

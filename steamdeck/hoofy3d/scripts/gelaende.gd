@@ -3,31 +3,50 @@ extends Node3D
 ## Das Heimattal: 1024 × 1024 m aus festem Seed (wie in Hoofy: Gebiet aus Zufall erzeugen,
 ## nur Änderungen speichern). Höhen liegen einmal als Array (Kollision, Bewuchs, Pferde) und
 ## als Textur (Shader verschiebt flache Kacheln) vor.
+##
+## Aufbau wie im 2D-Hoofy (E12, E17, E20): Hof in der Mitte des Tals, das Dorf etwa einen
+## Bildschirm daneben, der Fluss auf der anderen Seite von Nord nach Süd, Wege vom Hof zum Dorf,
+## nach Norden, Süden und über eine Brücke zum Fluss und weiter. Ringsum dichter Waldrand,
+## dahinter Berge (statt des Kartenrands).
 
 const GROESSE := 1024.0
 const RASTER := 2.0                       # Meter zwischen zwei Höhenpunkten
 const N := int(GROESSE / RASTER) + 1      # 513 Punkte je Seite
 const KACHEL := 64.0
 const WEG_AUFL := 1024                    # Wegemaske: 1 m pro Pixel
-const WASSER := 0.0                       # Höhe des Seespiegels
+const KEIN_WASSER := -1000.0
 
-const HOF := Vector2(0, 40)               # Startpunkt, flach
-const SEE := Vector2(150, -130)
-## Wege als Linienzüge (x, z), vom Hof durchs Tal
+const HOF := Vector2(0, 40)               # Grundstück und Startpunkt, flach
+const DORF := Vector2(150, 30)            # Laden, Pferdemarkt, Jobbrett, Turnierplatz
+const FLUSS_X := -230.0                   # mittlere Lage des Flusses (Westen, Dorf liegt im Osten)
+const FLUSS_TIEFE := 1.7
+const AUE := 95.0                         # so weit senkt sich das Land zum Fluss hin
+## Wasserspiegel im Norden und Süden (der Fluss fließt von Nord = -z nach Süd = +z)
+const SPIEGEL_NORD := 4.0
+const SPIEGEL_SUED := 1.0
+## Wege als Linienzüge (x, z). BRUECKE wird durch den Kreuzungspunkt mit dem Fluss ersetzt.
+const BRUECKE := Vector2(INF, INF)
 const WEGE := [
-	[Vector2(0, 40), Vector2(30, 0), Vector2(70, -60), Vector2(95, -120), Vector2(80, -200), Vector2(20, -260), Vector2(-80, -280), Vector2(-170, -230), Vector2(-230, -140)],
-	[Vector2(0, 40), Vector2(-40, 90), Vector2(-110, 140), Vector2(-150, 210), Vector2(-120, 290), Vector2(-30, 320), Vector2(80, 300), Vector2(180, 240), Vector2(240, 140), Vector2(230, 30), Vector2(205, -60)],
-	[Vector2(-110, 140), Vector2(-190, 80), Vector2(-230, -10), Vector2(-230, -140)],
+	[Vector2(0, 40), Vector2(55, 25), Vector2(105, 35), Vector2(150, 30)],
+	[Vector2(0, 40), Vector2(15, -60), Vector2(-15, -170), Vector2(10, -300), Vector2(0, -430)],
+	[Vector2(0, 40), Vector2(-15, 150), Vector2(20, 280), Vector2(5, 430)],
+	[Vector2(0, 40), Vector2(-80, 55), BRUECKE, Vector2(-330, 85), Vector2(-430, 70)],
 ]
 
 @export var saat := 2040
 
 var hoehen := PackedFloat32Array()
 var wald_dichte := PackedFloat32Array()
+var spiegel := PackedFloat32Array()      # Wasserspiegel je Rasterpunkt, KEIN_WASSER fern vom Fluss
 var hoehen_bild: Image
-var masken_bild: Image                    # G = Wald, B = Blumenwiese
+var masken_bild: Image                    # R = nass, G = Wald, B = Blumenwiese
 var wege_bild: Image                      # R = Weg
 var material: ShaderMaterial
+var fluss := PackedVector3Array()         # Mittellinie: x, Wasserspiegel, z
+var fluss_breite := PackedFloat32Array()
+var bruecke := Vector3.ZERO               # Mitte der Brücke auf Höhe des Ufers
+var bruecke_richtung := Vector3.RIGHT     # Richtung des Wegs über die Brücke
+var bruecke_form := Transform3D()         # Fahrbahn als Einheitsquader (setzt Wasser)
 
 var _n_huegel := FastNoiseLite.new()
 var _n_grat := FastNoiseLite.new()
@@ -38,6 +57,7 @@ var _n_detail := FastNoiseLite.new()
 func _ready() -> void:
 	var t := Time.get_ticks_msec()
 	_rauschen_einrichten()
+	_fluss_legen()
 	_hoehen_berechnen()
 	_wege_zeichnen()
 	_kacheln_bauen()
@@ -64,6 +84,23 @@ func _rauschen_einrichten() -> void:
 	_n_detail.fractal_octaves = 2
 
 
+## Flusslage x(z): geschwungen, aber immer von Nord nach Süd
+func _fluss_x(z: float) -> float:
+	return FLUSS_X + sin(z * 0.009 + 1.3) * 40.0 + _n_wald.get_noise_2d(z * 0.4, 777.0) * 30.0
+
+
+func _fluss_spiegel(z: float) -> float:
+	return lerpf(SPIEGEL_NORD, SPIEGEL_SUED, clampf((z + GROESSE * 0.5) / GROESSE, 0.0, 1.0))
+
+
+func _fluss_legen() -> void:
+	var z := -GROESSE * 0.5 - 20.0
+	while z <= GROESSE * 0.5 + 20.0:
+		fluss.append(Vector3(_fluss_x(z), _fluss_spiegel(z), z))
+		fluss_breite.append(10.0 + _n_detail.get_noise_2d(z * 0.1, 31.0) * 3.0)
+		z += 6.0
+
+
 func _roh_hoehe(x: float, z: float) -> float:
 	var h := _n_huegel.get_noise_2d(x, z) * 16.0 + 9.0
 	h += _n_detail.get_noise_2d(x, z) * 0.6
@@ -75,46 +112,79 @@ func _roh_hoehe(x: float, z: float) -> float:
 	return h
 
 
-func _hoehe_formen(x: float, z: float, hof_h: float) -> float:
+## Höhe mit Fluss, Hof und Dorf. Gibt [Höhe, Wasserspiegel] zurück.
+func _hoehe_formen(x: float, z: float, hof_h: float, dorf_h: float) -> Array:
 	var h := _roh_hoehe(x, z)
 	var p := Vector2(x, z)
-	# See: Mulde mit unregelmäßigem Ufer
-	var d_see := p.distance_to(SEE) + _n_wald.get_noise_2d(x * 2.0, z * 2.0) * 30.0
-	h = lerpf(h, -4.5, smoothstep(95.0, 45.0, d_see))
-	# Hof: flach, damit später Stall und Weiden draufpassen
+	# Fluss: Abstand zur Mittellinie (fast senkrecht zu z, also über die Steigung genähert)
+	var fx := _fluss_x(z)
+	var steigung := (_fluss_x(z + 1.0) - _fluss_x(z - 1.0)) * 0.5
+	var d := absf(x - fx) / sqrt(1.0 + steigung * steigung)
+	var w := _fluss_spiegel(z)
+	var halb := 5.0 + _n_detail.get_noise_2d(z * 0.1, 31.0) * 1.5
+	var wasser := KEIN_WASSER
+	if d < AUE:
+		# Flussaue: das Land fällt sanft zum Fluss ab, dahinter das normale Gelände
+		var aue := w + 0.7 + maxf(d - halb - 4.0, 0.0) * 0.06
+		h = lerpf(aue, h, smoothstep(halb + 6.0, AUE, d) * smoothstep(halb + 6.0, AUE, d))
+		# Flussbett
+		var bett := w - FLUSS_TIEFE * (1.0 - minf(d / (halb + 2.0), 1.0) ** 2)
+		h = lerpf(bett, h, smoothstep(halb - 1.0, halb + 3.0, d))
+		if d < halb + 8.0:
+			wasser = w
+	# Hof und Dorf: flach, damit Gebäude, Weiden und Turnierplatz draufpassen
 	h = lerpf(h, hof_h, smoothstep(75.0, 35.0, p.distance_to(HOF)))
-	return h
+	h = lerpf(h, dorf_h, smoothstep(70.0, 40.0, p.distance_to(DORF)))
+	return [h, wasser]
 
 
 func _hoehen_berechnen() -> void:
 	hoehen.resize(N * N)
 	wald_dichte.resize(N * N)
+	spiegel.resize(N * N)
 	hoehen_bild = Image.create_empty(N, N, false, Image.FORMAT_RF)
 	masken_bild = Image.create_empty(N, N, false, Image.FORMAT_RGBA8)
-	var hof_h := maxf(_roh_hoehe(HOF.x, HOF.y), 4.0)
+	var hof_h := maxf(_roh_hoehe(HOF.x, HOF.y), 6.0)
+	var dorf_h := maxf(_roh_hoehe(DORF.x, DORF.y), 6.0)
 	var halb := GROESSE * 0.5
 	for iz in N:
 		var z := iz * RASTER - halb
 		for ix in N:
 			var x := ix * RASTER - halb
-			var h := _hoehe_formen(x, z, hof_h)
+			var hw := _hoehe_formen(x, z, hof_h, dorf_h)
+			var h: float = hw[0]
 			var i := iz * N + ix
 			hoehen[i] = h
+			spiegel[i] = hw[1]
 			hoehen_bild.set_pixel(ix, iz, Color(h, 0, 0))
 			var p := Vector2(x, z)
+			var nass := clampf((hw[1] + 0.9 - h) / 1.2, 0.0, 1.0)
 			var w := smoothstep(0.05, 0.35, _n_wald.get_noise_2d(x, z))
+			# Dichter Waldrand vor den Bergen wie in Hoofy (Rand 5 Kacheln)
+			var rand := maxf(absf(x), absf(z))
+			w = maxf(w, smoothstep(330.0, 400.0, rand + _n_wald.get_noise_2d(x * 3.0, z * 3.0) * 30.0))
 			w *= smoothstep(60.0, 120.0, p.distance_to(HOF))
-			w *= smoothstep(1.5, 4.0, h)                      # nicht am Ufer
+			w *= smoothstep(55.0, 100.0, p.distance_to(DORF))
+			w *= 1.0 - nass
 			w *= 1.0 - smoothstep(60.0, 110.0, h)              # nicht auf den Gipfeln
 			wald_dichte[i] = w
 			var wiese := smoothstep(0.0, 0.5, _n_wald.get_noise_2d(x * 1.7 + 500.0, z * 1.7)) * (1.0 - w)
-			masken_bild.set_pixel(ix, iz, Color(0, w, wiese, 1))
+			masken_bild.set_pixel(ix, iz, Color(nass, w, wiese, 1))
 
 
 func _wege_zeichnen() -> void:
 	wege_bild = Image.create_empty(WEG_AUFL, WEG_AUFL, false, Image.FORMAT_L8)
 	var px_pro_m := WEG_AUFL / GROESSE
-	for zug in WEGE:
+	for roh: Array in WEGE:
+		var zug := roh.duplicate()
+		var i_bruecke := zug.find(BRUECKE)
+		if i_bruecke >= 0:
+			# Brücke dort, wo der Weg den Fluss kreuzt
+			var z: float = (zug[i_bruecke - 1].y + zug[i_bruecke + 1].y) * 0.5
+			zug[i_bruecke] = Vector2(_fluss_x(z), z)
+			bruecke = Vector3(_fluss_x(z), _fluss_spiegel(z) + 0.85, z)
+			var r: Vector2 = (zug[i_bruecke + 1] - zug[i_bruecke - 1]).normalized()
+			bruecke_richtung = Vector3(r.x, 0, r.y)
 		var punkte := _glaetten(zug)
 		for i in punkte.size() - 1:
 			var a: Vector2 = punkte[i]
@@ -258,6 +328,25 @@ func weg(x: float, z: float) -> float:
 	if px < 0 or pz < 0 or px >= WEG_AUFL or pz >= WEG_AUFL:
 		return 0.0
 	return wege_bild.get_pixel(px, pz).r
+
+
+## Wasserspiegel an dieser Stelle (KEIN_WASSER, wenn kein Fluss in der Nähe)
+func wasserspiegel(x: float, z: float) -> float:
+	var ix := clampi(roundi((x + GROESSE * 0.5) / RASTER), 0, N - 1)
+	var iz := clampi(roundi((z + GROESSE * 0.5) / RASTER), 0, N - 1)
+	return spiegel[iz * N + ix]
+
+
+## Liegt der Punkt auf der Brücke (von oben gesehen)?
+func auf_bruecke(x: float, z: float) -> bool:
+	var lokal := bruecke_form.affine_inverse() * Vector3(x, bruecke.y, z)
+	return absf(lokal.x) <= 0.5 and absf(lokal.z) <= 0.5
+
+
+## Wie tief das Wasser hier ist (≤ 0: trocken)
+func wassertiefe(x: float, z: float) -> float:
+	var w := wasserspiegel(x, z)
+	return w - hoehe(x, z) if w > KEIN_WASSER else -1.0
 
 
 func normale(x: float, z: float) -> Vector3:

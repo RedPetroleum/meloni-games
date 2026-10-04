@@ -26,6 +26,7 @@ TEXTUREN = {
     "boden_fels": "rocky_terrain_02",
     "rinde_laub": "bark_brown_02",
     "rinde_nadel": "pine_bark",
+    "holz_bruecke": "weathered_planks",
 }
 # Kleine Modelle: viele Exemplare per MultiMesh, das Steam Deck muss sie zeichnen können.
 MODELLE = [
@@ -33,6 +34,11 @@ MODELLE = [
     "boulder_01", "rock_moss_set_01", "rock_moss_set_02",
     "dead_tree_trunk_02",
 ]
+# Sketchfab (CC-BY): braucht einen API-Token in ~/.sketchfab_token (sketchfab.com → Settings →
+# Password & API). Ohne Token werden diese Modelle übersprungen.
+SKETCHFAB = {
+    "pferd/horse_henry7.glb": "a6f860e43e364619bccb174a1ac7d0c9",  # „Horse“ von henry_7
+}
 PFERD = "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Horse.glb"
 
 NEU = "--neu" in sys.argv
@@ -76,7 +82,27 @@ def main() -> None:
     import_einstellungen()
     print("Pferd")
     lade(PFERD, ZIEL / "pferd" / "pferd.glb")
+    sketchfab()
     print("fertig")
+
+
+def sketchfab() -> None:
+    token_datei = pathlib.Path.home() / ".sketchfab_token"
+    if not token_datei.exists():
+        print("Sketchfab: kein ~/.sketchfab_token, Modelle übersprungen")
+        return
+    token = token_datei.read_text().strip()
+    print("Sketchfab")
+    for ziel, uid in SKETCHFAB.items():
+        datei = ZIEL / ziel
+        if datei.exists() and not NEU:
+            continue
+        anfrage = urllib.request.Request(f"https://api.sketchfab.com/v3/models/{uid}/download",
+                                         headers={**KOPF, "Authorization": f"Token {token}"})
+        with urllib.request.urlopen(anfrage) as r:
+            url = json.load(r)["glb"]["url"]
+        # Die Download-Adresse ist vorab signiert: ohne Token-Kopf abrufen
+        lade(url, datei)
 
 
 def import_einstellungen() -> None:

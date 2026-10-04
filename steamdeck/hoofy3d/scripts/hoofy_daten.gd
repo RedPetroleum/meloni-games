@@ -1,6 +1,7 @@
 class_name HoofyDaten
-## Rassen, Farben und Charakterzüge aus dem 2D-Hoofy (data/hoofy.json, erzeugt von
-## tools/hoofy_daten.py) plus das, was nur 3D braucht: Körpermaße und Fellfarben.
+## Rassen, Farben, Werte, Charakterzüge und Namen aus dem 2D-Hoofy (data/hoofy.json, erzeugt von
+## tools/hoofy_daten.py) und die Regeln dazu wie in games/hoofy/game/horse_model.lua, plus das,
+## was nur 3D braucht: Körpermaße und Fellfarben.
 
 static var _daten: Dictionary
 
@@ -46,7 +47,7 @@ const FELL := {
 	"gold": {"fell": Color(0.95, 0.72, 0.26), "glanz": 1.0},
 	"regenbogen": {"fell": Color(1, 1, 1), "muster": Muster.REGENBOGEN},
 	"lila": {"fell": Color(0.58, 0.4, 0.85)},
-	"zebra": {"fell": Color(0.92, 0.91, 0.88), "muster": Muster.STREIFEN, "abzeichen": Color(0.04, 0.035, 0.035)},
+	"zebra": {"fell": Color(0.92, 0.91, 0.88), "muster": Muster.STREIFEN, "abzeichen": Color(0.04, 0.035, 0.035), "maehne": Color(0.12, 0.11, 0.1)},
 }
 
 
@@ -83,35 +84,138 @@ static func farbe_stufe(id: String) -> String:
 	return ""
 
 
-static func beschreibung(pferd: Dictionary) -> String:
-	return "%s · %s · %s" % [rasse(pferd.rasse).get("name", pferd.rasse), farbe_name(pferd.farbe), "Stute" if pferd.stute else "Hengst"]
+## Anteile der Farbstufen in Gebiet n (Prozent): pro Gebietsstufe gehen Punkte von „häufig“
+## an die selteneren Stufen, im Verhältnis ihrer Anteile (wie H.tier_shares im 2D-Hoofy).
+static func stufen_anteile(gebiet: int) -> Array:
+	var st: Array = daten().farben.stufen
+	var verschiebung: float = daten().farben.gebiet_verschiebung * (gebiet - 1)
+	var rest := 0.0
+	for i in range(1, st.size()):
+		rest += st[i].anteil
+	var aus := [st[0].anteil - verschiebung]
+	for i in range(1, st.size()):
+		aus.append(st[i].anteil + verschiebung * st[i].anteil / rest)
+	return aus
 
 
-## Zufällige Farbe nach den Seltenheitsstufen aus Hoofy (Anteil in Prozent).
-static func zufallsfarbe(rng: RandomNumberGenerator) -> String:
-	var stufen: Array = daten().farben.stufen
-	var wurf := rng.randf() * 100.0
-	for s in stufen:
-		wurf -= s.anteil
-		if wurf <= 0.0:
-			return s.farben[rng.randi() % s.farben.size()]
-	return stufen[0].farben[0]
+## Stufe würfeln; erlaubt[i] = false: Stufe fällt weg, ihr Anteil verteilt sich. ab: nur Stufen ab dieser.
+static func _stufe_wuerfeln(anteile: Array, erlaubt: Array, rng: RandomNumberGenerator, ab := 0) -> int:
+	var summe := 0.0
+	for i in range(ab, anteile.size()):
+		if erlaubt[i]:
+			summe += anteile[i]
+	var r := rng.randf() * summe
+	for i in range(ab, anteile.size()):
+		if erlaubt[i]:
+			r -= anteile[i]
+			if r < 0.0:
+				return i
+	for i in range(anteile.size() - 1, ab - 1, -1):
+		if erlaubt[i]:
+			return i
+	return -1
 
 
-## Ein Pferd wie in Hoofy: Rasse, Farbe, Geschlecht, Charakterzug, Gen-Werte.
-static func neues_pferd(rng: RandomNumberGenerator, gebiet := 1, rasse_id := "") -> Dictionary:
-	var r: Dictionary = rasse(rasse_id) if rasse_id else rassen(gebiet)[rng.randi() % rassen(gebiet).size()]
-	var sigma: float = daten().stats.gen_sigma
-	var gen := func(basis: float) -> int: return clampi(roundi(rng.randfn(basis, sigma)), 1, 100)
-	var charaktere: Array = daten().charakter.keys()
-	return {
-		"name": "",
-		"rasse": r.id,
-		"farbe": zufallsfarbe(rng),
-		"stute": rng.randf() < 0.5,
-		"charakter": charaktere[rng.randi() % charaktere.size()],
-		"tempo": gen.call(r.tempo),
-		"staerke": gen.call(r.staerke),
-		"ausdauer": clampi(roundi(rng.randfn(r.ausdauer, sigma)), 50, 100),
-		"bindung": gen.call(r.bindung),
+## Farben eines Wildpferds wie im 2D-Hoofy: sichtbar nach der Farbtabelle der Rasse,
+## versteckt gleich selten oder seltener. Gibt [sichtbar, versteckt] zurück.
+static func wildfarben(rasse_id: String, gebiet: int, rng: RandomNumberGenerator) -> Array:
+	var je_stufe: Array = daten().farben.matrix[rasse_id]
+	var erlaubt := je_stufe.map(func(l: Array) -> bool: return l.size() > 0)
+	var anteile := stufen_anteile(gebiet)
+	var t := _stufe_wuerfeln(anteile, erlaubt, rng)
+	var t2 := _stufe_wuerfeln(anteile, erlaubt, rng, t)
+	if t2 < 0:
+		t2 = t
+	return [je_stufe[t][rng.randi() % je_stufe[t].size()], je_stufe[t2][rng.randi() % je_stufe[t2].size()]]
+
+
+## Rasse eines Wildpferds in Gebiet n: Rassen dieses Gebiets dreifach, frühere einfach.
+static func wildrasse(gebiet: int, rng: RandomNumberGenerator) -> String:
+	var liste := rassen(gebiet)
+	var summe := 0.0
+	for r in liste:
+		summe += 3.0 if r.gebiet == gebiet else 1.0
+	var x := rng.randf() * summe
+	for r in liste:
+		x -= 3.0 if r.gebiet == gebiet else 1.0
+		if x < 0.0:
+			return r.id
+	return liste[-1].id
+
+
+const STATS := ["tempo", "staerke", "spuer", "ausdauer"]
+
+
+## Neues Wildpferd wie H.wild im 2D-Hoofy (gleiche Felder, damit Spielstände und Tauschcodes
+## später zusammenpassen). belegt: Namen, die schon vergeben sind.
+static func wildpferd(rng: RandomNumberGenerator, gebiet := 1, rasse_id := "", belegt: Array = []) -> Dictionary:
+	var r := rasse(rasse_id if rasse_id else wildrasse(gebiet, rng))
+	var st: Dictionary = daten().stats
+	var zuege: Array = daten().charakter.keys()
+	var h := {
+		"rasse": r.id, "wild": true, "alter": 1,
+		"sex": "m" if rng.randf() < 0.5 else "w",
+		"zug": zuege[rng.randi() % zuege.size()],
+		"gen": {}, "train": {}, "pot": {},
 	}
+	for key in STATS:
+		var lo: int = st.gen_min
+		var hi: int = st.gen_max
+		if key == "ausdauer":
+			lo = st.ausdauer_min
+			hi = st.ausdauer_max
+		var g := clampi(roundi(r[key] + rng.randfn(0.0, st.gen_sigma)), lo, hi)
+		var pot := roundi(g + r.spanne + rng.randfn(0.0, st.potenzial_sigma))
+		h.gen[key] = g
+		h.train[key] = 0
+		h.pot[key] = clampi(pot, g, st.potenzial_max)
+	var farben := wildfarben(r.id, gebiet, rng)
+	h.farbe = farben[0]
+	h.farbe2 = farben[1]
+	h.bindung = clampi(int(r.bindung) + int(daten().zug_bindung[h.zug]) + roundi((rng.randf() * 2.0 - 1.0) * 5.0), 0, 100)
+	h.hunger = st.hunger.start
+	h.gewicht = st.gewicht.start
+	h.sauberkeit = st.sauberkeit.start
+	h.energie = stat(h, "ausdauer")
+	h.name = freier_name(rng, h.sex, belegt)
+	return h
+
+
+## Gesamtwert eines Stats: Gen + Training, höchstens Max-Potenzial (H.stat)
+static func stat(h: Dictionary, key: String) -> int:
+	return mini(int(h.gen[key]) + int(h.train[key]), int(h.pot[key]))
+
+
+## Name aus den Hoofy-Listen, der zum Geschlecht passt und noch frei ist
+## Wirksamer Wert: Tempo und Stärke mit Gewichtsmalus (Care.effective im 2D-Hoofy)
+static func wirksam(h: Dictionary, key: String) -> float:
+	var v := float(stat(h, key))
+	if key == "tempo" or key == "staerke":
+		var g: Dictionary = daten().stats.gewicht
+		var ueber: float = absf(float(h.get("gewicht", g.start)) - g.start) - g.toleranz
+		if ueber > 0.0:
+			v *= maxf(0.0, 1.0 - ueber * g.malus_prozent / 100.0)
+	return v
+
+
+## Tempo fürs Reiten: wirksames Tempo + Sattel-Bonus, der über das Potenzial hinaus zählt (R.tempo)
+static func reittempo(h: Dictionary) -> float:
+	var bonus := 0.0
+	if h.get("sattel"):
+		for a in daten().ausruestung.liste:
+			if a.id == h.sattel:
+				bonus = a.get("wirkung", {}).get("tempo", 0)
+	return wirksam(h, "tempo") + bonus
+
+
+static func freier_name(rng: RandomNumberGenerator, sex: String, belegt: Array) -> String:
+	var n: Dictionary = daten().namen
+	var liste: Array = (n.w if sex == "w" else n.m) + n.x
+	var frei := liste.filter(func(name): return name not in belegt)
+	if frei.is_empty():
+		frei = liste
+	return frei[rng.randi() % frei.size()]
+
+
+static func beschreibung(h: Dictionary) -> String:
+	return "%s · %s · %s" % [rasse(h.rasse).get("name", h.rasse), farbe_name(h.farbe), "Stute" if h.sex == "w" else "Hengst"]

@@ -1,5 +1,7 @@
 // Pferdefell: Grundfarbe, dunkle Beine, Muster (Schecke, Tupfen, Streifen, Äpfel, Stichel,
-// Regenbogen) im Modellraum, damit es ohne UVs und für jedes Pferdemodell funktioniert.
+// Regenbogen). Muster entstehen aus der Ruheposition (CUSTOM0, siehe PferdModell), damit sie
+// beim Laufen am Fell kleben. Hat das Modell Texturen, kommen Feinheiten (Haarstruktur, Muskeln)
+// aus dessen Farbtextur (nur die Helligkeitsdetails, nicht die Farbe) und Normal Map.
 shader_type spatial;
 
 uniform vec3 fell : source_color = vec3(0.33, 0.17, 0.08);
@@ -8,15 +10,21 @@ uniform vec3 abzeichen : source_color = vec3(0.92, 0.9, 0.86);
 uniform int muster = 0;          // HoofyDaten.Muster
 uniform float glanz = 0.0;       // 1 = metallisch (Gold)
 uniform float tupfen = 0.08;     // Tupfengröße in Metern
+uniform mat3 ruhe = mat3(1.0);   // nur ohne CUSTOM0: Drehung Modellraum → aufrecht
 uniform float einheit = 1.0;     // Modelleinheiten → Meter
-uniform float boden = 0.0;       // Huf-Höhe in Modelleinheiten
-uniform float hoehe = 1.0;       // Gesamthöhe in Modelleinheiten
+uniform vec3 zentrum;            // Körpermitte am Boden (aufrecht, Modelleinheiten)
+uniform float hoehe = 1.0;       // Widerristhöhe über dem Huf (Modelleinheiten)
+uniform float laenge = 1.0;      // halbe Länge Kopf–Schweif (Modelleinheiten)
+uniform bool hat_textur = false;
+uniform sampler2D detail : source_color, filter_linear_mipmap_anisotropic;
+uniform sampler2D normalen : hint_normal, filter_linear_mipmap_anisotropic;
 uniform float saat = 0.0;        // jedes Pferd ein eigenes Muster
 uniform float schmutz = 0.0;     // Hoofy-Sauberkeit: 0 sauber, 1 schlammig
 uniform bool flache_normalen = false; // Modell ohne Normalen: aus der Geometrie berechnen
 
-varying vec3 p_m;    // Position in Metern
-varying float h01;   // 0 = Huf, 1 = Ohren
+varying vec3 p_m;    // Position in Metern, je Pferd verschoben (für Rauschen)
+varying vec3 k;      // Körperkoordinaten: x quer, y 0 = Huf … 1 = Widerrist, z -1 = Kopf … 1 = Schweif
+varying float h01;
 
 vec3 hash3(vec3 p) {
 	p = fract(p * vec3(0.1031, 0.1030, 0.0973));
@@ -49,8 +57,12 @@ float zellen(vec3 p) {
 }
 
 void vertex() {
-	p_m = VERTEX * einheit + vec3(saat * 7.31, 0.0, saat * 3.17);
-	h01 = (VERTEX.y - boden) / hoehe;
+	// Aufrechte Ruheposition aus CUSTOM0 (fehlt das Attribut, ist es 0: dann VERTEX drehen)
+	vec3 aufrecht = length(CUSTOM0.xyz) > 0.0 ? CUSTOM0.xyz : ruhe * VERTEX;
+	vec3 rel = aufrecht - zentrum;
+	k = vec3(rel.x / laenge, rel.y / hoehe, rel.z / laenge);
+	h01 = k.y;
+	p_m = rel * einheit + vec3(saat * 7.31, 0.0, saat * 3.17);
 }
 
 void fragment() {
@@ -60,9 +72,9 @@ void fragment() {
 	vec3 c = fell;
 	// Fell ist nie ganz einfarbig: leichte Wolken, Bauch etwas heller, Rücken dunkler
 	c *= 0.9 + 0.2 * fbm(p_m * 2.5);
-	c *= mix(1.08, 0.94, smoothstep(0.35, 0.7, h01));
-	// Beine unten dunkel (Braune, Falben) bzw. Beinfarbe
-	c = mix(beine, c, smoothstep(0.17, 0.27, h01 + (fbm(p_m * 6.0) - 0.5) * 0.04));
+	c *= mix(1.06, 0.96, smoothstep(0.55, 1.0, h01));
+	// Beine unten dunkel (Braune, Falben) bzw. Beinfarbe; h01 = 1 am Widerrist
+	c = mix(beine, c, smoothstep(0.24, 0.36, h01 + (fbm(p_m * 6.0) - 0.5) * 0.05));
 
 	float m = 0.0;
 	if (muster == 1) {        // Schecke: große weiße Platten
@@ -71,10 +83,20 @@ void fragment() {
 	} else if (muster == 2) { // Tupfen
 		m = 1.0 - smoothstep(0.35, 0.45, zellen(p_m / tupfen));
 		c = mix(c, abzeichen, m);
-	} else if (muster == 3) { // Zebrastreifen, mit Rauschen verbogen
-		float s = sin((p_m.z + (fbm(p_m * 1.7) - 0.5) * 0.6) * 22.0);
-		m = smoothstep(0.1, 0.25, s);
-		c = mix(c, abzeichen, m);
+	} else if (muster == 3) { // Zebra: senkrecht an Hals und Rumpf, schräg auf der Kruppe,
+		                          // Ringe an den Beinen, fein im Gesicht
+		vec3 q = k * vec3(laenge, hoehe, laenge) * einheit;   // Meter, ohne Versatz
+		float rumpf = q.z;
+		float kruppe = q.z * 0.45 - q.y * 0.9;
+		float bein = q.y * 1.3;
+		float t_kruppe = smoothstep(0.35, 0.75, k.z) * smoothstep(0.35, 0.6, k.y);
+		float t_bein = 1.0 - smoothstep(0.42, 0.56, k.y + max(k.z - 0.5, 0.0) * 0.2);
+		float u = mix(mix(rumpf, kruppe, t_kruppe), bein, t_bein);
+		float dichte = mix(46.0, 75.0, smoothstep(-0.75, -0.95, k.z)) * mix(1.0, 1.35, t_bein);
+		float welle = (fbm(p_m * 2.2) - 0.5) * 2.4;
+		float s = sin(u * dichte + welle);
+		m = smoothstep(-0.12, 0.12, s);
+		c = mix(abzeichen, c, m);
 	} else if (muster == 4) { // Äpfel: helle Ringe auf dunklerem Grund
 		m = smoothstep(0.25, 0.55, zellen(p_m * 9.0));
 		c = mix(abzeichen, c, m);
@@ -90,6 +112,15 @@ void fragment() {
 	float dreck = schmutz * smoothstep(0.55, 0.1, h01 + (fbm(p_m * 3.0) - 0.5) * 0.3);
 	c = mix(c, vec3(0.16, 0.11, 0.07), dreck);
 
+	if (hat_textur) {
+		// Nur die Feinheiten der Originaltextur: Helligkeit im Verhältnis zu ihrer
+		// verschwommenen Umgebung (die Flecken des Originals verschwinden so)
+		float fein = dot(texture(detail, UV).rgb, vec3(0.3, 0.59, 0.11));
+		float grob = dot(textureLod(detail, UV, 2.5).rgb, vec3(0.3, 0.59, 0.11));
+		c *= clamp(fein / max(grob, 0.02), 0.85, 1.18);
+		NORMAL_MAP = texture(normalen, UV).rgb;
+		NORMAL_MAP_DEPTH = 1.0;
+	}
 	ALBEDO = c;
 	ROUGHNESS = mix(mix(0.5, 0.25, glanz), 0.95, dreck);
 	METALLIC = glanz * 0.6;

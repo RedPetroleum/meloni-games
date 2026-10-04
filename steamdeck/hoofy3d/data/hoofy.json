@@ -775,5 +775,267 @@
    "sprinten": 2,
    "reiten": 3
   }
+ },
+ "ausruestung": {
+  "liste": [
+   {
+    "id": "einfacher_sattel",
+    "name": "Einfacher Sattel",
+    "preis": 150,
+    "text": "Tempo +5, Satteltaschen möglich",
+    "wirkung": {
+     "tempo": 5
+    },
+    "sattel": true,
+    "taschen_moeglich": true
+   },
+   {
+    "id": "sportsattel",
+    "name": "Sportsattel",
+    "preis": 800,
+    "text": "Tempo +10",
+    "wirkung": {
+     "tempo": 10
+    },
+    "sattel": true
+   },
+   {
+    "id": "rennsattel",
+    "name": "Rennsattel",
+    "preis": 3000,
+    "text": "Tempo +15",
+    "wirkung": {
+     "tempo": 15
+    },
+    "sattel": true
+   },
+   {
+    "id": "goldsattel",
+    "name": "Goldsattel",
+    "preis": 12000,
+    "text": "Tempo +20, Schönheit +20",
+    "wirkung": {
+     "tempo": 20,
+     "schoenheit": 20
+    },
+    "sattel": true
+   },
+   {
+    "id": "satteltaschen_s",
+    "name": "Satteltaschen S",
+    "preis": 100,
+    "text": "1 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 1
+   },
+   {
+    "id": "satteltaschen_m",
+    "name": "Satteltaschen M",
+    "preis": 400,
+    "text": "2 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 2
+   },
+   {
+    "id": "satteltaschen_l",
+    "name": "Satteltaschen L",
+    "preis": 1200,
+    "text": "4 Plätze für Fundstücke",
+    "wirkung": [],
+    "plaetze": 4
+   },
+   {
+    "id": "sattellampe",
+    "name": "Sattellampe",
+    "preis": 150,
+    "text": "Sicht nachts",
+    "wirkung": [],
+    "licht": true
+   },
+   {
+    "id": "maehnenschleife",
+    "name": "Mähnenschleife",
+    "preis": 150,
+    "text": "Schönheit +5",
+    "wirkung": {
+     "schoenheit": 5
+    }
+   },
+   {
+    "id": "blumenkranz",
+    "name": "Blumenkranz",
+    "preis": 300,
+    "text": "Schönheit +10",
+    "wirkung": {
+     "schoenheit": 10
+    }
+   },
+   {
+    "id": "glitzerdecke",
+    "name": "Glitzerdecke",
+    "preis": 1200,
+    "text": "Schönheit +15",
+    "wirkung": {
+     "schoenheit": 15
+    }
+   },
+   {
+    "id": "goldhufeisen",
+    "name": "Goldhufeisen",
+    "preis": 4000,
+    "text": "Schönheit +30",
+    "wirkung": {
+     "schoenheit": 30
+    }
+   }
+  ]
+ },
+ "namen": {
+  "w": [
+   "Luna",
+   "Lotte",
+   "Dörte",
+   "Rosi",
+   "Minze",
+   "Lilly",
+   "Nala",
+   "Tinka",
+   "Uschi",
+   "Vroni",
+   "Frieda",
+   "Olga",
+   "Gräfin",
+   "Sprotte",
+   "Tante Erna",
+   "Bella",
+   "Greta",
+   "Hanni",
+   "Ronja",
+   "Pippa",
+   "Mathilda",
+   "Trude",
+   "Liesel",
+   "Paula",
+   "Resi",
+   "Wilma",
+   "Zora",
+   "Cleo",
+   "Mira",
+   "Gundula",
+   "Brunhilde",
+   "Hermine",
+   "Polly",
+   "Molly",
+   "Lola",
+   "Ida",
+   "Fee",
+   "Daisy",
+   "Prinzessin",
+   "Oma Gerda",
+   "Elsa",
+   "Biene",
+   "Hummel",
+   "Möhre"
+  ],
+  "m": [
+   "Blitz",
+   "Paule",
+   "Günther",
+   "Horst",
+   "Bruno",
+   "Ferdinand",
+   "Donner",
+   "Gustav",
+   "Kasimir",
+   "Rudi",
+   "Willi",
+   "Mäxchen",
+   "Piet",
+   "Bolle",
+   "Moritz",
+   "Fritz",
+   "Hugo",
+   "Otto",
+   "Theo",
+   "Konrad",
+   "Jupp",
+   "Kalle",
+   "Sepp",
+   "Balduin",
+   "Herbert",
+   "Egon",
+   "Baron",
+   "Graf Koks",
+   "Rocky",
+   "Sultan",
+   "Hektor",
+   "Fridolin",
+   "Leopold",
+   "Elvis",
+   "Django",
+   "Hubert",
+   "Waldemar",
+   "Napoleon",
+   "Amadeus",
+   "Fips",
+   "Onkel Heinz",
+   "Tornado",
+   "Pfeffer",
+   "Kaktus"
+  ],
+  "x": [
+   "Karamell",
+   "Sternchen",
+   "Wolke",
+   "Pünktchen",
+   "Keks",
+   "Nebel",
+   "Toffee",
+   "Zimt",
+   "Schoko",
+   "Klecks",
+   "Apfelstrudel",
+   "Wuschel",
+   "Pepper",
+   "Pixel",
+   "Quark",
+   "Yuki",
+   "Zottel",
+   "Hafermotte",
+   "Brezel",
+   "Socke",
+   "Krümel",
+   "Wirbel",
+   "Honig",
+   "Radieschen",
+   "Fanta",
+   "Kekskrümel",
+   "Momo",
+   "Nugget",
+   "Sunny",
+   "Kiwi",
+   "Mango",
+   "Kakao",
+   "Muffin",
+   "Nougat",
+   "Marzipan",
+   "Bonbon",
+   "Lakritz",
+   "Popcorn",
+   "Kiesel",
+   "Schnuffel",
+   "Stups",
+   "Erbse",
+   "Bambi",
+   "Toni",
+   "Sahne"
+  ]
+ },
+ "zug_bindung": {
+  "schreckhaft": -10,
+  "faul": 5,
+  "verfressen": 5,
+  "eitel": 0,
+  "nachteule": 0
  }
 }

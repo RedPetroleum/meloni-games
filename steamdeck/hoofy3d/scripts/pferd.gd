@@ -2,15 +2,27 @@ class_name Pferd
 extends CharacterBody3D
 ## Das gerittene Pferd. Steuerung wie in Red Dead: Stick gibt die Richtung (relativ zur Kamera),
 ## Antreiben (A) schaltet eine Gangart hoch, Halten hält das Tempo, Zügeln (B) schaltet runter.
-## Renngalopp kostet Energie (Hoofy: Energie bis zur Ausdauer), im Schritt erholt sich das Pferd.
-## Tempo, Stärke und Ausdauer kommen aus den Hoofy-Werten des Pferdes.
+##
+## Regeln aus dem 2D-Hoofy (game/ride.lua, KATALOG §2, E30):
+## - Tempo = wirksames Tempo (Gewichtsmalus) + Sattel-Bonus; es wirkt wie in Hoofy auf Schritt
+##   (1,3 + 0,6 × T/100) und Galopp (2,0 + 1,4 × T/100), umgerechnet auf die 3D-Gangarten
+## - Sprunghöhe 6 + 0,3 × Stärke (Hoofy-Pixel, 16 px = 1 m), Sprung kostet 5 Energie
+## - Energie ist der Tagesvorrat (= Ausdauer, Reset am Morgen). Reiten 1 je 10 s Hoofy-Zeit; der
+##   3D-Tag ist doppelt so lang, also 1 je 20 s. Galopp doppelt, Renngalopp (nur 3D) vierfach.
+##   Bei 0 nur noch langsamer Schritt und kein Sprung.
 
 enum Gang { STEHEN, SCHRITT, TRAB, GALOPP, RENNGALOPP }
 const GANG_NAMEN := ["Stehen", "Schritt", "Trab", "Galopp", "Renngalopp"]
 const GANG_ID := ["stehen", "schritt", "trab", "galopp", "renngalopp"]
-const GANG_TEMPO := [0.0, 1.7, 3.6, 7.5, 12.0]   # m/s bei durchschnittlichem Tempo-Wert
+## m/s bei Tempo 50. Trab ist vorerst ein zügiger Schritt: dem Pferdemodell fehlt eine
+## Trab-Animation, und schneller abgespielter Schritt sieht albern aus.
+const GANG_TEMPO := [0.0, 1.6, 2.3, 7.5, 11.0]
+const ENERGIE_JE_S := [0.0, 0.05, 0.05, 0.1, 0.2] # Reiten 1 je 20 s, Galopp doppelt, Renngalopp vierfach
+const SPRUNG_ENERGIE := 5.0
+const HOOFY_PX_JE_M := 16.0
 const SCHWERKRAFT := 18.0
 const RENNGALOPP_HALTEN := 1.6   # Sekunden ohne Antreiben, dann zurück in den Galopp
+const MUEDE_SCHRITT := 0.6       # ohne Energie: so viel vom Schritttempo
 
 signal gangart_gewechselt(gang: int)
 signal erschoepft
@@ -38,7 +50,7 @@ func _init(pferd: Dictionary) -> void:
 
 
 func _ready() -> void:
-	modell = PferdModell.new(daten)
+	modell = PferdModell.new(daten, true)
 	add_child(modell)
 	var s := modell.stockmass / 1.65
 	hoehe_kamera = 1.55 + modell.stockmass * 0.45
@@ -54,8 +66,8 @@ func _ready() -> void:
 	floor_max_angle = deg_to_rad(42.0)
 	floor_snap_length = 0.8
 	safe_margin = 0.04
-	energie_max = float(daten.ausdauer)
-	energie = energie_max
+	energie_max = float(HoofyDaten.stat(daten, "ausdauer"))
+	energie = float(daten.get("energie", energie_max))
 
 
 func tempo() -> float:
@@ -70,8 +82,19 @@ func gang_name() -> String:
 	return GANG_NAMEN[gang]
 
 
-func _tempo_faktor() -> float:
-	return 0.82 + float(daten.tempo) / 220.0
+## Wie stark das Tempo-Stat die Gangart beschleunigt, im selben Verhältnis wie im 2D-Hoofy
+## (dort Pixel je Frame), 1,0 bei Tempo 50
+func _tempo_faktor(g: int) -> float:
+	var t := HoofyDaten.reittempo(daten) / 100.0
+	if g >= Gang.GALOPP:
+		return (2.0 + 1.4 * t) / 2.7
+	return (1.3 + 0.6 * t) / 1.6
+
+
+## Neuer Tag: Energie zurück auf die Ausdauer (KATALOG §1)
+func neuer_tag() -> void:
+	energie = energie_max
+	daten.energie = energie
 
 
 func _physics_process(delta: float) -> void:
@@ -91,8 +114,8 @@ func _physics_process(delta: float) -> void:
 		_stufe = maxi(_stufe - 1, Gang.SCHRITT) as Gang
 	if _stufe == Gang.RENNGALOPP and _seit_antreiben > RENNGALOPP_HALTEN:
 		_stufe = Gang.GALOPP
-	if energie < 1.0 and _stufe >= Gang.RENNGALOPP:
-		_stufe = Gang.GALOPP
+	if energie <= 0.0 and _stufe > Gang.SCHRITT:
+		_stufe = Gang.SCHRITT
 		erschoepft.emit()
 
 	var neu := Gang.STEHEN
@@ -109,21 +132,23 @@ func _physics_process(delta: float) -> void:
 		gang = neu
 		gangart_gewechselt.emit(gang)
 
-	# --- Energie (Hoofy: Ausdauer bestimmt den Vorrat) ---
-	match gang:
-		Gang.RENNGALOPP: energie -= 9.0 * delta * 60.0 / energie_max
-		Gang.GALOPP: energie -= 1.0 * delta
-		Gang.TRAB: energie += 1.5 * delta
-		_: energie += 5.0 * delta
-	energie = clampf(energie, 0.0, energie_max)
+	# --- Energie: Tagesvorrat, erholt sich erst am nächsten Morgen ---
+	if _tempo > 0.3:
+		energie = maxf(energie - ENERGIE_JE_S[gang] * delta, 0.0)
+	daten.energie = energie
 
 	# --- Tempo ---
-	var ziel: float = GANG_TEMPO[gang] * _tempo_faktor()
+	var ziel: float = GANG_TEMPO[gang] * _tempo_faktor(gang)
+	if energie <= 0.0:
+		ziel = minf(ziel, GANG_TEMPO[Gang.SCHRITT] * MUEDE_SCHRITT)
 	var vorne := Vector3(sin(_richtung), 0, cos(_richtung)) * -1.0
 	var n := gelaende.normale(global_position.x, global_position.z)
 	var bergauf := -n.dot(vorne)                     # > 0 heißt bergauf
+	if gelaende.auf_bruecke(global_position.x, global_position.z):
+		bergauf = 0.0
 	ziel *= clampf(1.0 - bergauf * 1.6, 0.35, 1.12)
-	var tiefe := Gelaende.WASSER - gelaende.hoehe(global_position.x, global_position.z)
+	# Wassertiefe an den Hufen (auf der Brücke: keine)
+	var tiefe := gelaende.wasserspiegel(global_position.x, global_position.z) - global_position.y
 	if tiefe > 0.3:
 		ziel = minf(ziel, lerpf(4.0, 1.2, clampf((tiefe - 0.3) / 1.2, 0.0, 1.0)))
 
@@ -139,6 +164,11 @@ func _physics_process(delta: float) -> void:
 			ziel *= 0.25
 	_richtung = wrapf(_richtung + drehung, -PI, PI)
 	_drehrate = lerpf(_drehrate, drehung / maxf(delta, 0.0001), 1.0 - exp(-delta * 6.0))
+	# Der Fluss ist nur über die Brücke passierbar (Heimattal, wie im 2D-Hoofy)
+	var vorn := global_position + Vector3(sin(_richtung), 0, cos(_richtung)) * -1.4
+	if gelaende.wassertiefe(vorn.x, vorn.z) > 0.6 and not gelaende.auf_bruecke(vorn.x, vorn.z):
+		ziel = 0.0
+		_tempo = minf(_tempo, 0.5)
 	var beschl := 3.5 if ziel > _tempo else 6.0
 	_tempo = move_toward(_tempo, ziel, beschl * delta)
 
@@ -149,8 +179,10 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		vy = 0.0
 		_sprung = false
-		if Input.is_action_just_pressed("springen") and _tempo > 2.0:
-			vy = 4.2 + float(daten.staerke) / 45.0
+		if Input.is_action_just_pressed("springen") and _tempo > 2.0 and energie > 0.0:
+			var hoehe := (6.0 + 0.3 * HoofyDaten.wirksam(daten, "staerke")) / HOOFY_PX_JE_M
+			vy = sqrt(2.0 * SCHWERKRAFT * hoehe)
+			energie = maxf(energie - SPRUNG_ENERGIE, 0.0)
 			_sprung = true
 			floor_snap_length = 0.0
 	else:
@@ -168,6 +200,13 @@ func _physics_process(delta: float) -> void:
 	if not gelaende.im_tal(global_position.x, global_position.z, 12.0):
 		global_position.x = clampf(global_position.x, -Gelaende.GROESSE * 0.5 + 12.0, Gelaende.GROESSE * 0.5 - 12.0)
 		global_position.z = clampf(global_position.z, -Gelaende.GROESSE * 0.5 + 12.0, Gelaende.GROESSE * 0.5 - 12.0)
+	if Testlauf.optionen.has("log") and Engine.get_physics_frames() % 30 == 0:
+		var v := global_position + Vector3(sin(_richtung), 0, cos(_richtung)) * -1.4
+		var stoss := ""
+		for k in get_slide_collision_count():
+			var c := get_slide_collision(k)
+			stoss += "%s@%s " % [(c.get_collider() as Node).name, c.get_normal().snapped(Vector3.ONE * 0.1)]
+		print("Pferd f=%d pos=%s tempo=%.1f gang=%s boden=%s vorn: tiefe=%.2f bruecke=%s stoss=%s" % [Engine.get_physics_frames(), global_position.snapped(Vector3.ONE * 0.1), _tempo, GANG_NAMEN[gang], is_on_floor(), gelaende.wassertiefe(v.x, v.z), gelaende.auf_bruecke(v.x, v.z), stoss])
 	if global_position.y < gelaende.hoehe(global_position.x, global_position.z) - 1.0:
 		global_position.y = gelaende.hoehe(global_position.x, global_position.z) + 0.1
 
@@ -185,6 +224,11 @@ func _process(delta: float) -> void:
 	var quer := clampf(-_drehrate * _tempo * 0.035, -0.22, 0.22)
 	_neigung = _neigung.lerp(Vector2(laengs, quer), 1.0 - exp(-delta * 8.0))
 	modell.rotation = Vector3(_neigung.x, 0, _neigung.y)
-	modell.animieren(GANG_ID[gang], _tempo)
-	var tiefe := Gelaende.WASSER - p.y
+	var tiefe := gelaende.wasserspiegel(p.x, p.z) - p.y
+	var anim: String = GANG_ID[gang]
+	if _sprung and not is_on_floor():
+		anim = "springen"
+	elif tiefe > 1.1:
+		anim = "schwimmen"
+	modell.animieren(anim, _tempo, _drehrate)
 	modell.schmutz(clampf(tiefe * 0.5, 0.0, 0.6))

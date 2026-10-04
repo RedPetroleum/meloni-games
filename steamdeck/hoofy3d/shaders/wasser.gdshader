@@ -10,6 +10,7 @@ uniform sampler2D wellen_b : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform vec3 flach : source_color = vec3(0.16, 0.26, 0.22);
 uniform vec3 tief : source_color = vec3(0.02, 0.06, 0.08);
 uniform float klarheit = 2.2;     // Meter, bis das Wasser undurchsichtig ist
+uniform bool fluss = false;       // Wellen strömen entlang UV.y (Fließrichtung)
 
 varying vec3 welt;
 
@@ -20,6 +21,10 @@ void vertex() {
 void fragment() {
 	vec2 uv1 = welt.xz / 9.0 + TIME * vec2(0.012, 0.008);
 	vec2 uv2 = welt.xz / 3.7 - TIME * vec2(0.01, -0.014);
+	if (fluss) {
+		uv1 = vec2(UV.x * 1.2, UV.y * 1.3 - TIME * 0.09);
+		uv2 = vec2(UV.x * 2.6 + 0.3, UV.y * 3.0 - TIME * 0.16);
+	}
 	vec3 n = normalize(mix(texture(wellen_a, uv1).rgb, texture(wellen_b, uv2).rgb, 0.5) * 2.0 - 1.0);
 	NORMAL_MAP = vec3(n.xy * 0.5 + 0.5, 1.0);
 	NORMAL_MAP_DEPTH = 0.5;

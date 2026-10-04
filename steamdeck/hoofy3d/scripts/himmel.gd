@@ -1,13 +1,18 @@
 class_name Himmel
 extends Node3D
 ## Tag und Nacht: Sonne, Mond, physikalischer Himmel mit Sternen, Nebel mit Luftperspektive.
-## Hoofy hatte 5 Minuten pro Tag; zum Reiten in 3D ist ein Tag länger (wie in Red Dead).
+## Hoofy: 5 Minuten pro Tag, 3 hell und 2 dunkel. In 3D doppelt so lang (entschieden 2026-10-05):
+## 6 Minuten hell (Sonnenaufgang bis -untergang), 4 Minuten dunkel. Start am Morgen.
 
 const AUFGANG := 5.5
 const UNTERGANG := 20.5
 
-@export var tag_minuten := 24.0
-@export var uhrzeit := 8.0  # Stunden, 0–24
+const HELL_SEKUNDEN := 360.0
+const DUNKEL_SEKUNDEN := 240.0
+
+signal neuer_tag(tag: int)
+
+@export var uhrzeit := 7.0  # Stunden, 0–24
 
 var sonne := DirectionalLight3D.new()
 var mond := DirectionalLight3D.new()
@@ -79,10 +84,14 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	uhrzeit += delta / (tag_minuten * 60.0) * 24.0
-	if uhrzeit >= 24.0:
-		uhrzeit -= 24.0
+	var hell := uhrzeit >= AUFGANG and uhrzeit < UNTERGANG
+	var stunden := (UNTERGANG - AUFGANG) / HELL_SEKUNDEN if hell else (24.0 - UNTERGANG + AUFGANG) / DUNKEL_SEKUNDEN
+	var vorher := uhrzeit
+	uhrzeit = fmod(uhrzeit + delta * stunden, 24.0)
+	# Der neue Tag beginnt am Morgen (Hoofy: Tageswechsel beim Aufwachen)
+	if vorher < AUFGANG and uhrzeit >= AUFGANG:
 		tag += 1
+		neuer_tag.emit(tag)
 	_aktualisieren()
 
 
@@ -118,10 +127,11 @@ func ist_nacht() -> bool:
 	return uhrzeit < AUFGANG or uhrzeit > UNTERGANG
 
 
-func uhrzeit_text() -> String:
-	var h := int(uhrzeit)
-	var m := int((uhrzeit - h) * 60.0)
-	return "Tag %d · %02d:%02d" % [tag, h, m]
+## Anteil des hellen (Sonne) bzw. dunklen Abschnitts, 0–1, für die Anzeige wie in Hoofy
+func abschnitt() -> float:
+	if uhrzeit >= AUFGANG and uhrzeit < UNTERGANG:
+		return (uhrzeit - AUFGANG) / (UNTERGANG - AUFGANG)
+	return fmod(uhrzeit - UNTERGANG + 24.0, 24.0) / (24.0 - UNTERGANG + AUFGANG)
 
 
 ## Sternenhimmel als Panorama (2:1), einmal beim Start erzeugt

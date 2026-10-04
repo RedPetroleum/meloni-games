@@ -11,7 +11,9 @@ var rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	add_child(gelaende)
 	add_child(himmel)
-	add_child(Wasser.new())
+	var wasser := Wasser.new()
+	wasser.gelaende = gelaende
+	add_child(wasser)
 	var bewuchs := Bewuchs.new()
 	bewuchs.gelaende = gelaende
 	add_child(bewuchs)
@@ -22,8 +24,10 @@ func _ready() -> void:
 		var p: PackedStringArray = Testlauf.optionen.pos.split(",")
 		start = Vector2(float(p[0]), float(p[1]))
 	rng.seed = int(Testlauf.optionen.get("seed", "1"))
-	var daten := HoofyDaten.neues_pferd(rng, 1, Testlauf.optionen.get("rasse", "haflinger"))
-	daten.name = "Hoofy"
+	# Probepferd, bis es die Spielfigur gibt: in Hoofy startet man ohne Pferd und zähmt das erste
+	var daten := HoofyDaten.wildpferd(rng, 1, Testlauf.optionen.get("rasse", "haflinger"))
+	daten.wild = false
+	daten.sattel = "einfacher_sattel"
 	if Testlauf.optionen.has("farbe"):
 		daten.farbe = Testlauf.optionen.farbe
 	pferd = Pferd.new(daten)
@@ -41,14 +45,15 @@ func _ready() -> void:
 	if Testlauf.optionen.has("yaw"):
 		kamera.yaw = deg_to_rad(float(Testlauf.optionen.yaw))
 	add_child(kamera)
+	himmel.neuer_tag.connect(func(_t: int) -> void: pferd.neuer_tag())
 	var wild := Wildpferde.new()
 	wild.gelaende = gelaende
 	wild.spieler = pferd
+	wild.himmel = himmel
 	add_child(wild)
 	var anzeige := Anzeige.new()
 	anzeige.pferd = pferd
 	anzeige.himmel = himmel
-	anzeige.wildpferde = wild
 	add_child(anzeige)
 	Einstellungen.anwenden(get_viewport(), himmel.env, himmel.sonne)
 	# Für Leistungsmessungen: --ohne=gras,bewuchs,schatten,ssao,nebel,wild

@@ -37,7 +37,7 @@ void vertex() {
 	vec4 mk = textureLod(masken, karte(o.xz), 0.0);
 	float weg = textureLod(wege, (o.xz + groesse * 0.5) / groesse, 0.0).r;
 	float dichte = (1.0 - smoothstep(0.2, 0.32, 1.0 - n.y)) * (1.0 - smoothstep(0.15, 0.5, weg))
-		* smoothstep(0.2, 0.9, o.y) * mix(1.0, 0.3, mk.g);
+		* (1.0 - smoothstep(0.02, 0.25, mk.r)) * mix(1.0, 0.3, mk.g);
 	float d = length(o.xz - CAMERA_POSITION_WORLD.xz);
 	float rand = 1.0 - smoothstep(radius * 0.55, radius, d);
 	float hoehe = mix(0.22, 0.55, zufall.y) * mix(1.0, 1.4, mk.b) * step(zufall.x * 0.7 + 0.15, dichte) * rand;

@@ -11,7 +11,8 @@ Szenen und Skripte sind Text, also gut mit KI-Assistenten zu bearbeiten).
 ## Loslegen
 
 ```sh
-python3 tools/assets.py        # Grafik laden (~30 MB, nicht im Git)
+python3 tools/assets.py        # Grafik laden (~50 MB, nicht im Git; das Pferd von Sketchfab
+                               # braucht einen API-Token in ~/.sketchfab_token)
 python3 tools/hoofy_daten.py   # Rassen/Farben aus games/hoofy/data/*.lua → data/hoofy.json
 ~/Applications/Godot.app/Contents/MacOS/Godot --path .    # spielen
 ~/Applications/Godot.app/Contents/MacOS/Godot -e --path . # im Editor öffnen
@@ -29,9 +30,36 @@ Godot ist nach `~/Applications/Godot.app` installiert (von godotengine.org, macO
 | L3 | mittlere Maustaste | Kamera hinter das Pferd |
 | | F3 | Leistungsanzeige (fps, Dreiecke) |
 
-Gangarten: Schritt → Trab → Galopp → Renngalopp. Der Renngalopp kostet Energie (Vorrat =
-Hoofy-Ausdauer); fehlt Energie, fällt das Pferd in den Galopp zurück. Tempo und Sprunghöhe
-hängen vom Tempo- und Stärke-Wert des Pferdes ab.
+Gangarten: Schritt → Trab → Galopp → Renngalopp (Trab ist vorerst ein zügiger Schritt, dem
+Pferdemodell fehlt die Animation).
+
+## Regeln aus dem 2D-Hoofy
+
+Alle Werte und Regeln kommen aus [KATALOG.md](../../games/hoofy/KATALOG.md) und
+[ENTSCHEIDUNGEN.md](../../games/hoofy/ENTSCHEIDUNGEN.md); Daten liest `tools/hoofy_daten.py`
+direkt aus `games/hoofy/data/*.lua` und `games/hoofy/game/horse_model.lua`. Umgesetzt:
+
+- Wildpferde wie `H.wild`: Rasse (Gebiet dreifach), Farbe nach Farbtabelle der Rasse und
+  Seltenheit je Gebiet, versteckte Farbe, Gen-Werte (σ 8), Max-Potenzial (Spanne ± σ 5),
+  Bindung (Rasse ± 5 + Charakterzug), Hunger/Gewicht/Sauberkeit, Name aus den Hoofy-Listen.
+  4 gleichzeitig im Heimattal, alle 3 Tage wechseln 1–2.
+- Reiten wie `game/ride.lua`: Tempo = wirksames Tempo (Gewichtsmalus) + Sattel-Bonus, wirkt im
+  Hoofy-Verhältnis auf Schritt und Galopp; Sprunghöhe 6 + 0,3 × Stärke (16 px = 1 m), Sprung
+  5 Energie; bei 0 Energie nur langsamer Schritt, kein Sprung.
+- Anzeige wie E9/E82: oben Sonne/Mond mit Balken, Gebiet, Geld; unten beim Reiten Energie;
+  „Tag N“ groß zum Tagesbeginn.
+- Heimattal wie E12/E20: Hof in der Mitte, Dorf östlich, Fluss von Nord nach Süd im Westen, nur
+  über die Brücke passierbar, Wege zu Dorf, Nord-, Süd- und Westrand, dichter Waldrand.
+
+Für 3D angepasst (entschieden 2026-10-05):
+
+| Hoofy | Hoofy 3D | Warum |
+|---|---|---|
+| Tag 5 min (3 hell, 2 dunkel) | 10 min (6 hell, 4 dunkel), Start am Morgen | in 3D braucht man länger durchs Tal |
+| Energie: Reiten 1 je 10 s, Galopp doppelt | 1 je 20 s, Galopp doppelt, Renngalopp vierfach | gleicher Tagesvorrat bei doppelt langem Tag |
+| Steuerkreuz + B halten = Galopp, A = Sprung | wie Red Dead: A tippen = schneller, B = langsamer, X = Sprung | Wunsch |
+| Schritt, Galopp | Schritt, Trab, Galopp, Renngalopp | Wunsch |
+| Heimattal 96 × 80 Kacheln | 1 × 1 km, Berge ringsum | 3D-Maßstab |
 
 ## Aufs Steam Deck
 
@@ -84,10 +112,9 @@ Weitere Optionen: `--farbe=palomino`, `--rasse=friese`, `--seed=3`.
 
 ### Grafik austauschen
 
-- **Pferd:** Das jetzige Pferd ist ein kantiger Platzhalter (three.js-Beispiel, nur Galopp).
-  Ein besseres Modell als `.glb` ablegen und `MODELL` in `pferd_modell.gd` darauf setzen.
-  Animationen werden über Namen gefunden (`idle`, `walk`, `trot`, `canter`/`gallop`, `jump`,
-  `eat`); Fell, Rassengröße und Steuerung funktionieren ohne weitere Änderungen.
+- **Pferd:** Neues Modell in `MODELLE` (`pferd_modell.gd`) eintragen: Pfad, Knochen für Hufe,
+  Widerrist, Kopf, Schweif, Materialnamen (Fell, Haar, Ausrüstung) und die Animationen je
+  Gangart. Ausrichtung, Rassengröße, Hoofy-Fellfarben und Muster passen sich von selbst an.
   Quellen: Sketchfab (viele kostenlos, CC-BY, Account nötig), Fab/CGTrader (kostenpflichtig),
   KI-Generatoren (Meshy, Tripo).
 - **Spielfigur:** Mixamo (kostenlos, Account nötig) für Figur und Animationen.
@@ -98,14 +125,15 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 
 ### Grundlage
 - [x] Godot-Projekt, Steam-Deck-Export, Grafikstufen, Gamepad-Steuerung
-- [x] Heimattal aus festem Seed: Hügel, Berge ringsum, See, Wege, Wald, Wiesen
+- [x] Heimattal aus festem Seed wie im 2D-Hoofy: Hof in der Mitte, Dorf, Fluss mit Brücke, Wege, Waldrand, Berge
 - [x] Gras, Bäume, Büsche, Felsen, Farne, Blumen
 - [x] Tag/Nacht, Sterne, Nebel
 - [x] Reiten aus der Third-Person-Sicht: Schritt, Trab, Galopp, Renngalopp, Springen
 - [x] Hoofy-Daten: Rassen, Farben (Seltenheit), Werte, Charakterzüge
 - [x] Fellfarben und Muster aller 30 Hoofy-Farben
-- [x] Wildpferdeherden (grasen, wandern, fliehen)
-- [ ] Realistisches Pferdemodell mit Animationen für alle Gangarten
+- [x] Wildpferde wie im 2D-Hoofy (4, Wechsel alle 3 Tage; grasen, wandern, fliehen)
+- [x] Realistisches Pferdemodell (Sketchfab, henry_7) mit Sattel und Zaumzeug
+- [ ] Trab-Animation
 - [ ] Rassen mit eigenen Proportionen (Knochen je Rasse) sowie Mähne, Schweif und Behang
 - [ ] Schönere Bäume: mehrere Arten (Birke, Eiche, Buche, Fichte), feinere Blätter
 - [ ] Abendhimmel und Wasserspiegelungen verbessern
@@ -157,5 +185,6 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 
 ## Lizenzen der Grafik
 
+- Pferd: „Horse“ von henry_7, https://sketchfab.com/3d-models/horse-a6f860e43e364619bccb174a1ac7d0c9 (CC-BY 4.0)
 - Poly Haven (polyhaven.com): CC0
-- Platzhalter-Pferd: three.js-Beispiel `Horse.glb` (aus „ROME“ von Mirada), nur privat
+- Ersatz-Pferd ohne Sketchfab-Token: three.js-Beispiel `Horse.glb` (aus „ROME“ von Mirada), nur privat
