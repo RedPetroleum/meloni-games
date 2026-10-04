@@ -4,16 +4,12 @@ local Body = require("lib.body")
 local U = require("lib.util")
 local Ride = require("game.ride")
 local Gebiet = require("game.gebiet")
+local Figur = require("game.figur")
 
 local Player = {}
 Player.__index = Player
 
 local WALK, RUN = 0.8, 1.3   -- deutlich langsamer (Rückmeldung 1.3.3)
-local SPRITES = {
-  down = {"player_down", "player_down_walk"},
-  up = {"player_up", "player_up_walk"},
-  side = {"player_side", "player_side_walk"},
-}
 
 function Player.new(ctx, x, y)
   return setmetatable({
@@ -91,7 +87,7 @@ local LANTERN_DARK = 0.45
 function Player:draw()
   if self.riding then return end   -- der Reiter wird mit dem Pferd gezeichnet
   local S = self.ctx.S
-  local names = SPRITES
+  local an = self.ctx.outfit and self.ctx.outfit.an
   local phase = self.moving and flr(self.anim) % 4 or 0
   local step = (phase == 1 or phase == 3) and 2 or 1
   local x, y = flr(self.x), flr(self.y)
@@ -99,10 +95,11 @@ function Player:draw()
   -- ab da, wo der Lichtkreis beginnt (Stage.SIGHT_FROM); tagsüber und am frühen Abend nicht.
   local lantern = (self.ctx.inv.laterne or 0) > 0 and ((self.ctx.clock and self.ctx.clock:darkness() >= LANTERN_DARK)
     or Gebiet.neblig(self.ctx))                           -- im Nebel immer (E84)
+  -- Figur aus Schichten (Garderobe): Kleidung, Frisur und Hut wie gewählt
   if self.dir == "left" or self.dir == "right" then
-    S.draw(names.side[step], x - 6, y - 19, self.dir == "left")
+    Figur.draw(an, "side", step, x - 6, y - 19, self.dir == "left")
   else
-    S.draw(names[self.dir][step], x - 6, y - 19, phase == 3)
+    Figur.draw(an, self.dir, step, x - 6, y - 19, phase == 3)
   end
   if lantern then
     local o = LANTERN[self.dir]

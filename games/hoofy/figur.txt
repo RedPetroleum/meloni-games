@@ -1,0 +1,1322 @@
+# Spielfigur in Schichten für die Garderobe im blauen Haus (game/garderobe.lua, game/figur.lua).
+# tools/hoofy_figur.py schneidet jede Schicht auf ihre Pixel zu und schreibt sie ohne die färbbaren Pixel in
+# den erzeugten Teil von sprites.txt; Lage, färbbare Flächen (als Rechtecke) und Farben nach game/figur_pos.lua.
+#
+#   layer NAME X Y     X, Y: linke obere Ecke der Zeilen im 12×20-Bild der Figur (wie player_down),
+#                      darf negativ sein (Hüte, Umhang, große Frisuren). "." ist durchsichtig.
+#   farbe ART ID ZEICHEN=RRGGBB …    Farbvariante einer Art (fhaar, foben, funten). Die Farbe, die genau der
+#                      Palette in sprites.txt entspricht, ist die Grundfarbe (kein recolor).
+#
+# Namen: fkoerper_<ansicht>, funten_<stil>_<ansicht>, foben_<stil>_<ansicht>, fhaar_<stil>_<ansicht>,
+# fhut_<stil>_<ansicht>. Ansichten: down, down_walk, up, up_walk, side, side_walk. Unterteile brauchen
+# down, down_walk, side, side_walk (von hinten wie von vorn, Schritt gespiegelt; up/up_walk nur, wenn anders),
+# Oberteile down, up, side, side_walk (beim Gehen von vorn/hinten gleich), Haare und Hüte down, up, side.
+# Endung _b: wird vor dem Körper gezeichnet (Umhang hinter der Figur).
+# Schichtfolge: _b, Körper, Unterteil, Oberteil, Haare, Hut. Zeichen: L Haare, y Haare hell, B X J Oberteil,
+# T t Unterteil, Z Schuhe, K U Haut.
+
+# ---- Farben ----
+farbe fhaar braun L=6b3e26 y=8a5636
+farbe fhaar dunkelbraun L=3e2416 y=5a3522
+farbe fhaar schwarz L=231c1c y=3d3436
+farbe fhaar blond L=d9b04a y=f0d27a
+farbe fhaar platin L=e8dcb4 y=fbf4dc
+farbe fhaar rot L=b8471e y=d96a3a
+farbe fhaar grau L=8c8a88 y=b4b2ae
+farbe fhaar rosa L=f07ab4 y=ffaad2
+farbe fhaar blau L=3a7ae0 y=70a8f4
+farbe fhaar gruen L=3ab060 y=70d890
+farbe fhaar lila L=9a50d0 y=c088f0
+farbe fhaar feuer L=e04a1a y=ffd040
+farbe fhaar gold L=d8a818 y=fff0a0
+
+farbe foben blau B=3f6fb5 X=2c4f8f J=6a94d4
+farbe foben rot B=b8473a X=8a3129 J=d86a5a
+farbe foben gruen B=4f9a4f X=37702f J=74bc6c
+farbe foben gelb B=e0b840 X=b08a20 J=f4d870
+farbe foben weiss B=ecebe4 X=c4c2b8 J=ffffff
+farbe foben schwarz B=3a3640 X=26232c J=56525e
+farbe foben orange B=e07a30 X=b0561a J=f4a060
+farbe foben rosa B=f09ab8 X=c86e90 J=ffc0d6
+farbe foben lila B=8a4fc0 X=643494 J=ae7ae0
+farbe foben tuerkis B=3aa8a8 X=26807e J=6cd0cc
+farbe foben braun B=8a5a36 X=603c24 J=b07a50
+farbe foben neon B=7cf03a X=4cc01a J=b8ff80
+farbe foben gold B=e0b020 X=b08810 J=fff0a0
+
+farbe funten braun T=4f4038 t=3b2f28
+farbe funten jeans T=3a5a8a t=2a4268
+farbe funten schwarz T=2e2a2e t=1e1a1e
+farbe funten beige T=c8b088 t=a08a64
+farbe funten grau T=7a7a80 t=5a5a60
+farbe funten oliv T=5a6a34 t=424e24
+farbe funten rot T=a83a32 t=7e2a24
+farbe funten weiss T=e8e6de t=c0beb4
+farbe funten pink T=f070b0 t=c04a88
+farbe funten gold T=e0b020 t=b08810
+
+# ---- Körper (Haut, ohne Haare und Kleidung) ----
+layer fkoerper_down 0 0
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkkkk..
+
+layer fkoerper_down_walk 0 0
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkKKk..
+......kKKk..
+......kkkk..
+
+layer fkoerper_up 0 0
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkkkk..
+
+layer fkoerper_up_walk 0 0
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkkkk..
+..kKKk......
+..kkkk......
+
+layer fkoerper_side 0 0
+...kkkkk....
+..kKKKKKk...
+.kKKKKKKKk..
+.kKKKKKKKk..
+.kKKKKKiKk..
+.kKKKKKKKKk.
+..kKKKKKKk..
+...kkKKkk...
+..kKKKKKKk..
+..kKKKKKKk..
+..kKUKKKKk..
+..kKUKKKKk..
+..kKKkKKKk..
+...kKKKKk...
+...kKKKKk...
+...kKKKKk...
+...kKKKKk...
+...kKKKKk...
+...kKKKKKk..
+...kkkkkkk..
+
+layer fkoerper_side_walk 0 0
+...kkkkk....
+..kKKKKKk...
+.kKKKKKKKk..
+.kKKKKKKKk..
+.kKKKKKiKk..
+.kKKKKKKKKk.
+..kKKKKKKk..
+...kkKKkk...
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKUKKKk..
+..kKKUKKKk..
+..kKKKKKKk..
+...kKKKKk...
+..kKKkKKKk..
+..kKKkkKKk..
+.kKKk.kKKk..
+.kKKk..kKKk.
+kKKKk..kKKKk
+kkkk....kkkk
+
+# ---- Unterteile (T Stoff, t Stoff dunkel, Z Schuhe) ----
+layer funten_hose_down 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kTTkkTTk..
+..kZZkkZZk..
+..kkkkkkkk..
+
+layer funten_hose_down_walk 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+..kTTkkTTk..
+..kZZkkTTk..
+..kkkkkTTk..
+......kZZk..
+......kkkk..
+
+layer funten_hose_side 0 13
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kTTTTk...
+...kZZZZZk..
+...kkkkkkk..
+
+layer funten_hose_side_walk 0 13
+...kTTTTk...
+..kTTkTTTk..
+..kTTkkTTk..
+.kTTk.kTTk..
+.kTTk..kTTk.
+kZZZk..kZZZk
+kkkk....kkkk
+
+layer funten_shorts_down 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+..kttkkttk..
+............
+............
+...ZZ..ZZ...
+
+layer funten_shorts_down_walk 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+..kttkkttk..
+...ZZ.......
+............
+.......ZZ...
+
+layer funten_shorts_side 0 13
+...kTTTTk...
+...kTTTTk...
+...kttttk...
+............
+............
+....ZZZZZ...
+
+layer funten_shorts_side_walk 0 13
+...kTTTTk...
+..kTTkTTTk..
+..kttkkttk..
+............
+............
+.ZZZ....ZZZ.
+
+layer funten_rock_down 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+.kTTTTTTTTk.
+.kttttttttk.
+............
+...ZZ..ZZ...
+
+layer funten_rock_down_walk 0 13
+..kTTTTTTk..
+..kTTTTTTk..
+.kTTTTTTTTk.
+.kttttttttk.
+...ZZ.......
+.......ZZ...
+
+layer funten_rock_side 0 13
+...kTTTTk...
+...kTTTTk...
+..kTTTTTTk..
+..kttttttk..
+............
+....ZZZZZ...
+
+layer funten_rock_side_walk 0 13
+...kTTTTk...
+..kTTTTTTk..
+..kTTTTTTk..
+.kttttttttk.
+............
+.ZZZ....ZZZ.
+
+layer funten_reithose_down 0 13
+..kTTTTTTk..
+.kTTTTTTTTk.
+..kTTkkTTk..
+..kZnkkZnk..
+..kZZkkZZk..
+..kZZkkZZk..
+..kkkkkkkk..
+
+layer funten_reithose_down_walk 0 13
+..kTTTTTTk..
+.kTTTTTTTTk.
+..kTTkkTTk..
+..kZZkkZnk..
+..kkkkkZZk..
+......kZZk..
+......kkkk..
+
+layer funten_reithose_side 0 13
+...kTTTTk...
+...kTTTTTk..
+...kTTTTk...
+...kZnZZk...
+...kZZZZk...
+...kZZZZZk..
+...kkkkkkk..
+
+layer funten_reithose_side_walk 0 13
+...kTTTTk...
+..kTTkTTTk..
+..kTTkkTTk..
+.kZnk.kZnk..
+.kZZk..kZZk.
+kZZZk..kZZZk
+kkkk....kkkk
+
+layer funten_pluder_down 0 13
+..kTTTTTTk..
+.kTTTTTTTTk.
+kTTTtkktTTTk
+kTTTtkktTTTk
+.kTTTkkTTTk.
+..kZZkkZZk..
+..kkkkkkkk..
+
+layer funten_pluder_down_walk 0 13
+..kTTTTTTk..
+.kTTTTTTTTk.
+kTTTtkktTTTk
+..kZZkktTTTk
+..kkkkkTTTk.
+......kZZk..
+......kkkk..
+
+layer funten_pluder_side 0 13
+...kTTTTk...
+..kTTTTTTk..
+.kTTTTTTTTk.
+.kTTtTTTTTk.
+..kttttttk..
+...kZZZZZk..
+...kkkkkkk..
+
+layer funten_pluder_side_walk 0 13
+...kTTTTk...
+..kTTTTTTk..
+.kTTTkTTTTk.
+kTTTk.kTTTk.
+kttk...kttk.
+kZZZk..kZZZk
+kkkk....kkkk
+
+layer funten_tutu_down 0 13
+.kTTTTTTTTk.
+kTTVTTTTVTTk
+ktTtTtTtTtTk
+............
+............
+...TT..TT...
+
+layer funten_tutu_down_walk 0 13
+.kTTTTTTTTk.
+kTTVTTTTVTTk
+ktTtTtTtTtTk
+...TT.......
+............
+.......TT...
+
+layer funten_tutu_side 0 13
+..kTTTTTTk..
+.kTVTTTTTTk.
+.ktTtTtTtTk.
+............
+............
+....TTTTT...
+
+layer funten_tutu_side_walk 0 13
+..kTTTTTTk..
+.kTVTTTTTTk.
+.ktTtTtTtTk.
+............
+............
+.TTT....TTT.
+
+# ---- Oberteile (B Stoff, X Stoff dunkel, J Stoff hell) ----
+layer foben_hemd_down 0 7
+.kkBBKKBBkk.
+kBBBBBBBBBBk
+kBBBBBBBBBBk
+kKBBBBBBBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+
+layer foben_hemd_up 0 7
+.kkBBBBBBkk.
+kBBBBBBBBBBk
+kBBXBBBBXBBk
+kKBBXBBXBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+
+layer foben_hemd_side 0 7
+...kkBBkk...
+..kBBBBBBk..
+..kBBBBBBk..
+..kBXBBBBk..
+..kBXBBBBk..
+..kBKkBBBk..
+
+layer foben_hemd_side_walk 0 7
+...kkBBkk...
+..kBBBBBBk..
+..kBBBBBBk..
+..kBBXBBBk..
+..kBBXBBBk..
+..kBBBKBBk..
+
+layer foben_tanktop_down 0 7
+.kkKBKKBKkk.
+kKKBBBBBBKKk
+kKKBBBBBBKKk
+kKKBBBBBBKKk
+kKKXBBBBXKKk
+.kkBBBBBBkk.
+
+layer foben_tanktop_up 0 7
+.kkKBKKBKkk.
+kKKBBBBBBKKk
+kKKBBBBBBKKk
+kKKBXBBXBKKk
+kKKXBBBBXKKk
+.kkBBBBBBkk.
+
+layer foben_tanktop_side 0 7
+...kkKBkk...
+..kBKBBBBk..
+..kBKBBBBk..
+..kBUBBBBk..
+..kBUBBBBk..
+..kBKkBBBk..
+
+layer foben_tanktop_side_walk 0 7
+...kkKBkk...
+..kBBKBBBk..
+..kBBKBBBk..
+..kBBUBBBk..
+..kBBUBBBk..
+..kBBBKBBk..
+
+layer foben_ringel_down 0 7
+.kkBBKKBBkk.
+kBBBBBBBBBBk
+kVVVVVVVVVVk
+kKBBBBBBBBKk
+kKVVVVVVVVKk
+.kkBBBBBBkk.
+
+layer foben_ringel_up 0 7
+.kkBBBBBBkk.
+kBBBBBBBBBBk
+kVVVVVVVVVVk
+kKBBBBBBBBKk
+kKVVVVVVVVKk
+.kkBBBBBBkk.
+
+layer foben_ringel_side 0 7
+...kkBBkk...
+..kBBBBBBk..
+..kVVVVVVk..
+..kBXBBBBk..
+..kVXVVVVk..
+..kBKkBBBk..
+
+layer foben_ringel_side_walk 0 7
+...kkBBkk...
+..kBBBBBBk..
+..kVVVVVVk..
+..kBBXBBBk..
+..kVVXVVVk..
+..kBBBKBBk..
+
+layer foben_kapuze_down 0 7
+.kBBBKKBBBk.
+kBBJVBBVJBBk
+kBBBVBBVBBBk
+kBBXXXXXXBBk
+kKBXBBBBXBKk
+.kkBBBBBBkk.
+
+layer foben_kapuze_up 0 7
+.kBBBBBBBBk.
+kBBkXXXXkBBk
+kBBBkXXkBBBk
+kBBBBkkBBBBk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+
+layer foben_kapuze_side 0 7
+..kBkBBkk...
+..kBBBBBBk..
+..kBBBBVBk..
+..kBXBBVBk..
+..kBXBBBBk..
+..kBKkBBBk..
+
+layer foben_kapuze_side_walk 0 7
+..kBkBBkk...
+..kBBBBBBk..
+..kBBBBVBk..
+..kBBXBVBk..
+..kBBXBBBk..
+..kBBBKBBk..
+
+layer foben_reitjacke_down 0 7
+.kkVVKKVVkk.
+kBBBVVVVBBBk
+kBJBBVVBBJBk
+kBBBBB6BBBBk
+kKXBBB6BBXKk
+.kkXXXXXXkk.
+
+layer foben_reitjacke_up 0 7
+.kkVVVVVVkk.
+kBBBBBBBBBBk
+kBBXBBBBXBBk
+kBBBXBBXBBBk
+kKXBBkkBBXKk
+.kkXXkkXXkk.
+
+layer foben_reitjacke_side 0 7
+...kkVVkk...
+..kBBBBVVk..
+..kBBBBBVk..
+..kBXBBB6k..
+..kBXBBBBk..
+..kXKkXXXk..
+
+layer foben_reitjacke_side_walk 0 7
+...kkVVkk...
+..kBBBBVVk..
+..kBBBBBVk..
+..kBBXBB6k..
+..kBBXBBBk..
+..kXXXKXXk..
+
+layer foben_hawaii_down 0 7
+.kkBBKKBBkk.
+kBPBBKKBBYBk
+kBBBYBBBPBBk
+kKBPBBBYBBKk
+kKXBBYBBBXKk
+.kkBYBBPBkk.
+
+layer foben_hawaii_up 0 7
+.kkBBBBBBkk.
+kBYBBBPBBBBk
+kBBPBBBBYBBk
+kKBBBYBBBPKk
+kKXPBBBBYXKk
+.kkBBPBBBkk.
+
+layer foben_hawaii_side 0 7
+...kkBBkk...
+..kBBYBBPk..
+..kBPBBBBk..
+..kBXBYBBk..
+..kBXBBBPk..
+..kBKkBYBk..
+
+layer foben_hawaii_side_walk 0 7
+...kkBBkk...
+..kBBYBBPk..
+..kBPBBBBk..
+..kBBXBYBk..
+..kBBXBBPk..
+..kBYBKBBk..
+
+layer foben_frack_down 0 7
+.kkBVKKVBkk.
+kBBBVDDVBBBk
+kBBBVVVVBBBk
+kBBBXVVXBBBk
+kKXBXVVXBXKk
+.kkBkVVkBkk.
+
+layer foben_frack_up 0 7
+.kkBBBBBBkk.
+kBBBBBBBBBBk
+kBBXBBBBXBBk
+kBBBXBBXBBBk
+kKXBBBBBBXKk
+.kkBBkkBBkk.
+..kBBkkBBk..
+..kBBkkBBk..
+..kBk..kBk..
+..kk....kk..
+
+layer foben_frack_side 0 7
+...kkVBkk...
+..kBBBBVDk..
+..kBBBBVVk..
+..kBXBBVVk..
+..kBXBBBBk..
+.kBBKkBBBk..
+.kBBk.......
+.kBk........
+.kk.........
+
+layer foben_frack_side_walk 0 7
+...kkVBkk...
+..kBBBBVDk..
+..kBBBBVVk..
+..kBBXBVVk..
+..kBBXBBBk..
+.kBBBBKBBk..
+.kBBk.......
+.kBk........
+.kk.........
+
+layer foben_umhang_down 0 7
+.kkDBKKBDkk.
+kBBBBYYBBBBk
+kBBBYDDYBBBk
+kKBBBYYBBBKk
+kKXBBBBBBXKk
+.kkBBBBBBkk.
+
+layer foben_umhang_down_b -1 7
+...kkkkkkkk...
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kxDDDDDDDDDDxk
+kxDDDDDDDDDDxk
+kxxDDxxxxDDxxk
+.kkkkkkkkkkkk.
+
+layer foben_umhang_up -1 7
+...kkkkkkkk...
+..kDDDDDDDDk..
+.kDDDDDDDDDDk.
+.kDDDDDDDDDDk.
+.kDDDxDDxDDDk.
+kDDDDxDDxDDDDk
+kDDDDxDDxDDDDk
+kDDDxDDDDxDDDk
+kDDDxDDDDxDDDk
+kxDDxDDDDxDDxk
+kxxDxxDDxxDxxk
+.kkkkkkkkkkkk.
+
+layer foben_umhang_side 0 7
+...kkDBkk...
+..kBBBBBYk..
+..kBBBBBYk..
+..kBXBBBBk..
+..kBXBBBBk..
+..kBKkBBBk..
+
+layer foben_umhang_side_b -1 7
+...kkkk.....
+..kDDDDk....
+.kDDDDDk....
+.kDDDDDk....
+kDDDDDDk....
+kDDDDDDk....
+kDDDDDDk....
+kxDDDDDk....
+kxDDDDk.....
+kxxDDDk.....
+.kkkkk......
+
+layer foben_umhang_side_walk 0 7
+...kkDBkk...
+..kBBBBBYk..
+..kBBBBBYk..
+..kBBXBBBk..
+..kBBXBBBk..
+..kBBBKBBk..
+
+layer foben_umhang_side_walk_b -2 7
+...kkkk.....
+..kDDDDk....
+.kDDDDDk....
+kDDDDDDk....
+kDDDDDDk....
+kDDDDDDk....
+kxDDDDDk....
+.kxDDDk.....
+..kxDDk.....
+...kkk......
+
+layer foben_ruestung_down 0 7
+.kkoOOOOokk.
+kOOoBBBBoOOk
+koooB66Boook
+kpooBBBBoopk
+kppoXBBXoppk
+.kkoBBBBokk.
+
+layer foben_ruestung_up 0 7
+.kkoOOOOokk.
+kOOooooooOOk
+kOoOooooOoOk
+kpooOooOoopk
+kppooooooppk
+.kkooooookk.
+
+layer foben_ruestung_side 0 7
+...kkOOkk...
+..kOOOBBBk..
+..kOOoB6Bk..
+..kOpoBBBk..
+..kOpoBBBk..
+..kOpkBBBk..
+
+layer foben_ruestung_side_walk 0 7
+...kkOOkk...
+..kOOOBBBk..
+..kOOoB6Bk..
+..kOopBBBk..
+..kOopBBBk..
+..kOOOpBBk..
+
+# ---- Frisuren (L Haare, y Haare hell); Glatze hat nur einen Glanzpunkt ----
+layer fhaar_kurz_down 0 0
+...kkkkkk...
+..kLyyLLLk..
+.kLLLLLLLLk.
+..L......L..
+
+layer fhaar_kurz_up 0 0
+...kkkkkk...
+..kLLLLLLk..
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+
+layer fhaar_kurz_side 0 0
+...kkkkk....
+..kLyyLLk...
+.kLLLLLLLk..
+..LLL.......
+..LL........
+..L.........
+
+layer fhaar_glatze_down 0 1
+....V.......
+
+layer fhaar_glatze_up 0 2
+.....V......
+
+layer fhaar_glatze_side 0 1
+.....V......
+
+layer fhaar_igel_down 0 -2
+..k..kk..k..
+.kLkkLLkkLk.
+.kLLLLLLLLk.
+.kLyLLLLyLk.
+.kLLLLLLLLk.
+..L.L..L.L..
+
+layer fhaar_igel_up 0 -2
+..k..kk..k..
+.kLkkLLkkLk.
+.kLLLLLLLLk.
+.kLLyLLyLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+
+layer fhaar_igel_side 0 -2
+.k..k..k....
+.kLkLkkLk...
+..kLLLLLLk..
+..kLyLLLLk..
+.kLLLLLLLk..
+..LLL.......
+..LL........
+..L.........
+
+layer fhaar_lang_down 0 0
+...kkkkkk...
+..kLyyLLLk..
+.kLLLLLLLLk.
+.kLLL..LLLk.
+.kL......Lk.
+.kL......Lk.
+kLLk....kLLk
+kLLk....kLLk
+kLyk....kyLk
+.kk......kk.
+
+layer fhaar_lang_up 0 0
+...kkkkkk...
+..kLLLLLLk..
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+kLLLLLLLLLLk
+kLLyLLLLyLLk
+kLLLLLLLLLLk
+.kLLLLLLLLk.
+..kkkkkkkk..
+
+layer fhaar_lang_side 0 0
+...kkkkk....
+..kLyyLLk...
+.kLLLLLLLk..
+.kLLL.......
+kLLLL.......
+kLLLk.......
+kLLLk.......
+kLyLk.......
+kLLLk.......
+.kkk........
+
+layer fhaar_zopf_down 0 0
+...kkkkkk...
+..kLyyLLLk..
+.kLLLLLLLLk.
+..L......L..
+..........Lk
+..........Lk
+.........kLk
+.........kyk
+.........kDk
+.........kLk
+..........k.
+
+layer fhaar_zopf_up 0 0
+...kkkkkk...
+..kLLLLLLk..
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLDDLLk..
+....kLLk....
+....kLLk....
+....kLyk....
+.....kk.....
+
+layer fhaar_zopf_side -1 0
+....kkkkk....
+...kLyyLLk...
+..kDLLLLLLLk.
+.kLLLL.......
+kLLLL........
+kLLL.........
+kLLk.........
+.kLk.........
+.kk..........
+
+layer fhaar_zoepfe_down 0 0
+...kkkkkk...
+..kLyyLLLk..
+.kLLLLLLLLk.
+..L......L..
+kL........Lk
+kL........Lk
+kLk......kLk
+kyk......kyk
+kLk......kLk
+kDk......kDk
+kLk......kLk
+.k........k.
+
+layer fhaar_zoepfe_up 0 0
+...kkkkkk...
+..kLLLLLLk..
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+kLLLLLLLLLLk
+kLLLLLLLLLLk
+kLkLLLLLLkLk
+kyk......kyk
+kLk......kLk
+kDk......kDk
+kLk......kLk
+.k........k.
+
+layer fhaar_zoepfe_side 0 0
+...kkkkk....
+..kLyyLLk...
+.kLLLLLLLk..
+..LLL.......
+..LL........
+..L.........
+kLk.........
+kyk.........
+kLk.........
+kDk.........
+kLk.........
+.k..........
+
+layer fhaar_locken_down 0 -2
+...kkkkkk...
+..kLLyLLLk..
+.kLyLLLLyLk.
+kLLLLyLLLLLk
+kLyLLLLLLyLk
+kLLL....LLLk
+kLL......LLk
+kLLk....kLLk
+kkk......kkk
+
+layer fhaar_locken_up 0 -2
+...kkkkkk...
+..kLLyLLLk..
+.kLyLLLLyLk.
+kLLLLyLLLLLk
+kLyLLLLLLyLk
+kLLLLyLLLLLk
+kLLyLLLLyLLk
+kLLLLLLLLLLk
+.kLLLLLLLLk.
+..kkkkkkkk..
+
+layer fhaar_locken_side -1 -2
+....kkkkkk...
+...kLLyLLLk..
+..kLyLLLLyLk.
+.kLLLLyLLLLk.
+kLyLLLLLLLk..
+kLLLLL.......
+kLLyL........
+kLLLk........
+.kkk.........
+
+layer fhaar_dutt_down 0 -3
+....kkkk....
+...kLyLLk...
+...kLLLLk...
+...kkLLkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+..L......L..
+
+layer fhaar_dutt_up 0 -3
+....kkkk....
+...kLyLLk...
+...kLLLLk...
+...kkLLkk...
+..kLLLLLLk..
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+
+layer fhaar_dutt_side 0 -3
+.kkkk.......
+kLyLLk......
+kLLLLk......
+.kLLLkkk....
+..kLLLLLk...
+.kLLLLLLLk..
+..LLL.......
+..LL........
+..L.........
+
+layer fhaar_tolle_down 0 -2
+...kkkkk....
+..kLyyLLk...
+.kLLyLLLLkk.
+.kLLLLLLLLLk
+.kLLLLLLLLk.
+..L......L..
+
+layer fhaar_tolle_up 0 -2
+...kkkkkk...
+..kLLLLLLk..
+.kLLLLLLLLk.
+.kLLyLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+.kLLLLLLLLk.
+..kLLLLLLk..
+
+layer fhaar_tolle_side 0 -2
+....kkkkk...
+...kLyyLLkk.
+..kLLLLLLLLk
+..kLLLLLLLk.
+.kLLLLLLLLk.
+..LLL.......
+..LL........
+..L.........
+
+layer fhaar_irokese_down 0 -4
+.....kk.....
+....kLLk....
+....kLyk....
+....kLLk....
+...kkLLkk...
+.....LL.....
+.....LL.....
+
+layer fhaar_irokese_up 0 -4
+.....kk.....
+....kLLk....
+....kLyk....
+....kLLk....
+...kkLLkk...
+.....LL.....
+.....LL.....
+.....LL.....
+.....LL.....
+.....LL.....
+
+layer fhaar_irokese_side 0 -4
+...k.k.k....
+..kLkLkLk...
+..kLLLLLLk..
+...kLyLLk...
+...kLLLLk...
+....LLLL....
+
+layer fhaar_maehne_down -1 -3
+...kkkkkkkk...
+..kLLyLLLyLk..
+.kLyLLLLLLLyk.
+kLLLLLyLLLLLLk
+kLyLLLLLLLLyLk
+kLLLLLLLLLLLLk
+kLLLL....LLLLk
+kLLL......LLLk
+kLLL......LLLk
+kLLLk....kLLLk
+kLyLk....kLyLk
+kLLLLk..kLLLLk
+kLLLLk..kLLLLk
+.kLLk....kLLk.
+..kk......kk..
+
+layer fhaar_maehne_up -1 -3
+...kkkkkkkk...
+..kLLyLLLyLk..
+.kLyLLLLLLLyk.
+kLLLLLyLLLLLLk
+kLyLLLLLLLLyLk
+kLLLLLLLLLLLLk
+kLLLyLLLLyLLLk
+kLLLLLLLLLLLLk
+kLyLLLLLLLLyLk
+kLLLLLLLLLLLLk
+kLLLLLyLLLLLLk
+kLLLLLLLLLLLLk
+.kLLLLLLLLLLk.
+..kkkkkkkkkk..
+
+layer fhaar_maehne_side -2 -3
+....kkkkkkk...
+...kLLyLLLLk..
+..kLyLLLLLyLk.
+.kLLLLyLLLLLLk
+kLyLLLLLLLLLLk
+kLLLLLLLLLLLk.
+kLLLLLLL......
+kLLyLLLk......
+kLLLLLLk......
+kLyLLLLk......
+kLLLLLk.......
+kLLLLLk.......
+.kLLLk........
+..kkk.........
+
+# ---- Hüte (feste Farben) ----
+layer fhut_kappe_down 0 -1
+...kkkkkk...
+..kDDDDDDk..
+.kDDDVVDDDk.
+kxxxxxxxxxxk
+.kkkkkkkkkk.
+
+layer fhut_kappe_up 0 -1
+...kkkkkk...
+..kDDDDDDk..
+.kDDDDDDDDk.
+.kDDDDDDDDk.
+.kkkkVVkkkk.
+
+layer fhut_kappe_side 0 -1
+...kkkkk....
+..kDDDDDk...
+.kDDDVDDDk..
+.kDDDDDDDxxk
+..kkkkkkkkk.
+
+layer fhut_strohhut_down -1 -4
+....kkkkkk....
+...kAAAAAAk...
+...kAaAAaAk...
+...krrrrrrk...
+.kkAAAAAAAAkk.
+kAAAAAAAAAAAAk
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+layer fhut_strohhut_up -1 -4
+....kkkkkk....
+...kAAAAAAk...
+...kAAaAAAk...
+...krrrrrrk...
+.kkAAAAAAAAkk.
+kAAAAAAAAAAAAk
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+layer fhut_strohhut_side -1 -4
+.....kkkkk....
+....kAAAAAk...
+....kAAaAAk...
+....krrrrrk...
+.kkkAAAAAAAkk.
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+layer fhut_cowboy_down -1 -4
+....kkkkkk....
+...kWWwwWWk...
+...kWWWWWWk...
+...kvvvvvvk...
+k.kWWWWWWWWk.k
+kWkWWWWWWWWkWk
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+layer fhut_cowboy_up -1 -4
+....kkkkkk....
+...kWWWWWWk...
+...kWWwwWWk...
+...kvvvvvvk...
+k.kWWWWWWWWk.k
+kWkWWWWWWWWkWk
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+layer fhut_cowboy_side -1 -4
+.....kkkkk....
+....kWWwWWk...
+....kWWWWWk...
+....kvvvvvk...
+k..kWWWWWWWk.k
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+layer fhut_bommel_down 0 -4
+.....kk.....
+....kVVk....
+....kVVk....
+...kkffkk...
+..kffffffk..
+.kfFffffFfk.
+.kVVVVVVVVk.
+.kkkkkkkkkk.
+
+layer fhut_bommel_up 0 -4
+.....kk.....
+....kVVk....
+....kVVk....
+...kkffkk...
+..kffffffk..
+.kfFffffFfk.
+.kVVVVVVVVk.
+.kkkkkkkkkk.
+
+layer fhut_bommel_side 0 -4
+..kk........
+.kVVk.......
+.kVVkk......
+..kkfffkk...
+..kffffffk..
+.kfFfffFffk.
+.kVVVVVVVVk.
+.kkkkkkkkkk.
+
+layer fhut_blumen_down 0 -1
+..kk.kk.kk..
+.kPPkYYkPPk.
+.kPPfYYfPPk.
+..kffkkffk..
+
+layer fhut_blumen_up 0 -1
+..kk.kk.kk..
+.kVVkPPkYYk.
+.kVVfPPfYYk.
+..kffkkffk..
+
+layer fhut_blumen_side 0 -1
+..kk.kk.kk..
+.kYYkPPkVVk.
+.kYYfPPfVVk.
+..kffkkffk..
+
+layer fhut_reithelm_down 0 -2
+...kkkkkk...
+..kiiiiiik..
+.kipiiiiiik.
+.kiiiiiiiik.
+kkiiiiiiiikk
+.kkkkkkkkkk.
+
+layer fhut_reithelm_up 0 -2
+...kkkkkk...
+..kiiiiiik..
+.kiiiiipiik.
+.kiiiiiiiik.
+.kiiiiiiiik.
+.kkkkkkkkkk.
+
+layer fhut_reithelm_side 0 -2
+...kkkkkk...
+..kipiiiiik.
+.kiiiiiiiik.
+.kiiiiiiiiik
+.kkkkkkkiiik
+........kkk.
+
+layer fhut_zylinder_down 0 -7
+..kkkkkkkk..
+..kiipiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kDDDDDDk..
+kkkiiiiiikkk
+.kkkkkkkkkk.
+
+layer fhut_zylinder_up 0 -7
+..kkkkkkkk..
+..kiiiipik..
+..kiiiiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kDDDDDDk..
+kkkiiiiiikkk
+.kkkkkkkkkk.
+
+layer fhut_zylinder_side 0 -7
+...kkkkkk...
+...kipiik...
+...kiiiik...
+...kiiiik...
+...kiiiik...
+...kDDDDk...
+.kkiiiiiikk.
+..kkkkkkkk..
+
+layer fhut_krone_down 0 -4
+..k..kk..k..
+.k6kk66kk6k.
+.k66666666k.
+.k6D6556D6k.
+.k77777777k.
+..kkkkkkkk..
+
+layer fhut_krone_up 0 -4
+..k..kk..k..
+.k6kk66kk6k.
+.k66666666k.
+.k6D6666D6k.
+.k77777777k.
+..kkkkkkkk..
+
+layer fhut_krone_side 0 -4
+..k..k..k...
+.k6kk6kk6k..
+.k6666666k..
+.k6D656D6k..
+.k7777777k..
+..kkkkkkk...
+
+layer fhut_einhorn_down 0 -6
+.....kk.....
+....k67k....
+....k76k....
+....k67k....
+...kk76kk...
+..kPPPPPPk..
+..kkkkkkkk..
+
+layer fhut_einhorn_up 0 -6
+.....kk.....
+....k66k....
+....k66k....
+....k66k....
+...kkkkkk...
+..kPPPPPPk..
+..kkkkkkkk..
+
+layer fhut_einhorn_side 0 -6
+.........kk.
+........k6k.
+.......k67k.
+......k76k..
+..kkkk67kk..
+..kPPPPPPk..
+..kkkkkkkk..

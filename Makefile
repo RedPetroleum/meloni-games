@@ -12,6 +12,7 @@
 #   make run GAME=hoofy SCENARIO=reise   Hoofy direkt in einem Szenario aus game/scenarios.lua starten
 #   make katalog             games/hoofy/KATALOG.md -> games/hoofy/data/*.lua (test, run, shot, dist do it too)
 #   make pferde              Hoofy: Pferdekörper und Fellmuster in games/hoofy/sprites.txt (vor sprites)
+#   make figur               Hoofy: Spielfigur in Schichten aus games/hoofy/figur.txt in sprites.txt (vor sprites)
 #   make new GAME=name       new game from template/
 #   make dist                dist/ with .mlg files and manifest.json (what the CI publishes)
 #   make web                 build/web/meloni-konsole.html: all games playable in the browser (engine as WebAssembly),
@@ -29,7 +30,7 @@ EXTRA ?=
 # make profile: count from this frame on (skips loading and title screens)
 FROM ?= 60
 
-.PHONY: runner pferde sprites katalog run test shot cover profile new dist web clean
+.PHONY: runner pferde figur sprites katalog run test shot cover profile new dist web clean
 
 runner:
 	@$(MAKE) --no-print-directory -C $(RUNNER_DIR)
@@ -37,7 +38,10 @@ runner:
 pferde:
 	@python3 tools/hoofy_pferde.py
 
-sprites: pferde
+figur:
+	@python3 tools/hoofy_figur.py
+
+sprites: pferde figur
 	@python3 tools/sprites.py games/*/
 
 katalog:

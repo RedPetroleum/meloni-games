@@ -619,3 +619,27 @@ Format: **E-Nummer** (Aufgabe) Entscheidung.
   1 500 / 4 000 / 8 000, Garage 3 000, Hangar 15 000. Phasen damit 1 200 / 6 400 / 19 000 / 38 000 / 85 000, in der
   Simulation 8 / 12 / 14 / 11 / 12 Tage (57 Tage ≈ 4,3 h statt 109). KATALOG §9, §10, §15 angepasst; der Selbsttest
   erlaubt für Phase 1 jetzt ab 20 statt 45 Minuten.
+
+## E87 Garderobe im blauen Haus (Wunsch nach 1.6.1)
+- Das blaue Haus im Dorf (Ort `wohnhaus`) ist die Garderobe „Mähne & Masche“. Offen, sobald Gebiet 3 erreichbar ist
+  (Mofa, `ctx.max_gebiet`); davor steht ein Kundenstopper „BALD“ neben der Tür, Beschriftung „Öffnet demnächst“, A an
+  der Tür sagt, ab wann. Danach heißt die Beschriftung „Mähne & Masche“.
+- Editor (game/boutique.lua) in Lila: links ein Spiegel mit der Figur groß von vorn (×6), klein von der Seite (läuft)
+  und von hinten; rechts Hut, Haarfarbe, Frisur, Oberteil, Farbe, Unterteil, Farbe. ↑↓ Kategorie, ←→ anprobieren:
+  Gekauftes wird sofort angezogen, anderes nur anprobiert (Preis bzw. Schloss rechts, Hinweis unten). A kauft und
+  zieht an (Glitzern), B geht und zieht nicht Gekauftes wieder aus. Ausprobieren über mehrere Kategorien geht, so
+  sieht man ein ganzes Outfit vor dem Kauf.
+- Katalog und Preise (game/garderobe.lua, eigene Wahl): 10 Hüte, 13 Haarfarben, 11 Frisuren, 9 Oberteile, 13 Farben
+  dafür, 6 Unterteile, 10 Farben dafür. Grundausstattung kostenlos (sieht aus wie die alte Figur), Normales 20–250 G,
+  Wildes erst ab Gebiet 4–6 und teuer: z. B. Zylinder 900 (4), Löwenmähne 3 000 (5), Heldenumhang 4 000 (5),
+  Krone 5 000 (5), Einhorn-Horn 9 000 (6), Ritterrüstung 12 000 (6), Haarfarben Feuerrot/Gold (6).
+  Gespeichert in `outfit` im Spielstand ({an = gewählt, hat = gekauft}), reist mit.
+- Grafik: Die Spielfigur besteht jetzt aus Schichten (Körper, Unterteil, Oberteil, Haare, Hut, Umhang dahinter) in
+  games/hoofy/figur.txt. tools/hoofy_figur.py (läuft mit `make sprites`) schneidet sie zu; die färbbaren Pixel
+  (Haare L y, Oberteil B X J, Unterteil T t) fehlen im Sprite und werden als Rechtecke in der gewählten Farbe gefüllt
+  (game/figur_pos.lua, kompakt als Bytes). Ein Sprite je Schicht reicht so für alle Farben: mit recolor wären es
+  1 300 Sprites mehr und ~360 KB Lua-Speicher gewesen, so sind es 130 Sprites und ~100 KB. Zeichnen kostet in der
+  Welt etwa 3 % mehr Lua-Befehle. Unterteile von hinten nutzen die Ansicht von vorn (Schritt gespiegelt).
+- Spieler, Reiter auf dem Pferd und der Reiter in den Jobs tragen das Outfit; die Käufer und der Stallbursche bleiben
+  recolor der alten Figur. Szenario `garderobe` (Optionen geld, fahrzeug, screen, outfit), `outfit` geht in jedem
+  Welt-Szenario.

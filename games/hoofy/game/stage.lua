@@ -10,6 +10,7 @@ local Tiles = require("game.tiles")
 local Player = require("game.player")
 local SFX = require("game.sfx")
 local Explore = require("game.explore")
+local Garderobe = require("game.garderobe")
 
 local Stage = {}
 
@@ -44,6 +45,7 @@ function Stage.build(nr, seed, farm)
   ctx.max_gebiet = 1              -- weitestes erreichbares Gebiet (Fahrzeuge kommen mit D1)
   ctx.money = 300                 -- Startgeld (KATALOG §15)
   ctx.inv = {heu = 3, karotte = 2, hafer = 0, premiumfutter = 0, buerste = 0}   -- Bürste erst kaufen (E70)
+  ctx.outfit = Garderobe.neu()    -- Kleidung und Frisur der Spielfigur (Garderobe im blauen Haus)
   ctx.player = ctx.world:add(Player.new(ctx, px, py))
   ctx.trail = Trail.new(px, py)
   ctx.camera = Camera.new(ctx.map.pw, ctx.map.ph, {top = Stage.HUD_H, dz_w = 72, dz_h = 48})
@@ -61,6 +63,7 @@ local function draw_labels(ctx)
     local pl = ctx.area.places[id]
     if pl and abs(p.x - (pl[1] * 16 + 8)) <= Stage.LABEL_NEAR and abs(p.y - (pl[2] * 16 + 8)) <= Stage.LABEL_NEAR then
       local text = L[1]
+      if type(text) == "function" then text = text(ctx) end
       local x = pl[1] * 16 + 8 + L[2] - textw(text) // 2
       local y = pl[2] * 16 + L[3]
       print(text, x + 1, y + 1, Stage.LABEL_SHADOW)

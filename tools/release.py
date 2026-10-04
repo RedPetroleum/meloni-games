@@ -35,7 +35,7 @@ def engine_api_version():
         sys.exit("MEL_API_VERSION not found in engine/meloni/meloni.h")
     return int(match.group(1))
 
-SKIP_FILES = {"cover.png", "sprites.txt", ".DS_Store"}  # sprites.txt: source of sprites.png
+SKIP_FILES = {"cover.png", "sprites.txt", "figur.txt", ".DS_Store"}  # sprites.txt, figur.txt: sources of sprites.png
 SKIP_EXTENSIONS = (".sav", ".md")
 
 

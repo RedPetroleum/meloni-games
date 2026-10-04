@@ -71,6 +71,7 @@ der nächsten Aufgabe und hakt es ab.
 - [x] Lästige Pflege automatisieren können. (1.6.0, E85: Heuraufe, Kratzbürste, Stallbursche)
 - [x] Bäume, Büsche und Randbäume je Gebiet stärker einfärben; kein „Hof“ auf den Karten fremder Gebiete. (1.6.1, E86)
 - [x] Heuraufe kauft nicht nach, eigener Vorrat 20 Heu zum Befüllen. Fahrrad 500, Schuppen 300, Anhänger 1 Platz 400, übrige Preise nach Vorschlag. (1.6.1, E86)
+- [x] Blaues Haus im Dorf: Frisur und Kleidung als Editor (Hut, Haarfarbe, Frisur, Oberteil + Farbe, Unterteil + Farbe), lila, Figur groß von vorn, ↑↓ Kategorie, ←→ wählen, A kaufen, B zurück. Erst ab Gebiet 3, davor Schild „Öffnet demnächst“; wilde Sachen später und teuer. (1.7.0, E87)
 
 ## Auf der Konsole testen
 Checklisten des Loops für jede fertige Phase.

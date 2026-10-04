@@ -12,6 +12,7 @@ local SFX = require("game.sfx")
 local Farm = require("game.farm")
 local Rng = require("lib.rng")
 local U = require("lib.util")
+local Figur = require("game.figur")
 
 local Wild = {}
 Wild.Horse = nil
@@ -356,10 +357,9 @@ function Horse:draw()
   if r then
     -- Reiter auf dem Rücken: Figur der Blickrichtung
     local _, bh = G.size(self.coat, self.body, "side")
-    local S = self.ctx.S
-    local names = {down = "player_down", up = "player_up", left = "player_side", right = "player_side"}
     local d = self.ride_dir or "right"
-    S.draw(names[d], flr(self.x) - 6, flr(self.y - lift) - bh + 4 - 10, d == "left")
+    local an = self.ctx.outfit and self.ctx.outfit.an
+    Figur.draw(an, (d == "left" or d == "right") and "side" or d, 1, flr(self.x) - 6, flr(self.y - lift) - bh + 4 - 10, d == "left")
   end
 end
 

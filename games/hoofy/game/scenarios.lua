@@ -51,6 +51,13 @@ function Scenarios.menues(save)
   return "world", {ort = "start", hof = true, screen = save.screen or "pause"}
 end
 
+-- Garderobe im blauen Haus: vor der Tür, save.geld (Standard 3000), save.fahrzeug (Standard Mofa = Gebiet 3, „zu_fuss“:
+-- noch zu, Schild steht), save.screen ("none": Welt statt Editor), save.outfit: Kleidung {an = {…}, hat = {…}}.
+function Scenarios.garderobe(save)
+  return "world", {ort = "wohnhaus", screen = save.screen or "garderobe", geld = save.geld or 3000,
+    fahrzeug = save.fahrzeug ~= "zu_fuss" and (save.fahrzeug or "mofa") or nil, outfit = save.outfit}
+end
+
 -- Laden: am Ladeneingang, save.geld setzt das Geld. save.screen = "laden" öffnet ihn gleich.
 function Scenarios.laden(save)
   return "world", {ort = "laden", screen = "laden", hof = true, geld = save.geld or 300}
@@ -263,7 +270,13 @@ function Scenarios.start(save)
   if type(f) ~= "function" or save.scenario == "start" then
     error("unbekanntes Szenario " .. tostring(save.scenario), 0)
   end
-  return f(save)
+  local scene, arg = f(save)
+  -- save.outfit (Kleidung der Figur, Garderobe) gilt in jedem Welt-Szenario
+  if save.outfit and scene == "world" then
+    arg = arg or {}
+    arg.outfit = save.outfit
+  end
+  return scene, arg
 end
 
 return Scenarios

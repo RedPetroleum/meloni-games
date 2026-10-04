@@ -47,9 +47,12 @@ U e9c29c   Maul, Blesse
 i 1e1e24   Auge
 K f2c29b   Haut
 L 6b3e26   Haare
+y 8a5636   Haare hell (Garderobe, per recolor)
 B 3f6fb5   Hemd
 X 2c4f8f   Hemd dunkel
+J 6a94d4   Hemd hell (Garderobe)
 T 4f4038   Hose
+t 3b2f28   Hose dunkel (Garderobe)
 Z 3b2a24   Stiefel
 I d9c38c   Strick
 1 2a2226   Muster dunkel (Tupfen, Zebra)
@@ -3731,6 +3734,44 @@ sprite ico_hufeisen_leer
 ............
 ............
 
+# Garderobe im blauen Haus: Haken (gehört dir), Schloss (noch gesperrt)
+sprite gard_haken
+......l
+.....ll
+l...ll.
+ll.ll..
+.lll...
+..l....
+
+sprite gard_schloss
+..OOO..
+.O...O.
+.O...O.
+k77777k
+k66666k
+k66k66k
+k66666k
+kkkkkkk
+
+# Schild vor dem blauen Haus, solange die Garderobe noch zu hat
+sprite schild_bald
+.kkkkkkkkkkkkkkkkkkk.
+kWWWWWWWWWWWWWWWWWWWk
+kWcccccccccccccccccWk
+kWcxxcccxccxcccxxccWk
+kWcxcxcxcxcxcccxcxcWk
+kWcxxccxxxcxcccxcxcWk
+kWcxcxcxcxcxcccxcxcWk
+kWcxxccxcxcxxxcxxccWk
+kWcccccccccccccccccWk
+kWWWWWWWWWWWWWWWWWWWk
+.kkkkkkkkkkkkkkkkkkk.
+...kWk.........kWk...
+...kWk.........kWk...
+..kWk...........kWk..
+..kWk...........kWk..
+..kkk...........kkk..
+
 sprite pfeil_hoch
 .....kk.....
 ....kAAk....
@@ -4126,6 +4167,1272 @@ BkXBXBXBXBXBXkB
 ......kwk......
 .....kkwkk.....
 ....kkkkkkk....
+
+# >>> Figur, erzeugt von tools/hoofy_figur.py aus figur.txt (nicht von Hand ändern)
+# Spielfigur in Schichten (Garderobe), Quelle: figur.txt. Gefärbte Flächen fehlen hier, die
+# zeichnet game/figur.lua als Rechtecke (game/figur_pos.lua) in der gewählten Farbe.
+sprite fkoerper_down
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkkkk..
+
+sprite fkoerper_down_walk
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKiKKiKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkKKk..
+......kKKk..
+......kkkk..
+
+sprite fkoerper_up
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kkkkkkkk..
+
+sprite fkoerper_up_walk
+...kkkkkk...
+..kKKKKKKk..
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+.kKKKKKKKKk.
+..kKKKKKKk..
+.kkKKKKKKkk.
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+kKKKKKKKKKKk
+.kkKKKKKKkk.
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKkkKKk..
+..kKKkkKKk..
+..kKKkkkkk..
+..kKKk......
+..kkkk......
+
+sprite fkoerper_side
+..kkkkk...
+.kKKKKKk..
+kKKKKKKKk.
+kKKKKKKKk.
+kKKKKKiKk.
+kKKKKKKKKk
+.kKKKKKKk.
+..kkKKkk..
+.kKKKKKKk.
+.kKKKKKKk.
+.kKUKKKKk.
+.kKUKKKKk.
+.kKKkKKKk.
+..kKKKKk..
+..kKKKKk..
+..kKKKKk..
+..kKKKKk..
+..kKKKKk..
+..kKKKKKk.
+..kkkkkkk.
+
+sprite fkoerper_side_walk
+...kkkkk....
+..kKKKKKk...
+.kKKKKKKKk..
+.kKKKKKKKk..
+.kKKKKKiKk..
+.kKKKKKKKKk.
+..kKKKKKKk..
+...kkKKkk...
+..kKKKKKKk..
+..kKKKKKKk..
+..kKKUKKKk..
+..kKKUKKKk..
+..kKKKKKKk..
+...kKKKKk...
+..kKKkKKKk..
+..kKKkkKKk..
+.kKKk.kKKk..
+.kKKk..kKKk.
+kKKKk..kKKKk
+kkkk....kkkk
+
+sprite funten_hose_down
+k......k
+k......k
+k..kk..k
+k..kk..k
+k..kk..k
+kZZkkZZk
+kkkkkkkk
+
+sprite funten_hose_down_walk
+k......k
+k......k
+k..kk..k
+kZZkk..k
+kkkkk..k
+....kZZk
+....kkkk
+
+sprite funten_hose_side
+k....k.
+k....k.
+k....k.
+k....k.
+k....k.
+kZZZZZk
+kkkkkkk
+
+sprite funten_hose_side_walk
+...k....k...
+..k..k...k..
+..k..kk..k..
+.k..k.k..k..
+.k..k..k..k.
+kZZZk..kZZZk
+kkkk....kkkk
+
+sprite funten_shorts_down
+k......k
+k......k
+k..kk..k
+........
+........
+.ZZ..ZZ.
+
+sprite funten_shorts_down_walk
+k......k
+k......k
+k..kk..k
+.ZZ.....
+........
+.....ZZ.
+
+sprite funten_shorts_side
+k....k
+k....k
+k....k
+......
+......
+.ZZZZZ
+
+sprite funten_shorts_side_walk
+..k....k..
+.k..k...k.
+.k..kk..k.
+..........
+..........
+ZZZ....ZZZ
+
+sprite funten_rock_down
+.k......k.
+.k......k.
+k........k
+k........k
+..........
+..ZZ..ZZ..
+
+sprite funten_rock_down_walk
+.k......k.
+.k......k.
+k........k
+k........k
+..ZZ......
+......ZZ..
+
+sprite funten_rock_side
+.k....k.
+.k....k.
+k......k
+k......k
+........
+..ZZZZZ.
+
+sprite funten_rock_side_walk
+..k....k..
+.k......k.
+.k......k.
+k........k
+..........
+ZZZ....ZZZ
+
+sprite funten_reithose_down
+.k......k.
+k........k
+.k..kk..k.
+.kZnkkZnk.
+.kZZkkZZk.
+.kZZkkZZk.
+.kkkkkkkk.
+
+sprite funten_reithose_down_walk
+.k......k.
+k........k
+.k..kk..k.
+.kZZkkZnk.
+.kkkkkZZk.
+.....kZZk.
+.....kkkk.
+
+sprite funten_reithose_side
+k....k.
+k.....k
+k....k.
+kZnZZk.
+kZZZZk.
+kZZZZZk
+kkkkkkk
+
+sprite funten_reithose_side_walk
+...k....k...
+..k..k...k..
+..k..kk..k..
+.kZnk.kZnk..
+.kZZk..kZZk.
+kZZZk..kZZZk
+kkkk....kkkk
+
+sprite funten_pluder_down
+..k......k..
+.k........k.
+k....kk....k
+k....kk....k
+.k...kk...k.
+..kZZkkZZk..
+..kkkkkkkk..
+
+sprite funten_pluder_down_walk
+..k......k..
+.k........k.
+k....kk....k
+..kZZkk....k
+..kkkkk...k.
+......kZZk..
+......kkkk..
+
+sprite funten_pluder_side
+..k....k..
+.k......k.
+k........k
+k........k
+.k......k.
+..kZZZZZk.
+..kkkkkkk.
+
+sprite funten_pluder_side_walk
+...k....k...
+..k......k..
+.k...k....k.
+k...k.k...k.
+k..k...k..k.
+kZZZk..kZZZk
+kkkk....kkkk
+
+sprite funten_tutu_down
+.k........k.
+k..V....V..k
+k..........k
+............
+............
+............
+
+sprite funten_tutu_down_walk
+.k........k.
+k..V....V..k
+k..........k
+............
+............
+............
+
+sprite funten_tutu_side
+.k......k.
+k.V......k
+k........k
+..........
+..........
+..........
+
+sprite funten_tutu_side_walk
+.k......k.
+k.V......k
+k........k
+..........
+..........
+..........
+
+sprite foben_hemd_down
+.kk..KK..kk.
+k..........k
+k..........k
+kK........Kk
+kK........Kk
+.kk......kk.
+
+sprite foben_hemd_up
+.kk......kk.
+k..........k
+k..........k
+kK........Kk
+kK........Kk
+.kk......kk.
+
+sprite foben_hemd_side
+.kk..kk.
+k......k
+k......k
+k......k
+k......k
+k.Kk...k
+
+sprite foben_hemd_side_walk
+.kk..kk.
+k......k
+k......k
+k......k
+k......k
+k...K..k
+
+sprite foben_tanktop_down
+.kkK.KK.Kkk.
+kKK......KKk
+kKK......KKk
+kKK......KKk
+kKK......KKk
+.kk......kk.
+
+sprite foben_tanktop_up
+.kkK.KK.Kkk.
+kKK......KKk
+kKK......KKk
+kKK......KKk
+kKK......KKk
+.kk......kk.
+
+sprite foben_tanktop_side
+.kkK.kk.
+k.K....k
+k.K....k
+k.U....k
+k.U....k
+k.Kk...k
+
+sprite foben_tanktop_side_walk
+.kkK.kk.
+k..K...k
+k..K...k
+k..U...k
+k..U...k
+k...K..k
+
+sprite foben_ringel_down
+.kk..KK..kk.
+k..........k
+kVVVVVVVVVVk
+kK........Kk
+kKVVVVVVVVKk
+.kk......kk.
+
+sprite foben_ringel_up
+.kk......kk.
+k..........k
+kVVVVVVVVVVk
+kK........Kk
+kKVVVVVVVVKk
+.kk......kk.
+
+sprite foben_ringel_side
+.kk..kk.
+k......k
+kVVVVVVk
+k......k
+kV.VVVVk
+k.Kk...k
+
+sprite foben_ringel_side_walk
+.kk..kk.
+k......k
+kVVVVVVk
+k......k
+kVV.VVVk
+k...K..k
+
+sprite foben_kapuze_down
+.k...KK...k.
+k...V..V...k
+k...V..V...k
+k..........k
+kK........Kk
+.kk......kk.
+
+sprite foben_kapuze_up
+.k........k.
+k..k....k..k
+k...k..k...k
+k....kk....k
+kK........Kk
+.kk......kk.
+
+sprite foben_kapuze_side
+k.k..kk.
+k......k
+k....V.k
+k....V.k
+k......k
+k.Kk...k
+
+sprite foben_kapuze_side_walk
+k.k..kk.
+k......k
+k....V.k
+k....V.k
+k......k
+k...K..k
+
+sprite foben_reitjacke_down
+.kkVVKKVVkk.
+k...VVVV...k
+k....VV....k
+k.....6....k
+kK....6...Kk
+.kk......kk.
+
+sprite foben_reitjacke_up
+.kkVVVVVVkk.
+k..........k
+k..........k
+k..........k
+kK...kk...Kk
+.kk..kk..kk.
+
+sprite foben_reitjacke_side
+.kkVVkk.
+k....VVk
+k.....Vk
+k.....6k
+k......k
+k.Kk...k
+
+sprite foben_reitjacke_side_walk
+.kkVVkk.
+k....VVk
+k.....Vk
+k.....6k
+k......k
+k...K..k
+
+sprite foben_hawaii_down
+.kk..KK..kk.
+k.P..KK..Y.k
+k...Y...P..k
+kK.P...Y..Kk
+kK...Y....Kk
+.kk.Y..P.kk.
+
+sprite foben_hawaii_up
+.kk......kk.
+k.Y...P....k
+k..P....Y..k
+kK...Y...PKk
+kK.P....Y.Kk
+.kk..P...kk.
+
+sprite foben_hawaii_side
+.kk..kk.
+k..Y..Pk
+k.P....k
+k...Y..k
+k.....Pk
+k.Kk.Y.k
+
+sprite foben_hawaii_side_walk
+.kk..kk.
+k..Y..Pk
+k.P....k
+k....Y.k
+k.....Pk
+k.Y.K..k
+
+sprite foben_frack_down
+.kk.VKKV.kk.
+k...VDDV...k
+k...VVVV...k
+k....VV....k
+kK...VV...Kk
+.kk.kVVk.kk.
+
+sprite foben_frack_up
+.kk......kk.
+k..........k
+k..........k
+k..........k
+kK........Kk
+.kk..kk..kk.
+..k..kk..k..
+..k..kk..k..
+..k.k..k.k..
+..kk....kk..
+
+sprite foben_frack_side
+..kkV.kk.
+.k....VDk
+.k....VVk
+.k....VVk
+.k......k
+k..Kk...k
+k..k.....
+k.k......
+kk.......
+
+sprite foben_frack_side_walk
+..kkV.kk.
+.k....VDk
+.k....VVk
+.k....VVk
+.k......k
+k....K..k
+k..k.....
+k.k......
+kk.......
+
+sprite foben_umhang_down
+.kkD.KK.Dkk.
+k....YY....k
+k...YDDY...k
+kK...YY...Kk
+kK........Kk
+.kk......kk.
+
+sprite foben_umhang_down_b
+...kkkkkkkk...
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kDDDDDDDDDDDDk
+kxDDDDDDDDDDxk
+kxDDDDDDDDDDxk
+kxxDDxxxxDDxxk
+.kkkkkkkkkkkk.
+
+sprite foben_umhang_up
+...kkkkkkkk...
+..kDDDDDDDDk..
+.kDDDDDDDDDDk.
+.kDDDDDDDDDDk.
+.kDDDxDDxDDDk.
+kDDDDxDDxDDDDk
+kDDDDxDDxDDDDk
+kDDDxDDDDxDDDk
+kDDDxDDDDxDDDk
+kxDDxDDDDxDDxk
+kxxDxxDDxxDxxk
+.kkkkkkkkkkkk.
+
+sprite foben_umhang_side
+.kkD.kk.
+k.....Yk
+k.....Yk
+k......k
+k......k
+k.Kk...k
+
+sprite foben_umhang_side_b
+...kkkk.
+..kDDDDk
+.kDDDDDk
+.kDDDDDk
+kDDDDDDk
+kDDDDDDk
+kDDDDDDk
+kxDDDDDk
+kxDDDDk.
+kxxDDDk.
+.kkkkk..
+
+sprite foben_umhang_side_walk
+.kkD.kk.
+k.....Yk
+k.....Yk
+k......k
+k......k
+k...K..k
+
+sprite foben_umhang_side_walk_b
+...kkkk.
+..kDDDDk
+.kDDDDDk
+kDDDDDDk
+kDDDDDDk
+kDDDDDDk
+kxDDDDDk
+.kxDDDk.
+..kxDDk.
+...kkk..
+
+sprite foben_ruestung_down
+.kkoOOOOokk.
+kOOo....oOOk
+kooo.66.oook
+kpoo....oopk
+kppo....oppk
+.kko....okk.
+
+sprite foben_ruestung_up
+.kkoOOOOokk.
+kOOooooooOOk
+kOoOooooOoOk
+kpooOooOoopk
+kppooooooppk
+.kkooooookk.
+
+sprite foben_ruestung_side
+.kkOOkk.
+kOOO...k
+kOOo.6.k
+kOpo...k
+kOpo...k
+kOpk...k
+
+sprite foben_ruestung_side_walk
+.kkOOkk.
+kOOO...k
+kOOo.6.k
+kOop...k
+kOop...k
+kOOOp..k
+
+sprite fhaar_kurz_down
+..kkkkkk..
+.k......k.
+k........k
+..........
+
+sprite fhaar_kurz_up
+..kkkkkk..
+.k......k.
+k........k
+k........k
+k........k
+k........k
+.k......k.
+
+sprite fhaar_kurz_side
+..kkkkk..
+.k.....k.
+k.......k
+.........
+.........
+.........
+
+sprite fhaar_glatze_down
+V
+
+sprite fhaar_glatze_up
+V
+
+sprite fhaar_glatze_side
+V
+
+sprite fhaar_igel_down
+.k..kk..k.
+k.kk..kk.k
+k........k
+k........k
+k........k
+..........
+
+sprite fhaar_igel_up
+.k..kk..k.
+k.kk..kk.k
+k........k
+k........k
+k........k
+k........k
+k........k
+k........k
+.k......k.
+
+sprite fhaar_igel_side
+k..k..k..
+k.k.kk.k.
+.k......k
+.k......k
+k.......k
+.........
+.........
+.........
+
+sprite fhaar_lang_down
+...kkkkkk...
+..k......k..
+.k........k.
+.k........k.
+.k........k.
+.k........k.
+k..k....k..k
+k..k....k..k
+k..k....k..k
+.kk......kk.
+
+sprite fhaar_lang_up
+...kkkkkk...
+..k......k..
+.k........k.
+.k........k.
+.k........k.
+.k........k.
+k..........k
+k..........k
+k..........k
+.k........k.
+..kkkkkkkk..
+
+sprite fhaar_lang_side
+...kkkkk..
+..k.....k.
+.k.......k
+.k........
+k.........
+k...k.....
+k...k.....
+k...k.....
+k...k.....
+.kkk......
+
+sprite fhaar_zopf_down
+..kkkkkk...
+.k......k..
+k........k.
+...........
+..........k
+..........k
+........k.k
+........k.k
+........kDk
+........k.k
+.........k.
+
+sprite fhaar_zopf_up
+..kkkkkk..
+.k......k.
+k........k
+k........k
+k........k
+k........k
+.k..DD..k.
+...k..k...
+...k..k...
+...k..k...
+....kk....
+
+sprite fhaar_zopf_side
+....kkkkk...
+...k.....k..
+..kD.......k
+.k..........
+k...........
+k...........
+k..k........
+.k.k........
+.kk.........
+
+sprite fhaar_zoepfe_down
+...kkkkkk...
+..k......k..
+.k........k.
+............
+k..........k
+k..........k
+k.k......k.k
+k.k......k.k
+k.k......k.k
+kDk......kDk
+k.k......k.k
+.k........k.
+
+sprite fhaar_zoepfe_up
+...kkkkkk...
+..k......k..
+.k........k.
+.k........k.
+k..........k
+k..........k
+k.k......k.k
+k.k......k.k
+k.k......k.k
+kDk......kDk
+k.k......k.k
+.k........k.
+
+sprite fhaar_zoepfe_side
+...kkkkk..
+..k.....k.
+.k.......k
+..........
+..........
+..........
+k.k.......
+k.k.......
+k.k.......
+kDk.......
+k.k.......
+.k........
+
+sprite fhaar_locken_down
+...kkkkkk...
+..k......k..
+.k........k.
+k..........k
+k..........k
+k..........k
+k..........k
+k..k....k..k
+kkk......kkk
+
+sprite fhaar_locken_up
+...kkkkkk...
+..k......k..
+.k........k.
+k..........k
+k..........k
+k..........k
+k..........k
+k..........k
+.k........k.
+..kkkkkkkk..
+
+sprite fhaar_locken_side
+....kkkkkk..
+...k......k.
+..k........k
+.k.........k
+k.........k.
+k...........
+k...........
+k...k.......
+.kkk........
+
+sprite fhaar_dutt_down
+...kkkk...
+..k....k..
+..k....k..
+..kk..kk..
+.k......k.
+k........k
+..........
+
+sprite fhaar_dutt_up
+...kkkk...
+..k....k..
+..k....k..
+..kk..kk..
+.k......k.
+k........k
+k........k
+k........k
+k........k
+.k......k.
+
+sprite fhaar_dutt_side
+.kkkk.....
+k....k....
+k....k....
+.k...kkk..
+..k.....k.
+.k.......k
+..........
+..........
+..........
+
+sprite fhaar_tolle_down
+..kkkkk....
+.k.....k...
+k.......kk.
+k.........k
+k........k.
+...........
+
+sprite fhaar_tolle_up
+..kkkkkk..
+.k......k.
+k........k
+k........k
+k........k
+k........k
+k........k
+k........k
+.k......k.
+
+sprite fhaar_tolle_side
+...kkkkk...
+..k.....kk.
+.k........k
+.k.......k.
+k........k.
+...........
+...........
+...........
+
+sprite fhaar_irokese_down
+..kk..
+.k..k.
+.k..k.
+.k..k.
+kk..kk
+......
+......
+
+sprite fhaar_irokese_up
+..kk..
+.k..k.
+.k..k.
+.k..k.
+kk..kk
+......
+......
+......
+......
+......
+
+sprite fhaar_irokese_side
+.k.k.k..
+k.k.k.k.
+k......k
+.k....k.
+.k....k.
+........
+
+sprite fhaar_maehne_down
+...kkkkkkkk...
+..k........k..
+.k..........k.
+k............k
+k............k
+k............k
+k............k
+k............k
+k............k
+k...k....k...k
+k...k....k...k
+k....k..k....k
+k....k..k....k
+.k..k....k..k.
+..kk......kk..
+
+sprite fhaar_maehne_up
+...kkkkkkkk...
+..k........k..
+.k..........k.
+k............k
+k............k
+k............k
+k............k
+k............k
+k............k
+k............k
+k............k
+k............k
+.k..........k.
+..kkkkkkkkkk..
+
+sprite fhaar_maehne_side
+....kkkkkkk...
+...k.......k..
+..k.........k.
+.k...........k
+k............k
+k...........k.
+k.............
+k......k......
+k......k......
+k......k......
+k.....k.......
+k.....k.......
+.k...k........
+..kkk.........
+
+sprite fhut_kappe_down
+...kkkkkk...
+..kDDDDDDk..
+.kDDDVVDDDk.
+kxxxxxxxxxxk
+.kkkkkkkkkk.
+
+sprite fhut_kappe_up
+..kkkkkk..
+.kDDDDDDk.
+kDDDDDDDDk
+kDDDDDDDDk
+kkkkVVkkkk
+
+sprite fhut_kappe_side
+..kkkkk....
+.kDDDDDk...
+kDDDVDDDk..
+kDDDDDDDxxk
+.kkkkkkkkk.
+
+sprite fhut_strohhut_down
+....kkkkkk....
+...kAAAAAAk...
+...kAaAAaAk...
+...krrrrrrk...
+.kkAAAAAAAAkk.
+kAAAAAAAAAAAAk
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+sprite fhut_strohhut_up
+....kkkkkk....
+...kAAAAAAk...
+...kAAaAAAk...
+...krrrrrrk...
+.kkAAAAAAAAkk.
+kAAAAAAAAAAAAk
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+sprite fhut_strohhut_side
+.....kkkkk....
+....kAAAAAk...
+....kAAaAAk...
+....krrrrrk...
+.kkkAAAAAAAkk.
+kaaaaaaaaaaaak
+.kkkkkkkkkkkk.
+
+sprite fhut_cowboy_down
+....kkkkkk....
+...kWWwwWWk...
+...kWWWWWWk...
+...kvvvvvvk...
+k.kWWWWWWWWk.k
+kWkWWWWWWWWkWk
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+sprite fhut_cowboy_up
+....kkkkkk....
+...kWWWWWWk...
+...kWWwwWWk...
+...kvvvvvvk...
+k.kWWWWWWWWk.k
+kWkWWWWWWWWkWk
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+sprite fhut_cowboy_side
+.....kkkkk....
+....kWWwWWk...
+....kWWWWWk...
+....kvvvvvk...
+k..kWWWWWWWk.k
+kWWWWWWWWWWWWk
+.kkkkkkkkkkkk.
+
+sprite fhut_bommel_down
+....kk....
+...kVVk...
+...kVVk...
+..kkffkk..
+.kffffffk.
+kfFffffFfk
+kVVVVVVVVk
+kkkkkkkkkk
+
+sprite fhut_bommel_up
+....kk....
+...kVVk...
+...kVVk...
+..kkffkk..
+.kffffffk.
+kfFffffFfk
+kVVVVVVVVk
+kkkkkkkkkk
+
+sprite fhut_bommel_side
+.kk.......
+kVVk......
+kVVkk.....
+.kkfffkk..
+.kffffffk.
+kfFfffFffk
+kVVVVVVVVk
+kkkkkkkkkk
+
+sprite fhut_blumen_down
+.kk.kk.kk.
+kPPkYYkPPk
+kPPfYYfPPk
+.kffkkffk.
+
+sprite fhut_blumen_up
+.kk.kk.kk.
+kVVkPPkYYk
+kVVfPPfYYk
+.kffkkffk.
+
+sprite fhut_blumen_side
+.kk.kk.kk.
+kYYkPPkVVk
+kYYfPPfVVk
+.kffkkffk.
+
+sprite fhut_reithelm_down
+...kkkkkk...
+..kiiiiiik..
+.kipiiiiiik.
+.kiiiiiiiik.
+kkiiiiiiiikk
+.kkkkkkkkkk.
+
+sprite fhut_reithelm_up
+..kkkkkk..
+.kiiiiiik.
+kiiiiipiik
+kiiiiiiiik
+kiiiiiiiik
+kkkkkkkkkk
+
+sprite fhut_reithelm_side
+..kkkkkk...
+.kipiiiiik.
+kiiiiiiiik.
+kiiiiiiiiik
+kkkkkkkiiik
+.......kkk.
+
+sprite fhut_zylinder_down
+..kkkkkkkk..
+..kiipiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kDDDDDDk..
+kkkiiiiiikkk
+.kkkkkkkkkk.
+
+sprite fhut_zylinder_up
+..kkkkkkkk..
+..kiiiipik..
+..kiiiiiik..
+..kiiiiiik..
+..kiiiiiik..
+..kDDDDDDk..
+kkkiiiiiikkk
+.kkkkkkkkkk.
+
+sprite fhut_zylinder_side
+..kkkkkk..
+..kipiik..
+..kiiiik..
+..kiiiik..
+..kiiiik..
+..kDDDDk..
+kkiiiiiikk
+.kkkkkkkk.
+
+sprite fhut_krone_down
+.k..kk..k.
+k6kk66kk6k
+k66666666k
+k6D6556D6k
+k77777777k
+.kkkkkkkk.
+
+sprite fhut_krone_up
+.k..kk..k.
+k6kk66kk6k
+k66666666k
+k6D6666D6k
+k77777777k
+.kkkkkkkk.
+
+sprite fhut_krone_side
+.k..k..k.
+k6kk6kk6k
+k6666666k
+k6D656D6k
+k7777777k
+.kkkkkkk.
+
+sprite fhut_einhorn_down
+...kk...
+..k67k..
+..k76k..
+..k67k..
+.kk76kk.
+kPPPPPPk
+kkkkkkkk
+
+sprite fhut_einhorn_up
+...kk...
+..k66k..
+..k66k..
+..k66k..
+.kkkkkk.
+kPPPPPPk
+kkkkkkkk
+
+sprite fhut_einhorn_side
+.......kk
+......k6k
+.....k67k
+....k76k.
+kkkk67kk.
+kPPPPPPk.
+kkkkkkkk.
+
+# <<< Figur
 
 # >>> Pferde, erzeugt von tools/hoofy_pferde.py (nicht von Hand ändern, Hand-Sprites gleichen Namens gehen vor)
 

@@ -51,4 +51,5 @@ return {
   "fohlen",
   "jobspiel",
   "namen",
+  "garderobe",
 }

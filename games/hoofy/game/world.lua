@@ -27,6 +27,8 @@ local Rng = require("lib.rng")
 local HorseMenu = require("game.horse_menu")
 local StallView = require("game.stall_view")
 local Fortschritt = require("game.fortschritt")
+local Garderobe = require("game.garderobe")
+local Boutique = require("game.boutique")
 local K = require("game.katalog")
 local H = require("game.horse_model")
 local U = require("lib.util")
@@ -318,6 +320,7 @@ function WorldScene.enter(arg)
   end
   ctx.save = function() end
   if arg and arg.geld then ctx.money = arg.geld end
+  if arg and arg.outfit then ctx.outfit = Garderobe.pruefen(arg.outfit) end
   if arg and arg.laterne then ctx.inv.laterne = 1 end
   ctx.saving_ok = saving
   ctx.toast = function(text) toast = {text = text, t = 120} end
@@ -340,6 +343,7 @@ function WorldScene.enter(arg)
     ctx.turnier, ctx.reform, ctx.album = snap.turnier, snap.reform, snap.album
     ctx.getauscht = snap.getauscht
     ctx.gezaehmt, ctx.jobs = snap.gezaehmt, snap.jobs
+    ctx.outfit = Garderobe.pruefen(snap.outfit)
     for _, d in ipairs(snap.herd) do
       if ctx.heim and not (snap.mit and snap.mit[d]) then
         ctx.herd[#ctx.herd + 1] = d        -- bleibt zu Hause: nur die Daten reisen mit dem Spielstand
@@ -401,6 +405,7 @@ function WorldScene.enter(arg)
     if #moves > 0 then toast = {text = table.concat(moves, " "), t = 240} end
   end
   ctx.world:add(Reise.entity(ctx))
+  if ctx.area.places.wohnhaus then ctx.world:add(Boutique.schild(ctx)) end   -- „Öffnet demnächst“ vor dem blauen Haus
   if arg and arg.screen then
     local name = arg.screen
     if name ~= "none" and name ~= "bauen" and name ~= "weiden" then nav.push(Screens.pause(ctx, nav)) end
@@ -426,6 +431,7 @@ function WorldScene.enter(arg)
     if name == "kaeufer" then nav.push(Screens.buyer(ctx, function(text) say(text, 150) end)) end
     if name == "markt" then Market.refresh(ctx, clock.day) nav.push(Screens.market(ctx)) end
     if name == "laden" then nav.push(Screens.shop(ctx)) end
+    if name == "garderobe" then nav.push(Boutique.new(ctx)) end
     if name == "inventar" then nav.push(Screens.inventory(ctx)) end
   end
 end
@@ -681,6 +687,16 @@ function WorldScene.update()
         Market.refresh(ctx, clock.day)
         nav.push(Screens.market(ctx))
         ctx.sfx.ok()
+      elseif ctx.area.places.wohnhaus and U.dist(p.x, p.y, ctx.area.places.wohnhaus[1] * 16 + 8, ctx.area.places.wohnhaus[2] * 16 + 8) <= 26 then
+        -- blaues Haus: Garderobe ab Gebiet 3 (Wunsch nach 1.6.1)
+        if Garderobe.offen(ctx) then
+          nav.push(Boutique.new(ctx))
+          ctx.sfx.ok()
+        else
+          say(Boutique.NAME .. " öffnet bald. Komm wieder, wenn du bis in Gebiet " .. Garderobe.OFFEN_AB .. " ("
+            .. Garderobe.gebiet_name(Garderobe.OFFEN_AB) .. ") fahren kannst.", 200)
+          ctx.sfx.snort()
+        end
       else
         a_free = true
       end

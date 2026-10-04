@@ -16,6 +16,9 @@ Area.DEFAULT_SEED = 1
 Area.LABELS = {
   laden = {"Laden", 0, -56}, markt = {"Pferdemarkt", 8, -40}, jobbrett = {"Jobbrett", 0, -34},
   turnier = {"Turnierplatz", 0, -12},
+  -- blaues Haus: Garderobe (game/garderobe.lua), vorher ein Schild; Text als Funktion (ctx)
+  wohnhaus = {function(ctx) return require("game.garderobe").offen(ctx) and "Mähne & Masche" or "Öffnet demnächst" end,
+    0, -56},
 }
 
 local cache = {}

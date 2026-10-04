@@ -10,6 +10,7 @@ local SFX = require("game.sfx")
 local Care = require("game.care")
 local Rng = require("lib.rng")
 local S = require("sprites")
+local Figur = require("game.figur")
 
 local JS = {}
 
@@ -129,11 +130,12 @@ local SKY, GRASS, ROAD, FIELD, FURROW = rgb(0x8f, 0xc8, 0xe6), rgb(0x7f, 0xb0, 0
 local GREEN = rgb(0x5f, 0xc0, 0x50)
 
 -- Pferd mit Reiter (Seitenansicht nach rechts).
+local outfit_an          -- Kleidung der Spielfigur (Garderobe), gesetzt in JS.screen
 local function rider(d, x, y, pose)
   local body = K.rasse(d.rasse).koerper
   G.draw(d.farbe, body, pose, x, y, false, d.schmuck)
   local _, bh = G.size(d.farbe, body, "side")
-  S.draw("player_side", x - 6, y - bh + 4 - 10)
+  Figur.draw(outfit_an, "side", 1, x - 6, y - bh + 4 - 10)
 end
 
 local function draw_post(st)
@@ -216,6 +218,7 @@ end
 
 -- Bildschirm des Minispiels. done(anteil) nach dem Ende und A.
 function JS.screen(ctx, job, d, done)
+  outfit_an = ctx.outfit and ctx.outfit.an
   local st = JS.new(job, d, Rng.new((ctx.seed or 1) + (ctx.clock and ctx.clock.day or 1) * 13))
   local s = {full = true}
   local finished = false
