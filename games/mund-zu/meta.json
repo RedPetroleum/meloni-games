@@ -1,0 +1,13 @@
+{
+  "id": "mund-zu",
+  "name": "Mund zu!",
+  "version": "0.1.0",
+  "api": 3,
+  "description": "Laborführung im GoetheLab: Aus M1 Cusing, EOSINT und X Line 2000 R staubt Metallpulver, und laut Sicherheitsunterweisung ist der Kontakt zu vermeiden. Leider redest du ununterbrochen. Mund zuhalten kostet Luft, Pusten hilft, Niesen auch. FFP3-Masken, ATEX-Sauger und Bauteile einsammeln.",
+  "controls": [
+    ["dpad", "bewegen"],
+    ["A", "Mund zu (halten, kostet Luft)"],
+    ["B", "pusten"],
+    ["START", "los / Pause"]
+  ]
+}

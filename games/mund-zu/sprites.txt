@@ -1,0 +1,182 @@
+# Grafik von Mund zu!: ein Zeichen pro Pixel, "." ist durchsichtig.
+# Der Kopf ("head") hat keinen Mund: die Münder ("m_...") und geschlossene Augen ("eyes_shut")
+# werden darübergezeichnet, ebenso die FFP3-Maske ("mask").
+
+palette
+k 2a2433   Umriss
+H 5a3a24   Haar
+h 3e2716   Haar dunkel
+S f2c29b   Haut
+s d89a74   Haut Schatten
+G 3a4250   Brillengestell
+L bfe4f2   Brillenglas
+W ffffff   Kittel, Maske
+w d3d8e2   Kittel Schatten
+B 3f6fb5   Hemd
+M 5a1620   Mundhöhle
+T fffaf0   Zähne
+R e0606a   Zunge
+O 9aa4b4   Ventil
+Y f2c230   ATEX-Sauger
+y c8961a   Sauger dunkel
+E 6d737a   Schlauch
+Z 333344   Räder
+P b8c0cc   Metall hell
+p 7c8494   Metall dunkel
+N f4f0e2   Papier
+n bfb8a2   Papier Schatten
+V 4cb050   Haken grün
+X e04848   Rot
+
+sprite head
+.......kkkkkkkkkk.......
+.....kkHHHHHHHHHHkk.....
+....kHHHHHHHHHHHHHHk....
+...kHHHHHHHHHHHHHHHHk...
+...kHHHHhHHHHHHhHHHHk...
+..kHHHhSSSSSSSSSShHHHk..
+..kHHSSSSSSSSSSSSSSHHk..
+..kHSSSSSSSSSSSSSSSSHk..
+..kHGGGGGGGSSGGGGGGGHk..
+..kSGLLLLLGGGGLLLLLGSk..
+.kSSGLLkLLGSSGLLkLLGSSk.
+.kSsGLLLLLGSSGLLLLLGsSk.
+..kSGGGGGGGSSGGGGGGGSk..
+..kSSSSSSSSssSSSSSSSSk..
+..kSSSSSSSSssSSSSSSSSk..
+..kSSSSSSSsssSSSSSSSSk..
+..kSSSSSSSSSSSSSSSSSSk..
+..kSSSSSSSSSSSSSSSSSSk..
+..kSSSSSSSSSSSSSSSSSSk..
+...kSSSSSSSSSSSSSSSSk...
+...ksSSSSSSSSSSSSSSsk...
+....ksSSSSSSSSSSSSsk....
+.....kksSSSSSSSSskk.....
+.......kkksSSskkk.......
+......kWWkkSSkkWWk......
+...kkWWWWWkkkkWWWWWkk...
+..kWWWWWWWWBBWWWWWWWWk..
+.kWWWwWWWWWBBWWWWWwWWWk.
+kWWWWwWWWWWBBWWWWWwWWWWk
+kWWWWwWWWWWWWWWWWWwWWWWk
+
+sprite m_open
+.kkkkkk.
+kTTTTTTk
+kMMMMMMk
+kMRRRRMk
+.kkkkkk.
+
+sprite m_talk
+........
+.kkkkkk.
+kMTTTTMk
+.kkkkkk.
+........
+
+sprite m_shut
+........
+.s....s.
+.kkkkkk.
+.s....s.
+........
+
+sprite m_gasp
+..kkkkkk..
+.kTTTTTTk.
+kMMMMMMMMk
+kMMMMMMMMk
+kMRRRRRRMk
+.kMRRRRMk.
+..kkkkkk..
+
+sprite m_blow
+..kk..
+.kMMk.
+kMMMMk
+.kMMk.
+..kk..
+
+sprite m_cough
+........
+.k.kk.k.
+k.k..k.k
+........
+........
+
+sprite eyes_shut
+LLLLL....LLLLL
+kkkkk....kkkkk
+LLLLL....LLLLL
+
+sprite mask
+....kkkkkkkk....
+..kkWWWWWWWWkk..
+.kWWWWWWWWWWWWk.
+kWWWWWkkkkWWWWWk
+kWWWWkOOOOkWWWWk
+kWWWWkOOOOkWWWWk
+.kWWWWkkkkWWWWk.
+..kkWWWWWWWWkk..
+....kkkkkkkk....
+
+sprite p_mask
+..kkkkkkkk..
+.kWWWWWWWWk.
+kWWWkkkkWWWk
+kWWWkOOkWWWk
+kWWWkkkkWWWk
+.kWWWWWWWWk.
+..kkkkkkkk..
+
+sprite p_sauger
+.......kkk....
+......kEEEk...
+.....kEk.kk...
+....kEk.......
+..kkkkkkkk....
+.kYYYYYYYYk...
+kYYYYYYYYYYk..
+kYykkkkkkyYk..
+kYykXXXXkyYk..
+kYykkkkkkyYk..
+kYYYYYYYYYYk..
+.kkkkkkkkkk...
+.kZk....kZk...
+..k......k....
+
+sprite p_part
+....kkkk....
+...kPPPPk...
+.kkkPkkPkkk.
+kPPPPkkPPPPk
+kPkkPPPPkkPk
+kPkkPkkPkkPk
+kPPPPkkPPPPk
+kPkkPPPPkkPk
+.kkkPkkPkkk.
+...kPPPPk...
+....kkkk....
+
+sprite p_paper
+kkkkkkkk..
+kNNNNNNkk.
+kNnnnNNNnk
+kNNNNNNNNk
+kNnnnnnNNk
+kNNNNNNNVk
+kNnnnnNVVk
+kNNNVNVVNk
+kNNNNVVNNk
+kNnnnNVNNk
+kNNNNNNNNk
+kkkkkkkkkk
+
+sprite life
+.kkkk.
+kNNNNk
+kNnnNk
+kNNNNk
+kNnnNk
+kNNNNk
+kkkkkk

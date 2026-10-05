@@ -1,9 +1,9 @@
 {
   "id": "drittmittel",
   "name": "Drittmittel-Fischen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "api": 3,
-  "description": "Über den Campus flattern Forschungsanträge: mit dem Kescher einfangen und im Antragsbriefkasten einreichen, bevor die Frist abläuft. Skizzen, flinke Vollanträge, Verbundanträge (zweimal erwischen), goldene Bewilligungen und rote Ablehnungen, die unter Strom stehen. Kaffee macht schnell.",
+  "description": "Über den Campus vor dem GoetheLab flattern Forschungsanträge: mit dem Kescher einfangen und im Antragsbriefkasten einreichen, bevor die Frist abläuft. K1, K2 und STIPP, flinke ZIM-, LrA-, BMBF- und Defense-Anträge, Verbundanträge (zweimal erwischen), goldene EU-Anträge und rote Ablehnungen, die unter Strom stehen. Kaffee macht schnell.",
   "controls": [
     ["dpad", "laufen"],
     ["A", "Kescher schwingen"],

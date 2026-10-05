@@ -1,5 +1,7 @@
--- Drittmittel-Fischen: Über den Campus flattern Forschungsanträge. Kescher raus, einfangen und im
--- Antragsbriefkasten einreichen, bevor die Frist abläuft. Rote Ablehnungen stehen unter Strom.
+-- Drittmittel-Fischen: Über den Campus vor dem GoetheLab flattern Forschungsanträge. Kescher raus,
+-- einfangen und im Antragsbriefkasten einreichen, bevor die Frist abläuft. Kleine Anträge (K1, K2,
+-- STIPP), mittlere (ZIM, LrA, BMBF, Defense), Verbünde, goldene EU-Anträge. Rote Ablehnungen stehen
+-- unter Strom.
 -- Steuerkreuz: laufen   A: Kescher schwingen   B halten: rennen   START: los / Pause
 
 local S = require("sprites")
@@ -47,24 +49,33 @@ local C = {
 }
 
 -- Die Antragsarten. speed in Pixeln pro Frame, flee/hunt: ab diesem Abstand fliehen/angreifen
+-- labels: Förderprogramme, eins wird beim Erscheinen ausgewürfelt und beim Fangen angezeigt
 local KINDS = {
-  skizze = {sprite = "blatt", val = 20, speed = 0.55, r = 7, name = "Skizze", col = C.text},
+  skizze = {sprite = "blatt", val = 20, speed = 0.55, r = 7, name = "Kleinantrag", col = C.text,
+    labels = {"K1", "K2", "STIPP"}},
   antrag = {sprite = "antrag", val = 60, speed = 0.8, r = 7, flee = 46, flee_mul = 1.7,
-    name = "Vollantrag", col = C.blue},
+    name = "Vollantrag", col = C.blue, labels = {"ZIM", "LrA", "BMBF", "Defense"}},
   verbund = {sprite = "verbund", val = 150, speed = 0.35, r = 10, hp = 2, big = true,
-    name = "Verbundantrag", col = C.pink},
+    name = "Verbundantrag", col = C.pink, labels = {"KoRoLas", "HyDe", "TraVer", "NDAM", "PersoLas"}},
   bescheid = {sprite = "bescheid", val = 200, speed = 1.25, r = 7, flee = 70, flee_mul = 1.6,
-    life = 7 * 60, name = "Bewilligung", col = C.gold},
+    life = 7 * 60, name = "EU-Antrag", col = C.gold, labels = {"EU", "Horizon", "EFRE"}},
   nein = {sprite = "nein", val = 0, speed = 0.45, r = 7, hunt = 50, life = 20 * 60, name = "Ablehnung",
     col = C.red},
 }
 
-local ROUND_NAMES = {"Sommerloch", "Ausschreibung", "Begutachtung", "Fristendspurt", "Exzellenzrunde",
-  "Haushaltssperre", "Antragsmarathon"}
+-- Partner, die beim Verbundantrag noch fehlen
+local PARTNERS = {"LLT", "ILT", "MASCOR", "Industrie", "Prof. Bremen"}
 
-local REASONS = {"Nicht innovativ genug!", "Gutachter 2 sagt nein!", "Formfehler auf Seite 37!",
-  "Thema verfehlt!", "Zu wenig Vorarbeiten!", "Budget unplausibel!", "Schriftgröße 11 statt 12!",
-  "Arbeitspaket 4 fehlt!", "Bitte neu einreichen!"}
+local ROUND_NAMES = {"Sommerloch", "MID-Gutschein", "Begutachtung", "Fristendspurt", "LASER.region",
+  "Haushaltssperre", "Horizon Europe", "Antragsmarathon"}
+
+local REASONS = {"Dreister Projektträger!", "Kein industrielles Interesse!",
+  "Unzureichender Forschungstransfer!", "Nicht innovativ genug!", "Gutachter 2 sagt nein!",
+  "Formfehler auf Seite 37!", "Thema verfehlt!", "Zu wenig Vorarbeiten!", "Budget unplausibel!",
+  "Schriftgröße 11 statt 12!", "Arbeitspaket 4 fehlt!", "Bitte neu einreichen!"}
+-- die drei Klassiker kommen öfter
+local REASONS_TOP = {"Dreister Projektträger!", "Kein industrielles Interesse!",
+  "Unzureichender Forschungstransfer!"}
 
 local WINDOWS = {}   -- Fenster des Instituts, aus denen Anträge flattern
 for i = 0, 8 do
@@ -142,7 +153,7 @@ local function say(text, frames)
   msg, msg_t = text, frames or 150
 end
 
-local function popup(x, y, text, c, amount)
+local function popup(x, y, text, c, amount, prefix)
   y = math.max(y, HUD_H + 34)
   -- nicht über einen noch sichtbaren Text schreiben: darüber stapeln
   for _ = 1, 4 do
@@ -154,7 +165,8 @@ local function popup(x, y, text, c, amount)
     end
     if not moved then break end
   end
-  popups[#popups + 1] = {x = x, y = y, text = text, c = c or C.text, amount = amount, life = 55}
+  popups[#popups + 1] = {x = x, y = y, text = text, c = c or C.text, amount = amount, prefix = prefix,
+    life = 55}
 end
 
 local function particle(p)
@@ -254,7 +266,7 @@ local function draw_building()
   rectfill(0, HUD_H, SCREEN_W - 1, 45, C.wall)
   rectfill(0, HUD_H, SCREEN_W - 1, HUD_H + 2, C.roof)
   rectfill(0, 44, SCREEN_W - 1, 45, C.wall2)
-  local sign = "Institut für Antragswesen"
+  local sign = "GoetheLab for Additive Manufacturing"
   local w = textw(sign)
   rectfill(158 - w // 2 - 3, 20, 162 + w // 2 + 2, 29, C.sign)
   print(sign, 160 - w // 2, 21, C.text)
@@ -292,6 +304,7 @@ local function new_sheet(kind, x, y, a)
   local k = KINDS[kind]
   local s = {kind = kind, k = k, x = x, y = y, a = a or rnd(1) * PI * 2, h = 10, ph = rnd(1) * 6.28,
     hp = k.hp or 1, life = k.life and (kind == "nein" and k.life + flr(rnd(k.life)) or k.life), knock = 0, enter = false, leaving = false, hit = -1}
+  s.label = k.labels and rnd(k.labels)
   sheets[#sheets + 1] = s
   return s
 end
@@ -436,7 +449,7 @@ local function zap(s)
   shake = 12
   SFX.zap()
   sparks(P.x, P.y - 10, 24)
-  local text = rnd(REASONS)
+  local text = rnd(1) < 0.5 and rnd(REASONS_TOP) or rnd(REASONS)
   popup(P.x, P.y - 34, text, C.red)
   if lost > 0 then say("Abgelehnt! " .. lost .. " Antrag" .. (lost > 1 and "e" or "") .. " davongeflattert", 120) end
   if s then
@@ -464,22 +477,22 @@ local function catch(s, i)
     s.hp = s.hp - 1
     s.knock = 26
     s.a = atan2(s.y - P.y, s.x - P.x)
-    popup(sx, sy - 12, "Partner fehlt noch!", C.pink)
+    popup(sx, sy - 12, rnd(PARTNERS) .. " fehlt noch!", C.pink)
     confetti(sx, sy, 6, {C.pink, C.text})
     SFX.wobble()
     return
   end
   table.remove(sheets, i)
   P.carry[#P.carry + 1] = s.kind
-  popup(sx, sy - 8, nil, k.col, k.val)
+  popup(sx, sy - 8, nil, k.col, k.val, s.label and (s.label .. " +"))
   if s.kind == "bescheid" then
     SFX.gold()
     confetti(sx, sy, 26, {C.gold, C.text, C.zap})
-    say("BEWILLIGT! Schnell einreichen.", 120)
+    say("EU-Antrag! Schnell einreichen.", 120)
   elseif s.kind == "verbund" then
     SFX.catch()
     confetti(sx, sy, 14, {C.pink, C.text})
-    popup(sx, sy - 20, "Verbund steht!", C.pink)
+    popup(sx, sy - 20, "Verbund " .. (s.label or "") .. " steht!", C.pink)
   else
     SFX.catch()
     confetti(sx, sy, 8, {C.text, k.col})
@@ -698,7 +711,7 @@ local function update_play()
     gold_t = cfg.gold_every + flr(rnd(4 * 60))
     if not has_kind("bescheid") then
       spawn_sheet("bescheid")
-      say("Eine Bewilligung flattert herum!", 120)
+      say("Ein EU-Antrag flattert herum!", 120)
     end
   end
   for _, win in ipairs(WINDOWS) do
@@ -811,6 +824,9 @@ local function draw_sheet(s)
     local f = flr((t + s.ph * 10) / 12) % 2 + 1
     S.draw(s.k.sprite .. "_" .. f, x, y)
   end
+  if s.kind == "bescheid" then
+    print("EU", x + w // 2 - 7, y - 9, C.gold)
+  end
   if s.kind == "bescheid" and t % 8 < 4 then
     pset(x - 2 + flr(rnd(w + 4)), y - 2 + flr(rnd(hh + 4)), C.zap2)
   elseif s.kind == "nein" and t % 20 < 3 then
@@ -874,9 +890,11 @@ local function draw_world()
   end
   for _, p in ipairs(popups) do
     if p.amount then
-      local w = money_w(p.amount, "+")
-      money(p.amount, flr(p.x - w / 2) + 1, flr(p.y) + 1, C.black, 1, "+")
-      money(p.amount, flr(p.x - w / 2), flr(p.y), p.c, 1, "+")
+      local pre = p.prefix or "+"
+      local w = money_w(p.amount, pre)
+      local x = mid(2, flr(p.x - w / 2), SCREEN_W - w - 2)
+      money(p.amount, x + 1, flr(p.y) + 1, C.black, 1, pre)
+      money(p.amount, x, flr(p.y), p.c, 1, pre)
     else
       local w = textw(p.text)
       local x = mid(2, flr(p.x - w / 2), SCREEN_W - w - 2)
@@ -974,7 +992,7 @@ local function draw_over()
   font(2)
   center("Frist verpasst!", 54, C.red)
   font(0)
-  center("Die Stelle läuft aus.", 84, C.text)
+  center("Die Stelle im GoetheLab läuft aus.", 84, C.text)
   print("Eingereicht:", 60, 104, C.dim)
   money(banked, 180, 104, C.text)
   print("Nötig:", 60, 116, C.dim)
@@ -1045,7 +1063,7 @@ local function draw_title()
   center("Drittmittel-", 58, C.gold)
   center("Fischen", 82, C.text)
   font(0)
-  center("Fang die Anträge vor der Frist!", 110, C.dim)
+  center("Drittmittel fürs GoetheLab!", 110, C.dim)
   local best = save.best or 0
   if best > 0 then
     local w = textw("Rekord: ") + money_w(best)
