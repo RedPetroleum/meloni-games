@@ -284,13 +284,8 @@ func _zaehmen_steuern(delta: float) -> void:
 				zaehmen = w
 				# 1,5 s plus 1 Frame je fehlendem Bindungspunkt (Wild.tame_frames)
 				w.zaehm_noetig = (90.0 + (100.0 - float(w.daten.bindung))) / 60.0
-			elif _naechstes_eigenes():
-				angesprochen.emit(_naechstes_eigenes())
-			elif siedlung:
-				for ort in ["stall", "laden", "wohnwagen"]:
-					if spieler.global_position.distance_to(siedlung.orte[ort]) < 12.0:
-						am_ort.emit(ort)
-						break
+			else:
+				_aktion_beim_naechsten()
 		return
 	var w := zaehmen
 	var d := Vector2(w.position.x, w.position.z).distance_to(Vector2(spieler.global_position.x, spieler.global_position.z))
@@ -361,13 +356,33 @@ func _auf_die_weide(d: Dictionary) -> void:
 	unterbringen(w, d.get("ort", "weide") if d.get("ort", "weide") in ["stall", "weide", "frei"] else "weide")
 
 
-## Eigenes Pferd in der Nähe (Aktionsmenü), nicht im Stall
-func _naechstes_eigenes() -> WildPferd:
+## Aktionstaste: das Nächstgelegene in Reichweite gewinnt (eigenes Pferd bis 3,5 m, Käufer bis
+## 4 m, Gebäude bis 12 m von ihrer Mitte)
+func _aktion_beim_naechsten() -> void:
 	var s := spieler.global_position
+	var bestes_pferd: WildPferd = null
+	var best := INF
 	for w in eigene:
-		if w.zustand != "stall" and w.global_position.distance_to(s) < 4.5:
-			return w
-	return null
+		var d := w.global_position.distance_to(s)
+		if w.zustand not in ["stall", "geritten"] and d < 3.5 and d < best:
+			bestes_pferd = w
+			best = d
+	var bester_ort := ""
+	if siedlung:
+		for ort in ["kaeufer", "stall", "laden", "markt", "wohnwagen"]:
+			if not siedlung.orte.has(ort):
+				continue
+			var d := s.distance_to(siedlung.orte[ort])
+			# Gebäude zählen ab ihrer Wand, nicht ab der Mitte
+			var wirksam := d if ort == "kaeufer" else d - 8.0
+			if d < (4.0 if ort == "kaeufer" else 12.0) and wirksam < best:
+				bester_ort = ort
+				bestes_pferd = null
+				best = wirksam
+	if bestes_pferd:
+		angesprochen.emit(bestes_pferd)
+	elif bester_ort:
+		am_ort.emit(bester_ort)
 
 
 ## Plätze je Ort (Farm.capacity): Stall S 2, Weide 1 je 10 Innenkacheln, frei 1 je 50 Kacheln
@@ -450,6 +465,27 @@ func reiten_beenden(w: WildPferd, wo: Vector3, winkel: float) -> String:
 	w.zustand = "lose"
 	w.daten.ort = "lose"
 	return "Abgestiegen. Deine Leine ist belegt, %s wartet hier." % w.daten.name
+
+
+## Gekauftes Pferd: steht neben dem Spieler und kommt an die Leine (Wild:adopt)
+func adoptieren(d: Dictionary) -> String:
+	var p := spieler.global_position + spieler.global_basis.x * 2.5
+	var w := _pferd_knoten(d, Vector2(p.x, p.z))
+	eigene.append(w)
+	if anleinen(w):
+		return "%s gehört jetzt dir und folgt dir." % d.name
+	w.zustand = "lose"
+	d.ort = "lose"
+	return "%s gehört jetzt dir. Deine Leine ist belegt, %s wartet hier." % [d.name, "sie" if d.sex == "w" else "er"]
+
+
+## Verkauftes Pferd verschwindet aus der Welt
+func entfernen(d: Dictionary) -> void:
+	var w := knoten_von(d)
+	if w:
+		eigene.erase(w)
+		fuehrung.erase(w)
+		w.queue_free()
 
 
 func knoten_von(d: Dictionary) -> WildPferd:

@@ -10,6 +10,9 @@ var geld := 300                    # Startgeld (KATALOG §15)
 var herde: Array = []              # Daten der eigenen Pferde (Felder wie H.wild)
 var namen: Array = []              # jemals vergebene Namen (H.claim_name)
 var inv := {"heu": 3, "karotte": 2, "hafer": 0, "premiumfutter": 0, "buerste": 0}   # Start (stage.lua, E70)
+var markt := {}                   # {zyklus, pferde} (E39), wird mitgespeichert
+var kaeufer := {}                 # Käufer des Tages {typ, tag, verkauft} (E40)
+var max_gebiet := 1               # weitestes erreichbares Gebiet (Fahrzeug)
 var tag := 1
 var uhrzeit := 7.0
 var geladen := false
@@ -24,7 +27,8 @@ func speichern(himmel: Himmel) -> void:
 		return                     # Test-Szenarien speichern nie (E35)
 	tag = himmel.tag
 	uhrzeit = himmel.uhrzeit
-	var stand := {"version": VERSION, "geld": geld, "herde": herde, "namen": namen, "inv": inv, "tag": tag, "uhrzeit": uhrzeit}
+	var stand := {"version": VERSION, "geld": geld, "herde": herde, "namen": namen, "inv": inv, "tag": tag, "uhrzeit": uhrzeit,
+		"markt": markt, "kaeufer": kaeufer, "max_gebiet": max_gebiet}
 	var f := FileAccess.open(DATEI, FileAccess.WRITE)
 	f.store_string(JSON.stringify(stand, " "))
 
@@ -41,6 +45,9 @@ func laden() -> bool:
 	for k in stand.get("inv", {}):
 		inv[k] = int(stand.inv[k])
 	tag = int(stand.get("tag", 1))
+	markt = stand.get("markt", {})
+	kaeufer = stand.get("kaeufer", {})
+	max_gebiet = int(stand.get("max_gebiet", 1))
 	uhrzeit = float(stand.get("uhrzeit", 7.0))
 	# JSON kennt nur Gleitkommazahlen: ganze Werte wieder zu int
 	for d in herde:

@@ -55,7 +55,10 @@ func _ready() -> void:
 		if pferd:
 			pferd.neuer_tag()
 		Tage.neuer_tag(Spiel.herde))
-	himmel.abend.connect(func() -> void: Tage.abend(Spiel.herde))
+	himmel.abend.connect(func() -> void:
+		Tage.abend(Spiel.herde)
+		_kaeufer_zeigen())
+	himmel.neuer_tag.connect(_morgen)
 
 	wild.gelaende = gelaende
 	wild.himmel = himmel
@@ -81,6 +84,22 @@ func _ready() -> void:
 	wild.am_ort.connect(_am_ort)
 	menue.aufsitzen.connect(_aufsitzen)
 	_steuern(figur)
+	if Testlauf.optionen.has("tag"):
+		himmel.tag = int(Testlauf.optionen.tag)
+	_kaeufer_figur.siedlung = siedlung
+	add_child(_kaeufer_figur)
+	add_to_group("kaeufer_weg")
+	_morgen(himmel.tag, false)
+	if Testlauf.optionen.has("eigenes_pferd"):
+		# Test: ein eigenes, gepflegtes Pferd an der Leine
+		var d := HoofyDaten.wildpferd(rng, 1, "noriker")
+		d.erase("wild")
+		d.bindung = 75
+		d.sauberkeit = 80
+		d.hunger = 20
+		Spiel.herde.append(d)
+		wild.adoptieren(d)
+		wild.unterbringen(wild.knoten_von(d), "weide")
 	if Testlauf.optionen.has("probepferd"):
 		# Test: gleich auf einem gesattelten Pferd sitzen (im Spiel zähmt man das erste selbst)
 		var daten := HoofyDaten.wildpferd(rng, 1, Testlauf.optionen.get("rasse", "haflinger"))
@@ -189,6 +208,31 @@ func _process(delta: float) -> void:
 		_absteigen_halten = 0.0
 
 
+var _kaeufer_figur := KaeuferFigur.new()
+
+
+## Nach einem Verkauf geht der Käufer (pro Besuch ein Verkauf)
+func kaeufer_weg() -> void:
+	_kaeufer_zeigen()
+
+
+## Tagesbeginn: Käufer des Tages, Markt, Neuigkeiten (world.lua beim Aufwachen)
+func _morgen(tag: int, melden := true) -> void:
+	if Spiel.kaeufer.get("tag", -1) != tag:
+		Spiel.kaeufer = Handel.besuch(tag)
+	Handel.markt(tag)
+	_kaeufer_zeigen()
+	if melden:
+		for text in Handel.neu_am(tag):
+			anzeige.meldung(text, 5.0)
+
+
+## Der Käufer steht tagsüber im Dorf, bis er etwas gekauft hat (Buyers.sync)
+func _kaeufer_zeigen() -> void:
+	var da: bool = not Spiel.kaeufer.is_empty() and not Spiel.kaeufer.verkauft and not himmel.ist_nacht()
+	_kaeufer_figur.zeigen(Spiel.kaeufer.typ if da else "")
+
+
 ## Aktionstaste vor einem Ort auf dem Hof oder im Dorf
 func _am_ort(ort: String) -> void:
 	if ort == "stall":
@@ -197,6 +241,10 @@ func _am_ort(ort: String) -> void:
 		menue.laden()
 	elif ort == "wohnwagen":
 		_schlafen()
+	elif ort == "markt":
+		menue.markt(himmel.tag)
+	elif ort == "kaeufer":
+		menue.kaeufer(himmel.tag)
 
 
 ## Im Wohnwagen schlafen (E33, E35): überspringt die Nacht, Tagesregeln, speichern

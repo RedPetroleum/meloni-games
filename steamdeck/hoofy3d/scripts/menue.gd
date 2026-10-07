@@ -508,6 +508,156 @@ func _laden_seite(kat: int, auswahl: int, meldung := "") -> Control:
 	return seite
 
 
+# --- Pferdemarkt (Screens.market) ---
+
+func markt(tag: int) -> void:
+	if offen():
+		return
+	_oeffnen(_markt_seite(tag, 0, ""))
+
+
+func _markt_seite(tag: int, auswahl: int, meldung: String) -> Control:
+	var seite := _seite("Pferdemarkt", "%d G" % Spiel.geld, Vector2(980, 0))
+	var inhalt: VBoxContainer = seite.get_meta("inhalt")
+	var pferde: Array = Handel.markt(tag).pferde
+	if pferde.is_empty():
+		inhalt.add_child(_label("Heute ist alles verkauft.\nAlle %d Tage kommen neue Pferde." % Handel.MARKT_ZYKLUS, 20, BLASS))
+	var zeile := HBoxContainer.new()
+	zeile.add_theme_constant_override("separation", 16)
+	inhalt.add_child(zeile)
+	var links := VBoxContainer.new()
+	links.custom_minimum_size = Vector2(460, 0)
+	zeile.add_child(links)
+	var rechts := VBoxContainer.new()
+	rechts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	zeile.add_child(rechts)
+	var knoepfe := []
+	for i in pferde.size():
+		var d: Dictionary = pferde[i]
+		var b := _knopf("%s (%s)  ·  %d G" % [d.name, "Hengst" if d.sex == "m" else "Stute", d.preis], func():
+			var r = Handel.markt_kaufen(i)
+			var m := ""
+			if r is Dictionary:
+				m = wildpferde.adoptieren(r)
+			elif r == "Geld":
+				m = "Zu wenig Geld."
+			elif r == "voll":
+				m = "Mehr als %d Pferde gehen nicht." % Handel.MAX_HERDE
+			else:
+				m = "Schon weg."
+			var alt: Control = _stapel.pop_back()
+			alt.queue_free()
+			_oeffnen(_markt_seite(tag, maxi(0, i - 1), m)))
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.icon = _farbfleck(d)
+		if Spiel.geld < int(d.preis):
+			b.modulate = Color(1, 1, 1, 0.55)
+		b.focus_entered.connect(func():
+			for k in rechts.get_children():
+				k.queue_free()
+			_markt_details(rechts, d))
+		links.add_child(b)
+		knoepfe.append(b)
+	inhalt.add_child(_label(meldung, 19, GOLD))
+	if knoepfe:
+		seite.set_meta("fokus", knoepfe[mini(auswahl, knoepfe.size() - 1)])
+	_fuss(seite, "A: kaufen   B: zurück")
+	return seite
+
+
+func _markt_details(box: VBoxContainer, d: Dictionary) -> void:
+	box.add_child(_label("%s, %s" % [HoofyDaten.rasse(d.rasse).name, HoofyDaten.farbe_name(d.farbe)], 19, TEXT))
+	for e in [["tempo", "Tempo"], ["staerke", "Stärke"], ["ausdauer", "Ausdauer"], ["spuer", "Spürsinn"]]:
+		box.add_child(_balkenzeile(e[1], Balken.faehigkeit(d, e[0])))
+	box.add_child(_label("Bindung %d, %s" % [d.bindung, HoofyDaten.daten().charakter[d.zug].name], 17, TEXT))
+	box.add_child(_label(("Leistung ×%.2f" % HoofyDaten.leistungsfaktor(d)).replace(".", ",") + ", Wert %d G" % HoofyDaten.wert(d), 17, BLASS))
+	box.add_child(_label("Farbfaktor ×%s, Kauf = Wert ×1,5" % str(HoofyDaten.farbfaktor(d)).replace(".", ","), 17, BLASS))
+
+
+# --- Käufer (Screens.buyer) ---
+
+func kaeufer(tag: int) -> void:
+	if offen() or Spiel.kaeufer.is_empty():
+		return
+	_oeffnen(_kaeufer_seite(tag, 0, ""))
+
+
+func _kaeufer_seite(tag: int, auswahl: int, meldung: String) -> Control:
+	var typ: String = Spiel.kaeufer.typ
+	var info: Dictionary = Handel.INFO[typ]
+	var seite := _seite(info.name + " kauft", "%d G" % Spiel.geld, Vector2(900, 0))
+	var inhalt: VBoxContainer = seite.get_meta("inhalt")
+	# Pferde, die gerade geritten werden, stehen nicht zum Verkauf
+	var liste := Spiel.herde.filter(func(d): return d.get("ort") != null or wildpferde.knoten_von(d) == null or wildpferde.knoten_von(d).zustand != "geritten")
+	if liste.is_empty():
+		inhalt.add_child(_label("Du hast kein Pferd zum Verkaufen.", 20, BLASS))
+	var text := _label("", 18, TEXT)
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var preis_text := _label("", 18, GOLD)
+	preis_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var knoepfe := []
+	for i in liste.size():
+		var d: Dictionary = liste[i]
+		var angebot = Handel.angebot(typ, d, tag)
+		var b := _knopf("%s  ·  %s, %s  ·  %s" % [d.name, HoofyDaten.rasse(d.rasse).name, HoofyDaten.farbe_name(d.farbe),
+				"nein" if angebot is String else "%d G" % angebot], func():
+			if angebot is String:
+				var alt: Control = _stapel.pop_back()
+				alt.queue_free()
+				_oeffnen(_kaeufer_seite(tag, i, Handel.gtext(d, Handel.pronomen(typ, true) + " nimmt {sie|ihn|es} nicht: ") + angebot))
+				return
+			var getragen := Wirtschaft.getragen(d).map(func(id): return Wirtschaft.finde(id).name)
+			var zeilen := ["%s für %d G an %s verkaufen?" % [d.name, angebot, info.name], "Das lässt sich nicht rückgängig machen."]
+			if getragen:
+				zeilen.append("Behältst du: " + ", ".join(getragen) + ".")
+			_oeffnen(_bestaetigen("Wirklich verkaufen?", zeilen, "Ja, verkaufen", func():
+				var preis = Handel.verkaufen(typ, d, tag)
+				_alle_zu()
+				if preis is int:
+					wildpferde.entfernen(d)
+					get_tree().call_group("kaeufer_weg", "kaeufer_weg")
+					_sag("%s verkauft für %d G." % [d.name, preis])
+				else:
+					_sag(str(preis)))))
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.icon = _farbfleck(d)
+		b.focus_entered.connect(func():
+			text.text = "„%s“" % Handel.spruch(typ, d, tag)
+			if angebot is String:
+				preis_text.text = Handel.gtext(d, Handel.pronomen(typ, true) + " nimmt {sie|ihn|es} nicht: ") + angebot
+				preis_text.add_theme_color_override("font_color", ROT)
+			else:
+				var f := Handel.folge(typ)
+				preis_text.text = "%s zahlt %d G (Wert %d G).%s" % [Handel.pronomen(typ, true), angebot, HoofyDaten.wert(d),
+					("\nDie übrigen Pferde: Bindung %d" % f) if f != 0 else ""]
+				preis_text.add_theme_color_override("font_color", GOLD))
+		inhalt.add_child(b)
+		knoepfe.append(b)
+	inhalt.add_child(text)
+	inhalt.add_child(preis_text)
+	if meldung:
+		inhalt.add_child(_label(meldung, 18, ROT))
+	if knoepfe:
+		seite.set_meta("fokus", knoepfe[mini(auswahl, knoepfe.size() - 1)])
+	_fuss(seite, "A: verkaufen   B: zurück")
+	return seite
+
+
+## Rückfrage (Screens.confirm): „Nein“ steht vorn, damit A nicht aus Versehen bestätigt
+func _bestaetigen(titel: String, zeilen: Array, ja_text: String, ja: Callable) -> Control:
+	var seite := _seite(titel, "", Vector2(620, 0))
+	var inhalt: VBoxContainer = seite.get_meta("inhalt")
+	for z in zeilen:
+		var l := _label(z, 19, TEXT)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		inhalt.add_child(l)
+	var nein := _knopf("Nein", func(): _zurueck())
+	inhalt.add_child(nein)
+	inhalt.add_child(_knopf(ja_text, ja))
+	seite.set_meta("fokus", nein)
+	return seite
+
+
 func _alle_zu() -> void:
 	while offen():
 		_zurueck()

@@ -178,8 +178,12 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [ ] Zucht: Gen-Vererbung, Farbgenetik (sichtbar/versteckt), Rassen mischen, Inzucht-Malus, Fohlen wachsen
 
 ### Geld (Hoofy §4)
-- [ ] Laden, Pferdemarkt, Futter und Samen kaufen
-- [ ] Käufer: Sammlerin, Reithof, Züchter, Schlachter; Bestellungen
+- [x] Laden mit sechs Reitern (Futter, Sättel, Zubehör, Schmuck, Samen, Fahrzeuge), Inventar, Ausrüsten
+- [x] Schlafen im Wohnwagen (ab dem Abend), überspringt die Nacht, speichert
+- [x] Pferdemarkt (E39): 4 Pferde, alle 3 Tage neu, Wert ×1,5, gekaufte an die Leine
+- [x] Käufer (E40): ab Tag 5 täglich einer im Dorf (Sammlerin ab Tag 9), Formeln, Sprüche, Folgen, Rückfrage
+- [x] Freischalten nach Spieltag mit Meldung am Morgen (fortschritt.lua)
+- [ ] Bestellungen
 - [ ] Turniere: Schönheitswettbewerb, Springreiten, Rennen, Siegerpodest
 
 ### Hof und Dorf im Heimattal (E12, E20, E32)
