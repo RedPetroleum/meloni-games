@@ -126,6 +126,24 @@ func _aktualisieren() -> void:
 		himmel_mat.night_sky = sterne
 
 
+## Schlafen geht wie im 2D-Hoofy ab 2 der 3 hellen Minuten vor der Nacht (Clock.SLEEP_FROM),
+## hier hochgerechnet: die letzten zwei Drittel des hellen Abschnitts und die ganze Nacht
+func darf_schlafen() -> bool:
+	var ab := UNTERGANG - (UNTERGANG - AUFGANG) * 2.0 / 3.0
+	return uhrzeit >= ab or uhrzeit < AUFGANG
+
+
+## Schlafen überspringt den Rest des Abends und der Nacht (Clock:sleep): neuer Tag am Morgen
+func schlafen() -> bool:
+	if not darf_schlafen():
+		return false
+	uhrzeit = AUFGANG
+	tag += 1
+	_aktualisieren()
+	neuer_tag.emit(tag)
+	return true
+
+
 func ist_nacht() -> bool:
 	return uhrzeit < AUFGANG or uhrzeit > UNTERGANG
 

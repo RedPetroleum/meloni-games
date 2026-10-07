@@ -174,6 +174,30 @@ func _process(delta: float) -> void:
 			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)]
 
 
+var _schwarz: ColorRect
+
+
+## Bild schwarz werden lassen (Schlafen) und wieder aufhellen
+func abblenden() -> void:
+	if _schwarz == null:
+		_schwarz = ColorRect.new()
+		_schwarz.color = Color(0, 0, 0, 0)
+		_schwarz.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_schwarz.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_schwarz)
+		move_child(_schwarz, 0)
+	var t := create_tween()
+	t.tween_property(_schwarz, "color:a", 1.0, 0.8)
+	await t.finished
+
+
+func aufblenden() -> void:
+	await get_tree().create_timer(0.6).timeout
+	var t := create_tween()
+	t.tween_property(_schwarz, "color:a", 0.0, 1.0)
+	await t.finished
+
+
 func meldung(text: String, sekunden: float) -> void:
 	_meldung.text = text
 	_meldung_zeit = sekunden

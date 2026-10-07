@@ -287,7 +287,7 @@ func _zaehmen_steuern(delta: float) -> void:
 			elif _naechstes_eigenes():
 				angesprochen.emit(_naechstes_eigenes())
 			elif siedlung:
-				for ort in ["stall", "laden"]:
+				for ort in ["stall", "laden", "wohnwagen"]:
 					if spieler.global_position.distance_to(siedlung.orte[ort]) < 12.0:
 						am_ort.emit(ort)
 						break

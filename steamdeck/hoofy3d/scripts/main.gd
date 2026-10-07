@@ -195,3 +195,17 @@ func _am_ort(ort: String) -> void:
 		menue.stall()
 	elif ort == "laden":
 		menue.laden()
+	elif ort == "wohnwagen":
+		_schlafen()
+
+
+## Im Wohnwagen schlafen (E33, E35): überspringt die Nacht, Tagesregeln, speichern
+func _schlafen() -> void:
+	if not himmel.darf_schlafen():
+		anzeige.meldung("Noch nicht müde. Ab dem Abend kannst du hier schlafen.", 2.5)
+		return
+	await anzeige.abblenden()
+	himmel.schlafen()
+	Spiel.speichern(himmel)
+	anzeige.meldung("Gut geschlafen. Gespeichert.", 4.0)
+	await anzeige.aufblenden()
