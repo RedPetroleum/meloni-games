@@ -73,7 +73,16 @@ var _zu_szene := Transform3D()      # Skelettraum → Szenenraum
 
 func _init(pferd: Dictionary, sattel := false) -> void:
 	daten = pferd
-	gesattelt = sattel
+	gesattelt = sattel or pferd.has("sattel")
+
+
+## Sattel und Zaumzeug zeigen oder verstecken (nach dem Ausrüsten)
+func sattel_zeigen(an: bool) -> void:
+	gesattelt = an
+	for mi: MeshInstance3D in find_children("*", "MeshInstance3D", true, false):
+		var mat := mi.mesh.surface_get_material(0)
+		if mat and mat.resource_name in _modell.get("ausruestung", []):
+			mi.visible = an
 
 
 func _ready() -> void:

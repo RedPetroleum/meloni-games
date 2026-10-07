@@ -54,7 +54,7 @@ func _init(pferd: Dictionary) -> void:
 
 
 func _ready() -> void:
-	modell = PferdModell.new(daten, true)
+	modell = PferdModell.new(daten, daten.has("sattel"))
 	add_child(modell)
 	var s := modell.stockmass / 1.65
 	hoehe_kamera = 1.55 + modell.stockmass * 0.45

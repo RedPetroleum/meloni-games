@@ -84,6 +84,9 @@ func _fokus(seite: Control) -> void:
 	await get_tree().process_frame
 	if not is_instance_valid(seite):
 		return
+	if seite.has_meta("fokus") and is_instance_valid(seite.get_meta("fokus")):
+		(seite.get_meta("fokus") as Button).grab_focus()
+		return
 	for k in seite.find_children("*", "Button", true, false):
 		if not (k as Button).disabled and k.is_visible_in_tree():
 			(k as Button).grab_focus()
@@ -101,7 +104,7 @@ func _pause() -> Control:
 	var eintraege := [
 		["Weiter", func(): _zurueck(), true],
 		["Pferde", func(): _oeffnen(_pferde()), true],
-		["Inventar", null, true],
+		["Inventar", func(): _oeffnen(_inventar()), true],
 		["Bestellungen", null, tag >= 4],
 		["Karte", null, true],
 		["Bauen", null, auf_hof],
@@ -309,6 +312,7 @@ func _aktionen(w: Wildpferde.WildPferd) -> Control:
 		else:
 			_sag("Du führst schon zwei Pferde. Mehr passen nicht an die Leine.")
 		_alle_zu()))
+	liste.add_child(_knopf("Ausrüsten", func(): _oeffnen(_ausruesten(w))))
 	liste.add_child(_knopf("Aufsitzen", func():
 		_alle_zu()
 		aufsitzen.emit(w)))
@@ -378,6 +382,130 @@ func stall() -> void:
 			_alle_zu()))
 	_fuss(seite, "A: wählen   B: zurück")
 	_oeffnen(seite)
+
+
+## Ausrüstung: anlegen aus dem Vorrat, ablegen was getragen wird (horse_menu.lua gear_items)
+func _ausruesten(w: Wildpferde.WildPferd) -> Control:
+	var d := w.daten
+	var seite := _seite("Ausrüstung " + d.name, "", Vector2(560, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	var neu := func():
+		w.modell.sattel_zeigen(d.has("sattel"))
+		var alt: Control = _stapel.pop_back()
+		alt.queue_free()
+		_oeffnen(_ausruesten(w))
+	for id in Wirtschaft.getragen(d):
+		liste.add_child(_knopf("ab: " + Wirtschaft.finde(id).name, func():
+			Wirtschaft.ablegen(d, id)
+			neu.call()))
+	var ids: Array = Wirtschaft.SLOTS.sattel + Wirtschaft.SLOTS.taschen + ["sattellampe"] + Wirtschaft.SCHMUCK
+	var leer := true
+	for id in ids:
+		if Wirtschaft.besitz(id) > 0:
+			leer = false
+			liste.add_child(_knopf("an: %s   (%d)" % [Wirtschaft.finde(id).name, Wirtschaft.besitz(id)], func():
+				var grund := Wirtschaft.ausruesten(d, id)
+				if grund:
+					_sag("Geht nicht: %s." % grund)
+				neu.call()))
+	if leer and Wirtschaft.getragen(d).is_empty():
+		liste.add_child(_label("Nichts im Vorrat. Sättel und Schmuck gibt es im Laden.", 18, BLASS))
+	_fuss(seite, "A: an/ab   B: zurück")
+	return seite
+
+
+## Inventar (Screens.inventory): Geld und Vorrat nach Laden-Reitern, Futter immer
+func _inventar() -> Control:
+	var seite := _seite("Inventar", "%d G" % Spiel.geld, Vector2(560, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	var rollen := ScrollContainer.new()
+	rollen.custom_minimum_size = Vector2(0, 460)
+	var spalte := VBoxContainer.new()
+	spalte.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rollen.add_child(spalte)
+	liste.add_child(rollen)
+	var alles := Wirtschaft.katalog(6)
+	for k in Wirtschaft.KATEGORIEN:
+		var zeilen := alles.filter(func(w): return w.kat == k.id and (Wirtschaft.besitz(w.id) > 0 or k.id == "futter"))
+		if zeilen.is_empty():
+			continue
+		spalte.add_child(_label(k.name, 20, GOLD))
+		for w in zeilen:
+			var n := Wirtschaft.besitz(w.id)
+			spalte.add_child(_label("   %s   ×%d" % [w.name, n], 18, TEXT if n > 0 else BLASS))
+	var zu := _knopf("Zurück", func(): _zurueck())
+	liste.add_child(zu)
+	return seite
+
+
+## Laden (Screens.shop): Reiter mit ◀ ▶, A kauft ein Stück
+const LADEN_GRUND := Color(0.23, 0.06, 0.1, 0.96)
+const LADEN_ROSA := Color(0.95, 0.61, 0.72)
+
+
+func laden() -> void:
+	if offen():
+		return
+	_oeffnen(_laden_seite(0, 0))
+
+
+func _laden_seite(kat: int, auswahl: int, meldung := "") -> Control:
+	var k: Dictionary = Wirtschaft.KATEGORIEN[kat]
+	var seite := _seite("Laden: " + k.name, "%d G" % Spiel.geld, Vector2(760, 0))
+	var rahmen: PanelContainer = seite.get_child(0).get_child(0)
+	var stil: StyleBoxFlat = _thema.get_stylebox("panel", "PanelContainer").duplicate()
+	stil.bg_color = LADEN_GRUND
+	stil.border_color = LADEN_ROSA
+	rahmen.add_theme_stylebox_override("panel", stil)
+	var inhalt: VBoxContainer = seite.get_meta("inhalt")
+	var reiter := HBoxContainer.new()
+	reiter.add_theme_constant_override("separation", 6)
+	for i in Wirtschaft.KATEGORIEN.size():
+		var r := _label(Wirtschaft.KATEGORIEN[i].name, 17, LADEN_ROSA if i == kat else BLASS)
+		r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		r.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		reiter.add_child(r)
+	inhalt.add_child(reiter)
+	var waren := Wirtschaft.katalog(1).filter(func(w): return w.kat == k.id)
+	var text := _label("", 17, BLASS)
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.custom_minimum_size = Vector2(0, 70)
+	var knoepfe := []
+	for i in waren.size():
+		var w: Dictionary = waren[i]
+		var p := Wirtschaft.preis(w)
+		var n := Wirtschaft.besitz(w.id)
+		var b := _knopf("%s%s%d G%s" % [w.name, "   ", p, ("   ×%d" % n) if n > 0 else ""], func():
+			var grund := Wirtschaft.kaufen(w.id)
+			var m: String = w.name + " gekauft."
+			if grund == "Geld":
+				m = "Zu wenig Geld."
+			elif grund == "schon da":
+				m = "Hast du schon."
+			elif grund == "Garage":
+				m = Wirtschaft.garage_text(w.id)
+			var alt: Control = _stapel.pop_back()
+			alt.queue_free()
+			_oeffnen(_laden_seite(kat, i, m)))
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		if Spiel.geld < p or (w.get("einmalig", false) and n > 0):
+			b.modulate = Color(1, 1, 1, 0.55)
+		b.focus_entered.connect(func(): text.text = w.get("text", ""))
+		inhalt.add_child(b)
+		knoepfe.append(b)
+	if waren.is_empty():
+		inhalt.add_child(_label("Hier gibt es noch nichts.", 18, BLASS))
+	inhalt.add_child(text)
+	var meld := _label(meldung, 19, GOLD)
+	inhalt.add_child(meld)
+	seite.set_meta("blaettern", func(schritt: int):
+		var alt: Control = _stapel.pop_back()
+		alt.queue_free()
+		_oeffnen(_laden_seite((kat + schritt + Wirtschaft.KATEGORIEN.size()) % Wirtschaft.KATEGORIEN.size(), 0)))
+	if knoepfe:
+		seite.set_meta("fokus", knoepfe[mini(auswahl, knoepfe.size() - 1)])
+	_fuss(seite, "A: kaufen   ◀ ▶: Reiter   B: zurück")
+	return seite
 
 
 func _alle_zu() -> void:

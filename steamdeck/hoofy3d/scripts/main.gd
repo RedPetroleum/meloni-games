@@ -78,7 +78,7 @@ func _ready() -> void:
 	menue.wildpferde = wild
 	add_child(menue)
 	wild.angesprochen.connect(menue.aktionsmenue)
-	wild.am_stall.connect(menue.stall)
+	wild.am_ort.connect(_am_ort)
 	menue.aufsitzen.connect(_aufsitzen)
 	_steuern(figur)
 	if Testlauf.optionen.has("probepferd"):
@@ -187,3 +187,11 @@ func _process(delta: float) -> void:
 			_absteigen()
 	else:
 		_absteigen_halten = 0.0
+
+
+## Aktionstaste vor einem Ort auf dem Hof oder im Dorf
+func _am_ort(ort: String) -> void:
+	if ort == "stall":
+		menue.stall()
+	elif ort == "laden":
+		menue.laden()

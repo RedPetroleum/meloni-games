@@ -35,7 +35,7 @@ const FRISCH_FAKTOR := 3.0        # frisch: Ausreißen beim Rennen/Reiten ×3
 
 signal meldung(text: String, sekunden: float)
 signal angesprochen(w: WildPferd)          # Aktionstaste bei einem eigenen Pferd: Aktionsmenü
-signal am_stall                            # Aktionstaste vor dem Stall: wer ist drin?
+signal am_ort(name: String)                # Aktionstaste vor Stall, Laden …
 
 var gelaende: Gelaende
 var siedlung: Siedlung
@@ -286,8 +286,11 @@ func _zaehmen_steuern(delta: float) -> void:
 				w.zaehm_noetig = (90.0 + (100.0 - float(w.daten.bindung))) / 60.0
 			elif _naechstes_eigenes():
 				angesprochen.emit(_naechstes_eigenes())
-			elif siedlung and spieler.global_position.distance_to(siedlung.orte.stall) < 9.0:
-				am_stall.emit()
+			elif siedlung:
+				for ort in ["stall", "laden"]:
+					if spieler.global_position.distance_to(siedlung.orte[ort]) < 12.0:
+						am_ort.emit(ort)
+						break
 		return
 	var w := zaehmen
 	var d := Vector2(w.position.x, w.position.z).distance_to(Vector2(spieler.global_position.x, spieler.global_position.z))
