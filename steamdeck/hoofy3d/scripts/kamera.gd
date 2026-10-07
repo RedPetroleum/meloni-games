@@ -8,7 +8,7 @@ const STICK_TEMPO := Vector2(2.6, 1.6)
 
 var ziel: Node3D                 # braucht tempo() und blickwinkel()
 var gelaende: Gelaende
-var yaw := PI
+var yaw := 0.0                  # Start: Blick nach Norden auf den Hof
 var pitch := -0.2
 var arm := SpringArm3D.new()
 var cam := Camera3D.new()

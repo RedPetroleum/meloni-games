@@ -19,6 +19,7 @@ extends Node3D
 const ANZAHL := 4                 # Heimattal (KATALOG §10)
 const WECHSEL_TAGE := 3
 const MIN_ABSTAND_HOF := 110.0
+const MAX_ABSTAND_HOF := 320.0     # in Laufweite: das Tal ist 1 km groß und eine Karte gibt es noch nicht
 const ZONE := 20.0
 const ZAEHM_ABSTAND := 3.5
 const RUHE_ABSTAND := 20.0        # nach der Flucht erst ab hier wieder grasen
@@ -130,15 +131,18 @@ func _pferd_knoten(daten: Dictionary, p: Vector2) -> WildPferd:
 func _neues_pferd() -> void:
 	var belegt := Spiel.namen + pferde.map(func(x): return x.daten.name)
 	var daten := HoofyDaten.wildpferd(_rng, gebiet, "", belegt)
-	pferde.append(_pferd_knoten(daten, _weideplatz()))
+	var platz := _weideplatz()
+	pferde.append(_pferd_knoten(daten, platz))
+	if Testlauf.optionen.has("log"):
+		print("Wildpferd %s (%s) bei x=%d z=%d, %d m vom Hof" % [daten.name, HoofyDaten.rasse(daten.rasse).name, platz.x, platz.y, platz.distance_to(Gelaende.HOF)])
 
 
 ## Freie Wiese: nicht im Wald, nicht steil, nicht nass, weg vom Hof und von den anderen
 func _weideplatz() -> Vector2:
 	var halb := Gelaende.GROESSE * 0.5 - 60.0
 	for versuch in 200:
-		var p := Vector2(_rng.randf_range(-halb, halb), _rng.randf_range(-halb, halb))
-		if p.distance_to(Gelaende.HOF) < MIN_ABSTAND_HOF or p.distance_to(Gelaende.DORF) < 80.0 or gelaende.wald(p.x, p.y) > 0.2:
+		var p := Gelaende.HOF + Vector2.from_angle(_rng.randf() * TAU) * _rng.randf_range(MIN_ABSTAND_HOF, MAX_ABSTAND_HOF)
+		if absf(p.x) > halb or absf(p.y) > halb or p.distance_to(Gelaende.DORF) < 80.0 or gelaende.wald(p.x, p.y) > 0.2:
 			continue
 		if gelaende.wassertiefe(p.x, p.y) > -0.5 or gelaende.normale(p.x, p.y).y < 0.9:
 			continue

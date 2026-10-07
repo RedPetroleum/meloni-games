@@ -8,7 +8,30 @@ Werte und Charakterzüge kommen direkt aus den Hoofy-Daten.
 Engine: **Godot 4.7** (frei, läuft am Mac zum Entwickeln und exportiert nativ für Linux/Steam Deck,
 Szenen und Skripte sind Text, also gut mit KI-Assistenten zu bearbeiten).
 
+## Was schon spielbar ist (Stand 2026-10-08)
+
+Start wie im 2D-Hoofy: zu Fuß auf dem Hof (300 G, Wohnwagen, Stall S, Weide), ohne Pferd.
+
+1. **Wildpferd finden.** Vier stehen im Tal, eine Karte gibt es noch nicht. Mit Blick nach Norden
+   (Startrichtung): eins etwa 120 m vorn links (hinter dem Wohnwagen), eins etwa 190 m vorn, eins
+   etwa 210 m südlich hinter der Weide, eins etwa 280 m östlich hinter dem Dorf.
+2. **Zähmen:** leise nähern (B schleichen), ganz nah ran, Y/E halten und stillstehen.
+3. **Heimführen.** Am Pferd Y/E: Streicheln, Füttern, Striegeln, Unterbringen (nur auf dem Hof).
+4. **Dorf** (150 m östlich): Laden, Pferdemarkt, ab Tag 5 ein Käufer.
+5. **Abends im Wohnwagen schlafen** (Y/E): nächster Tag und Speichern.
+6. **Aufsitzen** im Menü am Pferd, sobald es nicht mehr frisch gezähmt ist (füttern, streicheln,
+   striegeln). Zucht am Stall mit Hengst und Stute.
+
+Noch nicht da: Bestellungen, Jobs, Turniere, Bauen, Anbau, Fahrzeuge und Reisen, weitere Gebiete,
+Wetter, Reformen, Album, Tauschcode, Garderobe, Karte, Ton, Titelbild.
+Spielstand (Mac): `~/Library/Application Support/Godot/app_userdata/Hoofy 3D/hoofy3d.json`
+löschen = neues Spiel.
+
 ## Loslegen
+
+```sh
+tools/spielen.sh          # am Mac spielen (mit --deck leichtere Grafik)
+```
 
 ```sh
 python3 tools/assets.py        # Grafik laden (~50 MB, nicht im Git; das Pferd von Sketchfab

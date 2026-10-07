@@ -112,6 +112,7 @@ func _pause() -> Control:
 		["Album", null, true],
 		["Tauschen", null, tag >= 9],
 		["Speichern", func(): _speichern(), true],
+		["Beenden", func(): _beenden(), true],
 	]
 	for e in eintraege:
 		if not e[2] and e[0] in ["Bestellungen", "Zeitung", "Tauschen"]:
@@ -121,6 +122,12 @@ func _pause() -> Control:
 			b.disabled = true              # gibt es noch nicht: ausgegraut
 		liste.add_child(b)
 	return seite
+
+
+## Beenden speichert vorher (E35: Speichern beim Schlafen, im Pausenmenü und beim Beenden)
+func _beenden() -> void:
+	Spiel.speichern(himmel)
+	get_tree().quit()
 
 
 func _speichern() -> void:
