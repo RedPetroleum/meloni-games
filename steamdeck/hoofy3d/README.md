@@ -145,7 +145,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [x] Aufsitzen (Aktionsmenü; frisch gezähmt nicht, Bindung < 20 verweigert zu 50 %), Absteigen (Y halten)
 - [x] Reitsitz: Sitz aus den Steigbügel-Knochen, Beine und Hände per IK, Zügel
 - [x] Training beim Reiten (E31): Ausdauer, Tempo im Galopp, Stärke beim Sprung, Bindung je Minute
-- [ ] Reitsitz feiner (Arme, Oberkörper im Galopp mitgehen), Figur beim Auf-/Absteigen animieren
+- [ ] Reitsitz: noch nicht wie im Vorlagebild (Hände, Oberschenkel). Besser als weiteres Nachbiegen:
+      eine fertige Reitanimation suchen (Sketchfab/Animationspaket) und aufs Pferd setzen.
+      Messen: `tools/shot.sh --probepferd --rasse=mustang --mess --frames=90` (Lagen relativ zum Sitz)
+- [ ] Figur beim Auf-/Absteigen animieren, Oberkörper im Galopp mitgehen lassen
 - [x] Pausenmenü (E34): Weiter, Pferde, Speichern; Inventar, Karte, Bauen, Album ausgegraut; Bestellungen, Zeitung, Tauschen erst ab ihrem Tag
 - [x] Pferdeliste, Info-Seite mit 3D-Bild, Balken und Wert (KATALOG §6), Umbenennen mit Bildschirmtastatur
 - [x] Speichern/Laden (E35): Geld, eigene Pferde, Namen, Tag; Wildpferde werden neu gewürfelt

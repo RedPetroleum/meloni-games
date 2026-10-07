@@ -19,14 +19,14 @@ const MODELLE := [
 		# zeigen nach oben, taugen also nicht als Fußposition)
 		"buegel": ["BN_L_Stirrup_048_051", "BN_R_Stirrup_049_052"],
 		"sitz_hoehe": 0.16,                      # Sattelfläche über den Aufhängungen
-		"sitz_zurueck": 0.07,                    # tiefster Punkt des Sattels liegt etwas hinter der Mitte
-		# Bügel relativ zum Sitz bei 1,65 m Stockmaß: seitlich, tief (Bauchunterkante), Ferse
-		# unter der Hüfte (Linie Ohr–Schulter–Hüfte–Ferse)
-		"buegel_lage": Vector3(0.44, -0.66, 0.03),
-		# Knie: außen am Sattelblatt, vorn und tiefer als die Hüfte (Oberschenkel schräg nach unten)
-		"knie_lage": Vector3(0.52, -0.24, -0.32),
-		# Hände: knapp über dem Widerrist, eine Unterarmlänge vor dem Bauch, ~16 cm auseinander
-		"haende_lage": Vector3(0.08, 0.40, -0.30),
+		"sitz_zurueck": -0.08,                   # Sitz 45 cm hinter dem Widerrist (Vorlagebild)
+		# Lagen relativ zum Sitz bei 1,65 m Stockmaß, ausgemessen am Vorlagebild (Meter, -z = vorn):
+		# Fußgelenk 14 cm vor und 61 cm unter dem Sitz
+		"buegel_lage": Vector3(0.44, -0.61, -0.14),
+		# Knie außen am Sattelblatt, 27 cm vor und 23 cm unter dem Sitz
+		"knie_lage": Vector3(0.50, -0.23, -0.27),
+		# Hände 35 cm vor dem Sitz, etwa auf Hüfthöhe knapp hinter dem Widerrist, 16 cm auseinander
+		"haende_lage": Vector3(0.08, 0.12, -0.35),
 		"maul": "BN_UP_Lip_030_029",
 		"fell": "Horse",
 		"haar": "Hair",

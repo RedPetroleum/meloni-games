@@ -328,4 +328,19 @@ func _process(delta: float) -> void:
 		reiter.global_transform = Transform3D(s.basis, s.origin - s.basis.y * (0.92 - 0.1))
 		reiter.fuesse(modell.steigbuegel(), modell.haende(), modell.knie())
 		_zuegel_zeichnen()
+		if Testlauf.optionen.has("mess") and Engine.get_process_frames() == 60:
+			_messen()
 	modell.schmutz(clampf(tiefe * 0.5, 0.0, 0.6))
+
+
+## Für die Testläufe: Lage von Pferd- und Reiterpunkten relativ zum Sitz (Meter, -z = vorne)
+func _messen() -> void:
+	var s := modell.sattel()
+	var zu := s.affine_inverse()
+	for b in ["BN_Neck_00_06_06", "BN_Spine_02_04_04", "BN_Spine_01_03_03", "BN_UP_Lip_030_029"]:
+		print("Pferd %s %s" % [b, (zu * modell._knochen_welt(b)).snapped(Vector3.ONE * 0.01)])
+	var sk := reiter.skelett
+	for b in ["Hips", "LeftUpLeg", "LeftLeg", "LeftFoot", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "Head"]:
+		var i := sk.find_bone("mixamorig6_" + b)
+		print("Reiter %s %s" % [b, (zu * (sk.global_transform * sk.get_bone_global_pose(i).origin)).snapped(Vector3.ONE * 0.01)])
+	print("Stockmaß ", modell.stockmass)
