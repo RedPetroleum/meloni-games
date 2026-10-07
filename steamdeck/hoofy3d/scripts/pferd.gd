@@ -142,6 +142,11 @@ func _tempo_faktor(g: int) -> float:
 	return (1.3 + 0.6 * t) / 1.6
 
 
+## Hand, die ein geführtes Pferd hält (linke Zügelhand des Reiters)
+func hand_position() -> Vector3:
+	return reiter.hand("Left") if reiter else global_position + Vector3.UP * 1.6
+
+
 ## Zügel: von jeder Hand leicht durchhängend zum Gebiss, als schmaler Riemen zur Kamera gedreht
 func _zuegel_zeichnen() -> void:
 	_zuegel_netz.clear_surfaces()

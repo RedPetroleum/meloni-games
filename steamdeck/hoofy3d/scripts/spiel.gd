@@ -56,8 +56,8 @@ func laden() -> bool:
 		for k in d:
 			if d[k] is float and d[k] == floorf(d[k]):
 				d[k] = int(d[k])
-		for gruppe in ["gen", "train", "pot"]:
+		for gruppe in ["gen", "pot"]:
 			for k in d[gruppe]:
-				d[gruppe][k] = int(d[gruppe][k])
+				d[gruppe][k] = int(d[gruppe][k])      # Training bleibt gebrochen wie im 2D-Hoofy
 	geladen = true
 	return true

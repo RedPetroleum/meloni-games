@@ -77,6 +77,11 @@ func spur_punkt(abstand: float) -> Vector3:
 	return vorher + global_basis.z * rest
 
 
+## Hand, die das Seil hält (rechts, zum geführten Pferd hin)
+func hand_position() -> Vector3:
+	return modell.hand("Right")
+
+
 ## Blickrichtung setzen (nach dem Absteigen, im Test)
 func ausrichten(winkel: float) -> void:
 	_richtung = winkel

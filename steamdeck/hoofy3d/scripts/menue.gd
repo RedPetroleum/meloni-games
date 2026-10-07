@@ -168,7 +168,11 @@ func _info(d: Dictionary) -> Control:
 	sv.add_child(_label("Charakter: " + HoofyDaten.daten().charakter[d.zug].name, 18, BLASS))
 	sv.add_child(_label("Ort: " + (ORT.get(d.get("ort", ""), "an der Leine")), 18, BLASS))
 	var extra := ""
-	if d.has("reit_ab") and int(d.bindung) < int(d.reit_ab):
+	if d.has("traechtig"):
+		extra = "Trächtig bis Tag %d" % d.traechtig.tag
+	elif int(d.get("zucht_pause", 0)) > himmel.tag:
+		extra = "Zuchtpause bis Tag %d" % d.zucht_pause
+	elif d.has("reit_ab") and int(d.bindung) < int(d.reit_ab):
 		extra = "Frisch gezähmt: noch nicht reitbar"
 	elif d.get("sattel"):
 		for a in HoofyDaten.daten().ausruestung.liste:
@@ -211,6 +215,10 @@ func _info(d: Dictionary) -> Control:
 		d.name = text
 		Spiel.namen.append(text))))
 	inhalt.add_child(umbenennen)
+	# ▼ erreicht den Stammbaum (wie im 2D-Hoofy), ◀ ▶ blättert durch die Pferde
+	inhalt.add_child(_knopf("Stammbaum", func(): _oeffnen(_stammbaum(d))))
+	if fohlen:
+		sv.add_child(_label("Wächst: %d %%" % roundi(float(d.alter) * 100.0), 18, BLASS))
 	seite.set_meta("blaettern", func(schritt: int):
 		var i := Spiel.herde.find(d)
 		if i >= 0 and Spiel.herde.size() > 1:
@@ -218,7 +226,7 @@ func _info(d: Dictionary) -> Control:
 			var alt: Control = _stapel.pop_back()
 			alt.queue_free()
 			_oeffnen(_info(n)))
-	_fuss(seite, "A umbenennen   ◀ ▶ blättern   B zurück")
+	_fuss(seite, "A umbenennen   ▼ Stammbaum   ◀ ▶ blättern   B zurück")
 	return seite
 
 
@@ -369,6 +377,12 @@ func stall() -> void:
 		return
 	var seite := _seite("Stall", "%d/%d" % [wildpferde.belegt("stall"), wildpferde.plaetze("stall")], Vector2(520, 0))
 	var liste: VBoxContainer = seite.get_meta("inhalt")
+	var tag := himmel.tag
+	var zucht := _knopf("Zucht starten", func(): _oeffnen(_zucht_hengst(tag)))
+	if Zucht.hengste().is_empty() or Zucht.stuten(tag).is_empty():
+		zucht.text = "Zucht: braucht Hengst und bereite Stute im Stall"
+		zucht.disabled = true
+	liste.add_child(zucht)
 	var drin := Spiel.herde.filter(func(d): return d.get("ort") == "stall")
 	if drin.is_empty():
 		liste.add_child(_label("Der Stall ist leer.", 20, BLASS))
@@ -658,6 +672,70 @@ func _bestaetigen(titel: String, zeilen: Array, ja_text: String, ja: Callable) -
 	return seite
 
 
+# --- Zucht (E43): Hengst wählen, dann Stute (mit Verwandtschaft) ---
+
+func _zucht_hengst(tag: int) -> Control:
+	var seite := _seite("Zucht: Hengst", "", Vector2(620, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	for h in Zucht.hengste():
+		var b := _knopf("%s  ·  %s" % [h.name, HoofyDaten.beschreibung(h)], func(): _oeffnen(_zucht_stute(h, tag)))
+		b.icon = _farbfleck(h)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		liste.add_child(b)
+	_fuss(seite, "A: wählen   B: zurück")
+	return seite
+
+
+func _zucht_stute(hengst: Dictionary, tag: int) -> Control:
+	var seite := _seite("Stute für " + hengst.name, "", Vector2(720, 0))
+	var liste: VBoxContainer = seite.get_meta("inhalt")
+	for st in Zucht.stuten(tag):
+		var v := Zucht.verwandtschaft(hengst, st)
+		var b := _knopf(st.name + ((" (%s: −%d %%)" % [v[1], v[0]]) if v[0] > 0 else ""), func():
+			var grund := Zucht.starten(hengst, st, tag)
+			_alle_zu()
+			if grund:
+				_sag("Geht nicht: %s." % grund)
+			else:
+				_sag("%s und %s: Fohlen in %d Tagen.%s" % [hengst.name, st.name, HoofyDaten.daten().zeit.traechtig_tage,
+					(" Verwandt (%s): Gen-Werte −%d %%." % [v[1], v[0]]) if v[0] > 0 else ""]))
+		b.icon = _farbfleck(st)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		liste.add_child(b)
+	_fuss(seite, "A: Zucht starten   B: zurück")
+	return seite
+
+
+## Stammbaum (E44): Pferd, Eltern, Großeltern, Urgroßeltern; Vater oben, Mutter unten
+func _stammbaum(d: Dictionary) -> Control:
+	var seite := _seite("Stammbaum " + d.name, "", Vector2(1100, 0))
+	var inhalt: VBoxContainer = seite.get_meta("inhalt")
+	var gitter := HBoxContainer.new()
+	gitter.add_theme_constant_override("separation", 14)
+	inhalt.add_child(gitter)
+	var ah: Dictionary = d.get("ahnen") if d.get("ahnen") is Dictionary else {}
+	var ebene := [{"id": d.get("id"), "name": d.name, "rasse": d.rasse, "farbe": d.farbe, "v": ah.get("v"), "m": ah.get("m")}]
+	for tiefe in 4:
+		var spalte := VBoxContainer.new()
+		spalte.alignment = BoxContainer.ALIGNMENT_CENTER
+		spalte.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		spalte.custom_minimum_size = Vector2(250, 420)
+		spalte.add_theme_constant_override("separation", 6)
+		gitter.add_child(spalte)
+		var naechste := []
+		for k in ebene:
+			var kasten := _kasten()
+			var l := _label("—" if k == null else "%s\n%s, %s" % [k.name, HoofyDaten.rasse(k.rasse).get("name", k.rasse), HoofyDaten.farbe_name(k.farbe)], 15, TEXT if k else BLASS)
+			kasten.add_child(l)
+			spalte.add_child(kasten)
+			naechste.append(k.get("v") if k is Dictionary else null)
+			naechste.append(k.get("m") if k is Dictionary else null)
+		ebene = naechste
+	var zu := _knopf("Zurück", func(): _zurueck())
+	inhalt.add_child(zu)
+	return seite
+
+
 func _alle_zu() -> void:
 	while offen():
 		_zurueck()
@@ -765,7 +843,7 @@ func _farbfleck(d: Dictionary) -> ImageTexture:
 func _vorschau(d: Dictionary) -> SubViewportContainer:
 	var box := SubViewportContainer.new()
 	box.stretch = true
-	box.custom_minimum_size = Vector2(380, 250)
+	box.custom_minimum_size = Vector2(380, 215)
 	var vp := SubViewport.new()
 	vp.own_world_3d = true
 	vp.transparent_bg = false
@@ -784,7 +862,7 @@ func _vorschau(d: Dictionary) -> SubViewportContainer:
 	licht.rotation = Vector3(-0.8, 0.6, 0)
 	licht.light_energy = 1.6
 	welt.add_child(licht)
-	var dreh := Node3D.new()
+	var dreh := Dreher.new()
 	welt.add_child(dreh)
 	var modell := PferdModell.new(d)
 	modell.ready.connect(func(): modell.animieren("stehen", 0.0))
@@ -794,9 +872,13 @@ func _vorschau(d: Dictionary) -> SubViewportContainer:
 	welt.add_child(cam)
 	cam.look_at_from_position(Vector3(4.6, 1.6, 0.4), Vector3(0, 0.95, 0))
 	dreh.rotation.y = -0.5
-	var t := create_tween().set_loops()
-	t.tween_property(dreh, "rotation:y", -0.5 + TAU, 16.0).from(-0.5)
 	return box
+
+
+## Dreht die Pferdevorschau langsam (ein Tween lief nach dem Schließen der Seite weiter)
+class Dreher extends Node3D:
+	func _process(delta: float) -> void:
+		rotation.y += delta * 0.4
 
 
 func _thema_bauen() -> void:

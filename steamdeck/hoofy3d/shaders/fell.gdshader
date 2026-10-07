@@ -100,9 +100,12 @@ void fragment() {
 	} else if (muster == 4) { // Äpfel: helle Ringe auf dunklerem Grund
 		m = smoothstep(0.25, 0.55, zellen(p_m * 9.0));
 		c = mix(abzeichen, c, m);
-	} else if (muster == 5) { // Stichelhaar: feine weiße Haare
-		m = step(0.55, rauschen(p_m * 140.0));
-		c = mix(c, abzeichen, m * 0.6);
+	} else if (muster == 5) { // Stichelhaar (Rot-/Grauschimmel): weiße Haare fein eingemischt, am
+		                          // Rumpf am dichtesten; Kopf und Beine bleiben in der Grundfarbe
+		float rumpf = smoothstep(0.3, 0.5, k.y);
+		float dichte = 0.36 * rumpf * (0.8 + 0.4 * fbm(p_m * 2.5));
+		float haar = rauschen(p_m * 900.0) * 0.3;          // feines Flimmern, kein Fleckenmuster
+		c = mix(c, abzeichen, clamp(dichte + (haar - 0.15) * rumpf, 0.0, 1.0));
 	} else if (muster == 6) { // Regenbogen
 		float t = p_m.z * 0.8 + h01 * 0.6;
 		c = 0.55 + 0.45 * cos(6.2831 * (t + vec3(0.0, 0.33, 0.67)));

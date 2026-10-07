@@ -58,6 +58,7 @@ func _ready() -> void:
 	himmel.abend.connect(func() -> void:
 		Tage.abend(Spiel.herde)
 		_kaeufer_zeigen())
+	himmel.neuer_tag.connect(_geburten)
 	himmel.neuer_tag.connect(_morgen)
 
 	wild.gelaende = gelaende
@@ -100,6 +101,42 @@ func _ready() -> void:
 		Spiel.herde.append(d)
 		wild.adoptieren(d)
 		wild.unterbringen(wild.knoten_von(d), "weide")
+	if Testlauf.optionen.has("zuchtpaar"):
+		# Test: Hengst und Stute im Stall
+		for sex in ["m", "w"]:
+			var d := HoofyDaten.wildpferd(rng, 1, "haflinger" if sex == "m" else "noriker")
+			d.erase("wild")
+			d.sex = sex
+			d.name = HoofyDaten.freier_name(rng, sex, Spiel.namen)
+			d.ort = "stall"
+			Spiel.herde.append(d)
+			wild.einstellen(d)
+	if Testlauf.optionen.has("fohlenvergleich"):
+		# Test: dieselbe Rasse als Erwachsene, Halbwüchsiges und Neugeborenes nebeneinander
+		var rasse_test: String = Testlauf.optionen.get("rasse", "haflinger")
+		for i in 3:
+			var d := HoofyDaten.wildpferd(rng, 1, rasse_test)
+			d.erase("wild")
+			d.name = ["Erwachsen", "Halbwüchsig", "Fohlen"][i]
+			d.alter = [1.0, 0.5, 0.0][i]
+			d.farbe = Testlauf.optionen.get("farbe", "fuchs")
+			Spiel.herde.append(d)
+			wild.einstellen(d)
+			var w := wild.knoten_von(d)
+			w.zustand = "lose"
+			w.soll_tempo = 0.0
+			var wo := figur.global_position + Vector3((i - 1) * float(Testlauf.optionen.get("pferdeabstand", "3.2")), 0, -float(Testlauf.optionen.get("pferdetiefe", "5.0")))
+			w.global_position = Vector3(wo.x, gelaende.hoehe(wo.x, wo.z), wo.z)
+			w.rotation.y = PI * 0.5
+	if Testlauf.optionen.has("schlafen"):
+		# Test: ab Frame 200 so viele Nächte durchschlafen (nach den Eingaben im Drehbuch)
+		get_tree().create_timer(200.0 / 60.0).timeout.connect(func():
+			for i in int(Testlauf.optionen.schlafen):
+				himmel.uhrzeit = 22.0
+				himmel.schlafen()
+			himmel.uhrzeit = float(Testlauf.optionen.get("zeit", "10"))
+			for d in Spiel.herde:
+				print("Herde: %s %s alter=%s ort=%s traechtig=%s ahnen=%s" % [d.name, d.sex, d.get("alter", 1), d.get("ort"), d.has("traechtig"), d.has("ahnen")]))
 	if Testlauf.optionen.has("probepferd"):
 		# Test: gleich auf einem gesattelten Pferd sitzen (im Spiel zähmt man das erste selbst)
 		var daten := HoofyDaten.wildpferd(rng, 1, Testlauf.optionen.get("rasse", "haflinger"))
@@ -209,6 +246,27 @@ func _process(delta: float) -> void:
 
 
 var _kaeufer_figur := KaeuferFigur.new()
+
+
+## Fohlen kommen beim Tageswechsel im Stall zur Welt; ist er voll, auf die Weide (E78)
+func _geburten(tag: int) -> void:
+	wild.wachsen_lassen()
+	for g in Zucht.tick(tag):
+		var f: Dictionary = g.fohlen
+		var wo := "steht im Stall"
+		if wild.belegt("stall") > wild.plaetze("stall"):
+			f.ort = "weide"
+			wo = "steht auf der Weide (der Stall ist voll)"
+		wild.einstellen(f)
+		var k := wild.knoten_von(f)
+		if Testlauf.optionen.has("log"):
+			print("Fohlen-Knoten: ", k.global_position if k else "keiner", " sichtbar=", k.visible if k else false, " zustand=", k.zustand if k else "")
+		if Testlauf.optionen.has("am_fohlen") and k:
+			# Test: 4 m südlich vom Fohlen, Kamera schaut auf das Fohlen
+			figur.global_position = Vector3(k.global_position.x, 0, k.global_position.z + 4.0)
+			figur.global_position.y = gelaende.hoehe(figur.global_position.x, figur.global_position.z) + 0.1
+			kamera.yaw = 0.0
+		anzeige.meldung("Fohlen geboren: %s (Fohlen von %s) %s." % [f.name, g.mutter.name, wo], 5.0)
 
 
 ## Nach einem Verkauf geht der Käufer (pro Besuch ein Verkauf)

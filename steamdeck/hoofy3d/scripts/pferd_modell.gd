@@ -69,11 +69,31 @@ var _player: AnimationPlayer
 var _aktuell := ""
 var _skelett: Skeleton3D
 var _zu_szene := Transform3D()      # Skelettraum → Szenenraum
+var _foal: Fohlenform               # nur solange es ein Fohlen ist
+var _alter_stand := 1.0             # Alter, für das Größe und Form zuletzt bestimmt wurden
 
 
 func _init(pferd: Dictionary, sattel := false) -> void:
 	daten = pferd
 	gesattelt = sattel or pferd.has("sattel")
+
+
+## Nach dem Tageswechsel: Fohlen wachsen (Größe und Proportionen neu bestimmen)
+func wachsen() -> void:
+	var alter := float(daten.get("alter", 1.0))
+	if _skelett == null or absf(alter - _alter_stand) < 0.001:
+		return
+	_alter_stand = alter
+	var rasse := HoofyDaten.rasse(daten.rasse)
+	var koerper: Dictionary = HoofyDaten.KOERPER.get(rasse.get("koerper", "warmblut"), HoofyDaten.KOERPER.warmblut)
+	stockmass = koerper.stockmass * (lerpf(0.6, 1.0, alter) if alter < 1.0 else 1.0)
+	var a := _ausrichten(get_child(0), breite)
+	fell.set_shader_parameter("einheit", a[1])
+	if _foal:
+		_foal.alter = alter
+		if alter >= 1.0:
+			_foal.queue_free()
+			_foal = null
 
 
 ## Sattel und Zaumzeug zeigen oder verstecken (nach dem Ausrüsten)
@@ -94,11 +114,20 @@ func _ready() -> void:
 	var koerper: Dictionary = HoofyDaten.KOERPER.get(rasse.get("koerper", "warmblut"), HoofyDaten.KOERPER.warmblut)
 	stockmass = koerper.stockmass
 	breite = koerper.breite
+	# Fohlen: kleiner, wächst in 4 Tagen aus (die Animationen bleiben, das Modell wird kleiner)
+	var alter := float(daten.get("alter", 1.0))
+	if alter < 1.0:
+		stockmass *= lerpf(0.6, 1.0, alter)
 	var szene: Node3D = _geteilt(_modell.pfad).instantiate()
 	add_child(szene)
 
 	var ausrichtung := _ausrichten(szene, koerper.breite)
 	_materialien(szene, ausrichtung)
+	_alter_stand = alter
+	if _skelett and alter < 1.0:
+		_foal = Fohlenform.new()
+		_foal.alter = alter
+		_skelett.add_child(_foal)
 
 	var players := szene.find_children("*", "AnimationPlayer", true, false)
 	if players:
@@ -122,6 +151,7 @@ func _ausrichten(szene: Node3D, breite: float) -> Array:
 	var boden := 0.0
 	var hoehe := 1.0
 	var laenge := 1.0
+	var boden_pos := NAN                # Bodenhöhe fürs Verschieben (beim Fohlen aus der umgeformten Pose)
 	if sk:
 		_skelett = sk
 		_zu_szene = szene.global_transform.affine_inverse() * sk.global_transform
@@ -149,6 +179,19 @@ func _ausrichten(szene: Node3D, breite: float) -> Array:
 		boden = (drehung * huf).y
 		hoehe = (drehung * widerrist).y - boden
 		laenge = absf((drehung * kopf).z - (drehung * schweif).z) * 0.5
+		var alter := float(daten.get("alter", 1.0))
+		if alter < 1.0:
+			# Fohlen: Proportionen am Skelett umformen, die Größe ergibt sich aus dem umgeformten
+			# Pferd. Die Maße fürs Fell-Muster bleiben die des Erwachsenen (gleiche Punkte am Körper).
+			Fohlenform.anwenden(sk, alter)
+			sk.force_update_all_bone_transforms()
+			var pose := func(name: String) -> Vector3: return _zu_szene * sk.get_bone_global_pose(sk.find_bone(name)).origin
+			var huf2: Vector3 = (pose.call(_modell.hufe[0]) + pose.call(_modell.hufe[1]) + pose.call(_modell.hufe[2]) + pose.call(_modell.hufe[3])) * 0.25
+			var wid2: Vector3 = pose.call(_modell.widerrist)
+			boden_pos = (drehung * huf2).y
+			einheit = stockmass / ((drehung * wid2).y - boden_pos)
+		else:
+			Fohlenform.anwenden(sk, 1.0)
 	else:
 		# Ohne Knochen: Größe aus der Hülle (Kopfhöhe ≈ Stockmaß × KOPF_FAKTOR)
 		drehung = Basis(Vector3.UP, _modell.get("drehung", 0.0))
@@ -163,9 +206,11 @@ func _ausrichten(szene: Node3D, breite: float) -> Array:
 		hoehe = aabb.size.y / KOPF_FAKTOR
 		laenge = maxf(aabb.size.x, aabb.size.z) * 0.5
 		mitte = drehung * aabb.get_center()
+	if is_nan(boden_pos):
+		boden_pos = boden
 	var skala := Basis.from_scale(Vector3(breite, 1.0, 1.0))
 	szene.transform = Transform3D(skala * drehung * Basis.from_scale(Vector3.ONE * einheit),
-		skala * Vector3(-mitte.x, -boden, -mitte.z) * einheit)
+		skala * Vector3(-mitte.x, -boden_pos, -mitte.z) * einheit)
 	return [drehung, einheit, boden, hoehe, Vector3(mitte.x, boden, mitte.z), laenge]
 
 
@@ -241,10 +286,21 @@ static func _mit_ruhepositionen(alt: Mesh, zu_szene: Transform3D) -> Mesh:
 func _mesh_zu_szene(mi: MeshInstance3D) -> Transform3D:
 	if _skelett == null or mi.skin == null or mi.skin.get_bind_count() == 0:
 		return Transform3D()
-	var b := mi.skin.get_bind_bone(0)
+	# Bindung eines Rumpfknochens nehmen: beim Wurzelknochen weichen Ruhe- und Bindungslage bei
+	# manchen Modellen ab (das Fell-Muster war dann schräg über den Körper verteilt)
+	var k := 0
+	for i in mi.skin.get_bind_count():
+		var name := mi.skin.get_bind_name(i)
+		var bone := mi.skin.get_bind_bone(i)
+		if name == "" and bone >= 0:
+			name = _skelett.get_bone_name(bone)
+		if "Spine" in name:
+			k = i
+			break
+	var b := mi.skin.get_bind_bone(k)
 	if b < 0:
-		b = _skelett.find_bone(mi.skin.get_bind_name(0))
-	return _zu_szene * _skelett.get_bone_global_rest(b) * mi.skin.get_bind_pose(0)
+		b = _skelett.find_bone(mi.skin.get_bind_name(k))
+	return _zu_szene * _skelett.get_bone_global_rest(b) * mi.skin.get_bind_pose(k)
 
 
 ## Modelle nur einmal laden: viele Wildpferde teilen sich dieselbe Szene
@@ -271,7 +327,9 @@ func animieren(gang: String, tempo: float, kurve := 0.0) -> void:
 	var skala := 1.0
 	if gang not in ["stehen", "grasen", "springen"] or not anims.has(gang):
 		# Nur in einem glaubwürdigen Bereich schneller/langsamer abspielen
-		skala = clampf(tempo / eintrag[1], 0.6, 1.4) if tempo > 0.15 else 0.0
+		var unten := 0.45 if gang in ["galopp", "renngalopp"] else 0.6
+		# natürliches Tempo der Animation wächst mit der Größe des Pferds (Fohlen: kürzere Schritte)
+		skala = clampf(tempo / (eintrag[1] * stockmass / 1.65), unten, 1.4) if tempo > 0.15 else 0.0
 	if eintrag[0] != _aktuell:
 		_player.play(eintrag[0], 0.3)
 		_aktuell = eintrag[0]

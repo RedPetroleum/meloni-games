@@ -178,7 +178,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [x] Unterbringung: Stall S (2 Plätze), Weide (4), frei (8, ab Stärke 60 und Bindung 70); Herausholen am Stall
 - [x] Tageswechsel wie days.lua: Bindung aus Hunger/Sauberkeit, Gewicht, Unterbringungs-Verlust, Hunger, Energie, Fohlenalter, Nachteule
 - [x] Heimgebracht: auf dem Grundstück gewesen = nicht mehr „neu“
-- [ ] Zucht: Gen-Vererbung, Farbgenetik (sichtbar/versteckt), Rassen mischen, Inzucht-Malus, Fohlen wachsen
+- [x] Zucht (E43, E44): Hengst und Stute im Stall, Fohlen nach 2 Tagen, Gen-Mittel ± σ 6, Farbgenetik, Rassen 50:50, Inzucht-Malus, Stammbaum mit 3 Ebenen
+- [x] Fohlen wachsen in 4 Tagen aus: Größe und Proportionen (lange Beine, großer Kopf, kurzer Schweif) per Skelett-Umformung (`scripts/fohlenform.gd`), „Wächst: n %“ in der Info
+- [ ] Zucht: Platz im Stall machen, wenn er voll ist (Wild:make_room; jetzt kommt das Fohlen auf die Weide)
+- [ ] Fohlen als eigenes Modell mit Fohlenfell (bei Sketchfab gibt es kein freies animiertes)
 
 ### Geld (Hoofy §4)
 - [x] Laden mit sechs Reitern (Futter, Sättel, Zubehör, Schmuck, Samen, Fahrzeuge), Inventar, Ausrüsten

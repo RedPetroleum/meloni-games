@@ -72,10 +72,9 @@ class WildPferd extends Node3D:
 	func gang() -> String:
 		if tempo < 0.2:
 			return "grasen" if zustand == "grasen" else "stehen"
-		if tempo < 2.0:
+		# Das Modell hat keinen Trab: bis 2,6 m/s Schritt, darüber Galopp
+		if tempo < 2.6:
 			return "schritt"
-		if tempo < 4.5:
-			return "trab"
 		return "galopp" if tempo < 10.0 else "renngalopp"
 
 	func eigen() -> bool:
@@ -97,7 +96,7 @@ func _ready() -> void:
 		himmel.neuer_tag.connect(_tageswechsel)
 	# Geladene eigene Pferde stehen auf der Weide
 	for d in Spiel.herde:
-		_auf_die_weide(d)
+		einstellen(d)
 	_seil.mesh = _seil_netz
 	var seil_mat := StandardMaterial3D.new()
 	seil_mat.albedo_color = Color(0.55, 0.42, 0.28)
@@ -350,7 +349,8 @@ func _anleinen(w: WildPferd) -> String:
 
 # --- Eigene Pferde ---
 
-func _auf_die_weide(d: Dictionary) -> void:
+## Eigenes Pferd (geladen, neu geboren) in die Welt an seinen Ort stellen
+func einstellen(d: Dictionary) -> void:
 	var w := _pferd_knoten(d, Vector2(siedlung.orte.weide.get_center()))
 	eigene.append(w)
 	unterbringen(w, d.get("ort", "weide") if d.get("ort", "weide") in ["stall", "weide", "frei"] else "weide")
@@ -480,6 +480,12 @@ func adoptieren(d: Dictionary) -> String:
 	return "%s gehört jetzt dir. Deine Leine ist belegt, %s wartet hier." % [d.name, "sie" if d.sex == "w" else "er"]
 
 
+## Fohlen wachsen nach dem Tageswechsel
+func wachsen_lassen() -> void:
+	for w in eigene:
+		w.modell.wachsen()
+
+
 ## Verkauftes Pferd verschwindet aus der Welt
 func entfernen(d: Dictionary) -> void:
 	var w := knoten_von(d)
@@ -504,10 +510,21 @@ func _eigen(w: WildPferd, delta: float) -> void:
 			if w.daten.get("neu", false) and siedlung and siedlung.auf_grundstueck(w.global_position):
 				w.daten.erase("neu")
 			var i := fuehrung.find(w)
-			var z: Vector3 = spieler.spur_punkt(4.0 + i * 3.5)
+			var z: Vector3
+			if i == 0 and not spieler.reitet():
+				# Wie man ein Pferd führt: neben der Schulter, Kopf auf Höhe des Führenden. So
+				# verdeckt es auch nicht die Figur, wenn die Kamera hinter ihr steht.
+				z = spieler.global_position + spieler.global_basis.x * 1.15 + spieler.global_basis.z * 1.1
+			else:
+				z = spieler.spur_punkt(3.0 + i * 3.4)       # weitere Pferde hängen hintereinander
 			w.ziel = Vector2(z.x, z.z)
+			# Tempo wie der Spieler, nur sanft nachgeregelt (sonst sprintet es los und rutscht)
 			var d := p.distance_to(w.ziel)
-			w.soll_tempo = 0.0 if d < 0.8 else clampf(d * 1.4, 0.8, 13.0)
+			var fuehrer: float = spieler.tempo()
+			w.soll_tempo = 0.0 if d < 0.6 else clampf(fuehrer + (d - 0.6) * 0.5, 0.6, fuehrer + (0.6 if fuehrer < 2.0 else 1.5))
+			if d < 0.6:
+				# steht neben dem Führenden: schaut in dieselbe Richtung wie er
+				w.rotation.y = rotate_toward(w.rotation.y, spieler.blickwinkel(), delta * 2.0)
 			if w.zustand == "gefuehrt":
 				w.leine_uhr += delta
 				if w.leine_uhr >= 1.0:
@@ -588,7 +605,7 @@ func _bewegen(w: WildPferd, delta: float) -> void:
 	if w.soll_tempo > 0.0 and richtung.length() > 0.5:
 		var soll := atan2(-richtung.x, -richtung.y)
 		w.rotation.y = rotate_toward(w.rotation.y, soll, delta * (2.5 if w.tempo < 4.0 else 1.6))
-	w.tempo = move_toward(w.tempo, w.soll_tempo, delta * 5.0)
+	w.tempo = move_toward(w.tempo, w.soll_tempo, delta * (2.5 if w.eigen() else 5.0))
 	var vorne := Vector2(-sin(w.rotation.y), -cos(w.rotation.y))
 	var neu := p + vorne * w.tempo * delta
 	# Nicht ins tiefe Wasser (außer über die Brücke), nicht steile Hänge hoch, im Tal bleiben
@@ -607,6 +624,8 @@ func _bewegen(w: WildPferd, delta: float) -> void:
 	w.neigung = lerpf(w.neigung, laengs, 1.0 - exp(-delta * 6.0))
 	w.modell.rotation.x = w.neigung
 	w.modell.animieren(w.gang(), w.tempo)
+	if Testlauf.optionen.has("log") and w.eigen() and Engine.get_process_frames() % 30 == 0:
+		print("Leine %s: zustand=%s tempo=%.2f soll=%.2f gang=%s anim=%s skala=%.2f" % [w.daten.name, w.zustand, w.tempo, w.soll_tempo, w.gang(), w.modell._aktuell, w.modell._player.speed_scale if w.modell._player else -1.0])
 
 
 ## Seil vom Spieler zu jedem Pferd am Strick, leicht durchhängend
@@ -616,9 +635,9 @@ func _seil_zeichnen() -> void:
 	if am_strick.is_empty():
 		return
 	_seil_netz.surface_begin(Mesh.PRIMITIVE_LINES)
-	var hand: Vector3 = spieler.global_position + Vector3.UP * 1.6
+	var hand: Vector3 = spieler.hand_position() if spieler.has_method("hand_position") else spieler.global_position + Vector3.UP * 1.6
 	for w: WildPferd in am_strick:
-		var kopf := w.global_position + Vector3.UP * w.modell.stockmass * 1.25 - w.global_basis.z * w.modell.stockmass * 0.7
+		var kopf: Vector3 = w.modell.maul()                 # Halfter am Maul des Pferds
 		var vorher := hand
 		for k in range(1, 13):
 			var t := k / 12.0
