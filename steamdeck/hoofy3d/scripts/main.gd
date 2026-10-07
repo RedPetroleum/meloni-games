@@ -245,6 +245,8 @@ func _am_ort(ort: String) -> void:
 		menue.markt(himmel.tag)
 	elif ort == "kaeufer":
 		menue.kaeufer(himmel.tag)
+	elif ort == "jobbrett":
+		anzeige.meldung("Am Jobbrett hängen noch keine Aufträge. Postritt, Kutschtaxi und Pflügen kommen bald.", 3.0)
 
 
 ## Im Wohnwagen schlafen (E33, E35): überspringt die Nacht, Tagesregeln, speichern

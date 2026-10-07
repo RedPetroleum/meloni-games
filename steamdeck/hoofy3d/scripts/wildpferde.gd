@@ -369,13 +369,14 @@ func _aktion_beim_naechsten() -> void:
 			best = d
 	var bester_ort := ""
 	if siedlung:
-		for ort in ["kaeufer", "stall", "laden", "markt", "wohnwagen"]:
+		for ort in ["kaeufer", "stall", "laden", "markt", "wohnwagen", "jobbrett"]:
 			if not siedlung.orte.has(ort):
 				continue
 			var d := s.distance_to(siedlung.orte[ort])
 			# Gebäude zählen ab ihrer Wand, nicht ab der Mitte
-			var wirksam := d if ort == "kaeufer" else d - 8.0
-			if d < (4.0 if ort == "kaeufer" else 12.0) and wirksam < best:
+			var klein: bool = ort in ["kaeufer", "jobbrett"]
+			var wirksam := d if klein else d - 8.0
+			if d < (4.0 if klein else 12.0) and wirksam < best:
 				bester_ort = ort
 				bestes_pferd = null
 				best = wirksam

@@ -171,7 +171,10 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [x] Aktionsmenü am eigenen Pferd: Streicheln, Füttern (Vorrat), Striegeln (mit Bürste), Leine, Unterbringen, Info
 - [ ] Schmücken, Ausrüsten, Aufsitzen auf eigene Pferde
 - [ ] Training durch Reiten und Springen
-- [ ] Jobs: Kutschtaxi, Postritt, Pflügen
+- [ ] Jobs: Regeln fertig (`scripts/jobs.gd`: Voraussetzung, Lohn nach Ergebnis, Energie, Training).
+      Gespielt werden sie später in der 3D-Welt (entschieden 2026-10-07, die 2D-Minispiele passten nicht):
+      Postritt = Briefe im Vorbeireiten in Briefkästen, Kutschtaxi = Fahrgäste mit der Kutsche,
+      Pflügen = Takt auf dem Feld neben dem Hof
 - [x] Unterbringung: Stall S (2 Plätze), Weide (4), frei (8, ab Stärke 60 und Bindung 70); Herausholen am Stall
 - [x] Tageswechsel wie days.lua: Bindung aus Hunger/Sauberkeit, Gewicht, Unterbringungs-Verlust, Hunger, Energie, Fohlenalter, Nachteule
 - [x] Heimgebracht: auf dem Grundstück gewesen = nicht mehr „neu“

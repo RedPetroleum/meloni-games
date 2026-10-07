@@ -13,6 +13,7 @@ var inv := {"heu": 3, "karotte": 2, "hafer": 0, "premiumfutter": 0, "buerste": 0
 var markt := {}                   # {zyklus, pferde} (E39), wird mitgespeichert
 var kaeufer := {}                 # Käufer des Tages {typ, tag, verkauft} (E40)
 var max_gebiet := 1               # weitestes erreichbares Gebiet (Fahrzeug)
+var jobs := {}                    # Job-Id → Tag, an dem er erledigt wurde
 var tag := 1
 var uhrzeit := 7.0
 var geladen := false
@@ -28,7 +29,7 @@ func speichern(himmel: Himmel) -> void:
 	tag = himmel.tag
 	uhrzeit = himmel.uhrzeit
 	var stand := {"version": VERSION, "geld": geld, "herde": herde, "namen": namen, "inv": inv, "tag": tag, "uhrzeit": uhrzeit,
-		"markt": markt, "kaeufer": kaeufer, "max_gebiet": max_gebiet}
+		"markt": markt, "kaeufer": kaeufer, "max_gebiet": max_gebiet, "jobs": jobs}
 	var f := FileAccess.open(DATEI, FileAccess.WRITE)
 	f.store_string(JSON.stringify(stand, " "))
 
@@ -48,6 +49,7 @@ func laden() -> bool:
 	markt = stand.get("markt", {})
 	kaeufer = stand.get("kaeufer", {})
 	max_gebiet = int(stand.get("max_gebiet", 1))
+	jobs = stand.get("jobs", {})
 	uhrzeit = float(stand.get("uhrzeit", 7.0))
 	# JSON kennt nur Gleitkommazahlen: ganze Werte wieder zu int
 	for d in herde:
