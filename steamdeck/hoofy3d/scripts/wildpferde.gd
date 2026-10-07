@@ -79,7 +79,7 @@ class WildPferd extends Node3D:
 		return "galopp" if tempo < 10.0 else "renngalopp"
 
 	func eigen() -> bool:
-		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen", "weide", "frei", "stall"]
+		return zustand in ["gefuehrt", "folgt", "lose", "ausgerissen", "weide", "frei", "stall", "geritten"]
 
 	## Sprechblase über dem Kopf (E10), z. B. ❗ beim Lauschen, ♥ nach dem Zähmen
 	func zeige(text: String, farbe: Color, sekunden := 0.0) -> void:
@@ -229,7 +229,8 @@ func _wild(w: WildPferd, delta: float) -> void:
 ## Lärmpegel nachführen (E81). Gibt true zurück, wenn er voll ist.
 func _lauschen(w: WildPferd, d: float, delta: float) -> bool:
 	if d < ZONE and spieler.bewegt():
-		w.laerm += (LAERM_RAND + LAERM_NAH * (1.0 - d / ZONE)) * delta
+		var leise: float = spieler.laerm() if spieler.has_method("laerm") else 1.0
+		w.laerm += (LAERM_RAND + LAERM_NAH * (1.0 - d / ZONE)) * leise * delta
 	else:
 		w.laerm -= LAERM_RUHE * delta
 	w.laerm = clampf(w.laerm, 0.0, 1.0)
@@ -273,6 +274,8 @@ func _frei(p: Vector2) -> bool:
 
 func _zaehmen_steuern(delta: float) -> void:
 	var halten := Input.is_action_pressed("interagieren")
+	if spieler.reitet():
+		return                       # reitend ist die Aktionstaste fürs Absteigen da (wie im 2D-Hoofy)
 	if zaehmen == null:
 		zaehm_fortschritt = 0.0
 		if Input.is_action_just_pressed("interagieren"):
@@ -425,6 +428,27 @@ func loslassen(w: WildPferd) -> String:
 	return "%s %s" % [w.daten.name, "bleibt hier." if folgte else "ist frei."]
 
 
+## Aufsitzen: Das Pferd verschwindet aus der Herde in der Welt, solange es geritten wird
+func reiten_beginnen(w: WildPferd) -> void:
+	fuehrung.erase(w)
+	w.daten.erase("ort")
+	w.zustand = "geritten"
+	w.visible = false
+
+
+## Absteigen (Ride.dismount): Das Pferd steht wieder da, an der Leine, folgend oder wartend
+func reiten_beenden(w: WildPferd, wo: Vector3, winkel: float) -> String:
+	w.position = wo
+	w.rotation.y = winkel
+	w.visible = true
+	w.zustand = "lose"
+	if anleinen(w):
+		return "Abgestiegen."
+	w.zustand = "lose"
+	w.daten.ort = "lose"
+	return "Abgestiegen. Deine Leine ist belegt, %s wartet hier." % w.daten.name
+
+
 func knoten_von(d: Dictionary) -> WildPferd:
 	for w in eigene:
 		if w.daten == d:
@@ -517,6 +541,8 @@ func _ausreissen(w: WildPferd) -> void:
 # --- Bewegung (wild und eigen) ---
 
 func _bewegen(w: WildPferd, delta: float) -> void:
+	if w.zustand == "geritten":
+		return
 	var p := Vector2(w.position.x, w.position.z)
 	var richtung := w.ziel - p
 	if w.soll_tempo > 0.0 and richtung.length() > 0.5:

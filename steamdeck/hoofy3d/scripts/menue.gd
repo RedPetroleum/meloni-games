@@ -22,6 +22,8 @@ var himmel: Himmel
 var siedlung: Siedlung
 var spieler: Node3D
 var wildpferde: Wildpferde
+
+signal aufsitzen(w: Wildpferde.WildPferd)
 var _stapel: Array[Control] = []
 var _thema := Theme.new()
 
@@ -307,6 +309,9 @@ func _aktionen(w: Wildpferde.WildPferd) -> Control:
 		else:
 			_sag("Du führst schon zwei Pferde. Mehr passen nicht an die Leine.")
 		_alle_zu()))
+	liste.add_child(_knopf("Aufsitzen", func():
+		_alle_zu()
+		aufsitzen.emit(w)))
 	var hof := siedlung.auf_grundstueck(spieler.global_position)
 	var unter := _knopf("Unterbringen", func(): _oeffnen(_unterbringen(w)))
 	unter.disabled = not hof

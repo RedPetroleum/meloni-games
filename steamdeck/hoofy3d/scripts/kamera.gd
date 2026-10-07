@@ -72,7 +72,8 @@ func _process(delta: float) -> void:
 	var soll := ziel.global_position + Vector3(0, kopf_hoehe, 0)
 	global_position = global_position.lerp(soll, 1.0 - exp(-delta * 12.0)) if global_position.distance_to(soll) < 10.0 else soll
 	rotation = Vector3(pitch, yaw, 0)
-	arm.spring_length = lerpf(arm.spring_length, lerpf(5.2, 7.0, schnell), 1.0 - exp(-delta * 2.0))
+	var nah := float(Testlauf.optionen.get("abstand", "5.2"))
+	arm.spring_length = lerpf(arm.spring_length, lerpf(nah, nah + 1.8, schnell), 1.0 - exp(-delta * 2.0))
 	cam.fov = lerpf(cam.fov, lerpf(64.0, 76.0, schnell), 1.0 - exp(-delta * 2.0))
 	# Nie unter den Boden schauen (SpringArm fängt Hänge ab, das hier die Bodenhöhe selbst)
 	if gelaende:

@@ -9,7 +9,8 @@ const GOLD := Color(0.95, 0.8, 0.35)
 const BLASS := Color(0.75, 0.72, 0.65)
 const ROT := Color(0.9, 0.3, 0.25)
 
-var pferd: Pferd
+var pferd: Pferd                   # nur beim Reiten
+var spieler: Node3D
 var himmel: Himmel
 var wildpferde: Wildpferde
 var siedlung: Siedlung
@@ -122,7 +123,7 @@ func _ready() -> void:
 	add_child(_zaehmen)
 
 	_schrift(_hilfe, 18, Color(1, 1, 1, 0.95))
-	_hilfe.text = "Linker Stick / WASD: reiten\nA / Shift: antreiben (tippen = schneller)\nB / Strg: zügeln\nX / Leertaste: springen\nY / E halten: Wildpferd zähmen (nah dran, still stehen)\nRechter Stick / Maus: Kamera"
+	_hilfe.text = "Linker Stick / WASD: laufen   ·   A / Shift halten: rennen\nB / Strg: schleichen   ·   X / Leertaste: springen\nY / E: Aktion (halten: Wildpferd zähmen)\nBeim Reiten: A antreiben, B zügeln, Y halten absteigen\nStart / Esc: Pause   ·   Rechter Stick / Maus: Kamera"
 	_hilfe.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT, Control.PRESET_MODE_MINSIZE, 24)
 	_hilfe.position.y += 44
 	add_child(_hilfe)
@@ -143,7 +144,7 @@ func _process(delta: float) -> void:
 	_tagesbalken.value = himmel.abschnitt()
 	_tagesbalken.add_theme_stylebox_override("fill", _stil(GOLD if sonne else BLASS, 3))
 	# Auf dem eigenen Grundstück steht „Dein Hof“ (wie im 2D-Hoofy)
-	_gebiet.text = "Dein Hof" if siedlung and pferd and siedlung.auf_grundstueck(pferd.global_position) else gebiet
+	_gebiet.text = "Dein Hof" if siedlung and spieler and siedlung.auf_grundstueck(spieler.global_position) else gebiet
 	_geld.text = "%d G" % Spiel.geld
 
 	# Energie nur beim Reiten (später: nur wenn die Spielfigur im Sattel sitzt)

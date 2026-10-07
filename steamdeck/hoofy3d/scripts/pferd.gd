@@ -32,6 +32,10 @@ var gelaende: Gelaende
 var kamera: Kamera
 var modell: PferdModell
 var hoehe_kamera := 2.2
+var reiter: FigurModell                  # sitzt im Sattel (wird von der Figur ausgeliehen)
+var _reitzeit := 0.0                     # für Bindung +1 je Minute Reiten (KATALOG §2)
+var _zuegel := MeshInstance3D.new()
+var _zuegel_netz := ImmediateMesh.new()
 
 var gang := Gang.STEHEN
 var energie := 100.0
@@ -66,6 +70,14 @@ func _ready() -> void:
 	floor_max_angle = deg_to_rad(42.0)
 	floor_snap_length = 0.8
 	safe_margin = 0.04
+	_zuegel.mesh = _zuegel_netz
+	_zuegel.top_level = true
+	var leder := StandardMaterial3D.new()
+	leder.albedo_color = Color(0.08, 0.06, 0.05)
+	leder.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	leder.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_zuegel.material_override = leder
+	add_child(_zuegel)
 	energie_max = float(HoofyDaten.stat(daten, "ausdauer"))
 	energie = float(daten.get("energie", energie_max))
 
@@ -130,6 +142,41 @@ func _tempo_faktor(g: int) -> float:
 	return (1.3 + 0.6 * t) / 1.6
 
 
+## Zügel: von jeder Hand leicht durchhängend zum Gebiss, als schmaler Riemen zur Kamera gedreht
+func _zuegel_zeichnen() -> void:
+	_zuegel_netz.clear_surfaces()
+	_zuegel_netz.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	var auge := get_viewport().get_camera_3d().global_position
+	var maul := modell.maul()
+	var quer := global_basis.x.normalized() * 0.06
+	for seite in [["Left", -1.0], ["Right", 1.0]]:
+		var von: Vector3 = reiter.hand(seite[0])
+		var bis: Vector3 = maul + quer * seite[1]
+		var vorher := von
+		for k in range(1, 11):
+			var t := k / 10.0
+			var p := von.lerp(bis, t) + Vector3.DOWN * sin(t * PI) * 0.12
+			var breit := (p - vorher).cross(auge - p).normalized() * 0.009
+			for v in [vorher - breit, vorher + breit, p + breit, vorher - breit, p + breit, p - breit]:
+				_zuegel_netz.surface_add_vertex(v)
+			vorher = p
+	_zuegel_netz.surface_end()
+
+
+## Training beim Reiten (E31): Galopp Tempo +1 je Minute, Reiten Ausdauer +0,5 je Minute
+## (jeweils mit Trainingsformel und Tagesgrenze), Bindung +1 je Minute Reiten. Nur eigene Pferde.
+func _trainieren(delta: float) -> void:
+	if not Spiel.herde.has(daten) or _tempo < 0.3:
+		return
+	Pflege.trainieren(daten, "ausdauer", 0.5 * delta / 60.0)
+	if gang >= Gang.GALOPP:
+		Pflege.trainieren(daten, "tempo", 1.0 * delta / 60.0)
+	_reitzeit += delta
+	if _reitzeit >= 60.0:
+		_reitzeit -= 60.0
+		daten.bindung = clampi(int(daten.bindung) + int(HoofyDaten.daten().stats.bindung.reiten_min), 0, 100)
+
+
 ## Neuer Tag: Energie zurück auf die Ausdauer (KATALOG §1)
 func neuer_tag() -> void:
 	energie = energie_max
@@ -175,6 +222,7 @@ func _physics_process(delta: float) -> void:
 	if _tempo > 0.3:
 		energie = maxf(energie - ENERGIE_JE_S[gang] * delta, 0.0)
 	daten.energie = energie
+	_trainieren(delta)
 
 	# --- Tempo ---
 	var ziel: float = GANG_TEMPO[gang] * _tempo_faktor(gang)
@@ -223,6 +271,8 @@ func _physics_process(delta: float) -> void:
 			vy = sqrt(2.0 * SCHWERKRAFT * hoehe)
 			energie = maxf(energie - SPRUNG_ENERGIE, 0.0)
 			_sprung = true
+			if Spiel.herde.has(daten):
+				Pflege.trainieren(daten, "staerke", 0.2)
 			floor_snap_length = 0.0
 	else:
 		vy -= SCHWERKRAFT * delta
@@ -271,4 +321,11 @@ func _process(delta: float) -> void:
 	elif tiefe > 1.1:
 		anim = "schwimmen"
 	modell.animieren(anim, _tempo, _drehrate)
+	if reiter:
+		# Hüfte der Figur liegt 0,92 m über ihren Füßen; die Füße hängen also so weit unter dem Sattel
+		# Becken knapp über der Sitzfläche; die Hüfte der Figur liegt 0,92 m über ihren Füßen
+		var s := modell.sattel()
+		reiter.global_transform = Transform3D(s.basis, s.origin - s.basis.y * (0.92 - 0.1))
+		reiter.fuesse(modell.steigbuegel(), modell.haende(), modell.knie())
+		_zuegel_zeichnen()
 	modell.schmutz(clampf(tiefe * 0.5, 0.0, 0.6))

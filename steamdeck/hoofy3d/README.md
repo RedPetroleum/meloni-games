@@ -119,7 +119,8 @@ Weitere Optionen: `--farbe=palomino`, `--rasse=friese`, `--seed=3`.
   Gangart. Ausrichtung, Rassengröße, Hoofy-Fellfarben und Muster passen sich von selbst an.
   Quellen: Sketchfab (viele kostenlos, CC-BY, Account nötig), Fab/CGTrader (kostenpflichtig),
   KI-Generatoren (Meshy, Tripo).
-- **Spielfigur:** Mixamo (kostenlos, Account nötig) für Figur und Animationen.
+- **Spielfigur:** Mixamo (kostenlos, Adobe-Account): Figur „Ch37“ und die Animationen aus
+  `FigurModell.ANIMATIONEN` als FBX nach `assets/download/figur/` kopieren (nicht im Git).
 
 ## Fahrplan
 
@@ -140,7 +141,11 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
 - [ ] Schönere Bäume: mehrere Arten (Birke, Eiche, Buche, Fichte), feinere Blätter
 - [ ] Abendhimmel und Wasserspiegelungen verbessern
 - [ ] Geräusche: Hufe je Untergrund, Schnauben, Wind, Vögel, Musik
-- [ ] Spielfigur: zu Fuß laufen, auf- und absteigen, im Sattel sitzen
+- [x] Spielfigur (Mixamo): laufen, rennen, schleichen, springen; Start zu Fuß ohne Pferd wie in Hoofy
+- [x] Aufsitzen (Aktionsmenü; frisch gezähmt nicht, Bindung < 20 verweigert zu 50 %), Absteigen (Y halten)
+- [x] Reitsitz: Sitz aus den Steigbügel-Knochen, Beine und Hände per IK, Zügel
+- [x] Training beim Reiten (E31): Ausdauer, Tempo im Galopp, Stärke beim Sprung, Bindung je Minute
+- [ ] Reitsitz feiner (Arme, Oberkörper im Galopp mitgehen), Figur beim Auf-/Absteigen animieren
 - [x] Pausenmenü (E34): Weiter, Pferde, Speichern; Inventar, Karte, Bauen, Album ausgegraut; Bestellungen, Zeitung, Tauschen erst ab ihrem Tag
 - [x] Pferdeliste, Info-Seite mit 3D-Bild, Balken und Wert (KATALOG §6), Umbenennen mit Bildschirmtastatur
 - [x] Speichern/Laden (E35): Geld, eigene Pferde, Namen, Tag; Wildpferde werden neu gewürfelt
@@ -203,6 +208,7 @@ Alles aus [README_HOOFY.md](../../games/hoofy/README_HOOFY.md) in 3D. ✅ = in H
   „Mobile Home“ von geevisual55, „House Farm wood“ von Mehdi Shahsavan, „General Store“ von
   sixpence, „Medieval Market Stall Asset 4/4“ von Uğur Yakışık, „Show jumping“ von Every 3D
   (Links: `SKETCHFAB` in tools/assets.py, https://sketchfab.com/3d-models/<id>)
+- Spielfigur und Animationen: Mixamo (Adobe), frei nutzbar
 - Pferd: „Horse“ von henry_7, https://sketchfab.com/3d-models/horse-a6f860e43e364619bccb174a1ac7d0c9 (CC-BY 4.0)
 - Poly Haven (polyhaven.com): CC0
 - Ersatz-Pferd ohne Sketchfab-Token: three.js-Beispiel `Horse.glb` (aus „ROME“ von Mirada), nur privat

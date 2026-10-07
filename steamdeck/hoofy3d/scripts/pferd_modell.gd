@@ -15,6 +15,19 @@ const MODELLE := [
 		"widerrist": "BN_Neck_00_06_06",
 		"kopf": "BN_Head_01_029_028",
 		"schweif": "BN_Tail_00_061_067",
+		# Steigbügel-Knochen: ihre Aufhängung liegt mittig unter der Sitzfläche (die Knochen selbst
+		# zeigen nach oben, taugen also nicht als Fußposition)
+		"buegel": ["BN_L_Stirrup_048_051", "BN_R_Stirrup_049_052"],
+		"sitz_hoehe": 0.16,                      # Sattelfläche über den Aufhängungen
+		"sitz_zurueck": 0.07,                    # tiefster Punkt des Sattels liegt etwas hinter der Mitte
+		# Bügel relativ zum Sitz bei 1,65 m Stockmaß: seitlich, tief (Bauchunterkante), Ferse
+		# unter der Hüfte (Linie Ohr–Schulter–Hüfte–Ferse)
+		"buegel_lage": Vector3(0.44, -0.66, 0.03),
+		# Knie: außen am Sattelblatt, vorn und tiefer als die Hüfte (Oberschenkel schräg nach unten)
+		"knie_lage": Vector3(0.52, -0.24, -0.32),
+		# Hände: knapp über dem Widerrist, eine Unterarmlänge vor dem Bauch, ~16 cm auseinander
+		"haende_lage": Vector3(0.08, 0.40, -0.30),
+		"maul": "BN_UP_Lip_030_029",
 		"fell": "Horse",
 		"haar": "Hair",
 		"ausruestung": ["Saddle"],
@@ -49,6 +62,7 @@ static var _cache := {}
 var daten: Dictionary
 var gesattelt := false
 var stockmass := 1.65
+var breite := 1.0
 var fell := ShaderMaterial.new()
 var _modell: Dictionary
 var _player: AnimationPlayer
@@ -70,6 +84,7 @@ func _ready() -> void:
 	var rasse := HoofyDaten.rasse(daten.rasse)
 	var koerper: Dictionary = HoofyDaten.KOERPER.get(rasse.get("koerper", "warmblut"), HoofyDaten.KOERPER.warmblut)
 	stockmass = koerper.stockmass
+	breite = koerper.breite
 	var szene: Node3D = _geteilt(_modell.pfad).instantiate()
 	add_child(szene)
 
@@ -252,6 +267,58 @@ func animieren(gang: String, tempo: float, kurve := 0.0) -> void:
 		_player.play(eintrag[0], 0.3)
 		_aktuell = eintrag[0]
 	_player.speed_scale = skala
+
+
+func _knochen_welt(name: String) -> Vector3:
+	return _skelett.global_transform * _skelett.get_bone_global_pose(_skelett.find_bone(name)).origin
+
+
+## Sitzfläche des Sattels in Weltkoordinaten: mittig zwischen den Steigbügel-Aufhängungen, darüber;
+## Ausrichtung wie der Pferdekörper
+func sattel() -> Transform3D:
+	var b := global_basis.orthonormalized()
+	if _skelett and _modell.has("buegel"):
+		var mitte := (_knochen_welt(_modell.buegel[0]) + _knochen_welt(_modell.buegel[1])) * 0.5
+		return Transform3D(b, mitte + b.y * _modell.sitz_hoehe + b.z * _modell.get("sitz_zurueck", 0.0))
+	return Transform3D(b, global_position + Vector3.UP * stockmass)
+
+
+## Wo die Hände hingehören (Zügel): [links, rechts] in Weltkoordinaten
+func haende() -> Array:
+	if not _modell.has("haende_lage"):
+		return []
+	var s := sattel()
+	var lage: Vector3 = _modell.haende_lage * (stockmass / 1.65)
+	lage.x *= breite
+	return [s * Vector3(-lage.x, lage.y, lage.z), s * Vector3(lage.x, lage.y, lage.z)]
+
+
+## Gebiss (Zügelende) in Weltkoordinaten
+func maul() -> Vector3:
+	if _skelett and _modell.has("maul"):
+		return _knochen_welt(_modell.maul)
+	return global_position - global_basis.z * stockmass + Vector3.UP * stockmass
+
+
+## Wo die Knie hingehören: [links, rechts] in Weltkoordinaten
+func knie() -> Array:
+	if not _modell.has("knie_lage"):
+		return []
+	var s := sattel()
+	var lage: Vector3 = _modell.knie_lage * (stockmass / 1.65)
+	lage.x *= breite
+	return [s * Vector3(-lage.x, lage.y, lage.z), s * Vector3(lage.x, lage.y, lage.z)]
+
+
+## Wo die Füße hingehören: die Steigbügel [links, rechts] in Weltkoordinaten (leer ohne Bügel).
+## Links ist die linke Seite des Pferdes (-X, das Pferd schaut nach -Z).
+func steigbuegel() -> Array:
+	if not _modell.has("buegel_lage"):
+		return []
+	var s := sattel()
+	var lage: Vector3 = _modell.buegel_lage * (stockmass / 1.65)
+	lage.x *= breite
+	return [s * Vector3(-lage.x, lage.y, lage.z), s * Vector3(lage.x, lage.y, lage.z)]
 
 
 func schmutz(wert: float) -> void:
