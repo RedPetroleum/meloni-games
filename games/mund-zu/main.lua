@@ -602,9 +602,11 @@ local function draw_machine()
   end
 end
 
-local function draw_bubble(text, x, y, c)
+-- side: nil = automatisch, true = rechts vom Kopf, false = links
+local function draw_bubble(text, x, y, c, side)
   local w = textw(text) + 6
   local right = x < SCREEN_W - w - 30
+  if side ~= nil then right = side end
   local bx = right and x + 18 or x - 18 - w
   bx = mid(2, bx, SCREEN_W - w - 2)
   local by = mid(FLOOR_Y + 6, y - 50, SCREEN_H - 14)
@@ -716,8 +718,17 @@ local function draw_world()
   for _, p in ipairs(parts) do rectfill(p.x, p.y, p.x + p.w - 1, p.y + p.w - 1, p.c) end
   local m = mouth()
   if state == "play" and banner_t <= 0 then
-    if m == "shut" and P.sneeze_t == 0 then draw_bubble("Mmmh!", P.x, P.y, C.ink)
-    elseif m == "open" and talk_show > 0 then draw_bubble(talk_text, P.x, P.y) end
+    -- Der Satz bleibt stehen, auch wenn A oder B gedrückt wird
+    local talk_right = nil
+    if talk_show > 0 then
+      talk_right = P.x < SCREEN_W - textw(talk_text) - 36
+      draw_bubble(talk_text, P.x, P.y, nil, talk_right)
+    end
+    if m == "shut" and P.sneeze_t == 0 then
+      local side = nil
+      if talk_right ~= nil then side = not talk_right end
+      draw_bubble("Mmmh!", P.x, P.y, C.ink, side)
+    end
   end
   draw_popups()
 end
