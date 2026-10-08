@@ -6,6 +6,7 @@
 local S = require("sprites")
 
 local HUD_H = 16
+local BLOW_CD = 420   -- Frames bis zum nächsten Pusten (7 s)
 local FLOOR_Y = 76                      -- Oberkante des Hallenbodens (darüber die Anlage)
 local PX0, PX1 = 24, SCREEN_W - 24      -- Bewegungsbereich des Kopfes (Mitte des Gesichts)
 local PY0, PY1 = 116, 208
@@ -165,7 +166,7 @@ function SFX.over() tune("G4 F4 E4 D4:2 C4:4", 200, "square", 0.22, false, 7) en
 -- ---------- Spieler ----------
 
 local function new_player()
-  return {x = 160, y = 190, lives = LIVES, air = 1, sneeze = 0, gasp = 0, blow = 0, sneeze_t = 0,
+  return {x = 160, y = 190, lives = LIVES, air = 1, sneeze = 0, gasp = 0, blow = 0, blow_cd = 0, sneeze_t = 0,
     cough = 0, inv = 0, mask = 0, suck = 0, dust = {}, dust_n = 0, eaten = 0, parts = 0, score = 0,
     moving = false, bob = 0}
 end
@@ -237,6 +238,7 @@ local function update_player()
   P.inv = math.max(0, P.inv - 1)
   P.mask = math.max(0, P.mask - 1)
   P.blow = math.max(0, P.blow - 1)
+  P.blow_cd = math.max(0, P.blow_cd - 1)
   if P.cough > 0 then
     P.cough = P.cough - 1
     if P.cough % 15 == 0 then SFX.cough() end
@@ -283,11 +285,11 @@ local function update_player()
     P.air = math.min(1, P.air + 1 / 100)
   end
 
-  if state == "play" and btnp(BTN_B) and P.air >= 0.3 and P.gasp == 0 and P.sneeze_t == 0
-      and P.cough == 0 then
-    P.blow, P.air = 22, P.air - 0.3
+  if state == "play" and btnp(BTN_B) and P.blow_cd == 0 and P.air >= 0.3 and P.gasp == 0
+      and P.sneeze_t == 0 and P.cough == 0 then
+    P.blow, P.blow_cd, P.air = 14, BLOW_CD, P.air - 0.3
     SFX.blow()
-    puffs(P.x, P.y + 4, 10, -1)
+    puffs(P.x, P.y + 4, 6, -1)
   end
 
   if P.suck > 0 then P.suck = P.suck - 1 end
@@ -344,11 +346,11 @@ local function update_grains()
       if P.blow > 0 or blast then
         local dx, dy = g.x - mx, g.y - my
         local d = math.sqrt(dx * dx + dy * dy) + 0.01
-        local r = blast and 130 or 80
+        local r = blast and 130 or 50
         if d < r and (blast or dy < 24) then
-          local f = blast and 1.1 or 0.55
+          local f = blast and 1.1 or 0.25
           g.vx = mid(-4, g.vx + dx / d * f, 4)
-          g.vy = mid(-4, g.vy + dy / d * f - (blast and 0 or 0.15), 4)
+          g.vy = mid(-4, g.vy + dy / d * f - (blast and 0 or 0.06), 4)
         end
       end
     end
@@ -672,6 +674,9 @@ local function draw_hud()
   end
   print("Luft", 34, 4, C.dim)
   draw_bar(68, 110, P.air, (P.gasp > 0 or P.air < 0.25) and C.red or C.blue)
+  -- Pusten: dünne Linie unter der Luft, gold = bereit
+  local pf = 1 - P.blow_cd / BLOW_CD
+  line(68, 12, 68 + flr(42 * pf), 12, P.blow_cd == 0 and C.gold or C.dim)
   print("Nies", 118, 4, C.dim)
   draw_bar(152, 186, P.sneeze, C.pink)
   local s = "Punkte " .. P.score
